@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import Stats from "stats.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { GUI } from "dat.gui";
+import { GUI } from "lil-gui";
 
 const mainSCENE = new THREE.Scene();
 
@@ -19,6 +19,8 @@ const main3D_RENDERER = new THREE.WebGLRenderer({
   alpha: true,
 });
 main3D_RENDERER.setSize(window.innerWidth, window.innerHeight);
+main3D_RENDERER.shadowMap.enabled = true;
+main3D_RENDERER.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(main3D_RENDERER.domElement);
 
 window.addEventListener("resize", () => {
