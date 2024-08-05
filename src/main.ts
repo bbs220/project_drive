@@ -1,12 +1,14 @@
 import * as THREE from "three";
 import Stats from "stats.js";
+import { GUI } from "lil-gui";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import {
   CSS2DObject,
   CSS2DRenderer,
 } from "three/addons/renderers/CSS2DRenderer.js";
-import { GUI } from "lil-gui";
 import { xDiv, yDiv, zDiv } from "./utils/backgroundUI";
 import loadingScreenManager from "./utils/loadingScreen";
 import { allHDRs, blueSquare } from "./utils/assetPaths";
@@ -46,9 +48,13 @@ window.addEventListener("resize", () => {
   main3D_RENDERER.setSize(window.innerWidth, window.innerHeight);
 });
 
-const originAxisLength = 50;
+const baseCOMPOSER = new EffectComposer(main3D_RENDERER);
 
-// labels for XYZ
+const baseRenderPass = new RenderPass(mainSCENE, mainCAMERA);
+baseCOMPOSER.addPass(baseRenderPass);
+
+let originAxisLength = 50;
+
 const xObj = new CSS2DObject(xDiv);
 xObj.visible = false;
 xObj.position.set(originAxisLength, 0, 0);
@@ -101,6 +107,7 @@ new RGBELoader(loadingScreenManager).load(
 );
 
 const debugControls = new OrbitControls(mainCAMERA, main3D_RENDERER.domElement);
+debugControls.enableDamping = true;
 
 const stats = new Stats();
 stats.showPanel(0);
@@ -125,7 +132,7 @@ const ambientLight = new THREE.AmbientLight("#ffffff", 0.8);
 ambientLight.visible = false;
 mainSCENE.add(ambientLight);
 
-const groundShape = new THREE.PlaneGeometry(100, 100);
+const groundShape = new THREE.PlaneGeometry(100, 100, 1, 1);
 const groundMaterial = new THREE.MeshStandardMaterial({
   wireframe: false,
   map: blueprintTexture,
@@ -134,7 +141,7 @@ const groundMaterial = new THREE.MeshStandardMaterial({
 const groundMesh = new THREE.Mesh(groundShape, groundMaterial);
 groundMesh.receiveShadow = true;
 groundMesh.rotateX(Math.PI / -2);
-groundMesh.position.set(0, -1, 0);
+groundMesh.position.set(0, -0.1, 0);
 mainSCENE.add(groundMesh);
 
 const gui = new GUI();
@@ -142,13 +149,25 @@ gui.close();
 
 const sceneFolder = gui.addFolder("Scene");
 sceneFolder.open();
-sceneFolder.add(debugAxes, "visible").name("3D Axes");
+sceneFolder
+  .add(debugAxes, "visible")
+  .name("Origin Axes")
+  .onChange(toggleDebugObjectsVisibility);
+function toggleDebugObjectsVisibility() {
+  xObj.visible = debugAxes.visible;
+  yObj.visible = debugAxes.visible;
+  zObj.visible = debugAxes.visible;
+}
 sceneFolder.add(debugGrid, "visible").name("Grid");
 sceneFolder.add(ambientLight, "visible").name("Fill Light");
 
 const hdriFolder = gui.addFolder("HDRI");
 hdriFolder.open();
-const paramsHDR = { switch: true, background: false, environment: true };
+const paramsHDR = {
+  switch: true,
+  background: false,
+  environment: true,
+};
 hdriFolder
   .add(paramsHDR, "environment")
   .name("Enabled")
@@ -177,7 +196,8 @@ hdriFolder
   .name("Exposure");
 
 function renderLoopMain() {
-  main3D_RENDERER.render(mainSCENE, mainCAMERA);
+  // main3D_RENDERER.render(mainSCENE, mainCAMERA);
+  baseCOMPOSER.render();
 }
 
 function renderLoopSub() {
