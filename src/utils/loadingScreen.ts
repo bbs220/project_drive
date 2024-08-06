@@ -6,8 +6,8 @@ createLoadingScreen.id = "loadingScreen";
 createLoadingScreen.style.cssText = `
 	position: fixed;
 	z-index: 10005; 
-	top: 0;
-	left: 0;
+	top: 0px;
+	left: 0px;
 	width: 100vw;
 	height: 100vh;
   display: grid;
@@ -70,14 +70,14 @@ const grabProgressBar = document.getElementById(
 ) as HTMLProgressElement;
 
 // exporting a reusable loading manager for other projects
-const loadingScreenManager = new THREE.LoadingManager();
-loadingScreenManager.onProgress = function (url, itemsLoaded, itemsTotal) {
+export const progressManager = new THREE.LoadingManager();
+progressManager.onProgress = function (url, itemsLoaded, itemsTotal) {
   grabProgressBar.value = (itemsLoaded / itemsTotal) * 100;
 
   console.log(
     `Loading file: ${url}.\nLoaded ${itemsLoaded} of ${itemsTotal} files.`
   );
-  loadingScreenManager.onLoad = () => {
+  progressManager.onLoad = () => {
     grabBtn.style.opacity = "1";
 
     grabBtn.style.cursor = "pointer";
@@ -91,9 +91,7 @@ loadingScreenManager.onProgress = function (url, itemsLoaded, itemsTotal) {
 
     console.log("Loading complete!");
   };
-  loadingScreenManager.onError = function (url) {
+  progressManager.onError = function (url) {
     console.log(`There was an error loading ${url}`);
   };
 };
-
-export default loadingScreenManager;

@@ -10,7 +10,7 @@ import {
   CSS2DRenderer,
 } from "three/addons/renderers/CSS2DRenderer.js";
 import { xDiv, yDiv, zDiv } from "./utils/backgroundUI";
-import loadingScreenManager from "./utils/loadingScreen";
+import { progressManager } from "./utils/loadingScreen";
 import { allHDRs, blueSquare } from "./utils/assetPaths";
 
 const mainSCENE = new THREE.Scene();
@@ -73,9 +73,9 @@ const tilingValue = 16;
 const anisotrophicValue = 16; // this is max value dont go above 16
 
 // a tiled texture for a some reference
-const blueprintTexture = new THREE.TextureLoader(loadingScreenManager).load(
-  blueSquare[0],
-  function (texture) {
+const blueprintTexture = new THREE.TextureLoader(progressManager).load(
+  blueSquare.color,
+  (texture) => {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(tilingValue, tilingValue);
@@ -83,9 +83,9 @@ const blueprintTexture = new THREE.TextureLoader(loadingScreenManager).load(
   }
 );
 
-const blueprintNormal = new THREE.TextureLoader(loadingScreenManager).load(
-  blueSquare[1],
-  function (texture) {
+const blueprintNormal = new THREE.TextureLoader(progressManager).load(
+  blueSquare.normal,
+  (texture) => {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(tilingValue, tilingValue);
@@ -96,15 +96,13 @@ const blueprintNormal = new THREE.TextureLoader(loadingScreenManager).load(
 // a toggle for turning the hdr on/off from the gui
 let textureToggle: THREE.Texture | null;
 
-new RGBELoader(loadingScreenManager).load(
-  allHDRs[0],
-  function (texture: THREE.Texture) {
-    textureToggle = texture;
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-    mainSCENE.environment = texture;
-    mainSCENE.background = null;
-  }
-);
+const envMap = new RGBELoader(progressManager);
+envMap.load(allHDRs.city, (texture: THREE.Texture) => {
+  textureToggle = texture;
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  mainSCENE.environment = texture;
+  mainSCENE.background = null;
+});
 
 const debugControls = new OrbitControls(mainCAMERA, main3D_RENDERER.domElement);
 debugControls.enableDamping = true;
