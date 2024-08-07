@@ -2,6 +2,7 @@ import * as THREE from "three";
 import Stats from "stats.js";
 import { GUI } from "lil-gui";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
@@ -11,15 +12,15 @@ import {
 } from "three/addons/renderers/CSS2DRenderer.js";
 import { xDiv, yDiv, zDiv } from "./utils/backgroundUI";
 import { progressManager } from "./utils/loadingScreen";
-import { allHDRs, blueSquare } from "./utils/assetPaths";
+import { allHDRs, allModels, blueSquare } from "./utils/assetPaths";
 
 const mainSCENE = new THREE.Scene();
 
 const mainCAMERA = new THREE.PerspectiveCamera(
   60,
   window.innerWidth / window.innerHeight,
-  1,
-  5000
+  0.1,
+  2000
 );
 
 mainCAMERA.position.set(0, 5, 10);
@@ -130,6 +131,8 @@ const ambientLight = new THREE.AmbientLight("#ffffff", 0.8);
 ambientLight.visible = false;
 mainSCENE.add(ambientLight);
 
+const debugClock = new THREE.Clock();
+
 const groundShape = new THREE.PlaneGeometry(100, 100, 1, 1);
 const groundMaterial = new THREE.MeshStandardMaterial({
   wireframe: false,
@@ -141,6 +144,33 @@ groundMesh.receiveShadow = true;
 groundMesh.rotateX(Math.PI / -2);
 groundMesh.position.set(0, -0.1, 0);
 mainSCENE.add(groundMesh);
+
+let mixer: THREE.AnimationMixer;
+
+const modelLoader = new GLTFLoader(progressManager);
+
+modelLoader.load(allModels.shiba, function (gltf) {
+  const validModel = gltf.scene;
+
+  const animationSet = gltf.animations;
+
+  validModel.traverse((node) => {
+    if (node instanceof THREE.Mesh) {
+      node.castShadow = true;
+      // node.material.wireframe = true;
+    }
+  });
+
+  if (gltf.animations.length > 0) {
+    mixer = new THREE.AnimationMixer(validModel);
+    const action = mixer.clipAction(animationSet[0]);
+    action.play();
+  }
+
+  mainSCENE.add(validModel);
+
+  animate();
+});
 
 const gui = new GUI();
 gui.close();
@@ -208,6 +238,11 @@ function animate() {
   renderLoopSub();
   debugControls.update();
   stats.update();
+
+  if (mixer) {
+    const delta = debugClock.getDelta();
+    mixer.update(delta);
+  }
 }
 
-animate();
+// animate();
