@@ -84,17 +84,6 @@ const blueprintTexture = new THREE.TextureLoader(progressManager).load(
   }
 );
 
-const blueprintNormal = new THREE.TextureLoader(progressManager).load(
-  blueSquare.normal,
-  (texture) => {
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(tilingValue, tilingValue);
-    texture.anisotropy = anisotrophicValue;
-  }
-);
-
-// a toggle for turning the hdr on/off from the gui
 let textureToggle: THREE.Texture | null;
 
 const envMap = new RGBELoader(progressManager);
@@ -118,7 +107,7 @@ const debugGrid = new THREE.GridHelper(
   "#ffff00",
   "#00ffff"
 );
-debugGrid.position.set(0, -0.001, 0);
+debugGrid.position.set(0, -0.01, 0);
 debugGrid.scale.setScalar(6.2);
 debugGrid.visible = false;
 mainSCENE.add(debugGrid);
@@ -133,16 +122,93 @@ mainSCENE.add(ambientLight);
 
 const debugClock = new THREE.Clock();
 
+const lightsParams = {
+  y: 5,
+  x: 3,
+  z: 3,
+  intensity: 30,
+  enabled: true,
+  helpers: false,
+  color: "#ffffff",
+};
+
+const pLight_00 = new THREE.PointLight(
+  lightsParams.color,
+  lightsParams.intensity,
+  0,
+  2
+);
+const plView_00 = new THREE.PointLightHelper(
+  pLight_00,
+  0.3,
+  lightsParams.color
+);
+pLight_00.castShadow = true;
+plView_00.visible = lightsParams.enabled;
+plView_00.visible = lightsParams.helpers;
+
+const pLight_01 = new THREE.PointLight(
+  lightsParams.color,
+  lightsParams.intensity,
+  0,
+  2
+);
+const plView_01 = new THREE.PointLightHelper(
+  pLight_01,
+  0.3,
+  lightsParams.color
+);
+pLight_01.castShadow = true;
+pLight_01.visible = lightsParams.enabled;
+plView_01.visible = lightsParams.helpers;
+
+const pLight_02 = new THREE.PointLight(
+  lightsParams.color,
+  lightsParams.intensity,
+  0,
+  2
+);
+const plView_02 = new THREE.PointLightHelper(
+  pLight_02,
+  0.3,
+  lightsParams.color
+);
+pLight_02.castShadow = true;
+pLight_02.visible = lightsParams.enabled;
+plView_02.visible = lightsParams.helpers;
+
+const pLight_03 = new THREE.PointLight(
+  lightsParams.color,
+  lightsParams.intensity,
+  0,
+  2
+);
+const plView_03 = new THREE.PointLightHelper(
+  pLight_03,
+  0.3,
+  lightsParams.color
+);
+pLight_03.castShadow = true;
+pLight_03.visible = lightsParams.enabled;
+plView_03.visible = lightsParams.helpers;
+
+pLight_00.position.set(lightsParams.x, lightsParams.y, lightsParams.z);
+pLight_01.position.set(-lightsParams.x, lightsParams.y, -lightsParams.z);
+pLight_02.position.set(-lightsParams.x, lightsParams.y, lightsParams.z);
+pLight_03.position.set(lightsParams.x, lightsParams.y, -lightsParams.z);
+
+mainSCENE.add(pLight_00, pLight_01, pLight_02, pLight_03);
+mainSCENE.add(plView_00, plView_01, plView_02, plView_03);
+
 const groundShape = new THREE.PlaneGeometry(100, 100, 1, 1);
 const groundMaterial = new THREE.MeshStandardMaterial({
   wireframe: false,
   map: blueprintTexture,
-  normalMap: blueprintNormal,
 });
 const groundMesh = new THREE.Mesh(groundShape, groundMaterial);
 groundMesh.receiveShadow = true;
 groundMesh.rotateX(Math.PI / -2);
-groundMesh.position.set(0, -0.1, 0);
+groundMesh.position.set(0, -0.02, 0);
 mainSCENE.add(groundMesh);
 
 let mixer: THREE.AnimationMixer;
@@ -188,6 +254,53 @@ function toggleDebugObjectsVisibility() {
 }
 sceneFolder.add(debugGrid, "visible").name("Grid");
 sceneFolder.add(ambientLight, "visible").name("Fill Light");
+
+const lightsFolder = gui.addFolder("Lights");
+lightsFolder.open();
+lightsFolder
+  .add(lightsParams, "enabled")
+  .name("Enabled")
+  .onChange(() => {
+    pLight_00.visible = lightsParams.enabled;
+    pLight_01.visible = lightsParams.enabled;
+    pLight_02.visible = lightsParams.enabled;
+    pLight_03.visible = lightsParams.enabled;
+  });
+lightsFolder
+  .add(lightsParams, "helpers")
+  .name("Helpers")
+  .onChange(() => {
+    plView_00.visible = lightsParams.helpers;
+    plView_01.visible = lightsParams.helpers;
+    plView_02.visible = lightsParams.helpers;
+    plView_03.visible = lightsParams.helpers;
+  });
+lightsFolder.add(lightsParams, "x", -10, 10).step(1).name("X Pos");
+lightsFolder.add(lightsParams, "y", 0, 10).step(1).name("Y Pos");
+lightsFolder.add(lightsParams, "z", -10, 10).step(1).name("Z Pos");
+lightsFolder
+  .add(lightsParams, "intensity", 0, 100)
+  .step(1)
+  .name("Intensity")
+  .onChange(() => {
+    updateLightIntensities();
+  });
+
+function updateLightPositions() {
+  pLight_00.position.set(lightsParams.x, lightsParams.y, lightsParams.z);
+  pLight_01.position.set(-lightsParams.x, lightsParams.y, -lightsParams.z);
+  pLight_02.position.set(-lightsParams.x, lightsParams.y, lightsParams.z);
+  pLight_03.position.set(lightsParams.x, lightsParams.y, -lightsParams.z);
+}
+
+function updateLightIntensities() {
+  pLight_00.intensity = lightsParams.intensity;
+  pLight_01.intensity = lightsParams.intensity;
+  pLight_02.intensity = lightsParams.intensity;
+  pLight_03.intensity = lightsParams.intensity;
+}
+
+lightsFolder.onFinishChange(updateLightPositions);
 
 const hdriFolder = gui.addFolder("HDRI");
 hdriFolder.open();

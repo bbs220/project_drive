@@ -1,6 +1,5 @@
 export const blueSquare = {
   color: "images/blueColor.png",
-  normal: "images/blueNormal.png",
 };
 
 export const allHDRs = {
