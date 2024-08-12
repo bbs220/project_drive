@@ -127,7 +127,7 @@ const lightsParams = {
   x: 3,
   z: 3,
   intensity: 30,
-  enabled: true,
+  enabled: false,
   helpers: false,
   color: "#ffffff",
 };
@@ -140,7 +140,9 @@ function createPointLightAndHelper(
   const light = new THREE.PointLight(color, intensity, 0, 2);
   light.position.copy(position);
   light.castShadow = true;
+  light.visible = lightsParams.enabled;
   const helper = new THREE.PointLightHelper(light, 0.3, color);
+  helper.visible = lightsParams.helpers;
   return [light, helper];
 }
 
@@ -183,7 +185,7 @@ let mixer: THREE.AnimationMixer;
 
 const modelLoader = new GLTFLoader(progressManager);
 
-modelLoader.load(allModels.shiba, function (gltf) {
+modelLoader.load(allModels.porsche, function (gltf) {
   const validModel = gltf.scene;
 
   const animationSet = gltf.animations;

@@ -8,6 +8,6 @@ export const allHDRs = {
 };
 
 export const allModels = {
-  shiba: "models/shiba.glb",
-  miss: "models/miss.glb",
+  dodge: "models/dodge.glb",
+  porsche: "models/porsche.glb",
 };
