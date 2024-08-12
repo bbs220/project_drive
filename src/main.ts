@@ -132,73 +132,41 @@ const lightsParams = {
   color: "#ffffff",
 };
 
-const pLight_00 = new THREE.PointLight(
-  lightsParams.color,
-  lightsParams.intensity,
-  0,
-  2
-);
-const plView_00 = new THREE.PointLightHelper(
-  pLight_00,
-  0.3,
-  lightsParams.color
-);
-pLight_00.castShadow = true;
-plView_00.visible = lightsParams.enabled;
-plView_00.visible = lightsParams.helpers;
+function createPointLightAndHelper(
+  color: string,
+  intensity: number,
+  position: THREE.Vector3
+): [THREE.PointLight, THREE.PointLightHelper] {
+  const light = new THREE.PointLight(color, intensity, 0, 2);
+  light.position.copy(position);
+  light.castShadow = true;
+  const helper = new THREE.PointLightHelper(light, 0.3, color);
+  return [light, helper];
+}
 
-const pLight_01 = new THREE.PointLight(
-  lightsParams.color,
-  lightsParams.intensity,
-  0,
-  2
-);
-const plView_01 = new THREE.PointLightHelper(
-  pLight_01,
-  0.3,
-  lightsParams.color
-);
-pLight_01.castShadow = true;
-pLight_01.visible = lightsParams.enabled;
-plView_01.visible = lightsParams.helpers;
+const positions = [
+  { x: lightsParams.x, y: lightsParams.y, z: lightsParams.z },
+  { x: -lightsParams.x, y: lightsParams.y, z: -lightsParams.z },
+  { x: -lightsParams.x, y: lightsParams.y, z: lightsParams.z },
+  { x: lightsParams.x, y: lightsParams.y, z: -lightsParams.z },
+];
 
-const pLight_02 = new THREE.PointLight(
-  lightsParams.color,
-  lightsParams.intensity,
-  0,
-  2
-);
-const plView_02 = new THREE.PointLightHelper(
-  pLight_02,
-  0.3,
-  lightsParams.color
-);
-pLight_02.castShadow = true;
-pLight_02.visible = lightsParams.enabled;
-plView_02.visible = lightsParams.helpers;
+let lightsAndHelpers: [THREE.PointLight, THREE.PointLightHelper][] = [];
 
-const pLight_03 = new THREE.PointLight(
-  lightsParams.color,
-  lightsParams.intensity,
-  0,
-  2
-);
-const plView_03 = new THREE.PointLightHelper(
-  pLight_03,
-  0.3,
-  lightsParams.color
-);
-pLight_03.castShadow = true;
-pLight_03.visible = lightsParams.enabled;
-plView_03.visible = lightsParams.helpers;
-
-pLight_00.position.set(lightsParams.x, lightsParams.y, lightsParams.z);
-pLight_01.position.set(-lightsParams.x, lightsParams.y, -lightsParams.z);
-pLight_02.position.set(-lightsParams.x, lightsParams.y, lightsParams.z);
-pLight_03.position.set(lightsParams.x, lightsParams.y, -lightsParams.z);
-
-mainSCENE.add(pLight_00, pLight_01, pLight_02, pLight_03);
-mainSCENE.add(plView_00, plView_01, plView_02, plView_03);
+for (let i = 0; i < positions.length; i++) {
+  const position = new THREE.Vector3(
+    positions[i].x,
+    positions[i].y,
+    positions[i].z
+  );
+  const [light, helper] = createPointLightAndHelper(
+    lightsParams.color,
+    lightsParams.intensity,
+    position
+  );
+  lightsAndHelpers.push([light, helper]);
+  mainSCENE.add(light, helper);
+}
 
 const groundShape = new THREE.PlaneGeometry(100, 100, 1, 1);
 const groundMaterial = new THREE.MeshStandardMaterial({
@@ -257,50 +225,30 @@ sceneFolder.add(ambientLight, "visible").name("Fill Light");
 
 const lightsFolder = gui.addFolder("Lights");
 lightsFolder.open();
+function updateLightIntensities() {
+  lightsAndHelpers.forEach(([light]) => {
+    light.intensity = lightsParams.intensity;
+  });
+}
+function toggleLightVisibility() {
+  lightsAndHelpers.forEach(([light, helper]) => {
+    light.visible = lightsParams.enabled;
+    helper.visible = lightsParams.helpers;
+  });
+}
 lightsFolder
   .add(lightsParams, "enabled")
   .name("Enabled")
-  .onChange(() => {
-    pLight_00.visible = lightsParams.enabled;
-    pLight_01.visible = lightsParams.enabled;
-    pLight_02.visible = lightsParams.enabled;
-    pLight_03.visible = lightsParams.enabled;
-  });
+  .onChange(toggleLightVisibility);
 lightsFolder
   .add(lightsParams, "helpers")
   .name("Helpers")
-  .onChange(() => {
-    plView_00.visible = lightsParams.helpers;
-    plView_01.visible = lightsParams.helpers;
-    plView_02.visible = lightsParams.helpers;
-    plView_03.visible = lightsParams.helpers;
-  });
-lightsFolder.add(lightsParams, "x", -10, 10).step(1).name("X Pos");
-lightsFolder.add(lightsParams, "y", 0, 10).step(1).name("Y Pos");
-lightsFolder.add(lightsParams, "z", -10, 10).step(1).name("Z Pos");
+  .onChange(toggleLightVisibility);
 lightsFolder
   .add(lightsParams, "intensity", 0, 100)
   .step(1)
   .name("Intensity")
-  .onChange(() => {
-    updateLightIntensities();
-  });
-
-function updateLightPositions() {
-  pLight_00.position.set(lightsParams.x, lightsParams.y, lightsParams.z);
-  pLight_01.position.set(-lightsParams.x, lightsParams.y, -lightsParams.z);
-  pLight_02.position.set(-lightsParams.x, lightsParams.y, lightsParams.z);
-  pLight_03.position.set(lightsParams.x, lightsParams.y, -lightsParams.z);
-}
-
-function updateLightIntensities() {
-  pLight_00.intensity = lightsParams.intensity;
-  pLight_01.intensity = lightsParams.intensity;
-  pLight_02.intensity = lightsParams.intensity;
-  pLight_03.intensity = lightsParams.intensity;
-}
-
-lightsFolder.onFinishChange(updateLightPositions);
+  .onChange(updateLightIntensities);
 
 const hdriFolder = gui.addFolder("HDRI");
 hdriFolder.open();
