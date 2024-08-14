@@ -185,7 +185,7 @@ let mixer: THREE.AnimationMixer;
 
 const modelLoader = new GLTFLoader(progressManager);
 
-modelLoader.load(allModels.porsche, function (gltf) {
+modelLoader.load("models/toyota_ae86.glb", function (gltf) {
   const validModel = gltf.scene;
 
   const animationSet = gltf.animations;
@@ -203,7 +203,7 @@ modelLoader.load(allModels.porsche, function (gltf) {
     action.play();
   }
 
-  mainSCENE.add(validModel);
+  // mainSCENE.add(validModel);
 
   animate();
 });
