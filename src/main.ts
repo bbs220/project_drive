@@ -238,6 +238,12 @@ function toggleLightVisibility() {
     helper.visible = lightsParams.helpers;
   });
 }
+function updateLightPositions() {
+  positions.forEach((_, index) => {
+    const light = lightsAndHelpers[index][0];
+    light.position.setY(lightsParams.y);
+  });
+}
 lightsFolder
   .add(lightsParams, "enabled")
   .name("Enabled")
@@ -251,6 +257,11 @@ lightsFolder
   .step(1)
   .name("Intensity")
   .onChange(updateLightIntensities);
+lightsFolder
+  .add(lightsParams, "y", 0, 10)
+  .name("Y Position")
+  .step(1)
+  .onChange(() => updateLightPositions());
 
 const hdriFolder = gui.addFolder("HDRI");
 hdriFolder.open();
