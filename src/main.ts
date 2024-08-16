@@ -203,7 +203,7 @@ modelLoader.load("models/toyota_ae86.glb", function (gltf) {
     action.play();
   }
 
-  // mainSCENE.add(validModel);
+  mainSCENE.add(validModel);
 
   animate();
 });
