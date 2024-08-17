@@ -8,5 +8,5 @@ export const allHDRs = {
 };
 
 export const allModels = {
-  nissan: "models/nissan.glb",
+  ae86: "models/fixed/toyotaAE86.glb",
 };

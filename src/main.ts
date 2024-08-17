@@ -185,7 +185,7 @@ let mixer: THREE.AnimationMixer;
 
 const modelLoader = new GLTFLoader(progressManager);
 
-modelLoader.load("models/toyota_ae86.glb", function (gltf) {
+modelLoader.load(allModels.ae86, function (gltf) {
   const validModel = gltf.scene;
 
   const animationSet = gltf.animations;
