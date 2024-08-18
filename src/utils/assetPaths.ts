@@ -16,4 +16,10 @@ export const allModels = {
   haulingTruck: "models/fixed/hauling truck.glb",
   taxiVan: "models/fixed/rafTaxiVan.glb",
   mx5: "models/fixed/mx5.glb",
+  etron: "models/fixed/audi pb etron.glb",
+  quadraTurbo: "models/fixed/quadra turbo.glb",
+  quadraType66: "models/fixed/quadra type66.glb",
+  caffe: "models/fixed/caffe truck.glb",
+  militaryTruck: "models/fixed/military truck.glb",
+  countach: "models/fixed/countach.glb",
 };

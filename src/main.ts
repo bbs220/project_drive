@@ -185,7 +185,7 @@ let mixer: THREE.AnimationMixer;
 
 const modelLoader = new GLTFLoader(progressManager);
 
-modelLoader.load(allModels.mx5, function (gltf) {
+modelLoader.load(allModels.countach, function (gltf) {
   const validModel = gltf.scene;
 
   const animationSet = gltf.animations;
