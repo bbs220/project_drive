@@ -32,7 +32,7 @@ const main3D_RENDERER = new THREE.WebGLRenderer({
 main3D_RENDERER.setSize(window.innerWidth, window.innerHeight);
 main3D_RENDERER.shadowMap.enabled = true;
 main3D_RENDERER.toneMapping = THREE.ACESFilmicToneMapping;
-main3D_RENDERER.toneMappingExposure = 0.5;
+main3D_RENDERER.toneMappingExposure = 1;
 document.body.appendChild(main3D_RENDERER.domElement);
 
 const sub2D_RENDERER = new CSS2DRenderer();
@@ -185,7 +185,7 @@ let mixer: THREE.AnimationMixer;
 
 const modelLoader = new GLTFLoader(progressManager);
 
-modelLoader.load(allModels.countach, function (gltf) {
+modelLoader.load(allModels.hotRod, function (gltf) {
   const validModel = gltf.scene;
 
   const animationSet = gltf.animations;
@@ -292,10 +292,6 @@ function toggleEnvironment(value: boolean) {
     mainSCENE.environment = null;
   }
 }
-hdriFolder
-  .add(main3D_RENDERER, "toneMappingExposure", 0, 1)
-  .step(0.01)
-  .name("Exposure");
 
 function renderLoopMain() {
   // main3D_RENDERER.render(mainSCENE, mainCAMERA);
