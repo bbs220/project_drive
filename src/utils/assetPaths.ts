@@ -34,4 +34,10 @@ export const allModels = {
   peugeot205: "models/fixed/peugeot 205.glb",
   peugeot206: "models/fixed/peugeot 206.glb",
   hotRod: "models/fixed/ford hot rod coupe.glb",
+  spec2: "models/fixed/ford gt lm spec2 test car.glb",
+  toretto: "models/fixed/toretto muscle car.glb",
+  e9: "models/fixed/bmw e9.glb",
+  kitt: "models/fixed/kitt knight rider.glb",
+  mustangWhite: "models/fixed/mustang white.glb",
+  mustangRed: "models/fixed/mustang red.glb",
 };

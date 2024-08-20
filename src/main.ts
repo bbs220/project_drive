@@ -185,10 +185,10 @@ let mixer: THREE.AnimationMixer;
 
 const modelLoader = new GLTFLoader(progressManager);
 
-modelLoader.load(allModels.hotRod, function (gltf) {
+modelLoader.load(allModels.ae86, function (gltf) {
   const validModel = gltf.scene;
 
-  const animationSet = gltf.animations;
+  const validAnimationSet = gltf.animations;
 
   validModel.traverse((node) => {
     if (node instanceof THREE.Mesh) {
@@ -199,7 +199,7 @@ modelLoader.load(allModels.hotRod, function (gltf) {
 
   if (gltf.animations.length > 0) {
     mixer = new THREE.AnimationMixer(validModel);
-    const action = mixer.clipAction(animationSet[0]);
+    const action = mixer.clipAction(validAnimationSet[0]);
     action.play();
   }
 
