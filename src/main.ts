@@ -127,7 +127,7 @@ const lightsParams = {
   x: 3,
   z: 3,
   intensity: 30,
-  enabled: true,
+  enabled: false,
   helpers: false,
   color: "#ffffff",
 };

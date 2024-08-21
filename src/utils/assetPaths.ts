@@ -45,4 +45,10 @@ export const allModels = {
   r8v10: "models/fixed/audi r8 v10 performance.glb",
   r32: "models/fixed/nissan skyline gtr r32.glb",
   r34: "models/fixed/nissan skyline gtr r34.glb",
+  favorit: "models/fixed/skoda favorit.glb",
+  jeepRed: "models/fixed/jeep red.glb",
+  jeepYellow: "models/fixed/jeep yellow.glb",
+  sedan: "models/fixed/honda civic sedan.glb",
+  rx7Standard: "models/fixed/mazda rx7 standard.glb",
+  rx7WideBody: "models/fixed/mazda rx7 widebody.glb",
 };
