@@ -40,4 +40,9 @@ export const allModels = {
   kitt: "models/fixed/kitt knight rider.glb",
   mustangWhite: "models/fixed/mustang white.glb",
   mustangRed: "models/fixed/mustang red.glb",
+  s14: "models/fixed/nissan 200sx silvia s14.glb",
+  s13: "models/fixed/nissan silvia s13.glb",
+  r8v10: "models/fixed/audi r8 v10 performance.glb",
+  r32: "models/fixed/nissan skyline gtr r32.glb",
+  r34: "models/fixed/nissan skyline gtr r34.glb",
 };

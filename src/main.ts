@@ -127,7 +127,7 @@ const lightsParams = {
   x: 3,
   z: 3,
   intensity: 30,
-  enabled: false,
+  enabled: true,
   helpers: false,
   color: "#ffffff",
 };
@@ -253,6 +253,14 @@ lightsFolder
   .name("Helpers")
   .onChange(toggleLightVisibility);
 lightsFolder
+  .addColor(lightsParams, "color")
+  .name("Color")
+  .onChange(() => {
+    lightsAndHelpers.forEach(([light]) => {
+      light.color.set(lightsParams.color);
+    });
+  });
+lightsFolder
   .add(lightsParams, "intensity", 0, 100)
   .step(1)
   .name("Intensity")
@@ -265,17 +273,17 @@ lightsFolder
 
 const hdriFolder = gui.addFolder("HDRI");
 hdriFolder.open();
-const paramsHDR = {
+const hdrParams = {
   switch: true,
   background: false,
   environment: true,
 };
 hdriFolder
-  .add(paramsHDR, "environment")
+  .add(hdrParams, "environment")
   .name("Enabled")
   .onChange(toggleEnvironment);
 hdriFolder
-  .add(paramsHDR, "background")
+  .add(hdrParams, "background")
   .name("Background")
   .onChange(toggleBackground);
 function toggleBackground(value: boolean) {
