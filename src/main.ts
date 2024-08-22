@@ -12,7 +12,12 @@ import {
 } from "three/addons/renderers/CSS2DRenderer.js";
 import { xDiv, yDiv, zDiv } from "./utils/backgroundUI";
 import { progressManager } from "./utils/loadingScreen";
-import { allHDRs, allModels, blueSquare } from "./utils/assetPaths";
+import {
+  allHDRs,
+  blueSquare,
+  allCharacterModels,
+  allCarModels,
+} from "./utils/assetPaths";
 
 const mainSCENE = new THREE.Scene();
 
@@ -96,6 +101,10 @@ envMap.load(allHDRs.city, (texture: THREE.Texture) => {
 
 const debugControls = new OrbitControls(mainCAMERA, main3D_RENDERER.domElement);
 debugControls.enableDamping = true;
+debugControls.minDistance = 3;
+debugControls.maxDistance = 7;
+debugControls.enablePan = false;
+debugControls.maxPolarAngle = Math.PI / 2 - 0.05;
 
 const stats = new Stats();
 stats.showPanel(0);
@@ -185,7 +194,7 @@ let mixer: THREE.AnimationMixer;
 
 const modelLoader = new GLTFLoader(progressManager);
 
-modelLoader.load(allModels.ae86, function (gltf) {
+modelLoader.load(allCarModels.ae86, function (gltf) {
   const validModel = gltf.scene;
 
   const validAnimationSet = gltf.animations;
@@ -317,8 +326,9 @@ function animate() {
   debugControls.update();
   stats.update();
 
+  const delta = debugClock.getDelta();
+
   if (mixer) {
-    const delta = debugClock.getDelta();
     mixer.update(delta);
   }
 }

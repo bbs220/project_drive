@@ -9,6 +9,7 @@ body {
   background-color: black;
   overflow: hidden;
   margin: 0px;
+  font-family: monospace;
 }
 
 .label {

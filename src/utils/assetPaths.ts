@@ -7,7 +7,7 @@ export const allHDRs = {
   sky: "hdris/kloofendal_48d_partly_cloudy_puresky_2k.hdr",
 };
 
-export const allModels = {
+export const allCarModels = {
   ae86: "models/fixed/toyotaAE86.glb",
   corolla: "models/fixed/corolla.glb",
   m3e30Standard: "models/fixed/bmw m3 e30 non rally.glb",
@@ -51,4 +51,8 @@ export const allModels = {
   sedan: "models/fixed/honda civic sedan.glb",
   rx7Standard: "models/fixed/mazda rx7 standard.glb",
   rx7WideBody: "models/fixed/mazda rx7 widebody.glb",
+};
+
+export const allCharacterModels = {
+  soldier: "models/Soldier-v1.glb",
 };
