@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import * as CANNON from "cannon-es";
+import CannonDebugger from "cannon-es-debugger";
 import Stats from "stats.js";
 import { GUI } from "lil-gui";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -12,24 +14,21 @@ import {
 } from "three/addons/renderers/CSS2DRenderer.js";
 import { xDiv, yDiv, zDiv } from "./utils/backgroundUI";
 import { progressManager } from "./utils/loadingScreen";
-import {
-  allHDRs,
-  blueSquare,
-  allCharacterModels,
-  allCarModels,
-} from "./utils/assetPaths";
+import { allHDRs, blueSquare, allCarModels } from "./utils/assetPaths";
 
+// scene
 const mainSCENE = new THREE.Scene();
 
+// camera
 const mainCAMERA = new THREE.PerspectiveCamera(
   60,
   window.innerWidth / window.innerHeight,
   0.1,
   2000
 );
-
 mainCAMERA.position.set(0, 5, 10);
 
+// webgl renderer
 const main3D_RENDERER = new THREE.WebGLRenderer({
   antialias: true,
   alpha: true,
@@ -40,6 +39,7 @@ main3D_RENDERER.toneMapping = THREE.ACESFilmicToneMapping;
 main3D_RENDERER.toneMappingExposure = 1;
 document.body.appendChild(main3D_RENDERER.domElement);
 
+// css renderer
 const sub2D_RENDERER = new CSS2DRenderer();
 sub2D_RENDERER.setSize(window.innerWidth, window.innerHeight);
 sub2D_RENDERER.domElement.style.position = "absolute";
@@ -48,19 +48,23 @@ sub2D_RENDERER.domElement.style.left = "0%";
 sub2D_RENDERER.domElement.style.pointerEvents = "none";
 document.body.appendChild(sub2D_RENDERER.domElement);
 
+// for resizing both renderers to window size
 window.addEventListener("resize", () => {
   mainCAMERA.aspect = window.innerWidth / window.innerHeight;
   mainCAMERA.updateProjectionMatrix();
   main3D_RENDERER.setSize(window.innerWidth, window.innerHeight);
 });
 
+// base layer for postprocessing
 const baseCOMPOSER = new EffectComposer(main3D_RENDERER);
 
+// minimal renderpass
 const baseRenderPass = new RenderPass(mainSCENE, mainCAMERA);
 baseCOMPOSER.addPass(baseRenderPass);
 
 let originAxisLength = 50;
 
+// css labels for the axis
 const xObj = new CSS2DObject(xDiv);
 xObj.visible = false;
 xObj.position.set(originAxisLength, 0, 0);
@@ -75,6 +79,7 @@ zObj.position.set(0, 0, originAxisLength);
 
 mainSCENE.add(xObj, yObj, zObj);
 
+// constansts for ground texture
 const tilingValue = 16;
 const anisotrophicValue = 16; // this is max value dont go above 16
 
@@ -91,6 +96,7 @@ const blueprintTexture = new THREE.TextureLoader(progressManager).load(
 
 let textureToggle: THREE.Texture | null;
 
+// environment map for better lightings but does not project shadows
 const envMap = new RGBELoader(progressManager);
 envMap.load(allHDRs.city, (texture: THREE.Texture) => {
   textureToggle = texture;
@@ -99,6 +105,7 @@ envMap.load(allHDRs.city, (texture: THREE.Texture) => {
   mainSCENE.background = null;
 });
 
+// orbitcontrols for now does lock on to position(0,0,0)
 const debugControls = new OrbitControls(mainCAMERA, main3D_RENDERER.domElement);
 debugControls.enableDamping = true;
 debugControls.minDistance = 3;
@@ -106,10 +113,12 @@ debugControls.maxDistance = 7;
 debugControls.enablePan = false;
 debugControls.maxPolarAngle = Math.PI / 2 - 0.05;
 
+// fps stats
 const stats = new Stats();
 stats.showPanel(0);
 document.body.appendChild(stats.dom);
 
+// just a grid not related to physics grid
 const debugGrid = new THREE.GridHelper(
   tilingValue,
   tilingValue,
@@ -121,16 +130,20 @@ debugGrid.scale.setScalar(6.2);
 debugGrid.visible = false;
 mainSCENE.add(debugGrid);
 
+// origin 3d axes to see orientation of objects places in the scene
 const debugAxes = new THREE.AxesHelper(originAxisLength);
 debugAxes.visible = false;
 mainSCENE.add(debugAxes);
 
+// flood light to making all objects visible does not produce shadows
 const ambientLight = new THREE.AmbientLight("#ffffff", 0.8);
 ambientLight.visible = false;
 mainSCENE.add(ambientLight);
 
+// clock mostly used for the delta in recursive functions later on
 const debugClock = new THREE.Clock();
 
+// parameters for the 4 point lights
 const lightsParams = {
   y: 5,
   x: 3,
@@ -141,6 +154,7 @@ const lightsParams = {
   color: "#ffffff",
 };
 
+// 4 point lights to see shadows and movement of object from multiple views
 function createPointLightAndHelper(
   color: string,
   intensity: number,
@@ -155,6 +169,7 @@ function createPointLightAndHelper(
   return [light, helper];
 }
 
+// positions of those 4 lights
 const positions = [
   { x: lightsParams.x, y: lightsParams.y, z: lightsParams.z },
   { x: -lightsParams.x, y: lightsParams.y, z: -lightsParams.z },
@@ -162,6 +177,7 @@ const positions = [
   { x: lightsParams.x, y: lightsParams.y, z: -lightsParams.z },
 ];
 
+// setting up all point lights from a array
 let lightsAndHelpers: [THREE.PointLight, THREE.PointLightHelper][] = [];
 
 for (let i = 0; i < positions.length; i++) {
@@ -179,6 +195,18 @@ for (let i = 0; i < positions.length; i++) {
   mainSCENE.add(light, helper);
 }
 
+// initiating the physics world
+const mainWORLD = new CANNON.World({
+  gravity: new CANNON.Vec3(0, -9.8, 0),
+  allowSleep: true,
+});
+mainWORLD.broadphase = new CANNON.SAPBroadphase(mainWORLD);
+mainWORLD.defaultContactMaterial.friction = 0;
+
+// initiating the physics debug renderer
+const physicsDebug = CannonDebugger(mainSCENE, mainWORLD, { color: 0xffff00 });
+
+// threejs plane as a ground
 const groundShape = new THREE.PlaneGeometry(100, 100, 1, 1);
 const groundMaterial = new THREE.MeshStandardMaterial({
   wireframe: false,
@@ -186,14 +214,28 @@ const groundMaterial = new THREE.MeshStandardMaterial({
 });
 const groundMesh = new THREE.Mesh(groundShape, groundMaterial);
 groundMesh.receiveShadow = true;
-groundMesh.rotateX(Math.PI / -2);
-groundMesh.position.set(0, -0.02, 0);
 mainSCENE.add(groundMesh);
 
+const groundCollistonMaterial = new CANNON.Material("ground");
+
+// physics ground for the threejs plane
+const tempPhysicsGroundBody = new CANNON.Body({
+  type: CANNON.Body.STATIC,
+  material: groundCollistonMaterial,
+});
+const tempPhysicsGroundShape = new CANNON.Plane();
+tempPhysicsGroundBody.addShape(tempPhysicsGroundShape);
+tempPhysicsGroundBody.position.set(0, 0, 0);
+tempPhysicsGroundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+mainWORLD.addBody(tempPhysicsGroundBody);
+
+// for animating and updating models with animation data
 let mixer: THREE.AnimationMixer;
 
+// local gltfloader
 const modelLoader = new GLTFLoader(progressManager);
 
+// loads model and only plays animation if it consists animations data
 modelLoader.load(allCarModels.ae86, function (gltf) {
   const validModel = gltf.scene;
 
@@ -214,9 +256,11 @@ modelLoader.load(allCarModels.ae86, function (gltf) {
 
   mainSCENE.add(validModel);
 
+  // main animate function here cause faster updating
   animate();
 });
 
+// a gui for prototyping on the objects
 const gui = new GUI();
 gui.close();
 
@@ -309,25 +353,38 @@ function toggleEnvironment(value: boolean) {
     mainSCENE.environment = null;
   }
 }
+const physicsFolder = gui.addFolder("Physics");
+physicsFolder.open();
 
+// clean webgl render function
 function renderLoopMain() {
   // main3D_RENDERER.render(mainSCENE, mainCAMERA);
   baseCOMPOSER.render();
 }
 
+// clean css render function
 function renderLoopSub() {
   sub2D_RENDERER.render(mainSCENE, mainCAMERA);
 }
 
+// for syncing threejs and cannon objects
+function threeAndCannonSync() {
+  mainWORLD.fixedStep();
+  groundMesh.position.copy(tempPhysicsGroundBody.position);
+  groundMesh.quaternion.copy(tempPhysicsGroundBody.quaternion);
+}
+
+// main recursive function
 function animate() {
   requestAnimationFrame(animate);
   renderLoopMain();
   renderLoopSub();
   debugControls.update();
   stats.update();
+  threeAndCannonSync();
+  physicsDebug.update();
 
   const delta = debugClock.getDelta();
-
   if (mixer) {
     mixer.update(delta);
   }
