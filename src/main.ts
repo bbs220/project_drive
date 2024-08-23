@@ -204,7 +204,7 @@ mainWORLD.broadphase = new CANNON.SAPBroadphase(mainWORLD);
 mainWORLD.defaultContactMaterial.friction = 0;
 
 // initiating the physics debug renderer
-const physicsDebug = CannonDebugger(mainSCENE, mainWORLD, { color: 0xffff00 });
+let physicsDebug: { update: any };
 
 // threejs plane as a ground
 const groundShape = new THREE.PlaneGeometry(100, 100, 1, 1);
@@ -356,6 +356,21 @@ function toggleEnvironment(value: boolean) {
 const physicsFolder = gui.addFolder("Physics");
 physicsFolder.open();
 
+initPhysicsDebugger();
+function initPhysicsDebugger() {
+  physicsDebug = CannonDebugger(mainSCENE, mainWORLD, {
+    color: 0xffff00,
+    onInit(_body, mesh) {
+      mesh.visible = false;
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "h") {
+          mesh.visible = !mesh.visible;
+        }
+      });
+    },
+  });
+}
+
 // clean webgl render function
 function renderLoopMain() {
   // main3D_RENDERER.render(mainSCENE, mainCAMERA);
@@ -382,9 +397,13 @@ function animate() {
   debugControls.update();
   stats.update();
   threeAndCannonSync();
-  physicsDebug.update();
 
   const delta = debugClock.getDelta();
+
+  if (physicsDebug) {
+    physicsDebug.update();
+  }
+
   if (mixer) {
     mixer.update(delta);
   }
