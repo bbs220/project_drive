@@ -187,6 +187,9 @@ for (let i = 0; i < positions.length; i++) {
   mainSCENE.add(light, helper);
 }
 
+// local gltfloader
+const modelLoader = new GLTFLoader(progressManager);
+
 // initiating the physics world
 const mainWORLD = new CANNON.World({
   gravity: new CANNON.Vec3(0, -9.8, 0),
@@ -221,15 +224,276 @@ tempPhysicsGroundBody.position.set(0, 0, 0);
 tempPhysicsGroundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
 mainWORLD.addBody(tempPhysicsGroundBody);
 
+const chassisShape = new CANNON.Box(new CANNON.Vec3(2, 0.5, 1));
+const chassisBody = new CANNON.Body({ mass: 300 });
+chassisBody.addShape(chassisShape);
+chassisBody.position.set(0, 2, 0);
+chassisBody.quaternion.set(0, -1, 0, 1);
+
+// init raycast vehicle
+const vehicle = new CANNON.RaycastVehicle({
+  chassisBody: chassisBody,
+});
+
+// setting for all wheel options
+const wheelOptions = {
+  radius: 0.5,
+  directionLocal: new CANNON.Vec3(0, -1, 0),
+  suspensionStiffness: 30,
+  suspensionRestLength: 0.3,
+  frictionSlip: 1.4,
+  dampingRelaxation: 2.3,
+  dampingCompression: 4.4,
+  maxSuspensionForce: 100000,
+  rollInfluence: 0.01,
+  axleLocal: new CANNON.Vec3(0, 0, 1),
+  chassisConnectionPointLocal: new CANNON.Vec3(-1, 0, 1),
+  maxSuspensionTravel: 0.3,
+  customSlidingRotationalSpeed: -30,
+  useCustomSlidingRotationalSpeed: true,
+};
+
+const currentVehicle = {
+  pickup: {
+    chassis: allCarModels.retrowave.chassis,
+    wheels: allCarModels.retrowave.wheel,
+    xPos: 1.8,
+    yPos: -0.4,
+    zPos: 1,
+    xAdditiveValueFront: 0.01,
+    xAdditiveValueRear: 0.15,
+  },
+};
+
+const wheelPos_X = currentVehicle.pickup.xPos;
+const wheelPos_Z = currentVehicle.pickup.zPos;
+const wheelPos_Y = currentVehicle.pickup.yPos;
+
+// pushing all wheels in in 4 postions
+
+// front axle left position
+wheelOptions.chassisConnectionPointLocal.set(
+  -wheelPos_X + currentVehicle.pickup.xAdditiveValueFront,
+  wheelPos_Y,
+  wheelPos_Z
+);
+vehicle.addWheel(wheelOptions);
+
+// front axle right position
+wheelOptions.chassisConnectionPointLocal.set(
+  -wheelPos_X + currentVehicle.pickup.xAdditiveValueFront,
+  wheelPos_Y,
+  -wheelPos_Z
+);
+vehicle.addWheel(wheelOptions);
+
+// rear axle left position
+wheelOptions.chassisConnectionPointLocal.set(
+  wheelPos_X + currentVehicle.pickup.xAdditiveValueRear,
+  wheelPos_Y,
+  wheelPos_Z
+);
+vehicle.addWheel(wheelOptions);
+
+// rear axle right position
+wheelOptions.chassisConnectionPointLocal.set(
+  wheelPos_X + currentVehicle.pickup.xAdditiveValueRear,
+  wheelPos_Y,
+  -wheelPos_Z
+);
+vehicle.addWheel(wheelOptions);
+
+// adding vehicle to the physics world
+vehicle.addToWorld(mainWORLD);
+
+// setting up wheel bodies as a array
+const wheelCollisionMaterial = new CANNON.Material("wheel");
+
+const wheelBodies = [];
+const wheelVisual = [];
+vehicle.wheelInfos.forEach((wheel) => {
+  const cylinderShape = new CANNON.Cylinder(
+    wheel.radius,
+    wheel.radius,
+    wheel.radius / 2,
+    20
+  );
+  const wheelBody = new CANNON.Body({
+    mass: 0,
+    material: wheelCollisionMaterial,
+  });
+  wheelBody.type = CANNON.Body.KINEMATIC;
+  wheelBody.collisionFilterGroup = 0; // turn off collisions
+  const quaternion = new CANNON.Quaternion().setFromEuler(-Math.PI / 2, 0, 0);
+  wheelBody.addShape(cylinderShape, new CANNON.Vec3(), quaternion);
+  wheelBodies.push(wheelBody);
+  mainWORLD.addBody(wheelBody);
+
+  let buggyWheel;
+  modelLoader.load(currentVehicle.pickup.wheels, function (gltf) {
+    buggyWheel = gltf.scene;
+    buggyWheel.traverse((node) => {
+      if (node instanceof THREE.Mesh) {
+        node.castShadow = true;
+        // node.material.wireframe = true;
+      }
+    });
+    wheelVisual.push(buggyWheel);
+    mainSCENE.add(buggyWheel);
+  });
+});
+
+// pushing wheel cylinders in all 4 positions and orientations
+mainWORLD.addEventListener("postStep", () => {
+  for (let i = 0; i < vehicle.wheelInfos.length; i++) {
+    vehicle.updateWheelTransform(i);
+
+    // setting up transforms for pushing wheel from array into local chassis position
+    const transform = vehicle.wheelInfos[i].worldTransform;
+    const wheelBody = wheelBodies[i];
+
+    // for pushing cannon wheels into local chassis position
+    if (wheelBody) {
+      wheelBody.position.copy(transform.position);
+      wheelBody.quaternion.copy(transform.quaternion);
+    }
+
+    // for pushing wheel models to their 4 local positions related to chassisbody
+    if (wheelVisual[i]) {
+      wheelVisual[i].position.copy(transform.position);
+      wheelVisual[i].quaternion.copy(transform.quaternion);
+    }
+  }
+});
+
+// material for collision between wheels and ground plane
+const wheel_ground = new CANNON.ContactMaterial(
+  wheelCollisionMaterial,
+  groundCollistonMaterial,
+  {
+    friction: 0.3,
+    restitution: 0,
+    contactEquationStiffness: 1000,
+  }
+);
+mainWORLD.addContactMaterial(wheel_ground);
+
+// event listeners for controls WASD and B for brake and N for nitrous system
+const maxSteerVal = 0.5;
+let maxForce = 200;
+const brakeForce = maxForce / 10;
+
+controlsForVehicle();
+function controlsForVehicle() {
+  // flags for keeping me sane
+  let isWPressed = false;
+  let isNitroActive = false;
+  const originalMaxForce = maxForce;
+  const nLimit = 1000;
+  const nMultiplier = 10;
+
+  document.addEventListener("keydown", (event) => {
+    switch (event.key) {
+      case "w":
+        // case "ArrowUp":
+        isWPressed = true;
+        forceApplyEngineForce();
+        break;
+
+      case "s":
+        // case "ArrowDown":
+        vehicle.applyEngineForce(maxForce, 2);
+        vehicle.applyEngineForce(maxForce, 3);
+        break;
+
+      case "a":
+        // case "ArrowLeft":
+        vehicle.setSteeringValue(maxSteerVal, 0);
+        vehicle.setSteeringValue(maxSteerVal, 1);
+        break;
+
+      case "d":
+        // case "ArrowRight":
+        vehicle.setSteeringValue(-maxSteerVal, 0);
+        vehicle.setSteeringValue(-maxSteerVal, 1);
+        break;
+
+      case "b":
+        vehicle.setBrake(brakeForce, 0);
+        vehicle.setBrake(brakeForce, 1);
+        vehicle.setBrake(brakeForce, 2);
+        vehicle.setBrake(brakeForce, 3);
+        break;
+      case "n": // Nitro boost
+        if (!isNitroActive) {
+          // Activate nitro only if it's not already active
+          isNitroActive = true; // Mark nitro as active
+          maxForce *= nMultiplier; // Increase maxForce
+          if (isWPressed) {
+            forceApplyEngineForce(); // Apply increased force if "W" is pressed
+          }
+          setTimeout(() => {
+            maxForce = originalMaxForce; // Revert maxForce after nitro limit is passed
+            isNitroActive = false; // Mark nitro as inactive
+            if (isWPressed) {
+              forceApplyEngineForce(); // Apply original force if "W" is still pressed
+            }
+          }, nLimit);
+        }
+        break;
+    }
+  });
+
+  function forceApplyEngineForce() {
+    // Apply engine force based on current maxForce and nitro state
+    vehicle.applyEngineForce(-maxForce, 2);
+    vehicle.applyEngineForce(-maxForce, 3);
+  }
+
+  // Reset force on keyup
+  document.addEventListener("keyup", (event) => {
+    switch (event.key) {
+      case "w":
+        // case "ArrowUp":
+        isWPressed = false;
+        vehicle.applyEngineForce(0, 2);
+        vehicle.applyEngineForce(0, 3);
+        break;
+
+      case "s":
+        // case "ArrowDown":
+        vehicle.applyEngineForce(0, 2);
+        vehicle.applyEngineForce(0, 3);
+        break;
+
+      case "a":
+        // case "ArrowLeft":
+        vehicle.setSteeringValue(0, 0);
+        vehicle.setSteeringValue(0, 1);
+        break;
+
+      case "d":
+        // case "ArrowRight":
+        vehicle.setSteeringValue(0, 0);
+        vehicle.setSteeringValue(0, 1);
+        break;
+
+      case "b":
+        vehicle.setBrake(0, 0);
+        vehicle.setBrake(0, 1);
+        vehicle.setBrake(0, 2);
+        vehicle.setBrake(0, 3);
+        break;
+    }
+  });
+}
+
 // setting this up in global since im gonna neet to use in update functions down below
 let mixer: THREE.AnimationMixer;
 let validModel: THREE.Object3D;
 
-// local gltfloader
-const modelLoader = new GLTFLoader(progressManager);
-
 // loads model and only plays animation if it consists animations data
-modelLoader.load(allCarModels.ae86, function (gltf) {
+modelLoader.load(currentVehicle.pickup.chassis, function (gltf) {
   validModel = gltf.scene;
 
   const validAnimationSet = gltf.animations;
@@ -391,7 +655,7 @@ function followMesh() {
     followMeshOrbitControls.dampingFactor = 0.04;
     followMeshOrbitControls.enablePan = false;
     followMeshOrbitControls.maxDistance = 8;
-    followMeshOrbitControls.minDistance = 6;
+    followMeshOrbitControls.minDistance = 4;
     followMeshOrbitControls.minPolarAngle = Math.PI / 6.4;
     followMeshOrbitControls.maxPolarAngle = Math.PI / 2.4;
     followMeshOrbitControls.update();
@@ -428,6 +692,10 @@ function renderLoopSub() {
 // for syncing threejs and cannon objects
 function threeAndCannonSync() {
   mainWORLD.fixedStep();
+  if (validModel) {
+    validModel.position.copy(chassisBody.position);
+    validModel.quaternion.copy(chassisBody.quaternion);
+  }
   groundMesh.position.copy(tempPhysicsGroundBody.position);
   groundMesh.quaternion.copy(tempPhysicsGroundBody.quaternion);
 }

@@ -51,6 +51,11 @@ export const allCarModels = {
   sedan: "models/fixed/honda civic sedan.glb",
   rx7Standard: "models/fixed/mazda rx7 standard.glb",
   rx7WideBody: "models/fixed/mazda rx7 widebody.glb",
+  hoonigan: "models/fixed/hoonigan.glb",
+  retrowave: {
+    chassis: "models/retrowave chassis.glb",
+    wheel: "models/retrowave wheel.glb",
+  },
 };
 
 export const allCharacterModels = {
