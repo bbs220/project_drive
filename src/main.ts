@@ -105,14 +105,6 @@ envMap.load(allHDRs.city, (texture: THREE.Texture) => {
   mainSCENE.background = null;
 });
 
-// orbitcontrols for now does lock on to position(0,0,0)
-const debugControls = new OrbitControls(mainCAMERA, main3D_RENDERER.domElement);
-debugControls.enableDamping = true;
-debugControls.minDistance = 3;
-debugControls.maxDistance = 7;
-debugControls.enablePan = false;
-debugControls.maxPolarAngle = Math.PI / 2 - 0.05;
-
 // fps stats
 const stats = new Stats();
 stats.showPanel(0);
@@ -229,15 +221,16 @@ tempPhysicsGroundBody.position.set(0, 0, 0);
 tempPhysicsGroundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
 mainWORLD.addBody(tempPhysicsGroundBody);
 
-// for animating and updating models with animation data
+// setting this up in global since im gonna neet to use in update functions down below
 let mixer: THREE.AnimationMixer;
+let validModel: THREE.Object3D;
 
 // local gltfloader
 const modelLoader = new GLTFLoader(progressManager);
 
 // loads model and only plays animation if it consists animations data
 modelLoader.load(allCarModels.ae86, function (gltf) {
-  const validModel = gltf.scene;
+  validModel = gltf.scene;
 
   const validAnimationSet = gltf.animations;
 
@@ -353,16 +346,14 @@ function toggleEnvironment(value: boolean) {
     mainSCENE.environment = null;
   }
 }
-const physicsFolder = gui.addFolder("Physics");
-physicsFolder.open();
 
-initPhysicsDebugger();
 function initPhysicsDebugger() {
   physicsDebug = CannonDebugger(mainSCENE, mainWORLD, {
     color: 0xffff00,
     onInit(_body, mesh) {
       mesh.visible = false;
       document.addEventListener("keydown", (e) => {
+        e.stopPropagation();
         if (e.key === "h") {
           mesh.visible = !mesh.visible;
         }
@@ -370,6 +361,58 @@ function initPhysicsDebugger() {
     },
   });
 }
+initPhysicsDebugger();
+
+// lock on to position(0,0,0) mostly for debugging entire scene
+const debugViewOrbitControls = new OrbitControls(
+  mainCAMERA,
+  main3D_RENDERER.domElement
+);
+// to enable debug view and disable follow cam
+function debugView() {
+  debugViewOrbitControls.enabled = true;
+  debugViewOrbitControls.zoomSpeed = 3;
+  debugViewOrbitControls.maxDistance = 6000;
+  debugViewOrbitControls.update();
+  followMeshOrbitControls.enabled = false;
+}
+
+// locks on the mesh position dynamically like a third person camera
+const followMeshOrbitControls = new OrbitControls(
+  mainCAMERA,
+  main3D_RENDERER.domElement
+);
+// to enable follow cam and disable debug view
+function followMesh() {
+  if (validModel) {
+    followMeshOrbitControls.enabled = true;
+    followMeshOrbitControls.target = validModel.position;
+    followMeshOrbitControls.enableDamping = true;
+    followMeshOrbitControls.dampingFactor = 0.04;
+    followMeshOrbitControls.enablePan = false;
+    followMeshOrbitControls.maxDistance = 8;
+    followMeshOrbitControls.minDistance = 6;
+    followMeshOrbitControls.minPolarAngle = Math.PI / 6.4;
+    followMeshOrbitControls.maxPolarAngle = Math.PI / 2.4;
+    followMeshOrbitControls.update();
+    debugViewOrbitControls.enabled = false;
+  }
+}
+
+// boolean to switch between two viewers
+const valueForDebugViewSwitch = { toggleValue: true };
+
+// functions to switch between two orbit controls
+function chaseCamera() {
+  if (valueForDebugViewSwitch.toggleValue === true) {
+    followMesh();
+  } else {
+    debugView();
+  }
+}
+const gameFolder = gui.addFolder("Game");
+gameFolder.open();
+gameFolder.add(valueForDebugViewSwitch, "toggleValue").name("Chase Camera");
 
 // clean webgl render function
 function renderLoopMain() {
@@ -394,9 +437,9 @@ function animate() {
   requestAnimationFrame(animate);
   renderLoopMain();
   renderLoopSub();
-  debugControls.update();
   stats.update();
   threeAndCannonSync();
+  chaseCamera();
 
   const delta = debugClock.getDelta();
 
@@ -408,5 +451,3 @@ function animate() {
     mixer.update(delta);
   }
 }
-
-// animate();

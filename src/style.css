@@ -12,6 +12,7 @@ body {
   font-family: monospace;
 }
 
+/* for the origin axes orientation labels */
 .label {
   height: 40px;
   width: 40px;
@@ -21,6 +22,26 @@ body {
   font-size: 20px;
   font-weight: bolder;
   border-radius: 5%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+/* simple instructions not responsive yet */
+#instructions {
+  position: fixed;
+  bottom: -10px;
+  left: 0px;
+  width: 17%;
+  height: 3%;
+  font-size: 16px;
+  overflow: hidden;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
