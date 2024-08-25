@@ -7,6 +7,8 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import {
   CSS2DObject,
   CSS2DRenderer,
@@ -18,6 +20,7 @@ import { controlsForVehicle } from "./utils/steeringControls";
 import { initPhysicsDebugger, physicsDebug } from "./utils/physicsDebugger";
 import {
   anisotrophicValue,
+  lightsParams,
   originAxisLength,
   tilingValue,
 } from "./constants/constants";
@@ -35,10 +38,7 @@ const mainCAMERA = new THREE.PerspectiveCamera(
 mainCAMERA.position.set(0, 5, 10);
 
 // webgl renderer
-const main3D_RENDERER = new THREE.WebGLRenderer({
-  antialias: true,
-  alpha: true,
-});
+const main3D_RENDERER = new THREE.WebGLRenderer({ alpha: true });
 main3D_RENDERER.setSize(window.innerWidth, window.innerHeight);
 main3D_RENDERER.shadowMap.enabled = true;
 main3D_RENDERER.toneMapping = THREE.ACESFilmicToneMapping;
@@ -64,9 +64,23 @@ window.addEventListener("resize", () => {
 // base layer for postprocessing
 const baseCOMPOSER = new EffectComposer(main3D_RENDERER);
 
+// this just gives a number
+const screenPixelRatio = main3D_RENDERER.getPixelRatio();
+
 // minimal renderpass
 const baseRenderPass = new RenderPass(mainSCENE, mainCAMERA);
 baseCOMPOSER.addPass(baseRenderPass);
+
+const smaaPass = new SMAAPass(
+  window.innerWidth * screenPixelRatio,
+  window.innerHeight * screenPixelRatio
+);
+smaaPass.enabled = true;
+baseCOMPOSER.addPass(smaaPass);
+
+// more postprocessing cleanup
+const baseOutputPass = new OutputPass();
+baseCOMPOSER.addPass(baseOutputPass);
 
 // css labels for the axis
 const xObj = new CSS2DObject(xDiv);
@@ -117,7 +131,7 @@ const debugGrid = new THREE.GridHelper(
   "#ffff00",
   "#00ffff"
 );
-debugGrid.position.set(0, -0.01, 0);
+debugGrid.position.set(0, 0.1, 0);
 debugGrid.scale.setScalar(6.2);
 debugGrid.visible = false;
 mainSCENE.add(debugGrid);
@@ -134,17 +148,6 @@ mainSCENE.add(ambientLight);
 
 // clock mostly used for the delta in recursive functions later on
 const debugClock = new THREE.Clock();
-
-// parameters for the 4 point lights
-const lightsParams = {
-  y: 5,
-  x: 3,
-  z: 3,
-  intensity: 30,
-  enabled: false,
-  helpers: false,
-  color: "#ffffff",
-};
 
 // 4 point lights to see shadows and movement of object from multiple views
 function createPointLightAndHelper(
