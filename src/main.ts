@@ -5,10 +5,6 @@ import { GUI } from "lil-gui";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
-import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
-import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import {
   CSS2DObject,
   CSS2DRenderer,
@@ -38,7 +34,10 @@ const mainCAMERA = new THREE.PerspectiveCamera(
 mainCAMERA.position.set(0, 5, 10);
 
 // webgl renderer
-const main3D_RENDERER = new THREE.WebGLRenderer({ alpha: true });
+const main3D_RENDERER = new THREE.WebGLRenderer({
+  antialias: true,
+  alpha: true,
+});
 main3D_RENDERER.setSize(window.innerWidth, window.innerHeight);
 main3D_RENDERER.shadowMap.enabled = true;
 main3D_RENDERER.toneMapping = THREE.ACESFilmicToneMapping;
@@ -59,28 +58,8 @@ window.addEventListener("resize", () => {
   mainCAMERA.aspect = window.innerWidth / window.innerHeight;
   mainCAMERA.updateProjectionMatrix();
   main3D_RENDERER.setSize(window.innerWidth, window.innerHeight);
+  sub2D_RENDERER.setSize(window.innerWidth, window.innerHeight);
 });
-
-// base layer for postprocessing
-const baseCOMPOSER = new EffectComposer(main3D_RENDERER);
-
-// this just gives a number
-const screenPixelRatio = main3D_RENDERER.getPixelRatio();
-
-// minimal renderpass
-const baseRenderPass = new RenderPass(mainSCENE, mainCAMERA);
-baseCOMPOSER.addPass(baseRenderPass);
-
-const smaaPass = new SMAAPass(
-  window.innerWidth * screenPixelRatio,
-  window.innerHeight * screenPixelRatio
-);
-smaaPass.enabled = true;
-baseCOMPOSER.addPass(smaaPass);
-
-// more postprocessing cleanup
-const baseOutputPass = new OutputPass();
-baseCOMPOSER.addPass(baseOutputPass);
 
 // css labels for the axis
 const xObj = new CSS2DObject(xDiv);
@@ -264,7 +243,7 @@ const currentVehicle = {
     yPos: -0.1,
     zPos: 0.75,
     xAdditiveValueFront: -0.08,
-    xAdditiveValueRear: -0.13,
+    xAdditiveValueRear: -0.005,
   },
 };
 
@@ -332,17 +311,17 @@ vehicle.wheelInfos.forEach((wheel) => {
   wheelBodies.push(wheelBody);
   mainWORLD.addBody(wheelBody);
 
-  let buggyWheel;
+  let wheelModel;
   modelLoader.load(currentVehicle.selectedCar.wheels, function (gltf) {
-    buggyWheel = gltf.scene;
-    buggyWheel.traverse((node) => {
+    wheelModel = gltf.scene;
+    wheelModel.traverse((node) => {
       if (node instanceof THREE.Mesh) {
         node.castShadow = true;
         node.material.wireframe = false;
       }
     });
-    wheelVisual.push(buggyWheel);
-    mainSCENE.add(buggyWheel);
+    wheelVisual.push(wheelModel);
+    mainSCENE.add(wheelModel);
   });
 });
 
@@ -386,15 +365,15 @@ controlsForVehicle(vehicle);
 
 // setting this up in global since im gonna neet to use in update functions down below
 let mixer: THREE.AnimationMixer;
-let validModel: THREE.Object3D;
+let chassisModel: THREE.Object3D;
 
 // loads model and only plays animation if it consists animations data
 modelLoader.load(currentVehicle.selectedCar.chassis, function (gltf) {
-  validModel = gltf.scene;
+  chassisModel = gltf.scene;
 
   const validAnimationSet = gltf.animations;
 
-  validModel.traverse((node) => {
+  chassisModel.traverse((node) => {
     if (node instanceof THREE.Mesh) {
       node.castShadow = true;
       node.material.wireframe = false;
@@ -402,12 +381,12 @@ modelLoader.load(currentVehicle.selectedCar.chassis, function (gltf) {
   });
 
   if (gltf.animations.length > 0) {
-    mixer = new THREE.AnimationMixer(validModel);
+    mixer = new THREE.AnimationMixer(chassisModel);
     const action = mixer.clipAction(validAnimationSet[0]);
     action.play();
   }
 
-  mainSCENE.add(validModel);
+  mainSCENE.add(chassisModel);
 
   // main animate function here cause faster updating
   animate();
@@ -516,7 +495,7 @@ const debugViewOrbitControls = new OrbitControls(
 function debugView() {
   debugViewOrbitControls.enabled = true;
   debugViewOrbitControls.zoomSpeed = 3;
-  debugViewOrbitControls.maxDistance = 6000;
+  debugViewOrbitControls.maxDistance = 1500;
   debugViewOrbitControls.update();
   followMeshOrbitControls.enabled = false;
 }
@@ -528,9 +507,9 @@ const followMeshOrbitControls = new OrbitControls(
 );
 // to enable follow cam and disable debug view
 function followMesh() {
-  if (validModel) {
+  if (chassisModel) {
     followMeshOrbitControls.enabled = true;
-    followMeshOrbitControls.target = validModel.position;
+    followMeshOrbitControls.target = chassisModel.position;
     followMeshOrbitControls.enableDamping = true;
     followMeshOrbitControls.dampingFactor = 0.04;
     followMeshOrbitControls.enablePan = false;
@@ -545,6 +524,11 @@ function followMesh() {
 
 // boolean to switch between two viewers
 const valueForDebugViewSwitch = { toggleValue: true };
+
+const gameFolder = gui.addFolder("Game");
+gameFolder.open();
+gameFolder.add(valueForDebugViewSwitch, "toggleValue").name("Chase Camera");
+gameFolder.add({ resetCar }, "resetCar").name("Reset Car");
 
 // functions to switch between two orbit controls
 function chaseCamera() {
@@ -564,31 +548,25 @@ function resetCar() {
   vehicle.chassisBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
 }
 
-const gameFolder = gui.addFolder("Game");
-gameFolder.open();
-gameFolder.add(valueForDebugViewSwitch, "toggleValue").name("Chase Camera");
-gameFolder.add({ resetCar }, "resetCar").name("Reset Car");
+// for syncing threejs and cannon objects
+function threeAndCannonSync() {
+  mainWORLD.fixedStep();
+  if (chassisModel) {
+    chassisModel.position.copy(chassisBody.position);
+    chassisModel.quaternion.copy(chassisBody.quaternion);
+  }
+  groundMesh.position.copy(tempPhysicsGroundBody.position);
+  groundMesh.quaternion.copy(tempPhysicsGroundBody.quaternion);
+}
 
 // clean webgl render function
 function renderLoopMain() {
-  // main3D_RENDERER.render(mainSCENE, mainCAMERA);
-  baseCOMPOSER.render();
+  main3D_RENDERER.render(mainSCENE, mainCAMERA);
 }
 
 // clean css render function
 function renderLoopSub() {
   sub2D_RENDERER.render(mainSCENE, mainCAMERA);
-}
-
-// for syncing threejs and cannon objects
-function threeAndCannonSync() {
-  mainWORLD.fixedStep();
-  if (validModel) {
-    validModel.position.copy(chassisBody.position);
-    validModel.quaternion.copy(chassisBody.quaternion);
-  }
-  groundMesh.position.copy(tempPhysicsGroundBody.position);
-  groundMesh.quaternion.copy(tempPhysicsGroundBody.quaternion);
 }
 
 // main recursive function
