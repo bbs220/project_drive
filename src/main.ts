@@ -15,6 +15,7 @@ import {
 import { xDiv, yDiv, zDiv } from "./utils/backgroundUI";
 import { progressManager } from "./utils/loadingScreen";
 import { allHDRs, blueSquare, allCarModels } from "./utils/assetPaths";
+import { controlsForVehicle } from "./utils/steeringControls";
 
 // scene
 const mainSCENE = new THREE.Scene();
@@ -224,7 +225,7 @@ tempPhysicsGroundBody.position.set(0, 0, 0);
 tempPhysicsGroundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
 mainWORLD.addBody(tempPhysicsGroundBody);
 
-const chassisShape = new CANNON.Box(new CANNON.Vec3(2, 0.5, 1));
+const chassisShape = new CANNON.Box(new CANNON.Vec3(2, 0.3, 1));
 const chassisBody = new CANNON.Body({ mass: 300 });
 chassisBody.addShape(chassisShape);
 chassisBody.position.set(0, 2, 0);
@@ -237,7 +238,7 @@ const vehicle = new CANNON.RaycastVehicle({
 
 // setting for all wheel options
 const wheelOptions = {
-  radius: 0.5,
+  radius: 0.3,
   directionLocal: new CANNON.Vec3(0, -1, 0),
   suspensionStiffness: 30,
   suspensionRestLength: 0.3,
@@ -254,26 +255,26 @@ const wheelOptions = {
 };
 
 const currentVehicle = {
-  retrowave: {
-    chassis: allCarModels.retrowave.chassis,
-    wheels: allCarModels.retrowave.wheel,
-    xPos: 1.8,
-    yPos: -0.4,
-    zPos: 1,
-    xAdditiveValueFront: 0.01,
-    xAdditiveValueRear: 0.15,
+  selectedCar: {
+    chassis: allCarModels.muscle.chassis,
+    wheels: allCarModels.muscle.wheel,
+    xPos: 1.1,
+    yPos: -0.1,
+    zPos: 0.75,
+    xAdditiveValueFront: -0.08,
+    xAdditiveValueRear: -0.13,
   },
 };
 
-const wheelPos_X = currentVehicle.retrowave.xPos;
-const wheelPos_Z = currentVehicle.retrowave.zPos;
-const wheelPos_Y = currentVehicle.retrowave.yPos;
+const wheelPos_X = currentVehicle.selectedCar.xPos;
+const wheelPos_Z = currentVehicle.selectedCar.zPos;
+const wheelPos_Y = currentVehicle.selectedCar.yPos;
 
 // pushing all wheels in in 4 postions
 
 // front axle left position
 wheelOptions.chassisConnectionPointLocal.set(
-  -wheelPos_X + currentVehicle.retrowave.xAdditiveValueFront,
+  -wheelPos_X + currentVehicle.selectedCar.xAdditiveValueFront,
   wheelPos_Y,
   wheelPos_Z
 );
@@ -281,7 +282,7 @@ vehicle.addWheel(wheelOptions);
 
 // front axle right position
 wheelOptions.chassisConnectionPointLocal.set(
-  -wheelPos_X + currentVehicle.retrowave.xAdditiveValueFront,
+  -wheelPos_X + currentVehicle.selectedCar.xAdditiveValueFront,
   wheelPos_Y,
   -wheelPos_Z
 );
@@ -289,7 +290,7 @@ vehicle.addWheel(wheelOptions);
 
 // rear axle left position
 wheelOptions.chassisConnectionPointLocal.set(
-  wheelPos_X + currentVehicle.retrowave.xAdditiveValueRear,
+  wheelPos_X + currentVehicle.selectedCar.xAdditiveValueRear,
   wheelPos_Y,
   wheelPos_Z
 );
@@ -297,7 +298,7 @@ vehicle.addWheel(wheelOptions);
 
 // rear axle right position
 wheelOptions.chassisConnectionPointLocal.set(
-  wheelPos_X + currentVehicle.retrowave.xAdditiveValueRear,
+  wheelPos_X + currentVehicle.selectedCar.xAdditiveValueRear,
   wheelPos_Y,
   -wheelPos_Z
 );
@@ -330,12 +331,12 @@ vehicle.wheelInfos.forEach((wheel) => {
   mainWORLD.addBody(wheelBody);
 
   let buggyWheel;
-  modelLoader.load(currentVehicle.retrowave.wheels, function (gltf) {
+  modelLoader.load(currentVehicle.selectedCar.wheels, function (gltf) {
     buggyWheel = gltf.scene;
     buggyWheel.traverse((node) => {
       if (node instanceof THREE.Mesh) {
         node.castShadow = true;
-        // node.material.wireframe = true;
+        node.material.wireframe = true;
       }
     });
     wheelVisual.push(buggyWheel);
@@ -378,122 +379,15 @@ const wheel_ground = new CANNON.ContactMaterial(
 );
 mainWORLD.addContactMaterial(wheel_ground);
 
-// event listeners for controls WASD and B for brake and N for nitrous system
-const maxSteerVal = 0.5;
-let maxForce = 200;
-const brakeForce = maxForce / 10;
-
-controlsForVehicle();
-function controlsForVehicle() {
-  // flags for keeping me sane
-  let isWPressed = false;
-  let isNitroActive = false;
-  const originalMaxForce = maxForce;
-  const nLimit = 1000;
-  const nMultiplier = 10;
-
-  document.addEventListener("keydown", (event) => {
-    switch (event.key) {
-      case "w":
-        // case "ArrowUp":
-        isWPressed = true;
-        forceApplyEngineForce();
-        break;
-
-      case "s":
-        // case "ArrowDown":
-        vehicle.applyEngineForce(maxForce, 2);
-        vehicle.applyEngineForce(maxForce, 3);
-        break;
-
-      case "a":
-        // case "ArrowLeft":
-        vehicle.setSteeringValue(maxSteerVal, 0);
-        vehicle.setSteeringValue(maxSteerVal, 1);
-        break;
-
-      case "d":
-        // case "ArrowRight":
-        vehicle.setSteeringValue(-maxSteerVal, 0);
-        vehicle.setSteeringValue(-maxSteerVal, 1);
-        break;
-
-      case "b":
-        vehicle.setBrake(brakeForce, 0);
-        vehicle.setBrake(brakeForce, 1);
-        vehicle.setBrake(brakeForce, 2);
-        vehicle.setBrake(brakeForce, 3);
-        break;
-      case "n": // Nitro boost
-        if (!isNitroActive) {
-          // Activate nitro only if it's not already active
-          isNitroActive = true; // Mark nitro as active
-          maxForce *= nMultiplier; // Increase maxForce
-          if (isWPressed) {
-            forceApplyEngineForce(); // Apply increased force if "W" is pressed
-          }
-          setTimeout(() => {
-            maxForce = originalMaxForce; // Revert maxForce after nitro limit is passed
-            isNitroActive = false; // Mark nitro as inactive
-            if (isWPressed) {
-              forceApplyEngineForce(); // Apply original force if "W" is still pressed
-            }
-          }, nLimit);
-        }
-        break;
-    }
-  });
-
-  function forceApplyEngineForce() {
-    // Apply engine force based on current maxForce and nitro state
-    vehicle.applyEngineForce(-maxForce, 2);
-    vehicle.applyEngineForce(-maxForce, 3);
-  }
-
-  // Reset force on keyup
-  document.addEventListener("keyup", (event) => {
-    switch (event.key) {
-      case "w":
-        // case "ArrowUp":
-        isWPressed = false;
-        vehicle.applyEngineForce(0, 2);
-        vehicle.applyEngineForce(0, 3);
-        break;
-
-      case "s":
-        // case "ArrowDown":
-        vehicle.applyEngineForce(0, 2);
-        vehicle.applyEngineForce(0, 3);
-        break;
-
-      case "a":
-        // case "ArrowLeft":
-        vehicle.setSteeringValue(0, 0);
-        vehicle.setSteeringValue(0, 1);
-        break;
-
-      case "d":
-        // case "ArrowRight":
-        vehicle.setSteeringValue(0, 0);
-        vehicle.setSteeringValue(0, 1);
-        break;
-
-      case "b":
-        vehicle.setBrake(0, 0);
-        vehicle.setBrake(0, 1);
-        vehicle.setBrake(0, 2);
-        vehicle.setBrake(0, 3);
-        break;
-    }
-  });
-}
+// adding controls here
+controlsForVehicle(vehicle);
 
 // setting this up in global since im gonna neet to use in update functions down below
 let mixer: THREE.AnimationMixer;
 let validModel: THREE.Object3D;
 
 // loads model and only plays animation if it consists animations data
-modelLoader.load(currentVehicle.retrowave.chassis, function (gltf) {
+modelLoader.load(currentVehicle.selectedCar.chassis, function (gltf) {
   validModel = gltf.scene;
 
   const validAnimationSet = gltf.animations;
@@ -501,7 +395,7 @@ modelLoader.load(currentVehicle.retrowave.chassis, function (gltf) {
   validModel.traverse((node) => {
     if (node instanceof THREE.Mesh) {
       node.castShadow = true;
-      // node.material.wireframe = true;
+      node.material.wireframe = true;
     }
   });
 
@@ -654,7 +548,7 @@ function followMesh() {
     followMeshOrbitControls.enableDamping = true;
     followMeshOrbitControls.dampingFactor = 0.04;
     followMeshOrbitControls.enablePan = false;
-    followMeshOrbitControls.maxDistance = 8;
+    followMeshOrbitControls.maxDistance = 5;
     followMeshOrbitControls.minDistance = 4;
     followMeshOrbitControls.minPolarAngle = Math.PI / 6.4;
     followMeshOrbitControls.maxPolarAngle = Math.PI / 2.4;
@@ -664,7 +558,7 @@ function followMesh() {
 }
 
 // boolean to switch between two viewers
-const valueForDebugViewSwitch = { toggleValue: true };
+const valueForDebugViewSwitch = { toggleValue: false };
 
 // functions to switch between two orbit controls
 function chaseCamera() {
