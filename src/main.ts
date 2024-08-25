@@ -254,7 +254,7 @@ const wheelOptions = {
 };
 
 const currentVehicle = {
-  pickup: {
+  retrowave: {
     chassis: allCarModels.retrowave.chassis,
     wheels: allCarModels.retrowave.wheel,
     xPos: 1.8,
@@ -265,15 +265,15 @@ const currentVehicle = {
   },
 };
 
-const wheelPos_X = currentVehicle.pickup.xPos;
-const wheelPos_Z = currentVehicle.pickup.zPos;
-const wheelPos_Y = currentVehicle.pickup.yPos;
+const wheelPos_X = currentVehicle.retrowave.xPos;
+const wheelPos_Z = currentVehicle.retrowave.zPos;
+const wheelPos_Y = currentVehicle.retrowave.yPos;
 
 // pushing all wheels in in 4 postions
 
 // front axle left position
 wheelOptions.chassisConnectionPointLocal.set(
-  -wheelPos_X + currentVehicle.pickup.xAdditiveValueFront,
+  -wheelPos_X + currentVehicle.retrowave.xAdditiveValueFront,
   wheelPos_Y,
   wheelPos_Z
 );
@@ -281,7 +281,7 @@ vehicle.addWheel(wheelOptions);
 
 // front axle right position
 wheelOptions.chassisConnectionPointLocal.set(
-  -wheelPos_X + currentVehicle.pickup.xAdditiveValueFront,
+  -wheelPos_X + currentVehicle.retrowave.xAdditiveValueFront,
   wheelPos_Y,
   -wheelPos_Z
 );
@@ -289,7 +289,7 @@ vehicle.addWheel(wheelOptions);
 
 // rear axle left position
 wheelOptions.chassisConnectionPointLocal.set(
-  wheelPos_X + currentVehicle.pickup.xAdditiveValueRear,
+  wheelPos_X + currentVehicle.retrowave.xAdditiveValueRear,
   wheelPos_Y,
   wheelPos_Z
 );
@@ -297,7 +297,7 @@ vehicle.addWheel(wheelOptions);
 
 // rear axle right position
 wheelOptions.chassisConnectionPointLocal.set(
-  wheelPos_X + currentVehicle.pickup.xAdditiveValueRear,
+  wheelPos_X + currentVehicle.retrowave.xAdditiveValueRear,
   wheelPos_Y,
   -wheelPos_Z
 );
@@ -309,8 +309,8 @@ vehicle.addToWorld(mainWORLD);
 // setting up wheel bodies as a array
 const wheelCollisionMaterial = new CANNON.Material("wheel");
 
-const wheelBodies = [];
-const wheelVisual = [];
+const wheelBodies: any[] = [];
+const wheelVisual: THREE.Group<THREE.Object3DEventMap>[] = [];
 vehicle.wheelInfos.forEach((wheel) => {
   const cylinderShape = new CANNON.Cylinder(
     wheel.radius,
@@ -330,7 +330,7 @@ vehicle.wheelInfos.forEach((wheel) => {
   mainWORLD.addBody(wheelBody);
 
   let buggyWheel;
-  modelLoader.load(currentVehicle.pickup.wheels, function (gltf) {
+  modelLoader.load(currentVehicle.retrowave.wheels, function (gltf) {
     buggyWheel = gltf.scene;
     buggyWheel.traverse((node) => {
       if (node instanceof THREE.Mesh) {
@@ -493,7 +493,7 @@ let mixer: THREE.AnimationMixer;
 let validModel: THREE.Object3D;
 
 // loads model and only plays animation if it consists animations data
-modelLoader.load(currentVehicle.pickup.chassis, function (gltf) {
+modelLoader.load(currentVehicle.retrowave.chassis, function (gltf) {
   validModel = gltf.scene;
 
   const validAnimationSet = gltf.animations;
@@ -674,9 +674,20 @@ function chaseCamera() {
     debugView();
   }
 }
+
+// for bringing the car back to position (0,0,0) in case it crashes somewhere
+function resetCar() {
+  chassisBody.position.set(0, 4, 0);
+  chassisBody.quaternion.set(0, -1, 0, 1);
+  chassisBody.velocity.set(0, 0, 0);
+  mainCAMERA.position.set(0, 5, 10);
+  vehicle.chassisBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
+}
+
 const gameFolder = gui.addFolder("Game");
 gameFolder.open();
 gameFolder.add(valueForDebugViewSwitch, "toggleValue").name("Chase Camera");
+gameFolder.add({ resetCar }, "resetCar").name("Reset Car");
 
 // clean webgl render function
 function renderLoopMain() {
