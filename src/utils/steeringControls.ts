@@ -4,10 +4,10 @@ const maxSteerVal = 0.5; // dont go above 1 or below 0 else steering angle goes 
 let maxTorque = 200; // initial torque of the vehicle
 const brakeForce = maxTorque / 10; // handbrake force
 
-// event listeners for controls WASD and B for brake and N for nitrous system
+// event listeners for controls WASD and B for handbrake and N for nitrous
 export function controlsForVehicle(vehicle: CANNON.RaycastVehicle) {
   // flags for keeping me sane
-  let isWPressed = false; // flag to only apply nitro is car is going forward
+  let isWPressed = false; // flag to only apply nitro if vehicle is going forward
   let isNitroActive = false; // debugging check
   const originalMaxForce = maxTorque; // redefining here instead of using torque directly
   const nLimit = 1000; // the minimum duration between two consecutive activated nitrous boosts only takes effect after 1000ms each

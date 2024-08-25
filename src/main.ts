@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
-import CannonDebugger from "cannon-es-debugger";
 import Stats from "stats.js";
 import { GUI } from "lil-gui";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -16,6 +15,12 @@ import { xDiv, yDiv, zDiv } from "./utils/backgroundUI";
 import { progressManager } from "./utils/loadingScreen";
 import { allHDRs, blueSquare, allCarModels } from "./utils/assetPaths";
 import { controlsForVehicle } from "./utils/steeringControls";
+import { initPhysicsDebugger, physicsDebug } from "./utils/physicsDebugger";
+import {
+  anisotrophicValue,
+  originAxisLength,
+  tilingValue,
+} from "./constants/constants";
 
 // scene
 const mainSCENE = new THREE.Scene();
@@ -63,8 +68,6 @@ const baseCOMPOSER = new EffectComposer(main3D_RENDERER);
 const baseRenderPass = new RenderPass(mainSCENE, mainCAMERA);
 baseCOMPOSER.addPass(baseRenderPass);
 
-let originAxisLength = 50;
-
 // css labels for the axis
 const xObj = new CSS2DObject(xDiv);
 xObj.visible = false;
@@ -79,10 +82,6 @@ zObj.visible = false;
 zObj.position.set(0, 0, originAxisLength);
 
 mainSCENE.add(xObj, yObj, zObj);
-
-// constansts for ground texture
-const tilingValue = 16;
-const anisotrophicValue = 16; // this is max value dont go above 16
 
 // a tiled texture for a some reference
 const blueprintTexture = new THREE.TextureLoader(progressManager).load(
@@ -199,8 +198,8 @@ const mainWORLD = new CANNON.World({
 mainWORLD.broadphase = new CANNON.SAPBroadphase(mainWORLD);
 mainWORLD.defaultContactMaterial.friction = 0;
 
-// initiating the physics debug renderer
-let physicsDebug: { update: any };
+// initializing debugger to see the invisible physics world collisions
+initPhysicsDebugger(mainSCENE, mainWORLD);
 
 // threejs plane as a ground
 const groundShape = new THREE.PlaneGeometry(100, 100, 1, 1);
@@ -307,9 +306,9 @@ vehicle.addWheel(wheelOptions);
 // adding vehicle to the physics world
 vehicle.addToWorld(mainWORLD);
 
-// setting up wheel bodies as a array
 const wheelCollisionMaterial = new CANNON.Material("wheel");
 
+// setting up wheel bodies as a array
 const wheelBodies: any[] = [];
 const wheelVisual: THREE.Group<THREE.Object3DEventMap>[] = [];
 vehicle.wheelInfos.forEach((wheel) => {
@@ -336,7 +335,7 @@ vehicle.wheelInfos.forEach((wheel) => {
     buggyWheel.traverse((node) => {
       if (node instanceof THREE.Mesh) {
         node.castShadow = true;
-        node.material.wireframe = true;
+        node.material.wireframe = false;
       }
     });
     wheelVisual.push(buggyWheel);
@@ -395,7 +394,7 @@ modelLoader.load(currentVehicle.selectedCar.chassis, function (gltf) {
   validModel.traverse((node) => {
     if (node instanceof THREE.Mesh) {
       node.castShadow = true;
-      node.material.wireframe = true;
+      node.material.wireframe = false;
     }
   });
 
@@ -505,22 +504,6 @@ function toggleEnvironment(value: boolean) {
   }
 }
 
-function initPhysicsDebugger() {
-  physicsDebug = CannonDebugger(mainSCENE, mainWORLD, {
-    color: 0xffff00,
-    onInit(_body, mesh) {
-      mesh.visible = false;
-      document.addEventListener("keydown", (e) => {
-        e.stopPropagation();
-        if (e.key === "h") {
-          mesh.visible = !mesh.visible;
-        }
-      });
-    },
-  });
-}
-initPhysicsDebugger();
-
 // lock on to position(0,0,0) mostly for debugging entire scene
 const debugViewOrbitControls = new OrbitControls(
   mainCAMERA,
@@ -558,7 +541,7 @@ function followMesh() {
 }
 
 // boolean to switch between two viewers
-const valueForDebugViewSwitch = { toggleValue: false };
+const valueForDebugViewSwitch = { toggleValue: true };
 
 // functions to switch between two orbit controls
 function chaseCamera() {
