@@ -16,10 +16,22 @@ import { controlsForVehicle } from "./utils/steeringControls";
 import { initPhysicsDebugger, physicsDebug } from "./utils/physicsDebugger";
 import {
   anisotrophicValue,
+  groundHeight,
+  groundHeightSegments,
+  groundWidth,
+  groundWidthSegments,
   lightsParams,
   originAxisLength,
   tilingValue,
 } from "./constants/constants";
+import {
+  createHeadLights,
+  headLightsToCarBodySync,
+  leftHeadLight,
+  leftHeadLightHelper,
+  rightHeadLight,
+  rightHeadLightHelper,
+} from "./utils/headLights";
 
 // scene
 const mainSCENE = new THREE.Scene();
@@ -184,7 +196,12 @@ mainWORLD.defaultContactMaterial.friction = 0;
 initPhysicsDebugger(mainSCENE, mainWORLD);
 
 // threejs plane as a ground
-const groundShape = new THREE.PlaneGeometry(100, 100, 1, 1);
+const groundShape = new THREE.PlaneGeometry(
+  groundWidth,
+  groundHeight,
+  groundWidthSegments,
+  groundHeightSegments
+);
 const groundMaterial = new THREE.MeshStandardMaterial({
   wireframe: false,
   map: blueprintTexture,
@@ -392,6 +409,8 @@ modelLoader.load(currentVehicle.selectedCar.chassis, function (gltf) {
   animate();
 });
 
+createHeadLights(mainSCENE);
+
 // a gui for prototyping on the objects
 const gui = new GUI();
 gui.close();
@@ -486,6 +505,52 @@ function toggleEnvironment(value: boolean) {
   }
 }
 
+function updateBothSpotlights(property: string, value: number) {
+  (leftHeadLight as any)[property] = value;
+  (rightHeadLight as any)[property] = value;
+}
+
+function updateHelperVisibility(property: string, value: boolean) {
+  (leftHeadLightHelper as any)[property] = value;
+  (rightHeadLightHelper as any)[property] = value;
+}
+
+const headLightFolder = gui.addFolder("Headlights");
+headLightFolder
+  .add(leftHeadLightHelper, "visible")
+  .name("Helper")
+  .onChange((value: boolean) => {
+    updateHelperVisibility("visible", value);
+  });
+headLightFolder
+  .add(leftHeadLight, "intensity", 1, 1000)
+  .step(1)
+  .name("intensity")
+  .onChange((value: number) => {
+    updateBothSpotlights("intensity", value);
+  });
+headLightFolder
+  .add(leftHeadLight, "distance", 1, 100)
+  .name("distance")
+  .step(0.1)
+  .onChange((value: number) => {
+    updateBothSpotlights("distance", value);
+  });
+headLightFolder
+  .add(leftHeadLight, "angle", 0, 1.5)
+  .name("angle")
+  .step(0.01)
+  .onChange((value: number) => {
+    updateBothSpotlights("angle", value);
+  });
+headLightFolder
+  .add(leftHeadLight, "penumbra", 0, 1)
+  .step(0.1)
+  .name("penumbra")
+  .onChange((value: number) => {
+    updateBothSpotlights("penumbra", value);
+  });
+
 // lock on to position(0,0,0) mostly for debugging entire scene
 const debugViewOrbitControls = new OrbitControls(
   mainCAMERA,
@@ -576,7 +641,7 @@ function animate() {
   renderLoopSub();
   stats.update();
   threeAndCannonSync();
-  headLightsToCarBodySync();
+  headLightsToCarBodySync(chassisModel);
   chaseCamera();
 
   const deltaTime = debugClock.getDelta();
@@ -587,131 +652,5 @@ function animate() {
 
   if (mixer) {
     mixer.update(deltaTime);
-  }
-}
-
-let leftHeadLightHelper: THREE.SpotLightHelper,
-  rightHeadLightHelper: THREE.SpotLightHelper,
-  leftTarget: THREE.Object3D,
-  rightTarget: THREE.Object3D,
-  leftHeadLight: THREE.SpotLight,
-  rightHeadLight: THREE.SpotLight;
-
-createHeadLightAnchorPoints();
-function createHeadLightAnchorPoints() {
-  const setVals = {
-    x: 0.6,
-    y: 0,
-    z: 1.8,
-    distBetweenToAngleAndFromAngle: 10,
-    color: 0xffffff,
-    distance: 10,
-    penumbra: 0.5,
-    fromAngle: 0,
-    toAngle: 0,
-    intensity: 500,
-  };
-
-  leftHeadLight = new THREE.SpotLight(
-    setVals.color,
-    setVals.intensity,
-    setVals.distance,
-    setVals.fromAngle,
-    setVals.penumbra
-  );
-  leftHeadLight.castShadow = true;
-  leftHeadLight.position.set(-setVals.z, setVals.y, -setVals.x);
-
-  leftHeadLightHelper = new THREE.SpotLightHelper(leftHeadLight, setVals.color);
-  leftHeadLightHelper.visible = false;
-
-  leftTarget = new THREE.Object3D();
-  leftTarget.position.set(
-    setVals.z - setVals.distBetweenToAngleAndFromAngle,
-    setVals.y - setVals.toAngle,
-    -setVals.x
-  );
-  leftHeadLight.target = leftTarget;
-
-  rightHeadLight = new THREE.SpotLight(
-    setVals.color,
-    setVals.intensity,
-    setVals.distance,
-    setVals.fromAngle,
-    setVals.penumbra
-  );
-  rightHeadLight.castShadow = true;
-  rightHeadLight.position.set(-setVals.z, setVals.y, setVals.x);
-
-  rightHeadLightHelper = new THREE.SpotLightHelper(
-    rightHeadLight,
-    setVals.color
-  );
-  rightHeadLightHelper.visible = false;
-
-  rightTarget = new THREE.Object3D();
-  rightTarget.position.set(
-    setVals.z - setVals.distBetweenToAngleAndFromAngle,
-    setVals.y - setVals.toAngle,
-    setVals.x
-  );
-  rightHeadLight.target = rightTarget;
-
-  mainSCENE.add(
-    leftHeadLight,
-    rightHeadLight,
-    leftHeadLightHelper,
-    rightHeadLightHelper
-  );
-
-  function updateBothSpotlights(property: string, value: number) {
-    (leftHeadLight as any)[property] = value;
-    (rightHeadLight as any)[property] = value;
-  }
-
-  function updateHelperVisibility(property: string, value: boolean) {
-    (leftHeadLightHelper as any)[property] = value;
-    (rightHeadLightHelper as any)[property] = value;
-  }
-
-  const headLightFolder = gui.addFolder("Headlights");
-  headLightFolder
-    .add(leftHeadLightHelper, "visible")
-    .name("Helper")
-    .onChange((value: boolean) => {
-      updateHelperVisibility("visible", value);
-    });
-  headLightFolder
-    .add(leftHeadLight, "intensity", 1, 1000)
-    .step(1)
-    .name("intensity")
-    .onChange((value: number) => {
-      updateBothSpotlights("intensity", value);
-    });
-  headLightFolder
-    .add(leftHeadLight, "distance", 1, 100)
-    .name("distance")
-    .onChange((value: number) => {
-      updateBothSpotlights("distance", value);
-    });
-  headLightFolder
-    .add(leftHeadLight, "angle", 0, Math.PI / 2)
-    .name("angle")
-    .onChange((value: number) => {
-      updateBothSpotlights("angle", value);
-    });
-  headLightFolder
-    .add(leftHeadLight, "penumbra", 0, 1)
-    .name("penumbra")
-    .onChange((value: number) => {
-      updateBothSpotlights("penumbra", value);
-    });
-}
-
-function headLightsToCarBodySync() {
-  if (chassisModel) {
-    chassisModel.add(leftTarget, rightTarget, leftHeadLight, rightHeadLight);
-    leftHeadLightHelper.update();
-    rightHeadLightHelper.update();
   }
 }
