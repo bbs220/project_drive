@@ -11,15 +11,12 @@ import {
 } from "three/addons/renderers/CSS2DRenderer.js";
 import { xDiv, yDiv, zDiv } from "./utils/backgroundUI";
 import { progressManager } from "./utils/loadingScreen";
-import { allHDRs, blueSquare, allCarModels } from "./utils/assetPaths";
+import { allHDRs, allImageTextures, allCarModels } from "./utils/assetPaths";
 import { controlsForVehicle } from "./utils/steeringControls";
 import { initPhysicsDebugger, physicsDebug } from "./utils/physicsDebugger";
 import {
   anisotrophicValue,
-  groundHeight,
-  groundHeightSegments,
-  groundWidth,
-  groundWidthSegments,
+  groundParams,
   lightsParams,
   originAxisLength,
   tilingValue,
@@ -90,7 +87,7 @@ mainSCENE.add(xObj, yObj, zObj);
 
 // a tiled texture for a some reference
 const blueprintTexture = new THREE.TextureLoader(progressManager).load(
-  blueSquare.color,
+  allImageTextures.blueSquare,
   (texture) => {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
@@ -197,10 +194,10 @@ initPhysicsDebugger(mainSCENE, mainWORLD);
 
 // threejs plane as a ground
 const groundShape = new THREE.PlaneGeometry(
-  groundWidth,
-  groundHeight,
-  groundWidthSegments,
-  groundHeightSegments
+  groundParams.width,
+  groundParams.height,
+  groundParams.wSegment,
+  groundParams.hSegment
 );
 const groundMaterial = new THREE.MeshStandardMaterial({
   wireframe: false,
@@ -397,7 +394,7 @@ modelLoader.load(currentVehicle.selectedCar.chassis, function (gltf) {
     }
   });
 
-  if (gltf.animations.length > 0) {
+  if (validAnimationSet.length > 0) {
     mixer = new THREE.AnimationMixer(chassisModel);
     const action = mixer.clipAction(validAnimationSet[0]);
     action.play();
@@ -409,6 +406,7 @@ modelLoader.load(currentVehicle.selectedCar.chassis, function (gltf) {
   animate();
 });
 
+// adding headlights to car
 createHeadLights(mainSCENE);
 
 // a gui for prototyping on the objects
@@ -430,7 +428,7 @@ sceneFolder.add(debugGrid, "visible").name("Grid");
 sceneFolder.add(ambientLight, "visible").name("Fill Light");
 
 const lightsFolder = gui.addFolder("Lights");
-lightsFolder.open();
+lightsFolder.close();
 function updateLightIntensities() {
   lightsAndHelpers.forEach(([light]) => {
     light.intensity = lightsParams.intensity;
@@ -590,11 +588,6 @@ function followMesh() {
 // boolean to switch between two viewers
 const valueForDebugViewSwitch = { toggleValue: true };
 
-const gameFolder = gui.addFolder("Game");
-gameFolder.open();
-gameFolder.add(valueForDebugViewSwitch, "toggleValue").name("Chase Camera");
-gameFolder.add({ resetCar }, "resetCar").name("Reset Car");
-
 // functions to switch between two orbit controls
 function chaseCamera() {
   if (valueForDebugViewSwitch.toggleValue === true) {
@@ -612,6 +605,11 @@ function resetCar() {
   mainCAMERA.position.set(0, 5, 10);
   vehicle.chassisBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
 }
+
+const gameFolder = gui.addFolder("Game");
+gameFolder.open();
+gameFolder.add(valueForDebugViewSwitch, "toggleValue").name("Chase Camera");
+gameFolder.add({ resetCar }, "resetCar").name("Reset Car");
 
 // for syncing threejs and cannon objects
 function threeAndCannonSync() {

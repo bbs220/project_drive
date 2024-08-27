@@ -30,8 +30,14 @@ const createBtn = document.createElement("div");
 createBtn.id = "enterBtn";
 createBtn.style.cssText = `
   position: absolute;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
   justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
   align-items: center;
   width: 170px;
   height: 40px;
@@ -43,6 +49,8 @@ createBtn.style.cssText = `
   border: 1px solid white;
   border-radius: 5px;
   opacity: 0;
+  -webkit-transition: 1s opacity ease-out;
+  -o-transition: 1s opacity ease-out;
   transition: 1s opacity ease-out;
 `;
 createBtn.textContent = "Enter the Scene";

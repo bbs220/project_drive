@@ -3,7 +3,7 @@ import { type Scene } from "three";
 import { type World } from "cannon-es";
 
 // initiating the physics debug renderer
-export let physicsDebug: { update: any };
+export let physicsDebug: { update: Function };
 
 export function initPhysicsDebugger(scene: Scene, world: World) {
   physicsDebug = CannonDebugger(scene, world, {

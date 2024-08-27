@@ -8,20 +8,22 @@ export const originAxisLength = 50;
 
 // parameters for the 4 point lights
 export const lightsParams = {
-  y: 5,
-  x: 3,
-  z: 3,
-  intensity: 30,
-  enabled: false,
-  helpers: false,
-  color: "#ffffff",
+  y: 5, // y position of the spotlight origin
+  x: 3, // x position of the spotlight origin
+  z: 3, // z position of the spotlight origin
+  intensity: 30, // total intensity dont take this above 1000
+  enabled: false, // loads off by default
+  helpers: false, // loads off by default
+  color: "#ffffff", // color of the 4 lights
 };
 
 // for the base ground something to drive on
-export const groundWidth = 100;
-export const groundHeight = 100;
-export const groundWidthSegments = 1;
-export const groundHeightSegments = 1;
+export const groundParams = {
+  width: 100, // width of the ground
+  height: 100, // height of the ground
+  wSegment: 1, // detail in width 1 minimum for better performance
+  hSegment: 1, // detail in height 1 minimum for better performance
+};
 
 // all the different headlights parameters
 export const valueForHeadLights = {

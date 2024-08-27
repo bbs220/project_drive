@@ -1,7 +1,7 @@
 import type CANNON from "cannon-es";
 
 const maxSteerVal = 0.5; // dont go above 1 or below 0 else steering angle goes bad
-let maxTorque = 200; // initial torque of the vehicle
+let maxTorque = 400; // initial torque of the vehicle
 const brakeForce = maxTorque / 10; // handbrake force
 
 // event listeners for controls WASD and B for handbrake and N for nitrous
