@@ -1,7 +1,8 @@
 import type CANNON from "cannon-es";
+import { rechargeNitros } from "./vehicleUI";
 
 const maxSteerVal = 0.5; // dont go above 1 or below 0 else steering angle goes bad
-let maxTorque = 400; // initial torque of the vehicle
+let maxTorque = 200; // initial torque of the vehicle
 const brakeForce = maxTorque / 10; // handbrake force
 
 // event listeners for controls WASD and B for handbrake and N for nitrous
@@ -52,6 +53,7 @@ export function controlsForVehicle(vehicle: CANNON.RaycastVehicle) {
           maxTorque *= nMultiplier; // Increase maxForce
           if (isWPressed) {
             forceApplyEngineForce(); // Apply increased force if "W" is pressed
+            rechargeNitros();
           }
           setTimeout(() => {
             maxTorque = originalMaxForce; // Revert maxForce after nitro limit is passed

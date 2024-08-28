@@ -14,6 +14,7 @@ import { progressManager } from "./utils/loadingScreen";
 import { allHDRs, allImageTextures, allCarModels } from "./utils/assetPaths";
 import { controlsForVehicle } from "./utils/steeringControls";
 import { initPhysicsDebugger, physicsDebug } from "./utils/physicsDebugger";
+import { speedCalulation } from "./utils/vehicleUI";
 import {
   anisotrophicValue,
   groundParams,
@@ -640,6 +641,7 @@ function animate() {
   stats.update();
   threeAndCannonSync();
   headLightsToCarBodySync(chassisModel);
+  speedCalulation(vehicle);
   chaseCamera();
 
   const deltaTime = debugClock.getDelta();
