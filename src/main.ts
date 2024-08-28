@@ -415,7 +415,7 @@ const gui = new GUI();
 gui.close();
 
 const sceneFolder = gui.addFolder("Scene");
-sceneFolder.open();
+sceneFolder.close();
 sceneFolder
   .add(debugAxes, "visible")
   .name("Origin Axes")
@@ -428,7 +428,7 @@ function toggleDebugObjectsVisibility() {
 sceneFolder.add(debugGrid, "visible").name("Grid");
 sceneFolder.add(ambientLight, "visible").name("Fill Light");
 
-const lightsFolder = gui.addFolder("Lights");
+const lightsFolder = gui.addFolder("Stage Lights");
 lightsFolder.close();
 function updateLightIntensities() {
   lightsAndHelpers.forEach(([light]) => {
@@ -515,6 +515,7 @@ function updateHelperVisibility(property: string, value: boolean) {
 }
 
 const headLightFolder = gui.addFolder("Headlights");
+headLightFolder.close();
 headLightFolder
   .add(leftHeadLightHelper, "visible")
   .name("Helper")
@@ -522,7 +523,7 @@ headLightFolder
     updateHelperVisibility("visible", value);
   });
 headLightFolder
-  .add(leftHeadLight, "intensity", 1, 1000)
+  .add(leftHeadLight, "intensity", 0, 100)
   .step(1)
   .name("intensity")
   .onChange((value: number) => {
@@ -607,10 +608,10 @@ function resetCar() {
   vehicle.chassisBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
 }
 
-const gameFolder = gui.addFolder("Game");
+const gameFolder = gui.addFolder("Vehicle");
 gameFolder.open();
 gameFolder.add(valueForDebugViewSwitch, "toggleValue").name("Chase Camera");
-gameFolder.add({ resetCar }, "resetCar").name("Reset Car");
+gameFolder.add({ resetCar }, "resetCar").name("Reset Vehicle");
 
 // for syncing threejs and cannon objects
 function threeAndCannonSync() {

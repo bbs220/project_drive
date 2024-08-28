@@ -33,8 +33,8 @@ export const valueForHeadLights = {
   internalDistance: 10, // distance between the target of the headlights and the headlight origin points
   color: "#ffffff", // color of headlights
   distance: 10, // 0 is infinity other int number is finite
-  penumbra: 0.5, // set only between 0 and 1
-  coneAngle: 0.5, // dont go above 1.5
-  downLookAngle: 0, // how down the headlight cones should be tilted dont go above 0 below 0 is acceptable
-  intensity: 500, // intensity of the lights
+  penumbra: 0.5, // set ONLY between 0 and 1
+  coneAngle: 0.5, // DONT go above 1.5
+  downLookAngle: 0, // how down the headlight cones should be tilted ONLY go above 0 , DONT go below 0 thats into negative values
+  intensity: 0, // intensity of the lights also setting it to 0 turns off the spotlight
 };
