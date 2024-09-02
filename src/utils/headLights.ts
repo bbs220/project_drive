@@ -11,7 +11,7 @@ export let leftHeadLightHelper: THREE.SpotLightHelper,
   rightHeadLight: THREE.SpotLight;
 
 // creates headlights
-export function createHeadLights(scene: Scene) {
+export function useHeadLights(scene: Scene) {
   // left side first
   leftHeadLight = new THREE.SpotLight(
     valueForHeadLights.color,
@@ -89,7 +89,7 @@ export function createHeadLights(scene: Scene) {
 }
 
 // for syncing the headlights to chassis basically use this in main recursive animate function
-export function headLightsToCarBodySync(model: THREE.Object3D) {
+export function useHeadLightsToChassisSync(model: THREE.Object3D) {
   if (model) {
     model.add(leftTarget, rightTarget, leftHeadLight, rightHeadLight);
     leftHeadLightHelper.update();

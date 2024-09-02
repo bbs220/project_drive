@@ -55,8 +55,8 @@ export const allCarModels = {
   rx7WideBody: "models/fixed/mazda rx7 widebody.glb",
   hoonigan: "models/fixed/hoonigan.glb",
   muscle: {
-    chassis: "models/chassis.glb",
-    wheel: "models/wheel.glb",
+    chassis: "models/muscle/chassis.glb",
+    wheel: "models/muscle/wheel.glb",
   },
 };
 

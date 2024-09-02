@@ -5,63 +5,51 @@ import { GUI } from "lil-gui";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
-import {
-  CSS2DObject,
-  CSS2DRenderer,
-} from "three/addons/renderers/CSS2DRenderer.js";
-import { xDiv, yDiv, zDiv } from "./utils/backgroundUI";
-import { progressManager } from "./utils/loadingScreen";
+import { progressManager } from "./ui/loadingScreenUI";
 import { allHDRs, allImageTextures, allCarModels } from "./utils/assetPaths";
 import { controlsForVehicle } from "./utils/steeringControls";
 import { initPhysicsDebugger, physicsDebug } from "./utils/physicsDebugger";
-import { speedCalulation } from "./utils/vehicleUI";
+import { speedCalulation } from "./ui/vehicleUI";
 import {
   anisotrophicValue,
   groundParams,
   lightsParams,
-  originAxisLength,
   tilingValue,
 } from "./constants/constants";
 import {
-  createHeadLights,
-  headLightsToCarBodySync,
+  useHeadLights,
+  useHeadLightsToChassisSync,
   leftHeadLight,
   leftHeadLightHelper,
   rightHeadLight,
   rightHeadLightHelper,
 } from "./utils/headLights";
+import {
+  usePerspectiveCamera,
+  useScene,
+  useWebGLRenderer,
+} from "./include/coreComponents";
+import { useCSS2DRenderer } from "./include/otherRenderer";
+import {
+  useAmbientLight,
+  useGrid,
+  useOriginAxes,
+  xLabel,
+  yLabel,
+  zLabel,
+} from "./helpers/commonHelpers";
 
 // scene
-const mainSCENE = new THREE.Scene();
+const mainSCENE = useScene();
 
 // camera
-const mainCAMERA = new THREE.PerspectiveCamera(
-  60,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  2000
-);
-mainCAMERA.position.set(0, 5, 10);
+const mainCAMERA = usePerspectiveCamera();
 
-// webgl renderer
-const main3D_RENDERER = new THREE.WebGLRenderer({
-  antialias: true,
-  alpha: true,
-});
-main3D_RENDERER.setSize(window.innerWidth, window.innerHeight);
-main3D_RENDERER.shadowMap.enabled = true;
-main3D_RENDERER.toneMapping = THREE.ACESFilmicToneMapping;
-main3D_RENDERER.toneMappingExposure = 1;
-document.body.appendChild(main3D_RENDERER.domElement);
+// primary renderer
+const main3D_RENDERER = useWebGLRenderer();
 
-// css renderer
-const sub2D_RENDERER = new CSS2DRenderer();
-sub2D_RENDERER.setSize(window.innerWidth, window.innerHeight);
-sub2D_RENDERER.domElement.style.position = "absolute";
-sub2D_RENDERER.domElement.style.top = "0%";
-sub2D_RENDERER.domElement.style.left = "0%";
-sub2D_RENDERER.domElement.style.pointerEvents = "none";
-document.body.appendChild(sub2D_RENDERER.domElement);
+// secondary renderer
+const sub2D_RENDERER = useCSS2DRenderer();
 
 // for resizing both renderers to window size
 window.addEventListener("resize", () => {
@@ -70,21 +58,6 @@ window.addEventListener("resize", () => {
   main3D_RENDERER.setSize(window.innerWidth, window.innerHeight);
   sub2D_RENDERER.setSize(window.innerWidth, window.innerHeight);
 });
-
-// css labels for the axis
-const xObj = new CSS2DObject(xDiv);
-xObj.visible = false;
-xObj.position.set(originAxisLength, 0, 0);
-
-const yObj = new CSS2DObject(yDiv);
-yObj.visible = false;
-yObj.position.set(0, originAxisLength, 0);
-
-const zObj = new CSS2DObject(zDiv);
-zObj.visible = false;
-zObj.position.set(0, 0, originAxisLength);
-
-mainSCENE.add(xObj, yObj, zObj);
 
 // a tiled texture for a some reference
 const blueprintTexture = new THREE.TextureLoader(progressManager).load(
@@ -114,25 +87,16 @@ stats.showPanel(0);
 document.body.appendChild(stats.dom);
 
 // just a grid not related to physics grid
-const debugGrid = new THREE.GridHelper(
-  tilingValue,
-  tilingValue,
-  "#ffff00",
-  "#00ffff"
-);
-debugGrid.position.set(0, 0.1, 0);
-debugGrid.scale.setScalar(6.2);
-debugGrid.visible = false;
+const debugGrid = useGrid();
 mainSCENE.add(debugGrid);
 
 // origin 3d axes to see orientation of objects places in the scene
-const debugAxes = new THREE.AxesHelper(originAxisLength);
-debugAxes.visible = false;
-mainSCENE.add(debugAxes);
+const debugAxes = useOriginAxes();
+// css labels for the axis
+mainSCENE.add(debugAxes, xLabel, yLabel, zLabel);
 
 // flood light to making all objects visible does not produce shadows
-const ambientLight = new THREE.AmbientLight("#ffffff", 0.8);
-ambientLight.visible = false;
+const ambientLight = useAmbientLight();
 mainSCENE.add(ambientLight);
 
 // clock mostly used for the delta in recursive functions later on
@@ -250,27 +214,25 @@ const wheelOptions = {
   useCustomSlidingRotationalSpeed: true,
 };
 
-const currentVehicle = {
-  selectedCar: {
-    chassis: allCarModels.muscle.chassis,
-    wheels: allCarModels.muscle.wheel,
-    xPos: 1.1,
-    yPos: -0.1,
-    zPos: 0.75,
-    xAdditiveValueFront: -0.08,
-    xAdditiveValueRear: -0.005,
-  },
+const selectedCar = {
+  chassis: allCarModels.muscle.chassis,
+  wheels: allCarModels.muscle.wheel,
+  xPos: 1.1,
+  yPos: -0.1,
+  zPos: 0.75,
+  xAdditiveValueFront: -0.08,
+  xAdditiveValueRear: -0.005,
 };
 
-const wheelPos_X = currentVehicle.selectedCar.xPos;
-const wheelPos_Z = currentVehicle.selectedCar.zPos;
-const wheelPos_Y = currentVehicle.selectedCar.yPos;
+const wheelPos_X = selectedCar.xPos;
+const wheelPos_Z = selectedCar.zPos;
+const wheelPos_Y = selectedCar.yPos;
 
 // pushing all wheels in in 4 postions
 
 // front axle left position
 wheelOptions.chassisConnectionPointLocal.set(
-  -wheelPos_X + currentVehicle.selectedCar.xAdditiveValueFront,
+  -wheelPos_X + selectedCar.xAdditiveValueFront,
   wheelPos_Y,
   wheelPos_Z
 );
@@ -278,7 +240,7 @@ vehicle.addWheel(wheelOptions);
 
 // front axle right position
 wheelOptions.chassisConnectionPointLocal.set(
-  -wheelPos_X + currentVehicle.selectedCar.xAdditiveValueFront,
+  -wheelPos_X + selectedCar.xAdditiveValueFront,
   wheelPos_Y,
   -wheelPos_Z
 );
@@ -286,7 +248,7 @@ vehicle.addWheel(wheelOptions);
 
 // rear axle left position
 wheelOptions.chassisConnectionPointLocal.set(
-  wheelPos_X + currentVehicle.selectedCar.xAdditiveValueRear,
+  wheelPos_X + selectedCar.xAdditiveValueRear,
   wheelPos_Y,
   wheelPos_Z
 );
@@ -294,7 +256,7 @@ vehicle.addWheel(wheelOptions);
 
 // rear axle right position
 wheelOptions.chassisConnectionPointLocal.set(
-  wheelPos_X + currentVehicle.selectedCar.xAdditiveValueRear,
+  wheelPos_X + selectedCar.xAdditiveValueRear,
   wheelPos_Y,
   -wheelPos_Z
 );
@@ -306,7 +268,7 @@ vehicle.addToWorld(mainWORLD);
 const wheelCollisionMaterial = new CANNON.Material("wheel");
 
 // setting up wheel bodies as a array
-const wheelBodies: any[] = [];
+const wheelBodies: CANNON.Body[] = [];
 const wheelVisual: THREE.Group<THREE.Object3DEventMap>[] = [];
 vehicle.wheelInfos.forEach((wheel) => {
   const cylinderShape = new CANNON.Cylinder(
@@ -327,7 +289,7 @@ vehicle.wheelInfos.forEach((wheel) => {
   mainWORLD.addBody(wheelBody);
 
   let wheelModel;
-  modelLoader.load(currentVehicle.selectedCar.wheels, function (gltf) {
+  modelLoader.load(selectedCar.wheels, function (gltf) {
     wheelModel = gltf.scene;
     wheelModel.traverse((node) => {
       if (node instanceof THREE.Mesh) {
@@ -383,7 +345,7 @@ let mixer: THREE.AnimationMixer;
 let chassisModel: THREE.Object3D;
 
 // loads model and only plays animation if it consists animations data
-modelLoader.load(currentVehicle.selectedCar.chassis, function (gltf) {
+modelLoader.load(selectedCar.chassis, function (gltf) {
   chassisModel = gltf.scene;
 
   const validAnimationSet = gltf.animations;
@@ -408,7 +370,7 @@ modelLoader.load(currentVehicle.selectedCar.chassis, function (gltf) {
 });
 
 // adding headlights to car
-createHeadLights(mainSCENE);
+useHeadLights(mainSCENE);
 
 // a gui for prototyping on the objects
 const gui = new GUI();
@@ -421,9 +383,9 @@ sceneFolder
   .name("Origin Axes")
   .onChange(toggleDebugObjectsVisibility);
 function toggleDebugObjectsVisibility() {
-  xObj.visible = debugAxes.visible;
-  yObj.visible = debugAxes.visible;
-  zObj.visible = debugAxes.visible;
+  xLabel.visible = debugAxes.visible;
+  yLabel.visible = debugAxes.visible;
+  zLabel.visible = debugAxes.visible;
 }
 sceneFolder.add(debugGrid, "visible").name("Grid");
 sceneFolder.add(ambientLight, "visible").name("Fill Light");
@@ -608,10 +570,10 @@ function resetCar() {
   vehicle.chassisBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
 }
 
-const gameFolder = gui.addFolder("Vehicle");
-gameFolder.open();
-gameFolder.add(valueForDebugViewSwitch, "toggleValue").name("Chase Camera");
-gameFolder.add({ resetCar }, "resetCar").name("Reset Vehicle");
+const carFolder = gui.addFolder("Vehicle");
+carFolder.open();
+carFolder.add(valueForDebugViewSwitch, "toggleValue").name("Chase Camera");
+carFolder.add({ resetCar }, "resetCar").name("Reset Vehicle");
 
 // for syncing threejs and cannon objects
 function threeAndCannonSync() {
@@ -641,7 +603,7 @@ function animate() {
   renderLoopSub();
   stats.update();
   threeAndCannonSync();
-  headLightsToCarBodySync(chassisModel);
+  useHeadLightsToChassisSync(chassisModel);
   speedCalulation(vehicle);
   chaseCamera();
 

@@ -1,5 +1,5 @@
 import type CANNON from "cannon-es";
-import { rechargeNitros } from "./vehicleUI";
+import { rechargeNitros } from "../ui/vehicleUI";
 
 const maxSteerVal = 0.5; // dont go above 1 or below 0 else steering angle goes bad
 let maxTorque = 200; // initial torque of the vehicle
@@ -12,7 +12,7 @@ export function controlsForVehicle(vehicle: CANNON.RaycastVehicle) {
   let isNitroActive = false; // debugging check
   const originalMaxForce = maxTorque; // redefining here instead of using torque directly
   const nLimit = 1000; // the minimum duration between two consecutive activated nitrous boosts only takes effect after 1000ms each
-  const nMultiplier = 4; // speed multiplier for the nitro
+  const nMultiplier = 6; // speed multiplier for the nitro
 
   document.addEventListener("keydown", (event) => {
     switch (event.key) {
