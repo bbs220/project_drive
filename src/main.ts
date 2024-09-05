@@ -1,21 +1,18 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
-import Stats from "stats.js";
-import { GUI } from "lil-gui";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { progressManager } from "./ui/loadingScreenUI";
-import { allHDRs, allImageTextures, allCarModels } from "./utils/assetPaths";
-import { controlsForVehicle } from "./utils/steeringControls";
-import { initPhysicsDebugger, physicsDebug } from "./utils/physicsDebugger";
+import { allHDRs, allCarModels } from "./utils/assetPaths";
+import { controlsForVehicle } from "./vehicle/steeringControls";
+import { usePhysics } from "./physics";
+import { initPhysicsDebugger, physicsDebug } from "./physics/debugger";
+import { gui, stats } from "./helpers/visualHelpers";
+import { useCamera, use3dRenderer, useScene } from "./include/coreComponents";
 import { speedCalulation } from "./ui/vehicleUI";
-import {
-  anisotrophicValue,
-  groundParams,
-  lightsParams,
-  tilingValue,
-} from "./constants/constants";
+import { use2dRenderer } from "./include/otherRenderer";
+import { lightsParams } from "./constants/constants";
 import {
   useHeadLights,
   useHeadLightsToChassisSync,
@@ -23,13 +20,7 @@ import {
   leftHeadLightHelper,
   rightHeadLight,
   rightHeadLightHelper,
-} from "./utils/headLights";
-import {
-  usePerspectiveCamera,
-  useScene,
-  useWebGLRenderer,
-} from "./include/coreComponents";
-import { useCSS2DRenderer } from "./include/otherRenderer";
+} from "./vehicle/headLights";
 import {
   useAmbientLight,
   useGrid,
@@ -38,18 +29,23 @@ import {
   yLabel,
   zLabel,
 } from "./helpers/commonHelpers";
+import {
+  groundCollistonMaterial,
+  useGroundMesh,
+  useGroundPhysicsBody,
+} from "./ground/ground";
 
 // scene
 const mainSCENE = useScene();
 
 // camera
-const mainCAMERA = usePerspectiveCamera();
+const mainCAMERA = useCamera();
 
 // primary renderer
-const main3D_RENDERER = useWebGLRenderer();
+const main3D_RENDERER = use3dRenderer();
 
 // secondary renderer
-const sub2D_RENDERER = useCSS2DRenderer();
+const sub2D_RENDERER = use2dRenderer();
 
 // for resizing both renderers to window size
 window.addEventListener("resize", () => {
@@ -58,17 +54,6 @@ window.addEventListener("resize", () => {
   main3D_RENDERER.setSize(window.innerWidth, window.innerHeight);
   sub2D_RENDERER.setSize(window.innerWidth, window.innerHeight);
 });
-
-// a tiled texture for a some reference
-const blueprintTexture = new THREE.TextureLoader(progressManager).load(
-  allImageTextures.blueSquare,
-  (texture) => {
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(tilingValue, tilingValue);
-    texture.anisotropy = anisotrophicValue;
-  }
-);
 
 let textureToggle: THREE.Texture | null;
 
@@ -80,11 +65,6 @@ envMap.load(allHDRs.city, (texture: THREE.Texture) => {
   mainSCENE.environment = texture;
   mainSCENE.background = null;
 });
-
-// fps stats
-const stats = new Stats();
-stats.showPanel(0);
-document.body.appendChild(stats.dom);
 
 // just a grid not related to physics grid
 const debugGrid = useGrid();
@@ -147,43 +127,18 @@ for (let i = 0; i < positions.length; i++) {
 const modelLoader = new GLTFLoader(progressManager);
 
 // initiating the physics world
-const mainWORLD = new CANNON.World({
-  gravity: new CANNON.Vec3(0, -9.8, 0),
-  allowSleep: true,
-});
-mainWORLD.broadphase = new CANNON.SAPBroadphase(mainWORLD);
-mainWORLD.defaultContactMaterial.friction = 0;
+// comes with a fixedstep function to actively "see" the interactions happening in the 3d world
+// use it in main recursive function
+const mainWORLD = usePhysics();
 
 // initializing debugger to see the invisible physics world collisions
 initPhysicsDebugger(mainSCENE, mainWORLD);
 
-// threejs plane as a ground
-const groundShape = new THREE.PlaneGeometry(
-  groundParams.width,
-  groundParams.height,
-  groundParams.wSegment,
-  groundParams.hSegment
-);
-const groundMaterial = new THREE.MeshStandardMaterial({
-  wireframe: false,
-  map: blueprintTexture,
-});
-const groundMesh = new THREE.Mesh(groundShape, groundMaterial);
-groundMesh.receiveShadow = true;
+const groundMesh = useGroundMesh();
 mainSCENE.add(groundMesh);
 
-const groundCollistonMaterial = new CANNON.Material("ground");
-
-// physics ground for the threejs plane
-const tempPhysicsGroundBody = new CANNON.Body({
-  type: CANNON.Body.STATIC,
-  material: groundCollistonMaterial,
-});
-const tempPhysicsGroundShape = new CANNON.Plane();
-tempPhysicsGroundBody.addShape(tempPhysicsGroundShape);
-tempPhysicsGroundBody.position.set(0, 0, 0);
-tempPhysicsGroundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-mainWORLD.addBody(tempPhysicsGroundBody);
+const groundBody = useGroundPhysicsBody();
+mainWORLD.addBody(groundBody);
 
 const chassisShape = new CANNON.Box(new CANNON.Vec3(2, 0.3, 1));
 const chassisBody = new CANNON.Body({ mass: 300 });
@@ -371,10 +326,6 @@ modelLoader.load(selectedCar.chassis, function (gltf) {
 
 // adding headlights to car
 useHeadLights(mainSCENE);
-
-// a gui for prototyping on the objects
-const gui = new GUI();
-gui.close();
 
 const sceneFolder = gui.addFolder("Scene");
 sceneFolder.close();
@@ -577,13 +528,12 @@ carFolder.add({ resetCar }, "resetCar").name("Reset Vehicle");
 
 // for syncing threejs and cannon objects
 function threeAndCannonSync() {
-  mainWORLD.fixedStep();
   if (chassisModel) {
     chassisModel.position.copy(chassisBody.position);
     chassisModel.quaternion.copy(chassisBody.quaternion);
   }
-  groundMesh.position.copy(tempPhysicsGroundBody.position);
-  groundMesh.quaternion.copy(tempPhysicsGroundBody.quaternion);
+  groundMesh.position.copy(groundBody.position);
+  groundMesh.quaternion.copy(groundBody.quaternion);
 }
 
 // clean webgl render function
@@ -602,6 +552,7 @@ function animate() {
   renderLoopMain();
   renderLoopSub();
   stats.update();
+  mainWORLD.fixedStep();
   threeAndCannonSync();
   useHeadLightsToChassisSync(chassisModel);
   speedCalulation(vehicle);

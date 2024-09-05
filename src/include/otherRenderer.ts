@@ -1,6 +1,6 @@
 import { CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
 
-export function useCSS2DRenderer() {
+export function use2dRenderer() {
   // css renderer
   const css2dRenderer = new CSS2DRenderer();
   css2dRenderer.setSize(window.innerWidth, window.innerHeight);

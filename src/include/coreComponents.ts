@@ -8,7 +8,9 @@ export function useScene() {
 }
 
 // camera
-export function usePerspectiveCamera() {
+export function useCamera() {
+  // by default gonna use a perspective camera
+  // orthographic if only needed tiling look
   const camera = new THREE.PerspectiveCamera(
     60,
     window.innerWidth / window.innerHeight,
@@ -21,7 +23,7 @@ export function usePerspectiveCamera() {
 }
 
 // webgl renderer
-export function useWebGLRenderer() {
+export function use3dRenderer() {
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: true,
