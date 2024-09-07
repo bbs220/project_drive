@@ -12,7 +12,7 @@ export const lightsParams = {
   x: 3, // x position of the spotlight origin
   z: 3, // z position of the spotlight origin
   intensity: 30, // total intensity dont take this above 1000
-  enabled: false, // loads off by default
+  enabled: true, // loads off by default
   helpers: false, // loads off by default
   color: "#ffffff", // color of the 4 lights
 };

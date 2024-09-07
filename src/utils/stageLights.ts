@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { lightsParams } from "../constants/constants";
+import { gui } from "../helpers/visualHelpers";
 
 // 4 point lights to see shadows and movement of object from multiple views
 function createPointLightAndHelper(
@@ -43,3 +44,50 @@ export function stageLights(scene: THREE.Scene) {
     scene.add(light, helper);
   }
 }
+
+// gui stuff
+const lightsFolder = gui.addFolder("Stage Lights");
+lightsFolder.close();
+function updateLightIntensities() {
+  lightsAndHelpers.forEach(([light]) => {
+    light.intensity = lightsParams.intensity;
+  });
+}
+function toggleLightVisibility() {
+  lightsAndHelpers.forEach(([light, helper]) => {
+    light.visible = lightsParams.enabled;
+    helper.visible = lightsParams.helpers;
+  });
+}
+function updateLightPositions() {
+  lightPositions.forEach((_, index) => {
+    const light = lightsAndHelpers[index][0];
+    light.position.setY(lightsParams.y);
+  });
+}
+lightsFolder
+  .add(lightsParams, "enabled")
+  .name("Enabled")
+  .onChange(toggleLightVisibility);
+lightsFolder
+  .add(lightsParams, "helpers")
+  .name("Helpers")
+  .onChange(toggleLightVisibility);
+lightsFolder
+  .addColor(lightsParams, "color")
+  .name("Color")
+  .onChange(() => {
+    lightsAndHelpers.forEach(([light]) => {
+      light.color.set(lightsParams.color);
+    });
+  });
+lightsFolder
+  .add(lightsParams, "intensity", 0, 100)
+  .step(1)
+  .name("Intensity")
+  .onChange(updateLightIntensities);
+lightsFolder
+  .add(lightsParams, "y", 0, 10)
+  .name("Y Position")
+  .step(1)
+  .onChange(() => updateLightPositions());

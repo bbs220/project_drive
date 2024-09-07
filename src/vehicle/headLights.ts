@@ -1,14 +1,21 @@
 import * as THREE from "three";
 import { type Scene } from "three";
 import { valueForHeadLights } from "../constants/constants";
+import { gui } from "../helpers/visualHelpers";
 
-// all exported due to use in the gui in main.ts
-export let leftHeadLightHelper: THREE.SpotLightHelper,
-  rightHeadLightHelper: THREE.SpotLightHelper,
-  leftTarget: THREE.Object3D,
-  rightTarget: THREE.Object3D,
-  leftHeadLight: THREE.SpotLight,
-  rightHeadLight: THREE.SpotLight;
+// to use in the gui
+let leftTarget: THREE.Object3D;
+let rightTarget: THREE.Object3D;
+let leftHeadLight: THREE.SpotLight;
+let leftHeadLightHelper: THREE.SpotLightHelper;
+let rightHeadLight: THREE.SpotLight;
+let rightHeadLightHelper: THREE.SpotLightHelper;
+
+// intensity 0 is off max 100
+// helper disabled by default
+// penumbra 0 to 1
+// angle 0 to 1.5
+// distance 0 to 100
 
 // creates headlights
 export function useHeadLights(scene: Scene) {
@@ -96,3 +103,6 @@ export function useHeadLightsToChassisSync(model: THREE.Object3D) {
     rightHeadLightHelper.update();
   }
 }
+
+const headLightFolder = gui.addFolder("Headlights");
+headLightFolder.close();
