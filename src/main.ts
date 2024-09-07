@@ -1,8 +1,5 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
-import { progressManager } from "./ui/loadingScreenUI";
 import { allHDRs, allCarModels } from "./utils/assetPaths";
 import { controlsForVehicle } from "./vehicle/steeringControls";
 import { usePhysics } from "./physics";
@@ -12,6 +9,7 @@ import { useCamera, use3dRenderer, useScene } from "./include/coreComponents";
 import { speedCalulation } from "./ui/vehicleUI";
 import { use2dRenderer } from "./include/otherRenderer";
 import { switchOrbitControls, toggle } from "./utils/thirdPersonCam";
+import { envMapLoader, modelLoader } from "./utils/assetLoader";
 import { lightsParams } from "./constants/constants";
 import {
   useHeadLights,
@@ -34,6 +32,11 @@ import {
   useGroundMesh,
   useGroundPhysicsBody,
 } from "./ground/ground";
+import {
+  lightsAndHelpers,
+  lightPositions,
+  stageLights,
+} from "./utils/stageLights";
 
 // scene
 const mainSCENE = useScene();
@@ -58,8 +61,7 @@ window.addEventListener("resize", () => {
 let textureToggle: THREE.Texture | null;
 
 // environment map for better lightings but does not project shadows
-const envMap = new RGBELoader(progressManager);
-envMap.load(allHDRs.city, (texture: THREE.Texture) => {
+envMapLoader.load(allHDRs.city, (texture: THREE.Texture) => {
   textureToggle = texture;
   texture.mapping = THREE.EquirectangularReflectionMapping;
   mainSCENE.environment = texture;
@@ -82,49 +84,8 @@ mainSCENE.add(ambientLight);
 // clock mostly used for the delta in recursive functions later on
 const debugClock = new THREE.Clock();
 
-// 4 point lights to see shadows and movement of object from multiple views
-function createPointLightAndHelper(
-  color: string,
-  intensity: number,
-  position: THREE.Vector3
-): [THREE.PointLight, THREE.PointLightHelper] {
-  const light = new THREE.PointLight(color, intensity, 0, 2);
-  light.position.copy(position);
-  light.castShadow = true;
-  light.visible = lightsParams.enabled;
-  const helper = new THREE.PointLightHelper(light, 0.3, color);
-  helper.visible = lightsParams.helpers;
-  return [light, helper];
-}
-
-// positions of those 4 lights
-const positions = [
-  { x: lightsParams.x, y: lightsParams.y, z: lightsParams.z },
-  { x: -lightsParams.x, y: lightsParams.y, z: -lightsParams.z },
-  { x: -lightsParams.x, y: lightsParams.y, z: lightsParams.z },
-  { x: lightsParams.x, y: lightsParams.y, z: -lightsParams.z },
-];
-
-// setting up all point lights from a array
-let lightsAndHelpers: [THREE.PointLight, THREE.PointLightHelper][] = [];
-
-for (let i = 0; i < positions.length; i++) {
-  const position = new THREE.Vector3(
-    positions[i].x,
-    positions[i].y,
-    positions[i].z
-  );
-  const [light, helper] = createPointLightAndHelper(
-    lightsParams.color,
-    lightsParams.intensity,
-    position
-  );
-  lightsAndHelpers.push([light, helper]);
-  mainSCENE.add(light, helper);
-}
-
-// local gltfloader
-const modelLoader = new GLTFLoader(progressManager);
+// adding 4 point lights to cast multiple shadows
+stageLights(mainSCENE);
 
 // initiating the physics world
 // comes with a fixedstep function to actively "see" the interactions happening in the 3d world
@@ -143,7 +104,7 @@ mainWORLD.addBody(groundBody);
 const chassisShape = new CANNON.Box(new CANNON.Vec3(2, 0.3, 1));
 const chassisBody = new CANNON.Body({ mass: 300 });
 chassisBody.addShape(chassisShape);
-chassisBody.position.set(0, 2, 0);
+chassisBody.position.set(0, 2, 10);
 chassisBody.quaternion.set(0, -1, 0, 1);
 
 // init raycast vehicle
@@ -320,9 +281,6 @@ modelLoader.load(selectedCar.chassis, function (gltf) {
   }
 
   mainSCENE.add(chassisModel);
-
-  // main animate function here cause faster updating
-  animate();
 });
 
 // adding headlights to car
@@ -356,7 +314,7 @@ function toggleLightVisibility() {
   });
 }
 function updateLightPositions() {
-  positions.forEach((_, index) => {
+  lightPositions.forEach((_, index) => {
     const light = lightsAndHelpers[index][0];
     light.position.setY(lightsParams.y);
   });
@@ -467,10 +425,10 @@ headLightFolder
 
 // for bringing the car back to position (0,0,0) in case it crashes somewhere
 function resetCar() {
-  chassisBody.position.set(0, 2, 0);
+  chassisBody.position.set(0, 2, 10);
   chassisBody.quaternion.set(0, -1, 0, 1);
   chassisBody.velocity.set(0, 0, 0);
-  mainCAMERA.position.set(0, 5, 10);
+  mainCAMERA.position.set(0, 10, 40);
   vehicle.chassisBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
 }
 
@@ -525,3 +483,4 @@ function animate() {
     mixer.update(deltaTime);
   }
 }
+animate();
