@@ -1,5 +1,6 @@
 export const allImageTextures = {
   blueSquare: "images/blue_square.png",
+  blackSquare: "images/black_square.png",
   grass: "images/grass_texture.png",
 };
 
@@ -7,6 +8,10 @@ export const allHDRs = {
   city: "hdris/DayEnvironmentHDRI047_2K-HDR.hdr",
   sky: "hdris/kloofendal_48d_partly_cloudy_puresky_2k.hdr",
   sunset: "hdris/zwartkops_straight_sunset_2k.hdr",
+};
+
+export const allSounds = {
+  lofi: "sounds/lofi-relax-music-lofium-123264.mp3",
 };
 
 export const allCarModels = {

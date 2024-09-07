@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { progressManager } from "./ui/loadingScreenUI";
@@ -12,6 +11,7 @@ import { gui, stats } from "./helpers/visualHelpers";
 import { useCamera, use3dRenderer, useScene } from "./include/coreComponents";
 import { speedCalulation } from "./ui/vehicleUI";
 import { use2dRenderer } from "./include/otherRenderer";
+import { switchOrbitControls, toggle } from "./utils/thirdPersonCam";
 import { lightsParams } from "./constants/constants";
 import {
   useHeadLights,
@@ -309,6 +309,7 @@ modelLoader.load(selectedCar.chassis, function (gltf) {
     if (node instanceof THREE.Mesh) {
       node.castShadow = true;
       node.material.wireframe = false;
+      node.material.flatShading = false;
     }
   });
 
@@ -464,66 +465,22 @@ headLightFolder
     updateBothSpotlights("penumbra", value);
   });
 
-// lock on to position(0,0,0) mostly for debugging entire scene
-const debugViewOrbitControls = new OrbitControls(
-  mainCAMERA,
-  main3D_RENDERER.domElement
-);
-// to enable debug view and disable follow cam
-function debugView() {
-  debugViewOrbitControls.enabled = true;
-  debugViewOrbitControls.zoomSpeed = 3;
-  debugViewOrbitControls.maxDistance = 1500;
-  debugViewOrbitControls.update();
-  followMeshOrbitControls.enabled = false;
-}
-
-// locks on the mesh position dynamically like a third person camera
-const followMeshOrbitControls = new OrbitControls(
-  mainCAMERA,
-  main3D_RENDERER.domElement
-);
-// to enable follow cam and disable debug view
-function followMesh() {
-  if (chassisModel) {
-    followMeshOrbitControls.enabled = true;
-    followMeshOrbitControls.target = chassisModel.position;
-    followMeshOrbitControls.enableDamping = true;
-    followMeshOrbitControls.dampingFactor = 0.04;
-    followMeshOrbitControls.enablePan = false;
-    followMeshOrbitControls.maxDistance = 5;
-    followMeshOrbitControls.minDistance = 4;
-    followMeshOrbitControls.minPolarAngle = Math.PI / 6.4;
-    followMeshOrbitControls.maxPolarAngle = Math.PI / 2.4;
-    followMeshOrbitControls.update();
-    debugViewOrbitControls.enabled = false;
-  }
-}
-
-// boolean to switch between two viewers
-const valueForDebugViewSwitch = { toggleValue: true };
-
-// functions to switch between two orbit controls
-function chaseCamera() {
-  if (valueForDebugViewSwitch.toggleValue === true) {
-    followMesh();
-  } else {
-    debugView();
-  }
-}
-
 // for bringing the car back to position (0,0,0) in case it crashes somewhere
 function resetCar() {
-  chassisBody.position.set(0, 4, 0);
+  chassisBody.position.set(0, 2, 0);
   chassisBody.quaternion.set(0, -1, 0, 1);
   chassisBody.velocity.set(0, 0, 0);
   mainCAMERA.position.set(0, 5, 10);
   vehicle.chassisBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
 }
 
+// need to call the export function once outside the recursive animate function
+// and the proceeding function inside the animate to constantly look at the moving object
+const chaseCamera = switchOrbitControls(mainCAMERA, main3D_RENDERER);
+
 const carFolder = gui.addFolder("Vehicle");
 carFolder.open();
-carFolder.add(valueForDebugViewSwitch, "toggleValue").name("Chase Camera");
+carFolder.add(toggle, "value").name("Chase Camera");
 carFolder.add({ resetCar }, "resetCar").name("Reset Vehicle");
 
 // for syncing threejs and cannon objects
@@ -556,7 +513,7 @@ function animate() {
   threeAndCannonSync();
   useHeadLightsToChassisSync(chassisModel);
   speedCalulation(vehicle);
-  chaseCamera();
+  chaseCamera(chassisModel);
 
   const deltaTime = debugClock.getDelta();
 
