@@ -11,6 +11,8 @@ let leftHeadLightHelper: THREE.SpotLightHelper;
 let rightHeadLight: THREE.SpotLight;
 let rightHeadLightHelper: THREE.SpotLightHelper;
 
+const headLightFolder = gui.addFolder("Headlights");
+headLightFolder.close();
 // intensity 0 is off max 100
 // helper disabled by default
 // penumbra 0 to 1
@@ -93,6 +95,52 @@ export function useHeadLights(scene: Scene) {
     leftHeadLightHelper,
     rightHeadLightHelper
   );
+
+  headLightFolder
+    .add(leftHeadLightHelper, "visible")
+    .name("Helper")
+    .onChange((value: boolean) => {
+      updateHelperVisibility("visible", value);
+    });
+  headLightFolder
+    .add(leftHeadLight, "intensity", 0, 100)
+    .step(1)
+    .name("intensity")
+    .onChange((value: number) => {
+      updateBothSpotlights("intensity", value);
+    });
+  headLightFolder
+    .add(leftHeadLight, "distance", 1, 100)
+    .name("distance")
+    .step(0.1)
+    .onChange((value: number) => {
+      updateBothSpotlights("distance", value);
+    });
+  headLightFolder
+    .add(leftHeadLight, "angle", 0, 1.5)
+    .name("angle")
+    .step(0.01)
+    .onChange((value: number) => {
+      updateBothSpotlights("angle", value);
+    });
+  headLightFolder
+    .add(leftHeadLight, "penumbra", 0, 1)
+    .step(0.1)
+    .name("penumbra")
+    .onChange((value: number) => {
+      updateBothSpotlights("penumbra", value);
+    });
+}
+
+// hacky code but it gets the job done
+function updateBothSpotlights(property: string, value: number) {
+  (leftHeadLight as any)[property] = value;
+  (rightHeadLight as any)[property] = value;
+}
+// same hacky stuff
+function updateHelperVisibility(property: string, value: boolean) {
+  (leftHeadLightHelper as any)[property] = value;
+  (rightHeadLightHelper as any)[property] = value;
 }
 
 // for syncing the headlights to chassis basically use this in main recursive animate function
@@ -103,6 +151,3 @@ export function useHeadLightsToChassisSync(model: THREE.Object3D) {
     rightHeadLightHelper.update();
   }
 }
-
-const headLightFolder = gui.addFolder("Headlights");
-headLightFolder.close();

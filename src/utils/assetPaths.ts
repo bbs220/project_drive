@@ -5,9 +5,9 @@ export const allImageTextures = {
 };
 
 export const allHDRs = {
-  city: "hdris/DayEnvironmentHDRI047_2K-HDR.hdr",
-  sky: "hdris/kloofendal_48d_partly_cloudy_puresky_2k.hdr",
-  sunset: "hdris/zwartkops_straight_sunset_2k.hdr",
+  eveningSky: "hdris/EveningSkyHDRI026B_2K-HDR.hdr",
+  daySky: "hdris/DaySkyHDRI022A_2K-HDR.hdr",
+  dayCity: "hdris/DayEnvironmentHDRI052_2K-HDR.hdr",
 };
 
 export const allSounds = {

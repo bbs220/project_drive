@@ -30,6 +30,8 @@ import {
   vehicle,
 } from "./vehicle";
 
+// THIS WHOLE FILE IS JUST FOR MAIN SYNC FUNCTION CALLS AND STUFF
+
 // scene
 const mainSCENE = useScene();
 
@@ -67,8 +69,11 @@ mainSCENE.add(ambientLight);
 const debugClock = new THREE.Clock();
 
 // adding 4 point lights to cast multiple shadows
+// off by default
 stageLights(mainSCENE);
 
+// adds a nice lookin hdr background
+// no shadows though
 addHDRI(mainSCENE);
 
 // initiating the physics world
@@ -84,9 +89,6 @@ mainSCENE.add(groundMesh);
 
 const groundBody = useGroundPhysicsBody();
 mainWORLD.addBody(groundBody);
-
-// adding headlights to car
-useHeadLights(mainSCENE);
 
 const sceneFolder = gui.addFolder("Scene");
 sceneFolder.close();
@@ -104,6 +106,8 @@ sceneFolder.add(ambientLight, "visible").name("Fill Light");
 
 // adding a simple vehicle here
 addVehicle(mainSCENE, mainWORLD);
+// adding headlights to car
+useHeadLights(mainSCENE);
 
 // for bringing the car back to position (0,0,0) in case it crashes somewhere
 // creating this here cause mainCAMERA needs instant reset or it gets glitchy
