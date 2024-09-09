@@ -5,7 +5,7 @@ import { initPhysicsDebugger, physicsDebug } from "./physics/debugger";
 import { gui, stats } from "./helpers/visualHelpers";
 import { useCamera, use3dRenderer, useScene } from "./include/coreComponents";
 import { speedCalulation } from "./ui/vehicleUI";
-import { useGroundMesh, useGroundPhysicsBody } from "./ground/ground";
+import { useGroundMesh, useGroundPhysicsBody } from "./ground";
 import { use2dRenderer } from "./include/otherRenderer";
 import { switchOrbitControls, toggle } from "./utils/thirdPersonCam";
 import { stageLights } from "./utils/stageLights";
@@ -29,6 +29,7 @@ import {
   mixer,
   vehicle,
 } from "./vehicle";
+import { addCharacter, characterBody, characterMesh } from "./character";
 
 // THIS WHOLE FILE IS JUST FOR MAIN SYNC FUNCTION CALLS AND STUFF
 
@@ -106,8 +107,13 @@ sceneFolder.add(ambientLight, "visible").name("Fill Light");
 
 // adding a simple vehicle here
 addVehicle(mainSCENE, mainWORLD);
+
 // adding headlights to car
 useHeadLights(mainSCENE);
+
+// adding character here
+// probably should add this before vehicle but whatever
+addCharacter(mainSCENE, mainWORLD);
 
 // for bringing the car back to position (0,0,0) in case it crashes somewhere
 // creating this here cause mainCAMERA needs instant reset or it gets glitchy
@@ -135,6 +141,10 @@ function threeAndCannonSync() {
     chassisModel.position.copy(chassisBody.position);
     chassisModel.quaternion.copy(chassisBody.quaternion);
   }
+
+  characterMesh.position.copy(characterBody.position);
+  characterMesh.quaternion.copy(characterBody.quaternion);
+
   groundMesh.position.copy(groundBody.position);
   groundMesh.quaternion.copy(groundBody.quaternion);
 }

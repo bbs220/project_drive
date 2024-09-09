@@ -1,6 +1,16 @@
 import * as THREE from "three";
-import { lightsParams } from "../constants/constants";
 import { gui } from "../helpers/visualHelpers";
+
+// parameters for the 4 point lights
+const lightsParams = {
+  y: 5, // y position of the spotlight origin
+  x: 3, // x position of the spotlight origin
+  z: 3, // z position of the spotlight origin
+  intensity: 30, // total intensity dont take this above 1000
+  enabled: false, // loads off by default
+  helpers: false, // loads off by default
+  color: "#ffffff", // color of the 4 lights
+};
 
 // 4 point lights to see shadows and movement of object from multiple views
 function createPointLightAndHelper(

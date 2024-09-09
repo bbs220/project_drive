@@ -1,8 +1,8 @@
 import * as THREE from "three";
-import { originAxisLength, tilingValue } from "../constants/constants";
 import { CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
 import { xDiv, yDiv, zDiv } from "../ui/backgroundUI";
 
+const tilingValue = 16;
 // common wireframe grid
 // not tied to phyics ground grid thats seperate
 export function useGrid() {
@@ -24,6 +24,9 @@ export function useAmbientLight() {
   ambientLight.visible = false;
   return ambientLight;
 }
+
+// origin axis length the bigger the long the axis visualization stretches
+const originAxisLength = 50;
 
 // labels for the axis
 export const xLabel = new CSS2DObject(xDiv);

@@ -3,7 +3,7 @@ import * as CANNON from "cannon-es";
 import { modelLoader } from "../utils/assetLoader";
 import { controlsForVehicle } from "./steeringControls";
 import { allCarModels } from "../utils/assetPaths";
-import { groundCollistonMaterial } from "../ground/ground";
+import { groundCollistonMaterial } from "../ground";
 
 // setting this up in global since im gonna neet to use in update functions down below
 export let mixer: THREE.AnimationMixer;

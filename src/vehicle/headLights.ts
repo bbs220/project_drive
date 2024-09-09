@@ -1,15 +1,20 @@
 import * as THREE from "three";
 import { type Scene } from "three";
-import { valueForHeadLights } from "../constants/constants";
 import { gui } from "../helpers/visualHelpers";
 
-// to use in the gui
-let leftTarget: THREE.Object3D;
-let rightTarget: THREE.Object3D;
-let leftHeadLight: THREE.SpotLight;
-let leftHeadLightHelper: THREE.SpotLightHelper;
-let rightHeadLight: THREE.SpotLight;
-let rightHeadLightHelper: THREE.SpotLightHelper;
+// all the different headlights parameters
+const valueForHeadLights = {
+  x: 0.6, // adjustable to liking dont go above 10
+  y: 0, // keep this always zero
+  z: 1.8, // relative to chassis model
+  internalDistance: 10, // distance between the target of the headlights and the headlight origin points
+  color: "#ffffff", // color of headlights
+  distance: 10, // 0 is infinity other int number is finite
+  penumbra: 0.5, // set ONLY between 0 and 1
+  coneAngle: 0.5, // DONT go above 1.5
+  downLookAngle: 0, // how down the headlight cones should be tilted ONLY go above 0 , DONT go below 0 thats into negative values
+  intensity: 0, // intensity of the lights also setting it to 0 turns off the spotlight
+};
 
 const headLightFolder = gui.addFolder("Headlights");
 headLightFolder.close();
@@ -19,76 +24,76 @@ headLightFolder.close();
 // angle 0 to 1.5
 // distance 0 to 100
 
+// left side first
+const leftHeadLight = new THREE.SpotLight(
+  valueForHeadLights.color,
+  valueForHeadLights.intensity,
+  valueForHeadLights.distance,
+  valueForHeadLights.coneAngle,
+  valueForHeadLights.penumbra
+);
+
+leftHeadLight.castShadow = true;
+
+leftHeadLight.position.set(
+  -valueForHeadLights.z,
+  valueForHeadLights.y,
+  -valueForHeadLights.x
+);
+
+const leftHeadLightHelper = new THREE.SpotLightHelper(
+  leftHeadLight,
+  valueForHeadLights.color
+);
+
+leftHeadLightHelper.visible = false;
+
+const leftTarget = new THREE.Object3D();
+
+leftTarget.position.set(
+  valueForHeadLights.z - valueForHeadLights.internalDistance,
+  valueForHeadLights.y - valueForHeadLights.downLookAngle,
+  -valueForHeadLights.x
+);
+
+leftHeadLight.target = leftTarget;
+
+// right side second
+const rightHeadLight = new THREE.SpotLight(
+  valueForHeadLights.color,
+  valueForHeadLights.intensity,
+  valueForHeadLights.distance,
+  valueForHeadLights.coneAngle,
+  valueForHeadLights.penumbra
+);
+
+rightHeadLight.castShadow = true;
+
+rightHeadLight.position.set(
+  -valueForHeadLights.z,
+  valueForHeadLights.y,
+  valueForHeadLights.x
+);
+
+const rightHeadLightHelper = new THREE.SpotLightHelper(
+  rightHeadLight,
+  valueForHeadLights.color
+);
+
+rightHeadLightHelper.visible = false;
+
+const rightTarget = new THREE.Object3D();
+
+rightTarget.position.set(
+  valueForHeadLights.z - valueForHeadLights.internalDistance,
+  valueForHeadLights.y - valueForHeadLights.downLookAngle,
+  valueForHeadLights.x
+);
+
+rightHeadLight.target = rightTarget;
+
 // creates headlights
 export function useHeadLights(scene: Scene) {
-  // left side first
-  leftHeadLight = new THREE.SpotLight(
-    valueForHeadLights.color,
-    valueForHeadLights.intensity,
-    valueForHeadLights.distance,
-    valueForHeadLights.coneAngle,
-    valueForHeadLights.penumbra
-  );
-
-  leftHeadLight.castShadow = true;
-
-  leftHeadLight.position.set(
-    -valueForHeadLights.z,
-    valueForHeadLights.y,
-    -valueForHeadLights.x
-  );
-
-  leftHeadLightHelper = new THREE.SpotLightHelper(
-    leftHeadLight,
-    valueForHeadLights.color
-  );
-
-  leftHeadLightHelper.visible = false;
-
-  leftTarget = new THREE.Object3D();
-
-  leftTarget.position.set(
-    valueForHeadLights.z - valueForHeadLights.internalDistance,
-    valueForHeadLights.y - valueForHeadLights.downLookAngle,
-    -valueForHeadLights.x
-  );
-
-  leftHeadLight.target = leftTarget;
-
-  // right side second
-  rightHeadLight = new THREE.SpotLight(
-    valueForHeadLights.color,
-    valueForHeadLights.intensity,
-    valueForHeadLights.distance,
-    valueForHeadLights.coneAngle,
-    valueForHeadLights.penumbra
-  );
-
-  rightHeadLight.castShadow = true;
-
-  rightHeadLight.position.set(
-    -valueForHeadLights.z,
-    valueForHeadLights.y,
-    valueForHeadLights.x
-  );
-
-  rightHeadLightHelper = new THREE.SpotLightHelper(
-    rightHeadLight,
-    valueForHeadLights.color
-  );
-
-  rightHeadLightHelper.visible = false;
-
-  rightTarget = new THREE.Object3D();
-
-  rightTarget.position.set(
-    valueForHeadLights.z - valueForHeadLights.internalDistance,
-    valueForHeadLights.y - valueForHeadLights.downLookAngle,
-    valueForHeadLights.x
-  );
-
-  rightHeadLight.target = rightTarget;
-
   scene.add(
     leftHeadLight,
     rightHeadLight,

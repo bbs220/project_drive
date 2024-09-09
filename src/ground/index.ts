@@ -1,12 +1,21 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
-import {
-  anisotrophicValue,
-  groundParams,
-  tilingValue,
-} from "../constants/constants";
 import { progressManager } from "../ui/loadingScreenUI";
 import { allImageTextures } from "../utils/assetPaths";
+
+// for how many repeats of the texture within the plane
+const tilingValue = 16;
+
+// this is max value dont go above 16
+const anisotrophicValue = 16;
+
+// for the base ground something to drive on
+const groundParams = {
+  width: 100, // width of the ground
+  height: 100, // height of the ground
+  wSegment: 1, // detail in width 1 minimum for better performance
+  hSegment: 1, // detail in height 1 minimum for better performance
+};
 
 // a tiled texture for a some reference
 const blueprintTexture = new THREE.TextureLoader(progressManager).load(
