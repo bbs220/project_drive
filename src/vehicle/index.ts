@@ -4,6 +4,10 @@ import { modelLoader } from "../utils/assetLoader";
 import { controlsForVehicle } from "./steeringControls";
 import { allCarModels } from "../utils/assetPaths";
 import { groundCollistonMaterial } from "../ground";
+import { useHeadLights } from "./headLights";
+import { gui } from "../helpers/visualHelpers";
+import { lockOnToggle } from "../utils/thirdPersonCamOrbit";
+import { info, nosContainer, speedElement } from "../ui/vehicleUI";
 
 // setting this up in global since im gonna neet to use in update functions down below
 export let mixer: THREE.AnimationMixer;
@@ -95,6 +99,9 @@ const wheelCollisionMaterial = new CANNON.Material("wheel");
 // adding vehicle to the physics world
 export function addVehicle(scene: THREE.Scene, world: CANNON.World) {
   vehicle.addToWorld(world);
+
+  // immediately adding headlights to the vehicle
+  useHeadLights(scene);
 
   vehicle.wheelInfos.forEach((wheel) => {
     const cylinderShape = new CANNON.Cylinder(
@@ -188,4 +195,36 @@ export function addVehicle(scene: THREE.Scene, world: CANNON.World) {
 
     scene.add(chassisModel);
   });
+
+  // again this needs to be a object for easier check box ui in the settings
+  const uiToggle = {
+    value: true,
+  };
+
+  // quick controls for vehicle
+  const carFolder = gui.addFolder("Vehicle");
+  carFolder.close();
+  carFolder.add(uiToggle, "value").onChange(uiShowHide).name("Vehicle UI");
+  carFolder.add(lockOnToggle, "value").name("Chase Camera");
+  carFolder.add({ resetVehicle }, "resetVehicle").name("Reset Vehicle");
+
+  function uiShowHide() {
+    if (uiToggle.value) {
+      info.style.display = "";
+      speedElement.style.display = "";
+      nosContainer.style.display = "";
+    } else {
+      info.style.display = "none";
+      speedElement.style.display = "none";
+      nosContainer.style.display = "none";
+    }
+  }
+
+  // for bringing the car back to position (0,0,0) in case it crashes somewhere
+  function resetVehicle() {
+    chassisBody.position.set(0, 2, 10);
+    chassisBody.quaternion.set(0, -1, 0, 1);
+    chassisBody.velocity.set(0, 0, 0);
+    vehicle.chassisBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
+  }
 }

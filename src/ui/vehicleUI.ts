@@ -36,3 +36,5 @@ const info = document.createElement("p");
 info.id = "instructions";
 info.innerHTML = `WASD for driving<br />B for handbrake<br />N for nitrous`;
 document.body.appendChild(info);
+
+export { speedElement, nosContainer, info };

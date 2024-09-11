@@ -7,7 +7,7 @@ import {
 
 // boolean to switch between two viewers
 // this needs to be a object for use in gui
-export const toggle = { value: true };
+export const lockOnToggle = { value: true };
 
 export function switchOrbitControls(
   camera: PerspectiveCamera,
@@ -50,7 +50,7 @@ export function switchOrbitControls(
   // adding the model here is ESSENIAL or the the camera wont have a object to pivot around
   // a closure isnt what i wanted but this keeps performance fast
   return function mainSwitch(model: Object3D) {
-    if (toggle.value === true) {
+    if (lockOnToggle.value === true) {
       followMesh(model);
     } else {
       debugView();

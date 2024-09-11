@@ -149,7 +149,7 @@ function updateHelperVisibility(property: string, value: boolean) {
 }
 
 // for syncing the headlights to chassis basically use this in main recursive animate function
-export function useHeadLightsToChassisSync(model: THREE.Object3D) {
+export function syncHeadlights(model: THREE.Object3D) {
   if (model) {
     model.add(leftTarget, rightTarget, leftHeadLight, rightHeadLight);
     leftHeadLightHelper.update();

@@ -97,11 +97,18 @@ body {
   backdrop-filter: blur(3px);
 }
 
-#mySong {
+#paused {
   position: fixed;
-  bottom: 10px;
-  width: 50%;
-  left: 25%;
-  height: 10%;
-  z-index: 2;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: default;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  backdrop-filter: blur(3px);
+  z-index: 1;
 }

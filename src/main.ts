@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import * as CANNON from "cannon-es";
 import { usePhysics } from "./physics";
 import { initPhysicsDebugger, physicsDebug } from "./physics/debugger";
 import { gui, stats } from "./helpers/visualHelpers";
@@ -7,13 +6,11 @@ import { useCamera, use3dRenderer, useScene } from "./include/coreComponents";
 import { speedCalulation } from "./ui/vehicleUI";
 import { useGroundMesh, useGroundPhysicsBody } from "./ground";
 import { use2dRenderer } from "./include/otherRenderer";
-import { switchOrbitControls, toggle } from "./utils/thirdPersonCam";
+import { switchOrbitControls } from "./utils/thirdPersonCamOrbit";
+import { addCharacter, characterBody, characterMesh } from "./character";
 import { stageLights } from "./utils/stageLights";
 import { addHDRI } from "./utils/hdri";
-import {
-  useHeadLights,
-  useHeadLightsToChassisSync,
-} from "./vehicle/headLights";
+import { syncHeadlights } from "./vehicle/headLights";
 import {
   useAmbientLight,
   useGrid,
@@ -29,7 +26,7 @@ import {
   mixer,
   vehicle,
 } from "./vehicle";
-import { addCharacter, characterBody, characterMesh } from "./character";
+// import { addPointerLock } from "./utils/thirdPersonCamPointer";
 
 // THIS WHOLE FILE IS JUST FOR MAIN SYNC FUNCTION CALLS AND STUFF
 
@@ -85,12 +82,15 @@ const mainWORLD = usePhysics();
 // initializing debugger to see the invisible physics world collisions
 initPhysicsDebugger(mainSCENE, mainWORLD);
 
+// creating a finite ground in visible mesh
 const groundMesh = useGroundMesh();
 mainSCENE.add(groundMesh);
 
+// creating a infinite ground in invisible physics world
 const groundBody = useGroundPhysicsBody();
 mainWORLD.addBody(groundBody);
 
+// quick controls for common needs
 const sceneFolder = gui.addFolder("Scene");
 sceneFolder.close();
 sceneFolder
@@ -108,43 +108,44 @@ sceneFolder.add(ambientLight, "visible").name("Fill Light");
 // adding a simple vehicle here
 addVehicle(mainSCENE, mainWORLD);
 
-// adding headlights to car
-useHeadLights(mainSCENE);
-
 // adding character here
 // probably should add this before vehicle but whatever
 addCharacter(mainSCENE, mainWORLD);
 
-// for bringing the car back to position (0,0,0) in case it crashes somewhere
-// creating this here cause mainCAMERA needs instant reset or it gets glitchy
-function resetVehicle() {
-  chassisBody.position.set(0, 2, 10);
-  chassisBody.quaternion.set(0, -1, 0, 1);
-  chassisBody.velocity.set(0, 0, 0);
-  mainCAMERA.position.set(0, 10, 40);
-  vehicle.chassisBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
-}
-
 // need to call the export function once outside the recursive animate function
 // and the proceeding function inside the animate to constantly look at the moving object
-const chaseCamera = switchOrbitControls(mainCAMERA, main3D_RENDERER);
-
-const carFolder = gui.addFolder("Vehicle");
-carFolder.open();
-carFolder.add(toggle, "value").name("Chase Camera");
-carFolder.add({ resetVehicle }, "resetVehicle").name("Reset Vehicle");
+const syncOrbitLock = switchOrbitControls(mainCAMERA, main3D_RENDERER);
+// const syncPointerLock = addPointerLock(mainCAMERA);
 
 // for syncing threejs and cannon objects
 function threeAndCannonSync() {
+  // main sync function
+  // dont change or tie the physics timer to fps
+  // this is independent from the framerate of the scene
   mainWORLD.fixedStep();
+
+  // for the vehicle
+  // does burnout has good suspensions
+  // and kinda realistic physics
+  // rear wheel drive
   if (chassisModel) {
+    syncHeadlights(chassisModel);
     chassisModel.position.copy(chassisBody.position);
     chassisModel.quaternion.copy(chassisBody.quaternion);
   }
 
+  // getting the speed in kmph
+  if (vehicle) {
+    speedCalulation(vehicle);
+  }
+
+  // playable character sync
+  // probably a third person controls
   characterMesh.position.copy(characterBody.position);
   characterMesh.quaternion.copy(characterBody.quaternion);
 
+  // base ground sync
+  // its really basic for now
   groundMesh.position.copy(groundBody.position);
   groundMesh.quaternion.copy(groundBody.quaternion);
 }
@@ -166,9 +167,7 @@ function animate() {
   renderLoopSub();
   stats.update();
   threeAndCannonSync();
-  useHeadLightsToChassisSync(chassisModel);
-  speedCalulation(vehicle);
-  chaseCamera(chassisModel);
+  syncOrbitLock(chassisModel);
 
   const deltaTime = debugClock.getDelta();
 
@@ -179,5 +178,7 @@ function animate() {
   if (mixer) {
     mixer.update(deltaTime);
   }
+
+  // syncPointerLock(deltaTime);
 }
 animate();
