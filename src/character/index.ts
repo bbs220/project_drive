@@ -33,7 +33,7 @@ const characterShape = new CANNON.Sphere(0.5); // just a tiny bit higher than ra
 export const characterBody = new CANNON.Body({ mass: 10 });
 characterBody.addShape(characterShape, new CANNON.Vec3(0, 0.5, 0));
 characterBody.addShape(characterShape, new CANNON.Vec3(0, -0.5, 0));
-characterBody.position.set(0, 10, 0);
+characterBody.position.set(0, 1, 0);
 characterBody.linearDamping = 0.95;
 characterBody.angularFactor.set(0, 1, 0); // prevents rotation X,Z axis
 

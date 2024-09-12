@@ -6,7 +6,7 @@ import { useCamera, use3dRenderer, useScene } from "./include/coreComponents";
 import { speedCalulation } from "./ui/vehicleUI";
 import { useGroundMesh, useGroundPhysicsBody } from "./ground";
 import { use2dRenderer } from "./include/otherRenderer";
-import { switchOrbitControls } from "./utils/thirdPersonCamOrbit";
+import { lockOnToggle, switchOrbitControls } from "./utils/thirdPersonCamOrbit";
 import { stageLights } from "./utils/stageLights";
 import { addHDRI } from "./utils/hdri";
 import { syncHeadlights } from "./vehicle/headLights";
@@ -21,10 +21,11 @@ import {
 import {
   addVehicle,
   chassisBody,
-  chassisModel,
+  chassisMesh,
   mixer,
   vehicle,
 } from "./vehicle";
+import { addCharacter, characterBody, characterMesh } from "./character";
 
 // THIS WHOLE FILE IS JUST FOR MAIN SYNC FUNCTION CALLS AND STUFF
 
@@ -108,10 +109,20 @@ addVehicle(mainSCENE, mainWORLD);
 
 // adding character here
 // probably should add this before vehicle but whatever
+addCharacter(mainSCENE, mainWORLD);
 
 // need to call the export function once outside the recursive animate function
 // and the proceeding function inside the animate to constantly look at the moving object
 const syncOrbitLock = switchOrbitControls(mainCAMERA, main3D_RENDERER);
+
+// for easily change follow camera status
+const lockFolder = gui.addFolder("Camera");
+lockFolder.close();
+lockFolder.add(lockOnToggle, "value").name("Target Lock");
+const lockOnTarget = { target: chassisMesh };
+lockFolder
+  .add(lockOnTarget, "target", { chassisMesh, characterMesh })
+  .name("Target");
 
 // for syncing threejs and cannon objects
 function threeAndCannonSync() {
@@ -124,10 +135,10 @@ function threeAndCannonSync() {
   // does burnout has good suspensions
   // and kinda realistic physics
   // rear wheel drive
-  if (chassisModel) {
-    syncHeadlights(chassisModel);
-    chassisModel.position.copy(chassisBody.position);
-    chassisModel.quaternion.copy(chassisBody.quaternion);
+  if (chassisMesh) {
+    syncHeadlights(chassisMesh);
+    chassisMesh.position.copy(chassisBody.position);
+    chassisMesh.quaternion.copy(chassisBody.quaternion);
   }
 
   // getting the speed in kmph
@@ -137,6 +148,8 @@ function threeAndCannonSync() {
 
   // playable character sync
   // probably a third person controls
+  characterMesh.position.copy(characterBody.position);
+  characterMesh.quaternion.copy(characterBody.quaternion);
 
   // base ground sync
   // its really basic for now
@@ -172,8 +185,10 @@ function animate() {
     mixer.update(deltaTime);
   }
 
-  if (chassisModel) {
-    syncOrbitLock(chassisModel);
+  if (lockOnTarget.target) {
+    syncOrbitLock(characterMesh);
+  } else {
+    syncOrbitLock(chassisMesh);
   }
 }
 animate();

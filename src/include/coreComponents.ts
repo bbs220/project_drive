@@ -18,7 +18,7 @@ export function useCamera() {
     2000
   );
   // custom position so the camera doesnt get stuck in the origin point of (0,0,0)
-  camera.position.set(0, 10, 40);
+  camera.position.set(0, 5, 15);
   return camera;
 }
 

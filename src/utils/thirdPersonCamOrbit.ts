@@ -7,7 +7,7 @@ import {
 
 // boolean to switch between two viewers
 // this needs to be a object for use in gui
-export const lockOnToggle = { value: true };
+export const lockOnToggle = { value: false };
 
 export function switchOrbitControls(
   camera: PerspectiveCamera,

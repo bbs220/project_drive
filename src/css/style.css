@@ -33,6 +33,7 @@ body {
 }
 
 /* simple instructions not responsive yet */
+/* dont worry the display will be changed in gui */
 #instructions {
   position: fixed;
   bottom: -5px;
@@ -43,7 +44,7 @@ body {
   overflow: hidden;
   display: -webkit-box;
   display: -ms-flexbox;
-  display: flex;
+  display: none;
   -webkit-box-pack: center;
   -ms-flex-pack: center;
   justify-content: center;
@@ -53,6 +54,7 @@ body {
   pointer-events: none;
 }
 
+/* same display will be handled by gui */
 #kmph {
   position: fixed;
   bottom: 30px;
@@ -60,11 +62,13 @@ body {
   font-size: 20px;
   overflow: hidden;
   pointer-events: none;
+  display: none;
 }
 
+/* again display will be handled by gui */
 #nitros-container {
   position: absolute;
-  display: block;
+  display: none;
   width: 200px;
   height: 15px;
   right: 10px;
@@ -95,20 +99,4 @@ body {
   pointer-events: none;
   z-index: 1;
   backdrop-filter: blur(3px);
-}
-
-#paused {
-  position: fixed;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  cursor: default;
-  background-color: rgba(0, 0, 0, 0.3);
-  color: white;
-  backdrop-filter: blur(3px);
-  z-index: 1;
 }

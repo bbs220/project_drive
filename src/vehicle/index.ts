@@ -1,17 +1,16 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { modelLoader } from "../utils/assetLoader";
-import { controlsForVehicle } from "./steeringControls";
+import { ctrlToggle, enableControls } from "./steeringControls";
 import { allCarModels } from "../utils/assetPaths";
 import { groundCollistonMaterial } from "../ground";
 import { useHeadLights } from "./headLights";
 import { gui } from "../helpers/visualHelpers";
-import { lockOnToggle } from "../utils/thirdPersonCamOrbit";
-import { info, nosContainer, speedElement } from "../ui/vehicleUI";
+import { info, nosContainer, speedElement, uiToggle } from "../ui/vehicleUI";
 
 // setting this up in global since im gonna neet to use in update functions down below
 export let mixer: THREE.AnimationMixer;
-export let chassisModel: THREE.Object3D;
+export let chassisMesh: THREE.Object3D;
 export const chassisBody = new CANNON.Body({ mass: 300 });
 
 const chassisShape = new CANNON.Box(new CANNON.Vec3(2, 0.3, 1));
@@ -177,15 +176,15 @@ export function addVehicle(scene: THREE.Scene, world: CANNON.World) {
   world.addContactMaterial(wheel_ground);
 
   // adding controls here
-  controlsForVehicle(vehicle);
+  // controlsForVehicle(vehicle);
 
   // loads model and only plays animation if it consists animations data
   modelLoader.load(selectedCar.chassis, function (gltf) {
-    chassisModel = gltf.scene;
+    chassisMesh = gltf.scene;
 
     const validAnimationSet = gltf.animations;
 
-    chassisModel.traverse((node) => {
+    chassisMesh.traverse((node) => {
       if (node instanceof THREE.Mesh) {
         node.castShadow = true;
         node.material.wireframe = false;
@@ -194,31 +193,29 @@ export function addVehicle(scene: THREE.Scene, world: CANNON.World) {
     });
 
     if (validAnimationSet.length > 0) {
-      mixer = new THREE.AnimationMixer(chassisModel);
+      mixer = new THREE.AnimationMixer(chassisMesh);
       const action = mixer.clipAction(validAnimationSet[0]);
       action.play();
     }
 
-    scene.add(chassisModel);
+    scene.add(chassisMesh);
   });
-
-  // again this needs to be a object for easier check box ui in the settings
-  const uiToggle = {
-    value: true,
-  };
 
   // quick controls for vehicle
   const carFolder = gui.addFolder("Vehicle");
   carFolder.close();
   carFolder.add(uiToggle, "value").onChange(uiShowHide).name("Vehicle UI");
-  carFolder.add(lockOnToggle, "value").name("Chase Camera");
+  carFolder
+    .add(ctrlToggle, "value")
+    .onChange(() => enableControls(vehicle))
+    .name("Vehicle Controls");
   carFolder.add({ resetVehicle }, "resetVehicle").name("Reset Vehicle");
 
   function uiShowHide() {
     if (uiToggle.value === true) {
-      info.style.display = "";
-      speedElement.style.display = "";
-      nosContainer.style.display = "";
+      info.style.display = "flex";
+      speedElement.style.display = "block";
+      nosContainer.style.display = "block";
     } else {
       info.style.display = "none";
       speedElement.style.display = "none";
