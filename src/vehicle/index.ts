@@ -103,6 +103,11 @@ export function addVehicle(scene: THREE.Scene, world: CANNON.World) {
   // immediately adding headlights to the vehicle
   useHeadLights(scene);
 
+  // adding this here cause i really want this to not screw with character ui
+  document.body.appendChild(speedElement);
+  document.body.appendChild(info);
+  document.body.appendChild(nosContainer);
+
   vehicle.wheelInfos.forEach((wheel) => {
     const cylinderShape = new CANNON.Cylinder(
       wheel.radius,
@@ -166,6 +171,7 @@ export function addVehicle(scene: THREE.Scene, world: CANNON.World) {
       friction: 0.3,
       restitution: 0,
       contactEquationStiffness: 1000,
+      contactEquationRelaxation: 3,
     }
   );
   world.addContactMaterial(wheel_ground);
@@ -209,7 +215,7 @@ export function addVehicle(scene: THREE.Scene, world: CANNON.World) {
   carFolder.add({ resetVehicle }, "resetVehicle").name("Reset Vehicle");
 
   function uiShowHide() {
-    if (uiToggle.value) {
+    if (uiToggle.value === true) {
       info.style.display = "";
       speedElement.style.display = "";
       nosContainer.style.display = "";

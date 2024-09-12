@@ -16,14 +16,6 @@ const valueForHeadLights = {
   intensity: 0, // intensity of the lights also setting it to 0 turns off the spotlight
 };
 
-const headLightFolder = gui.addFolder("Headlights");
-headLightFolder.close();
-// intensity 0 is off max 100
-// helper disabled by default
-// penumbra 0 to 1
-// angle 0 to 1.5
-// distance 0 to 100
-
 // left side first
 const leftHeadLight = new THREE.SpotLight(
   valueForHeadLights.color,
@@ -100,6 +92,9 @@ export function useHeadLights(scene: Scene) {
     leftHeadLightHelper,
     rightHeadLightHelper
   );
+
+  const headLightFolder = gui.addFolder("Headlights");
+  headLightFolder.close();
 
   headLightFolder
     .add(leftHeadLightHelper, "visible")

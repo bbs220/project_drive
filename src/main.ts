@@ -7,7 +7,6 @@ import { speedCalulation } from "./ui/vehicleUI";
 import { useGroundMesh, useGroundPhysicsBody } from "./ground";
 import { use2dRenderer } from "./include/otherRenderer";
 import { switchOrbitControls } from "./utils/thirdPersonCamOrbit";
-import { addCharacter, characterBody, characterMesh } from "./character";
 import { stageLights } from "./utils/stageLights";
 import { addHDRI } from "./utils/hdri";
 import { syncHeadlights } from "./vehicle/headLights";
@@ -26,7 +25,6 @@ import {
   mixer,
   vehicle,
 } from "./vehicle";
-// import { addPointerLock } from "./utils/thirdPersonCamPointer";
 
 // THIS WHOLE FILE IS JUST FOR MAIN SYNC FUNCTION CALLS AND STUFF
 
@@ -110,12 +108,10 @@ addVehicle(mainSCENE, mainWORLD);
 
 // adding character here
 // probably should add this before vehicle but whatever
-addCharacter(mainSCENE, mainWORLD);
 
 // need to call the export function once outside the recursive animate function
 // and the proceeding function inside the animate to constantly look at the moving object
 const syncOrbitLock = switchOrbitControls(mainCAMERA, main3D_RENDERER);
-// const syncPointerLock = addPointerLock(mainCAMERA);
 
 // for syncing threejs and cannon objects
 function threeAndCannonSync() {
@@ -141,8 +137,6 @@ function threeAndCannonSync() {
 
   // playable character sync
   // probably a third person controls
-  characterMesh.position.copy(characterBody.position);
-  characterMesh.quaternion.copy(characterBody.quaternion);
 
   // base ground sync
   // its really basic for now
@@ -167,7 +161,6 @@ function animate() {
   renderLoopSub();
   stats.update();
   threeAndCannonSync();
-  syncOrbitLock(chassisModel);
 
   const deltaTime = debugClock.getDelta();
 
@@ -179,6 +172,8 @@ function animate() {
     mixer.update(deltaTime);
   }
 
-  // syncPointerLock(deltaTime);
+  if (chassisModel) {
+    syncOrbitLock(chassisModel);
+  }
 }
 animate();
