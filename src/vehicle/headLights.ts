@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { type Scene } from "three";
-import { gui } from "../helpers/visualHelpers";
+import { carFolder } from ".";
 
 // all the different headlights parameters
 const valueForHeadLights = {
@@ -93,40 +93,37 @@ export function useHeadLights(scene: Scene) {
     rightHeadLightHelper
   );
 
-  const headLightFolder = gui.addFolder("Headlights");
-  headLightFolder.close();
-
-  headLightFolder
+  carFolder
     .add(leftHeadLightHelper, "visible")
-    .name("Helper")
+    .name("Headlights Helper")
     .onChange((value: boolean) => {
       updateHelperVisibility("visible", value);
     });
-  headLightFolder
+  carFolder
     .add(leftHeadLight, "intensity", 0, 100)
     .step(1)
-    .name("intensity")
+    .name("Headlights Intensity")
     .onChange((value: number) => {
       updateBothSpotlights("intensity", value);
     });
-  headLightFolder
+  carFolder
     .add(leftHeadLight, "distance", 1, 100)
-    .name("distance")
+    .name("Headlights Cone Distance")
     .step(0.1)
     .onChange((value: number) => {
       updateBothSpotlights("distance", value);
     });
-  headLightFolder
+  carFolder
     .add(leftHeadLight, "angle", 0, 1.5)
-    .name("angle")
+    .name("Headlights Cone Angle")
     .step(0.01)
     .onChange((value: number) => {
       updateBothSpotlights("angle", value);
     });
-  headLightFolder
+  carFolder
     .add(leftHeadLight, "penumbra", 0, 1)
     .step(0.1)
-    .name("penumbra")
+    .name("Headlights Cone Penumbra")
     .onChange((value: number) => {
       updateBothSpotlights("penumbra", value);
     });

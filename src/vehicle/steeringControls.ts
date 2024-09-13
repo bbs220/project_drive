@@ -119,14 +119,15 @@ function onKeyUp(event: KeyboardEvent, vehicle: CANNON.RaycastVehicle) {
 
 export function enableControls(vehicle: CANNON.RaycastVehicle) {
   if (ctrlToggle.value) {
-    console.log("vehicle controls hooked", ctrlToggle.value);
+    console.log("controls hooked vehicle =", ctrlToggle.value);
+
     keydownHandler = (event: KeyboardEvent) => onKeyDown(event, vehicle);
     keyupHandler = (event: KeyboardEvent) => onKeyUp(event, vehicle);
 
     document.addEventListener("keydown", keydownHandler);
     document.addEventListener("keyup", keyupHandler);
   } else {
-    console.log("vehicle controls unhooked", ctrlToggle.value);
+    console.log("controls unhooked vehicle =", ctrlToggle.value);
 
     if (keydownHandler && keyupHandler) {
       document.removeEventListener("keydown", keydownHandler);

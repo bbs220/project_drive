@@ -148,8 +148,10 @@ function threeAndCannonSync() {
 
   // playable character sync
   // probably a third person controls
-  characterMesh.position.copy(characterBody.position);
-  characterMesh.quaternion.copy(characterBody.quaternion);
+  if (characterMesh) {
+    characterMesh.position.copy(characterBody.position);
+    characterMesh.quaternion.copy(characterBody.quaternion);
+  }
 
   // base ground sync
   // its really basic for now

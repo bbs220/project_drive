@@ -10,9 +10,10 @@ const tilingValue = 16;
 const anisotrophicValue = 16;
 
 // for the base ground something to drive on
-const groundParams = {
-  width: 100, // width of the ground
-  height: 100, // height of the ground
+const params = {
+  width: 200, // width of the ground
+  height: 200, // height of the ground
+  depth: 0.5, // dont push this above 1
   wSegment: 1, // detail in width 1 minimum for better performance
   hSegment: 1, // detail in height 1 minimum for better performance
 };
@@ -30,11 +31,12 @@ const blueprintTexture = new THREE.TextureLoader(progressManager).load(
 
 // threejs plane as a ground
 export function useGroundMesh() {
-  const groundShape = new THREE.PlaneGeometry(
-    groundParams.width,
-    groundParams.height,
-    groundParams.wSegment,
-    groundParams.hSegment
+  const groundShape = new THREE.BoxGeometry(
+    params.width,
+    params.height,
+    params.depth,
+    params.wSegment,
+    params.hSegment
   );
   const groundMaterial = new THREE.MeshStandardMaterial({
     wireframe: false,
@@ -45,14 +47,20 @@ export function useGroundMesh() {
   return ground;
 }
 
-// physics ground for the threejs plane
-// infinite scale by default
+// physics ground for the threejs plane?
+// finite scale by default
 export function useGroundPhysicsBody() {
   const groundBody = new CANNON.Body({
     type: CANNON.Body.STATIC,
     material: groundCollistonMaterial,
   });
-  const tempPhysicsGroundShape = new CANNON.Plane();
+  // always remember that cannon has a half rule for measurements with threejs geometries
+  // eg. if threejs box is 1,1,1 then cannon box will be 0.5,0.5,0.5
+  // dont ever forget this since this does not give a proper error
+  // debugging will be nightmare
+  const tempPhysicsGroundShape = new CANNON.Box(
+    new CANNON.Vec3(params.width / 2, params.height / 2, params.depth / 2)
+  );
   groundBody.addShape(tempPhysicsGroundShape);
   groundBody.position.set(0, 0, 0);
   groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);

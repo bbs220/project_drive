@@ -2,6 +2,7 @@ import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { groundCollistonMaterial } from "../ground";
 import { gui } from "../helpers/visualHelpers";
+import { movementControls, mvmtToggle } from "./movementControls";
 
 const capsuleParams = {
   radius: 0.5,
@@ -10,6 +11,17 @@ const capsuleParams = {
   radialSegment: 12,
   color: "#ffffff",
 };
+
+const visor = new THREE.Mesh(
+  new THREE.BoxGeometry(0.5, 0.3, 0.1),
+  new THREE.MeshStandardMaterial({
+    color: "#00ffff",
+    wireframe: false,
+    flatShading: true,
+  })
+);
+visor.position.set(0, 0.5, -0.55);
+visor.castShadow = true;
 
 // temp capsule body for character
 const geometry = new THREE.CapsuleGeometry(
@@ -24,6 +36,7 @@ const material = new THREE.MeshStandardMaterial({
 });
 // need this exported for sync
 export const characterMesh = new THREE.Mesh(geometry, material);
+characterMesh.add(visor);
 characterMesh.castShadow = true;
 
 // self explainable
@@ -53,7 +66,7 @@ export const characterBody = new CANNON.Body({
 });
 characterBody.addShape(characterShape, new CANNON.Vec3(0, 0.5, 0));
 characterBody.addShape(characterShape, new CANNON.Vec3(0, -0.5, 0));
-characterBody.position.set(0, 1, 0);
+characterBody.position.set(0, 2, 0);
 characterBody.linearDamping = 0.95;
 characterBody.angularFactor.set(0, 1, 0); // prevents rotation X,Z axis
 
@@ -69,10 +82,14 @@ export function addCharacter(scene: THREE.Scene, world: CANNON.World) {
   const chFolder = gui.addFolder("Character");
   chFolder.close();
   chFolder.add(material, "wireframe").name("Wireframe");
+  chFolder
+    .add(mvmtToggle, "value")
+    .onChange(() => movementControls())
+    .name("Character Controls");
   chFolder.add({ resetCharacter }, "resetCharacter").name("Reset Character");
 
   function resetCharacter() {
-    characterBody.position.set(0, 1, 0);
+    characterBody.position.set(0, 2, 0);
     characterBody.velocity.set(0, 0, 0);
     characterBody.angularFactor.set(0, 1, 0);
     characterBody.angularVelocity = new CANNON.Vec3(0, 0, 0);

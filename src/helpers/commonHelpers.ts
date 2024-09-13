@@ -12,8 +12,8 @@ export function useGrid() {
     "#ffff00",
     "#00ffff"
   );
-  grid.position.set(0, 0.1, 0);
-  grid.scale.setScalar(6.2);
+  grid.position.set(0, 0.6, 0);
+  grid.scale.setScalar(12.5);
   grid.visible = false;
   return grid;
 }

@@ -95,6 +95,9 @@ const wheelVisual: THREE.Group<THREE.Object3DEventMap>[] = [];
 
 const wheelCollisionMaterial = new CANNON.Material("wheel");
 
+export const carFolder = gui.addFolder("Vehicle");
+carFolder.close();
+
 // adding vehicle to the physics world
 export function addVehicle(scene: THREE.Scene, world: CANNON.World) {
   vehicle.addToWorld(world);
@@ -202,8 +205,6 @@ export function addVehicle(scene: THREE.Scene, world: CANNON.World) {
   });
 
   // quick controls for vehicle
-  const carFolder = gui.addFolder("Vehicle");
-  carFolder.close();
   carFolder.add(uiToggle, "value").onChange(uiShowHide).name("Vehicle UI");
   carFolder
     .add(ctrlToggle, "value")
