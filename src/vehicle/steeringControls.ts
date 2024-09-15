@@ -15,8 +15,8 @@ export const ctrlToggle = {
   value: false,
 };
 
-let keydownHandler: (event: KeyboardEvent) => void;
-let keyupHandler: (event: KeyboardEvent) => void;
+let keyDownHandler: (event: KeyboardEvent) => void;
+let keyUpHandler: (event: KeyboardEvent) => void;
 
 // event listeners for controls WASD and B for handbrake and N for nitrous
 function onKeyDown(event: KeyboardEvent, vehicle: CANNON.RaycastVehicle) {
@@ -121,21 +121,21 @@ export function enableControls(vehicle: CANNON.RaycastVehicle) {
   if (ctrlToggle.value) {
     console.log("controls hooked vehicle =", ctrlToggle.value);
 
-    keydownHandler = (event: KeyboardEvent) => onKeyDown(event, vehicle);
-    keyupHandler = (event: KeyboardEvent) => onKeyUp(event, vehicle);
+    keyDownHandler = (event: KeyboardEvent) => onKeyDown(event, vehicle);
+    keyUpHandler = (event: KeyboardEvent) => onKeyUp(event, vehicle);
 
-    document.addEventListener("keydown", keydownHandler);
-    document.addEventListener("keyup", keyupHandler);
+    document.addEventListener("keydown", keyDownHandler);
+    document.addEventListener("keyup", keyUpHandler);
   } else {
     console.log("controls unhooked vehicle =", ctrlToggle.value);
 
-    if (keydownHandler && keyupHandler) {
-      document.removeEventListener("keydown", keydownHandler);
-      document.removeEventListener("keyup", keyupHandler);
+    if (keyDownHandler && keyUpHandler) {
+      document.removeEventListener("keydown", keyDownHandler);
+      document.removeEventListener("keyup", keyUpHandler);
 
       // Reset the handlers
-      keydownHandler = () => undefined;
-      keyupHandler = () => undefined;
+      keyDownHandler = () => undefined;
+      keyUpHandler = () => undefined;
     }
   }
 }

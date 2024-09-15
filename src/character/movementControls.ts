@@ -7,66 +7,68 @@ export const mvmtToggle = {
 let keyDownHandler: (event: KeyboardEvent) => void;
 let keyUpHandler: (event: KeyboardEvent) => void;
 
-function onKeyDown(e: KeyboardEvent) {
+const inputVec = new CANNON.Vec3();
+
+function onKeyDown(e: KeyboardEvent, body: CANNON.Body) {
   e.preventDefault();
-  e.stopPropagation();
 
   switch (e.key) {
     case "w":
-      console.log("w pressed");
+      body.applyLocalForce(inputVec.set(0, 0, -10));
       break;
 
     case "a":
-      console.log("a pressed");
+      body.quaternion.setFromEuler(0, Math.PI / 2, 0);
       break;
 
     case "s":
-      console.log("s pressed");
+      body.applyLocalForce(inputVec.set(0, 0, 10));
       break;
 
     case "d":
-      console.log("d pressed");
+      body.quaternion.setFromEuler(0, -Math.PI / 2, 0);
       break;
 
     case " ":
-      console.log("space pressed");
+      body.applyLocalForce(inputVec.set(0, 10, 0));
       break;
   }
 }
 
-function onKeyUp(e: KeyboardEvent) {
+function onKeyUp(e: KeyboardEvent, body: CANNON.Body) {
   e.preventDefault();
-  e.stopPropagation();
+
+  inputVec.setZero();
 
   switch (e.key) {
     case "w":
-      console.log("w lifted");
+      body.velocity = inputVec;
       break;
 
     case "a":
-      console.log("a lifted");
+      body.velocity = inputVec;
       break;
 
     case "s":
-      console.log("s lifted");
+      body.velocity = inputVec;
       break;
 
     case "d":
-      console.log("d lifted");
+      body.velocity = inputVec;
       break;
 
     case " ":
-      console.log("space lifted");
+      body.velocity = inputVec;
       break;
   }
 }
 
-export function movementControls() {
+export function movementControls(body: CANNON.Body) {
   if (mvmtToggle.value) {
     console.log("controls hooked character =", mvmtToggle.value);
 
-    keyDownHandler = (event: KeyboardEvent) => onKeyDown(event);
-    keyUpHandler = (event: KeyboardEvent) => onKeyUp(event);
+    keyDownHandler = (event: KeyboardEvent) => onKeyDown(event, body);
+    keyUpHandler = (event: KeyboardEvent) => onKeyUp(event, body);
 
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);

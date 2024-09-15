@@ -68,7 +68,8 @@ characterBody.addShape(characterShape, new CANNON.Vec3(0, 0.5, 0));
 characterBody.addShape(characterShape, new CANNON.Vec3(0, -0.5, 0));
 characterBody.position.set(0, 2, 0);
 characterBody.linearDamping = 0.95;
-characterBody.angularFactor.set(0, 1, 0); // prevents rotation X,Z axis
+// prevents rotation X,Z axis
+characterBody.angularFactor.set(0, 1, 0);
 
 // just throw it in main.ts to add it
 // remember to sync it in there
@@ -84,14 +85,13 @@ export function addCharacter(scene: THREE.Scene, world: CANNON.World) {
   chFolder.add(material, "wireframe").name("Wireframe");
   chFolder
     .add(mvmtToggle, "value")
-    .onChange(() => movementControls())
+    .onChange(() => movementControls(characterBody))
     .name("Character Controls");
   chFolder.add({ resetCharacter }, "resetCharacter").name("Reset Character");
 
   function resetCharacter() {
     characterBody.position.set(0, 2, 0);
     characterBody.velocity.set(0, 0, 0);
-    characterBody.angularFactor.set(0, 1, 0);
     characterBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
   }
 }
