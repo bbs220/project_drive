@@ -26,6 +26,7 @@ const blueprintTexture = new THREE.TextureLoader(progressManager).load(
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(tilingValue, tilingValue);
     texture.anisotropy = anisotrophicValue;
+    texture.colorSpace = THREE.SRGBColorSpace;
   }
 );
 
