@@ -6,7 +6,7 @@ export const allImageTextures = {
 
 export const allHDRs = {
   eveningSky: "hdris/EveningSkyHDRI026B_2K-HDR.hdr",
-  daySky: "hdris/DaySkyHDRI022A_2K-HDR.hdr",
+  daySky: "hdris/kloofendal_48d_partly_cloudy_puresky_2k.hdr",
   dayCity: "hdris/DayEnvironmentHDRI052_2K-HDR.hdr",
 };
 

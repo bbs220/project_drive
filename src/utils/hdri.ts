@@ -18,7 +18,7 @@ hdriFolder.close();
 
 // environment map for better lightings but does not project shadows
 export function addHDRI(scene: THREE.Scene) {
-  envMapLoader.load(allHDRs.dayCity, (texture: THREE.Texture) => {
+  envMapLoader.load(allHDRs.daySky, (texture: THREE.Texture) => {
     textureToggle = texture;
     texture.mapping = THREE.EquirectangularReflectionMapping;
     scene.environment = texture;
