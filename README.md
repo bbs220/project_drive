@@ -3,7 +3,7 @@
 
 ## 👋 A physics based game driving game in three.js and typescript
 
-Dont know when I'll finish this but this as a side project keeps my brain running
+Don't know when I'll finish this, but this as a side project keeps my brain running.
 It works on desktop for now
 
 ## 📝 TODO :
