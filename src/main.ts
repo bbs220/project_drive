@@ -26,6 +26,7 @@ import {
   vehicle,
 } from "./vehicle";
 import { addCharacter, characterBody, characterMesh } from "./character";
+import { buildTerrain } from "./ground/terrain";
 
 // THIS WHOLE FILE IS JUST FOR MAIN SYNC FUNCTION CALLS AND STUFF
 
@@ -110,6 +111,8 @@ addVehicle(mainSCENE, mainWORLD);
 // adding character here
 // probably should add this before vehicle but whatever
 addCharacter(mainSCENE, mainWORLD);
+
+buildTerrain();
 
 // need to call the export function once outside the recursive animate function
 // and the proceeding function inside the animate to constantly look at the moving object

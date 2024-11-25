@@ -2,7 +2,6 @@ import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { groundCollistonMaterial } from "../ground";
 import { gui } from "../helpers/visualHelpers";
-import { movementControls, mvmtToggle } from "./movementControls";
 
 const capsuleParams = {
   radius: 0.5,
@@ -83,10 +82,6 @@ export function addCharacter(scene: THREE.Scene, world: CANNON.World) {
   const chFolder = gui.addFolder("Character");
   chFolder.close();
   chFolder.add(material, "wireframe").name("Wireframe");
-  chFolder
-    .add(mvmtToggle, "value")
-    .onChange(() => movementControls(characterBody))
-    .name("Character Controls");
   chFolder.add({ resetCharacter }, "resetCharacter").name("Reset Character");
 
   function resetCharacter() {
