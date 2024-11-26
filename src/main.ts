@@ -29,6 +29,8 @@ import { addCharacter, characterBody, characterMesh } from "./character";
 import { buildTerrain } from "./ground/terrain";
 
 // THIS WHOLE FILE IS JUST FOR MAIN SYNC FUNCTION CALLS AND STUFF
+// dont forget what version was i ever on
+console.log(`three.JS r${THREE.REVISION} ready`);
 
 // scene
 const mainSCENE = useScene();
