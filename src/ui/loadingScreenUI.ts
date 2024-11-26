@@ -83,7 +83,7 @@ progressManager.onProgress = function (url, itemsLoaded, itemsTotal) {
   grabProgressBar.value = (itemsLoaded / itemsTotal) * 100;
 
   console.log(
-    `Loading file: ${url}.\nLoaded ${itemsLoaded} of ${itemsTotal} files.`
+    `Loading file: ${url} \nLoaded ${itemsLoaded} of ${itemsTotal} files`
   );
   progressManager.onLoad = () => {
     grabBtn.style.opacity = "1";

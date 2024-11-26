@@ -2,7 +2,7 @@ import type CANNON from "cannon-es";
 import { rechargeNitros } from "../ui/vehicleUI";
 
 // flags for keeping me sane
-let maxTorque = 200; // initial torque of the vehicle
+let maxTorque = 300; // initial torque of the vehicle 200 does not produce burnout so fuck it 300
 let isNitroActive = false; // debugging check
 let isWPressed = false; // flag to only apply nitro if vehicle is going forward
 const maxSteerVal = 0.5; // dont go above 1 or below 0 else steering angle goes bad
