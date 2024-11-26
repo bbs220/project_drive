@@ -7,6 +7,7 @@ import { groundCollistonMaterial } from "../ground";
 import { useHeadLights } from "./headLights";
 import { gui } from "../helpers/visualHelpers";
 import { info, nosContainer, speedElement, uiToggle } from "../ui/vehicleUI";
+import { soundManagerVehicle } from "../audio";
 
 // setting this up in global since im gonna neet to use in update functions down below
 export let mixer: THREE.AnimationMixer;
@@ -99,11 +100,18 @@ export const carFolder = gui.addFolder("Vehicle");
 carFolder.close();
 
 // adding vehicle to the physics world
-export function addVehicle(scene: THREE.Scene, world: CANNON.World) {
+export function addVehicle(
+  scene: THREE.Scene,
+  world: CANNON.World,
+  camera: THREE.PerspectiveCamera
+) {
   vehicle.addToWorld(world);
 
   // immediately adding headlights to the vehicle
   useHeadLights(scene);
+
+  // attach sounds to car
+  soundManagerVehicle(camera);
 
   // adding this here cause i really want this to not screw with character ui
   document.body.appendChild(speedElement);

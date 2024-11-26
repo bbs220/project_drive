@@ -1,64 +1,51 @@
-import { allSounds } from "../utils/assetPaths";
+import * as THREE from "three";
+import { progressManager } from "../ui/loadingScreenUI";
 
-const makeCanvas = document.createElement("canvas");
-makeCanvas.id = "visualizer";
-document.body.appendChild(makeCanvas);
+const sounds: THREE.Audio[] = [];
 
-const makeAudio = document.createElement("audio");
-makeAudio.id = "mySong";
-makeAudio.src = allSounds.lofi;
-makeAudio.controls = true;
-document.body.appendChild(makeAudio);
+let engineReady: THREE.Audio;
+let revving: THREE.Audio;
+let burnout: THREE.Audio;
+let brake: THREE.Audio;
+let boost: THREE.Audio;
 
-const audioContext = new window.AudioContext();
-const audioElement = document.getElementById("mySong") as HTMLAudioElement;
-const source = audioContext.createMediaElementSource(audioElement);
-export const analyser = audioContext.createAnalyser();
-source.connect(analyser);
-analyser.connect(audioContext.destination);
-analyser.fftSize = 256;
-const dataArray = new Uint8Array(analyser.frequencyBinCount);
+const audioLoader = new THREE.AudioLoader(progressManager);
 
-export function drawVisualizer() {
-  const canvas = document.getElementById("visualizer") as HTMLCanvasElement;
-  if (!canvas) {
-    console.error("Visualizer canvas not found");
-    return;
-  }
+const mp3s = ["engineReady", "revving", "burnout", "brake", "boost"];
 
-  const ctx = canvas.getContext("2d");
-  if (!ctx) {
-    console.error("Failed to get 2D context from canvas");
-    return;
-  }
+const listener = new THREE.AudioListener();
 
-  const canvasWidth = canvas.width;
-  const canvasHeight = canvas.height;
+export function soundManagerVehicle(camera: THREE.PerspectiveCamera) {
+  camera.add(listener);
 
-  // Clear the canvas
-  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  mp3s.forEach((singleName) => {
+    const sound = new THREE.Audio(listener);
+    sound.name = singleName;
 
-  // Draw the background
-  ctx.fillStyle = "transparent";
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    if (singleName === "engineReady") {
+      engineReady = sound;
+    }
 
-  // Calculate bar width
-  const barWidth = Math.floor(canvasWidth / analyser.frequencyBinCount);
+    if (singleName === "revving") {
+      revving = sound;
+    }
 
-  // Draw each bar
-  for (let i = 0; i < analyser.frequencyBinCount; i++) {
-    const barHeight = dataArray[i];
-    const x = i * barWidth;
-    const y = canvasHeight - barHeight;
+    if (singleName === "burnout") {
+      burnout = sound;
+    }
 
-    ctx.beginPath();
-    ctx.moveTo(x, canvasHeight);
-    ctx.lineTo(x, y);
-    ctx.strokeStyle = `hsl(${Math.floor(
-      (i / analyser.frequencyBinCount) * 360
-    )}, 100%, 50%)`;
-    ctx.stroke();
-  }
+    if (singleName === "brake") {
+      brake = sound;
+    }
 
-  analyser.getByteFrequencyData(dataArray);
+    if (singleName === "boost") {
+      boost = sound;
+    }
+
+    sounds.push(sound);
+
+    audioLoader.load(`sounds/${singleName}.mp3`, (buffer) => {
+      sound.setBuffer(buffer);
+    });
+  });
 }

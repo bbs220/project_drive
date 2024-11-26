@@ -108,7 +108,7 @@ sceneFolder.add(debugGrid, "visible").name("Grid");
 sceneFolder.add(ambientLight, "visible").name("Fill Light");
 
 // adding a simple vehicle here
-addVehicle(mainSCENE, mainWORLD);
+addVehicle(mainSCENE, mainWORLD, mainCAMERA);
 
 // adding character here
 // probably should add this before vehicle but whatever
