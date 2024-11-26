@@ -47,13 +47,13 @@ function onKeyDown(event: KeyboardEvent, vehicle: CANNON.RaycastVehicle) {
       vehicle.setSteeringValue(-maxSteerVal, 1);
       break;
 
-    case "b":
+    case " ": // spacebar
       vehicle.setBrake(brakeForce, 0);
       vehicle.setBrake(brakeForce, 1);
       vehicle.setBrake(brakeForce, 2);
       vehicle.setBrake(brakeForce, 3);
       break;
-    case "n": // Nitro boost
+    case "Shift": // nitro boost its left shift key
       if (!isNitroActive) {
         // Activate nitro only if it's not already active
         isNitroActive = true; // Mark nitro as active
@@ -108,7 +108,7 @@ function onKeyUp(event: KeyboardEvent, vehicle: CANNON.RaycastVehicle) {
       vehicle.setSteeringValue(0, 1);
       break;
 
-    case "b":
+    case " ": // spacebar
       vehicle.setBrake(0, 0);
       vehicle.setBrake(0, 1);
       vehicle.setBrake(0, 2);

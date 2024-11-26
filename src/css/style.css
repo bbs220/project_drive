@@ -36,15 +36,18 @@ body {
 /* dont worry the display will be changed in gui */
 #instructions {
   position: fixed;
-  bottom: -5px;
-  left: 10px;
-  width: 130px;
-  height: 50px;
+  bottom: -8px;
+  left: 25%;
+  width: 50%;
+  height: 30px;
   font-size: 16px;
+  font-style: italic;
+  font-family: monospace;
   overflow: hidden;
   display: -webkit-box;
   display: -ms-flexbox;
   display: none;
+  color: rgba(0, 0, 0, 0.7);
   -webkit-box-pack: center;
   -ms-flex-pack: center;
   justify-content: center;
@@ -60,6 +63,7 @@ body {
   bottom: 30px;
   right: 20px;
   font-size: 20px;
+  font-family: monospace;
   overflow: hidden;
   pointer-events: none;
   display: none;

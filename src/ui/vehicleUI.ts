@@ -34,7 +34,7 @@ export function rechargeNitros() {
 // simple intructions for user
 export const info = document.createElement("p");
 info.id = "instructions";
-info.innerHTML = `WASD for driving<br />B for handbrake<br />N for nitrous`;
+info.innerHTML = `WASD for steering, Space is handbrake and Shift is boost`;
 
 // again this needs to be a object for easier check box ui in the settings
 export const uiToggle = {
