@@ -1,11 +1,11 @@
 import * as THREE from "three";
 
 export function buildTerrain() {
-  const terrainShape = new THREE.PlaneGeometry(600, 600);
+  const terrainShape = new THREE.PlaneGeometry(600, 600, 100, 100);
 
   const terrainMaterial = new THREE.MeshStandardMaterial({
     wireframe: false,
-    color: "#ff0000",
+    color: "#00ffff",
   });
 
   const terrain = new THREE.Mesh(terrainShape, terrainMaterial);

@@ -1,5 +1,10 @@
 import type CANNON from "cannon-es";
-import { rechargeNitros } from "../ui/vehicleUI";
+import {
+  info,
+  nosContainer,
+  rechargeNitros,
+  speedElement,
+} from "../ui/vehicleUI";
 import { boost, brake, engineReady, revving } from "../audio";
 
 // flags for keeping me sane
@@ -136,6 +141,11 @@ export function enableControls(vehicle: CANNON.RaycastVehicle) {
     revving.setVolume(0.5);
     revving.play();
 
+    // if controls are hooked show ui
+    info.style.display = "flex";
+    speedElement.style.display = "block";
+    nosContainer.style.display = "block";
+
     keyDownHandler = (event: KeyboardEvent) => onKeyDown(event, vehicle);
     keyUpHandler = (event: KeyboardEvent) => onKeyUp(event, vehicle);
 
@@ -145,6 +155,11 @@ export function enableControls(vehicle: CANNON.RaycastVehicle) {
     console.log("controls unhooked vehicle =", ctrlToggle.value);
 
     revving.stop();
+
+    // if vehicle controls are off then we dont show any ui
+    info.style.display = "none";
+    speedElement.style.display = "none";
+    nosContainer.style.display = "none";
 
     if (keyDownHandler && keyUpHandler) {
       document.removeEventListener("keydown", keyDownHandler);

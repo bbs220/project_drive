@@ -6,7 +6,7 @@ import { allCarModels } from "../utils/assetPaths";
 import { groundCollistonMaterial } from "../ground";
 import { useHeadLights } from "./headLights";
 import { gui } from "../helpers/visualHelpers";
-import { info, nosContainer, speedElement, uiToggle } from "../ui/vehicleUI";
+import { info, nosContainer, speedElement } from "../ui/vehicleUI";
 import { soundManagerVehicle } from "../audio";
 
 // setting this up in global since im gonna neet to use in update functions down below
@@ -213,24 +213,11 @@ export function addVehicle(
   });
 
   // quick controls for vehicle
-  carFolder.add(uiToggle, "value").onChange(uiShowHide).name("Vehicle UI");
   carFolder
     .add(ctrlToggle, "value")
     .onChange(() => enableControls(vehicle))
-    .name("Vehicle Controls");
+    .name("Enable Vehicle");
   carFolder.add({ resetVehicle }, "resetVehicle").name("Reset Vehicle");
-
-  function uiShowHide() {
-    if (uiToggle.value === true) {
-      info.style.display = "flex";
-      speedElement.style.display = "block";
-      nosContainer.style.display = "block";
-    } else {
-      info.style.display = "none";
-      speedElement.style.display = "none";
-      nosContainer.style.display = "none";
-    }
-  }
 
   // for bringing the car back to position (0,0,0) in case it crashes somewhere
   function resetVehicle() {
