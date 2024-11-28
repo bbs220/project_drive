@@ -1,24 +1,26 @@
 import * as THREE from "three";
 import { progressManager } from "../ui/loadingScreenUI";
 
-const sounds: THREE.Audio[] = [];
+const allSounds: THREE.Audio[] = [];
 
-let engineReady: THREE.Audio;
-let revving: THREE.Audio;
-let burnout: THREE.Audio;
-let brake: THREE.Audio;
-let boost: THREE.Audio;
+// these all are going to be conditionally called in steering controls
+export let engineReady: THREE.Audio;
+export let revving: THREE.Audio;
+export let burnout: THREE.Audio;
+export let brake: THREE.Audio;
+export let boost: THREE.Audio;
 
+// please dont fuck me up with high volume on first page load
 const audioLoader = new THREE.AudioLoader(progressManager);
 
-const mp3s = ["engineReady", "revving", "burnout", "brake", "boost"];
+const allSFX = ["engineReady", "revving", "burnout", "brake", "boost"];
 
 const listener = new THREE.AudioListener();
 
 export function soundManagerVehicle(camera: THREE.PerspectiveCamera) {
   camera.add(listener);
 
-  mp3s.forEach((singleName) => {
+  allSFX.forEach((singleName) => {
     const sound = new THREE.Audio(listener);
     sound.name = singleName;
 
@@ -42,7 +44,7 @@ export function soundManagerVehicle(camera: THREE.PerspectiveCamera) {
       boost = sound;
     }
 
-    sounds.push(sound);
+    allSounds.push(sound);
 
     audioLoader.load(`sounds/${singleName}.mp3`, (buffer) => {
       sound.setBuffer(buffer);

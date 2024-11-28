@@ -1,5 +1,6 @@
 import type CANNON from "cannon-es";
 import { rechargeNitros } from "../ui/vehicleUI";
+import { boost, brake, engineReady, revving } from "../audio";
 
 // flags for keeping me sane
 let maxTorque = 300; // initial torque of the vehicle 200 does not produce burnout so fuck it 300
@@ -27,6 +28,7 @@ function onKeyDown(event: KeyboardEvent, vehicle: CANNON.RaycastVehicle) {
       // case "ArrowUp":
       isWPressed = true;
       forceApplyEngineForce();
+      revving.setVolume(0.7);
       break;
 
     case "s":
@@ -52,6 +54,8 @@ function onKeyDown(event: KeyboardEvent, vehicle: CANNON.RaycastVehicle) {
       vehicle.setBrake(brakeForce, 1);
       vehicle.setBrake(brakeForce, 2);
       vehicle.setBrake(brakeForce, 3);
+      brake.play();
+      brake.setVolume(0.5);
       break;
     case "Shift": // nitro boost its left shift key
       if (!isNitroActive) {
@@ -61,6 +65,8 @@ function onKeyDown(event: KeyboardEvent, vehicle: CANNON.RaycastVehicle) {
         if (isWPressed) {
           forceApplyEngineForce(); // Apply increased force if "W" is pressed
           rechargeNitros();
+          boost.play();
+          boost.setVolume(0.7);
         }
         setTimeout(() => {
           maxTorque = originalMaxForce; // Revert maxForce after nitro limit is passed
@@ -88,6 +94,7 @@ function onKeyUp(event: KeyboardEvent, vehicle: CANNON.RaycastVehicle) {
       isWPressed = false;
       vehicle.applyEngineForce(0, 2);
       vehicle.applyEngineForce(0, 3);
+      revving.setVolume(0.5);
       break;
 
     case "s":
@@ -113,6 +120,7 @@ function onKeyUp(event: KeyboardEvent, vehicle: CANNON.RaycastVehicle) {
       vehicle.setBrake(0, 1);
       vehicle.setBrake(0, 2);
       vehicle.setBrake(0, 3);
+      brake.stop();
       break;
   }
 }
@@ -121,6 +129,13 @@ export function enableControls(vehicle: CANNON.RaycastVehicle) {
   if (ctrlToggle.value) {
     console.log("controls hooked vehicle =", ctrlToggle.value);
 
+    engineReady.stop();
+    engineReady.play();
+    revving.stop();
+    revving.setLoop(true);
+    revving.setVolume(0.5);
+    revving.play();
+
     keyDownHandler = (event: KeyboardEvent) => onKeyDown(event, vehicle);
     keyUpHandler = (event: KeyboardEvent) => onKeyUp(event, vehicle);
 
@@ -128,6 +143,8 @@ export function enableControls(vehicle: CANNON.RaycastVehicle) {
     document.addEventListener("keyup", keyUpHandler);
   } else {
     console.log("controls unhooked vehicle =", ctrlToggle.value);
+
+    revving.stop();
 
     if (keyDownHandler && keyUpHandler) {
       document.removeEventListener("keydown", keyDownHandler);
