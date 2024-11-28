@@ -115,7 +115,8 @@ addVehicle(mainSCENE, mainWORLD, mainCAMERA);
 // probably should add this before vehicle but whatever
 addCharacter(mainSCENE, mainWORLD);
 
-buildTerrain();
+const terrain = buildTerrain();
+mainSCENE.add(terrain);
 
 // this thing returns a function that should be used in renderLoopMain()
 // do not fucking have both the renderer and composer on at the same time

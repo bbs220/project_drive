@@ -93,34 +93,37 @@ export function useHeadLights(scene: Scene) {
     rightHeadLightHelper
   );
 
-  carFolder
+  const headlightFolder = carFolder.addFolder("Headlights");
+  headlightFolder.close();
+
+  headlightFolder
     .add(leftHeadLightHelper, "visible")
     .name("Headlights Helper")
     .onChange((value: boolean) => {
       updateHelperVisibility("visible", value);
     });
-  carFolder
+  headlightFolder
     .add(leftHeadLight, "intensity", 0, 100)
     .step(1)
     .name("Headlights Intensity")
     .onChange((value: number) => {
       updateBothSpotlights("intensity", value);
     });
-  carFolder
+  headlightFolder
     .add(leftHeadLight, "distance", 1, 100)
     .name("Headlights Cone Distance")
     .step(0.1)
     .onChange((value: number) => {
       updateBothSpotlights("distance", value);
     });
-  carFolder
+  headlightFolder
     .add(leftHeadLight, "angle", 0, 1.5)
     .name("Headlights Cone Angle")
     .step(0.01)
     .onChange((value: number) => {
       updateBothSpotlights("angle", value);
     });
-  carFolder
+  headlightFolder
     .add(leftHeadLight, "penumbra", 0, 1)
     .step(0.1)
     .name("Headlights Cone Penumbra")
