@@ -71,7 +71,7 @@ function onKeyDown(event: KeyboardEvent, vehicle: CANNON.RaycastVehicle) {
           forceApplyEngineForce(); // Apply increased force if "W" is pressed
           rechargeNitros();
           boost.play();
-          boost.setVolume(0.7);
+          boost.setVolume(0.5);
         }
         setTimeout(() => {
           maxTorque = originalMaxForce; // Revert maxForce after nitro limit is passed
@@ -135,6 +135,7 @@ export function enableControls(vehicle: CANNON.RaycastVehicle) {
     console.log("controls hooked vehicle =", ctrlToggle.value);
 
     engineReady.stop();
+    engineReady.setVolume(0.5);
     engineReady.play();
     revving.stop();
     revving.setLoop(true);

@@ -6,14 +6,13 @@ const allSounds: THREE.Audio[] = [];
 // these all are going to be conditionally called in steering controls
 export let engineReady: THREE.Audio;
 export let revving: THREE.Audio;
-export let burnout: THREE.Audio;
 export let brake: THREE.Audio;
 export let boost: THREE.Audio;
 
 // please dont fuck me up with high volume on first page load
 const audioLoader = new THREE.AudioLoader(progressManager);
 
-const allSFX = ["engineReady", "revving", "burnout", "brake", "boost"];
+const allSFX = ["engineReady", "revving", "brake", "boost"];
 
 const listener = new THREE.AudioListener();
 
@@ -30,10 +29,6 @@ export function soundManagerVehicle(camera: THREE.PerspectiveCamera) {
 
     if (singleName === "revving") {
       revving = sound;
-    }
-
-    if (singleName === "burnout") {
-      burnout = sound;
     }
 
     if (singleName === "brake") {
