@@ -27,6 +27,7 @@ import {
 } from "./vehicle";
 import { addCharacter, characterBody, characterMesh } from "./character";
 import { buildTerrain } from "./ground/terrain";
+import { postProcessing } from "./utils/postProcessing";
 
 // THIS WHOLE FILE IS JUST FOR MAIN SYNC FUNCTION CALLS AND STUFF
 // dont forget what version was i ever on
@@ -116,6 +117,14 @@ addCharacter(mainSCENE, mainWORLD);
 
 buildTerrain();
 
+// this thing returns a function that should be used in renderLoopMain()
+// do not fucking have both the renderer and composer on at the same time
+// stop composer if you gonna use native render
+// vice versa stop native render if you gonna use composer
+// yes i dont know any more creative names for this
+// all hail ppFilters
+const ppFilters = postProcessing(mainSCENE, mainCAMERA, main3D_RENDERER);
+
 // need to call the export function once outside the recursive animate function
 // and the proceeding function inside the animate to constantly look at the moving object
 const syncOrbitLock = switchOrbitControls(mainCAMERA, main3D_RENDERER);
@@ -166,7 +175,8 @@ function threeAndCannonSync() {
 
 // clean webgl render function
 function renderLoopMain() {
-  main3D_RENDERER.render(mainSCENE, mainCAMERA);
+  // main3D_RENDERER.render(mainSCENE, mainCAMERA);
+  ppFilters();
 }
 
 // clean css render function
