@@ -7,5 +7,5 @@ stats.showPanel(0);
 document.body.appendChild(stats.dom);
 
 // a gui for prototyping on the objects in the scene
-export const gui = new GUI({ title: "Settings", width: 250 });
+export const gui = new GUI({ title: "⚙️ Settings", width: 250 });
 gui.close();

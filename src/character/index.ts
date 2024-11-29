@@ -79,7 +79,7 @@ export function addCharacter(scene: THREE.Scene, world: CANNON.World) {
 
   world.addContactMaterial(character_ground);
 
-  const chFolder = gui.addFolder("Character");
+  const chFolder = gui.addFolder("👦🏻 Character");
   chFolder.close();
   chFolder.add(material, "wireframe").name("Wireframe");
   chFolder.add({ resetCharacter }, "resetCharacter").name("Reset Character");

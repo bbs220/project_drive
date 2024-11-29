@@ -56,7 +56,7 @@ export function stageLights(scene: THREE.Scene) {
 }
 
 // gui stuff
-const lightsFolder = gui.addFolder("Stage Lights");
+const lightsFolder = gui.addFolder("💡 Stage Lights");
 lightsFolder.close();
 function updateLightIntensities() {
   lightsAndHelpers.forEach(([light]) => {

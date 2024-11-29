@@ -13,7 +13,7 @@ const hdrParams = {
 };
 
 // setting up gui
-const hdriFolder = gui.addFolder("HDRI");
+const hdriFolder = gui.addFolder("☀️ HDRI");
 hdriFolder.close();
 
 // environment map for better lightings but does not project shadows

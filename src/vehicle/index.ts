@@ -96,7 +96,7 @@ const wheelVisual: THREE.Group<THREE.Object3DEventMap>[] = [];
 
 const wheelCollisionMaterial = new CANNON.Material("wheel");
 
-export const carFolder = gui.addFolder("Vehicle");
+export const carFolder = gui.addFolder("🚗 Vehicle");
 carFolder.close();
 
 // adding vehicle to the physics world

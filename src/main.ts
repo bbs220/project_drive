@@ -94,7 +94,7 @@ const groundBody = useGroundPhysicsBody();
 mainWORLD.addBody(groundBody);
 
 // quick controls for common needs
-const sceneFolder = gui.addFolder("Scene");
+const sceneFolder = gui.addFolder("🌍 Scene");
 sceneFolder.close();
 sceneFolder
   .add(debugAxes, "visible")
@@ -115,8 +115,7 @@ addVehicle(mainSCENE, mainWORLD, mainCAMERA);
 // probably should add this before vehicle but whatever
 addCharacter(mainSCENE, mainWORLD);
 
-const terrain = buildTerrain();
-mainSCENE.add(terrain);
+buildTerrain(mainSCENE);
 
 // this thing returns a function that should be used in renderLoopMain()
 // do not fucking have both the renderer and composer on at the same time
@@ -131,7 +130,7 @@ const ppFilters = postProcessing(mainSCENE, mainCAMERA, main3D_RENDERER);
 const syncOrbitLock = switchOrbitControls(mainCAMERA, main3D_RENDERER);
 
 // for easily change follow camera status
-const lockFolder = gui.addFolder("Camera");
+const lockFolder = gui.addFolder("🎥 Camera");
 lockFolder.close();
 lockFolder.add(lockOnToggle, "value").name("Target Lock");
 const lockOnTarget = { target: chassisMesh };

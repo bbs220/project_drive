@@ -45,7 +45,7 @@ export function postProcessing(
   composer.addPass(afterImgPass);
 
   // gui with subfolders phew!
-  const postFolder = gui.addFolder("Post Processing");
+  const postFolder = gui.addFolder("✨ Post Processing");
   postFolder.close();
 
   const pixelSubFolder = postFolder.addFolder("Pixel");
