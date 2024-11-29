@@ -15,13 +15,16 @@ export function postProcessing(
   // the hierarchy of these matter so do not call them up or down
   // composer first
   const composer = new EffectComposer(renderer);
+
   // then base render pass
   const baseRenderPass = new RenderPass(scene, camera);
   composer.addPass(baseRenderPass);
+
   // then whatever the fuck i please
-  const pixelatedPass = new RenderPixelatedPass(6, scene, camera);
+  const pixelatedPass = new RenderPixelatedPass(3, scene, camera);
   pixelatedPass.enabled = false;
   composer.addPass(pixelatedPass);
+
   // blooms pretty good but maybe selective bloom is better?
   const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -35,10 +38,12 @@ export function postProcessing(
   bloomPass.radius = bloomParams.radius;
   bloomPass.threshold = bloomParams.threshold;
   composer.addPass(bloomPass);
+
   // this is just for shits and giggles i might remove this later on
   const afterImgPass = new AfterimagePass(0.1);
   afterImgPass.enabled = false;
   composer.addPass(afterImgPass);
+
   // gui with subfolders phew!
   const postFolder = gui.addFolder("Post Processing");
   postFolder.close();
