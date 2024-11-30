@@ -40,7 +40,7 @@ export function postProcessing(
   composer.addPass(bloomPass);
 
   // this is just for shits and giggles i might remove this later on
-  const afterImgPass = new AfterimagePass(0.1);
+  const afterImgPass = new AfterimagePass(0.92);
   afterImgPass.enabled = false;
   composer.addPass(afterImgPass);
 
@@ -102,7 +102,7 @@ export function postProcessing(
   afterImgSubFolder.add(afterImgPass, "enabled").name("Enabled");
   afterImgSubFolder
     .add(afterImgPass.uniforms["damp"], "value", 0.1, 1)
-    .step(0.001)
+    .step(0.01)
     .name("Trail Length");
 
   // call this for each frame in main.ts else this shit does not work

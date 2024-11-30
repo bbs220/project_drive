@@ -26,8 +26,8 @@ import {
   vehicle,
 } from "./vehicle";
 import { addCharacter, characterBody, characterMesh } from "./character";
-import { buildTerrain } from "./ground/terrain";
 import { postProcessing } from "./utils/postProcessing";
+import { buildTerrain } from "./ground/terrain";
 
 // THIS WHOLE FILE IS JUST FOR MAIN SYNC FUNCTION CALLS AND STUFF
 // dont forget what version was i ever on
@@ -115,8 +115,7 @@ addVehicle(mainSCENE, mainWORLD, mainCAMERA);
 // probably should add this before vehicle but whatever
 addCharacter(mainSCENE, mainWORLD);
 
-buildTerrain(mainSCENE);
-
+buildTerrain(mainSCENE, mainWORLD);
 // this thing returns a function that should be used in renderLoopMain()
 // do not fucking have both the renderer and composer on at the same time
 // stop composer if you gonna use native render

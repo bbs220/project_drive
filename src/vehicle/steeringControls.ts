@@ -59,8 +59,21 @@ function onKeyDown(event: KeyboardEvent, vehicle: CANNON.RaycastVehicle) {
       vehicle.setBrake(brakeForce, 1);
       vehicle.setBrake(brakeForce, 2);
       vehicle.setBrake(brakeForce, 3);
-      brake.play();
-      brake.setVolume(0.5);
+      // brake sound is fucking voodoo man
+      // keeps fucking looping even if set it not true
+      // hack : tied it to velocity of the body
+      // 6 is the magic number dont fucking change it in future
+      if (
+        brake.isPlaying === false &&
+        vehicle.chassisBody.velocity.length() > 6
+      ) {
+        brake.play();
+        brake.setVolume(0.3);
+      } else {
+        brake.stop();
+        brake.setVolume(0.0);
+        brake.disconnect();
+      }
       break;
     case "Shift": // nitro boost its left shift key
       if (!isNitroActive) {
