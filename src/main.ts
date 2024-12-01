@@ -27,8 +27,8 @@ import {
 } from "./vehicle";
 import { addCharacter, characterBody, characterMesh } from "./character";
 import { postProcessing } from "./utils/postProcessing";
-import { buildTerrain } from "./ground/terrain";
-import { worldBoundary } from "./ground/world boundary";
+import { buildTerrain } from "./ground/terrain/terrain";
+import { worldBoundary } from "./ground/worldBoundary/worldBoundary";
 
 // THIS WHOLE FILE IS JUST FOR MAIN SYNC FUNCTION CALLS AND STUFF
 // dont forget what version was i ever on
