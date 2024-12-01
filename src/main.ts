@@ -28,6 +28,7 @@ import {
 import { addCharacter, characterBody, characterMesh } from "./character";
 import { postProcessing } from "./utils/postProcessing";
 import { buildTerrain } from "./ground/terrain";
+import { worldBoundary } from "./ground/world boundary";
 
 // THIS WHOLE FILE IS JUST FOR MAIN SYNC FUNCTION CALLS AND STUFF
 // dont forget what version was i ever on
@@ -84,6 +85,10 @@ const mainWORLD = usePhysics();
 
 // initializing debugger to see the invisible physics world collisions
 initPhysicsDebugger(mainSCENE, mainWORLD);
+
+// adding the boundary before the damn ground so dont get fucked
+// this had no visual shape but it is infinite
+worldBoundary(mainWORLD);
 
 // creating a finite ground in visible mesh
 const groundMesh = useGroundMesh();
