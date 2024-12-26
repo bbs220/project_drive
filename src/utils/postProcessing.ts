@@ -52,7 +52,7 @@ export function postProcessing(
   pixelSubFolder.close();
   pixelSubFolder.add(pixelatedPass, "enabled").name("Enabled");
   const pixelParams = {
-    pixelSize: 6,
+    pixelSize: 3,
     normalEdgeStrength: 0.3,
     depthEdgeStrength: 0.4,
     pixelAlignedPanning: true,
