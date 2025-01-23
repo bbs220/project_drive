@@ -25,7 +25,6 @@ import {
   mixer,
   vehicle,
 } from "./vehicle";
-import { addCharacter, characterBody, characterMesh } from "./character";
 import { postProcessing } from "./utils/postProcessing";
 import { worldBoundary } from "./ground/worldBoundary/worldBoundary";
 import { buildTerrain } from "./ground/terrain/terrain";
@@ -116,10 +115,6 @@ sceneFolder.add(ambientLight, "visible").name("Fill Light");
 // adding a simple vehicle here
 addVehicle(mainSCENE, mainWORLD, mainCAMERA);
 
-// adding character here
-// probably should add this before vehicle but whatever
-addCharacter(mainSCENE, mainWORLD);
-
 buildTerrain(mainSCENE, mainWORLD);
 
 // this thing returns a function that should be used in renderLoopMain()
@@ -139,9 +134,7 @@ const lockFolder = gui.addFolder("🎥 Camera");
 lockFolder.close();
 lockFolder.add(lockOnToggle, "value").name("Target Lock");
 const lockOnTarget = { target: chassisMesh };
-lockFolder
-  .add(lockOnTarget, "target", { chassisMesh, characterMesh })
-  .name("Target");
+lockFolder.add(lockOnTarget, "target", { chassisMesh }).name("Target");
 
 // for syncing threejs and cannon objects
 function threeAndCannonSync() {
@@ -163,13 +156,6 @@ function threeAndCannonSync() {
   // getting the speed in kmph
   if (vehicle) {
     speedCalulation(vehicle);
-  }
-
-  // playable character sync
-  // probably a third person controls
-  if (characterMesh) {
-    characterMesh.position.copy(characterBody.position);
-    characterMesh.quaternion.copy(characterBody.quaternion);
   }
 
   // base ground sync
@@ -207,9 +193,7 @@ function animate() {
     mixer.update(deltaTime);
   }
 
-  if (lockOnTarget.target) {
-    syncOrbitLock(characterMesh);
-  } else {
+  if (lockOnTarget) {
     syncOrbitLock(chassisMesh);
   }
 }
