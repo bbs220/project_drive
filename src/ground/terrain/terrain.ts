@@ -4,23 +4,17 @@ import alea from "alea";
 import { createNoise2D } from "simplex-noise";
 import { gui } from "../../helpers/visualHelpers";
 
-// another object cause gui loves object based changes
-const noiseOptions = {
-  seed: alea(Math.floor(Math.random() * 32)),
-  amplitude: 2,
-  frequency: 5,
-  octaves: 4,
+const noiseParams = {
+  seed: alea(Math.random() * 32),
+  frequency: 1,
+  amplitude: 1,
+  octaves: 1,
+  persistence: 0.5,
   lacunarity: 2,
-  gain: 0.5,
-};
-
-// basic ass noise function
-const simplex = {
-  noise2D: createNoise2D(noiseOptions.seed),
 };
 
 export function buildTerrain(scene: THREE.Scene, world: CANNON.World) {
-  console.log(`${scene} ${world}`);
+  console.log(scene, world);
 
   const terrainFolder = gui.addFolder("⛰️ Terrain");
   terrainFolder.close();
