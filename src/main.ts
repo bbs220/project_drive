@@ -91,11 +91,11 @@ worldBoundary(mainWORLD);
 
 // creating a finite ground in visible mesh
 const groundMesh = useGroundMesh();
-mainSCENE.add(groundMesh);
+// mainSCENE.add(groundMesh);
 
 // creating a infinite ground in invisible physics world
 const groundBody = useGroundPhysicsBody();
-mainWORLD.addBody(groundBody);
+// mainWORLD.addBody(groundBody);
 
 // quick controls for common needs
 const sceneFolder = gui.addFolder("🌍 Scene");

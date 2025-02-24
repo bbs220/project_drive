@@ -12,7 +12,7 @@ createLoadingScreen.style.cssText = `
 	height: 100vh;
   display: grid;
   place-items: center;
-	background-color: #000000;
+	background-color: #404040;
 	opacity: 1;
  	transition: 0.7s opacity ease-in;
   `;
