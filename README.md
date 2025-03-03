@@ -16,13 +16,12 @@ It works on desktop for now.
 ## 🕹️ Controls :
  - ⚠️ Note : 
     - Make sure the Camera in Settings has target lock to `on` and it is set to `chassisMesh` so it follows the mesh like a third person camera
-    - Also turn `on` the Vehicle Controls in Settings to drive the car if you want to drive the car
+    - Also turn `on` the Enable Vehicle in Settings to drive the car if you want to drive the car
     - Press `H` to see/hide the physics debugger
    
  - 💻 For Desktop :
     - `WASD` to control the vehicle or player, only one mesh can be controlled at one time
-    - Vehicle has additional controls for `B` for handbreak and `N` for nitrous
-    - Player has not much functionality yet...
+    - Vehicle has additional controls for `Space` for handbreak and `Shift` for nitrous
   
  - 📱For Mobile :
     - Nothing yet...
