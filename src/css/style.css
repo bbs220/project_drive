@@ -93,14 +93,3 @@ body {
   -o-transition: width 1s linear;
   transition: width 1s linear;
 }
-
-#visualizer {
-  position: fixed;
-  bottom: 0px;
-  left: 20%;
-  height: 10%;
-  width: 60%;
-  pointer-events: none;
-  z-index: 1;
-  backdrop-filter: blur(3px);
-}

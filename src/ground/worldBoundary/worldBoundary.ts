@@ -14,7 +14,7 @@ export function worldBoundary(world: CANNON.World) {
   worldBoundaryBody.addShape(worldBoundaryShape);
 
   // keep it way below the actual ground level that is y=0
-  worldBoundaryBody.position.set(0, -30, 0);
+  worldBoundaryBody.position.set(0, -10, 0);
   worldBoundaryBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
   world.addBody(worldBoundaryBody);
 }

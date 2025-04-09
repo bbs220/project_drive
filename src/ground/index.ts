@@ -20,7 +20,7 @@ const params = {
 
 // a tiled texture for a some reference
 const blueprintTexture = new THREE.TextureLoader(progressManager).load(
-  allImageTextures.blueSquare,
+  allImageTextures.cyan,
   (texture) => {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
