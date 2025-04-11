@@ -1,6 +1,7 @@
 import type CANNON from "cannon-es";
 import {
   info,
+  meterContainer,
   nosContainer,
   rechargeNitros,
   speedElement,
@@ -159,6 +160,7 @@ export function enableControls(vehicle: CANNON.RaycastVehicle) {
     info.style.display = "flex";
     speedElement.style.display = "block";
     nosContainer.style.display = "block";
+    meterContainer.style.display = "block";
 
     keyDownHandler = (event: KeyboardEvent) => onKeyDown(event, vehicle);
     keyUpHandler = (event: KeyboardEvent) => onKeyUp(event, vehicle);
@@ -174,6 +176,7 @@ export function enableControls(vehicle: CANNON.RaycastVehicle) {
     info.style.display = "none";
     speedElement.style.display = "none";
     nosContainer.style.display = "none";
+    meterContainer.style.display = "none";
 
     if (keyDownHandler && keyUpHandler) {
       document.removeEventListener("keydown", keyDownHandler);
