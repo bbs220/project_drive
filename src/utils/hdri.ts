@@ -8,8 +8,8 @@ let textureToggle: THREE.Texture | null;
 
 // some parameters
 const hdrParams = {
-  background: false,
-  environment: true,
+  enabled: true,
+  blurIntensity: 0,
 };
 
 // setting up gui
@@ -22,34 +22,31 @@ export function addHDRI(scene: THREE.Scene) {
     textureToggle = texture;
     texture.mapping = THREE.EquirectangularReflectionMapping;
     scene.environment = texture;
-    scene.background = null;
+    scene.background = texture;
+    scene.backgroundBlurriness = 0;
   });
 
   // gui part
+  hdriFolder.add(hdrParams, "enabled").name("Enable").onChange(toggleHDRI);
   hdriFolder
-    .add(hdrParams, "environment")
-    .name("Enabled")
-    .onChange(toggleEnvironment);
-  hdriFolder
-    .add(hdrParams, "background")
-    .name("Background")
-    .onChange(toggleBackground);
+    .add(hdrParams, "blurIntensity", 0, 1, 0.01)
+    .name("Blur")
+    .onChange(updateBlur);
 
   // dont ask why isnt value passed when the function is called
-  function toggleBackground(value: boolean) {
+  function toggleHDRI(value: boolean) {
     if (value === true) {
       scene.background = textureToggle;
+      scene.environment = textureToggle;
     } else {
       scene.background = null;
+      scene.environment = null;
     }
   }
 
-  // same dont ask here too
-  function toggleEnvironment(value: boolean) {
-    if (value === true) {
-      scene.environment = textureToggle;
-    } else {
-      scene.environment = null;
+  function updateBlur() {
+    if (textureToggle) {
+      scene.backgroundBlurriness = hdrParams.blurIntensity;
     }
   }
 }
