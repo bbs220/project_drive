@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { usePhysics } from "./physics";
 import { initPhysicsDebugger, physicsDebug } from "./physics/debugger";
-import { gui, stats } from "./helpers/visualHelpers";
+import { pane, stats } from "./helpers/visualHelpers";
 import { useCamera, use3dRenderer, useScene } from "./include/coreComponents";
 import { speedCalulation } from "./ui/vehicleUI";
 import { useGroundMesh, useGroundPhysicsBody } from "./ground";
@@ -98,19 +98,30 @@ const groundBody = useGroundPhysicsBody();
 mainWORLD.addBody(groundBody);
 
 // quick controls for common needs
-const sceneFolder = gui.addFolder("🌍 Scene");
-sceneFolder.close();
+const sceneFolder = pane.addFolder({
+  title: "🌍 Scene",
+  expanded: false,
+});
+
 sceneFolder
-  .add(debugAxes, "visible")
-  .name("Origin Axes")
-  .onChange(toggleDebugObjectsVisibility);
+  .addBinding(debugAxes, "visible", {
+    label: "Origin Axes",
+  })
+  .on("change", toggleDebugObjectsVisibility);
+
 function toggleDebugObjectsVisibility() {
   xLabel.visible = debugAxes.visible;
   yLabel.visible = debugAxes.visible;
   zLabel.visible = debugAxes.visible;
 }
-sceneFolder.add(debugGrid, "visible").name("Grid");
-sceneFolder.add(ambientLight, "visible").name("Fill Light");
+
+sceneFolder.addBinding(debugGrid, "visible", {
+  label: "Grid",
+});
+
+sceneFolder.addBinding(ambientLight, "visible", {
+  label: "Fill Light",
+});
 
 // adding a simple vehicle here
 addVehicle(mainSCENE, mainWORLD, mainCAMERA);
@@ -130,11 +141,22 @@ const ppFilters = postProcessing(mainSCENE, mainCAMERA, main3D_RENDERER);
 const syncOrbitLock = switchOrbitControls(mainCAMERA, main3D_RENDERER);
 
 // for easily change follow camera status
-const lockFolder = gui.addFolder("🎥 Camera");
-lockFolder.close();
-lockFolder.add(lockOnToggle, "value").name("Target Lock");
-const lockOnTarget = { target: chassisMesh };
-lockFolder.add(lockOnTarget, "target", { chassisMesh }).name("Target");
+const lockFolder = pane.addFolder({
+  title: "🎥 Camera",
+  expanded: false,
+});
+
+lockFolder.addBinding(lockOnToggle, "value", {
+  label: "Target Lock",
+});
+
+const lockOnTarget = { target: "chassisMesh" };
+lockFolder.addBinding(lockOnTarget, "target", {
+  label: "Target",
+  options: {
+    "Main Vehicle": "chassisMesh",
+  },
+});
 
 // for syncing threejs and cannon objects
 function threeAndCannonSync() {

@@ -4,7 +4,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { RenderPixelatedPass } from "three/addons/postprocessing/RenderPixelatedPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { AfterimagePass } from "three/addons/postprocessing/AfterimagePass.js";
-import { gui } from "../helpers/visualHelpers";
+import { pane } from "../helpers/visualHelpers";
 
 // lets start the beginning this entire chunk will be called in main with a delta function in return
 export function postProcessing(
@@ -45,65 +45,112 @@ export function postProcessing(
   composer.addPass(afterImgPass);
 
   // gui with subfolders phew!
-  const postFolder = gui.addFolder("✨ Post Processing");
-  postFolder.close();
+  // ...existing code...
 
-  const pixelSubFolder = postFolder.addFolder("Pixel");
-  pixelSubFolder.close();
-  pixelSubFolder.add(pixelatedPass, "enabled").name("Enabled");
+  // gui with subfolders
+  const postFolder = pane.addFolder({
+    title: "✨ Post Processing",
+    expanded: false,
+  });
+
+  const pixelSubFolder = postFolder.addFolder({
+    title: "Pixel",
+    expanded: false,
+  });
+
+  pixelSubFolder.addBinding(pixelatedPass, "enabled", {
+    label: "Enabled",
+  });
+
   const pixelParams = {
     pixelSize: 3,
     normalEdgeStrength: 0.3,
     depthEdgeStrength: 0.4,
     pixelAlignedPanning: true,
   };
+
   pixelSubFolder
-    .add(pixelParams, "pixelSize", 1, 16)
-    .onChange(() => {
+    .addBinding(pixelParams, "pixelSize", {
+      label: "Pixel Size",
+      min: 1,
+      max: 16,
+      step: 1,
+    })
+    .on("change", () => {
       pixelatedPass.setPixelSize(pixelParams.pixelSize);
-    })
-    .step(1)
-    .name("Pixel Size");
-  pixelSubFolder
-    .add(pixelatedPass, "normalEdgeStrength", 0, 2)
-    .name("Normal Strength");
-  pixelSubFolder
-    .add(pixelatedPass, "depthEdgeStrength", 0, 1)
-    .name("Depth Strength");
-  pixelSubFolder
-    .add(pixelParams, "pixelAlignedPanning")
-    .name("Aligned Panning");
+    });
 
-  const bloomSubFolder = postFolder.addFolder("Bloom");
-  bloomSubFolder.close();
-  bloomSubFolder.add(bloomPass, "enabled").name("Enabled");
+  pixelSubFolder.addBinding(pixelatedPass, "normalEdgeStrength", {
+    label: "Normal Strength",
+    min: 0,
+    max: 2,
+  });
+
+  pixelSubFolder.addBinding(pixelatedPass, "depthEdgeStrength", {
+    label: "Depth Strength",
+    min: 0,
+    max: 1,
+  });
+
+  pixelSubFolder.addBinding(pixelParams, "pixelAlignedPanning", {
+    label: "Aligned Panning",
+  });
+
+  const bloomSubFolder = postFolder.addFolder({
+    title: "Bloom",
+    expanded: false,
+  });
+
+  bloomSubFolder.addBinding(bloomPass, "enabled", {
+    label: "Enabled",
+  });
+
   bloomSubFolder
-    .add(bloomParams, "strength", 0.0, 3.0)
-    .onChange(function (value: number) {
+    .addBinding(bloomParams, "strength", {
+      label: "Strength",
+      min: 0.0,
+      max: 3.0,
+    })
+    .on("change", ({ value }) => {
       bloomPass.strength = Number(value);
-    })
-    .name("Strength");
-  bloomSubFolder
-    .add(bloomParams, "radius", 0.0, 1.0)
-    .onChange(function (value: number) {
-      bloomPass.radius = Number(value);
-    })
-    .name("Radius");
-  bloomSubFolder
-    .add(bloomParams, "threshold", 0.0, 1.0)
-    .onChange(function (value: number) {
-      bloomPass.threshold = Number(value);
-    })
-    .step(0.001)
-    .name("Threshold");
+    });
 
-  const afterImgSubFolder = postFolder.addFolder("After Image");
-  afterImgSubFolder.close();
-  afterImgSubFolder.add(afterImgPass, "enabled").name("Enabled");
-  afterImgSubFolder
-    .add(afterImgPass.uniforms["damp"], "value", 0.1, 1)
-    .step(0.01)
-    .name("Trail Length");
+  bloomSubFolder
+    .addBinding(bloomParams, "radius", {
+      label: "Radius",
+      min: 0.0,
+      max: 1.0,
+    })
+    .on("change", ({ value }) => {
+      bloomPass.radius = Number(value);
+    });
+
+  bloomSubFolder
+    .addBinding(bloomParams, "threshold", {
+      label: "Threshold",
+      min: 0.0,
+      max: 1.0,
+      step: 0.001,
+    })
+    .on("change", ({ value }) => {
+      bloomPass.threshold = Number(value);
+    });
+
+  const afterImgSubFolder = postFolder.addFolder({
+    title: "After Image",
+    expanded: false,
+  });
+
+  afterImgSubFolder.addBinding(afterImgPass, "enabled", {
+    label: "Enabled",
+  });
+
+  afterImgSubFolder.addBinding(afterImgPass.uniforms["damp"], "value", {
+    label: "Trail Length",
+    min: 0.1,
+    max: 1,
+    step: 0.01,
+  });
 
   // call this for each frame in main.ts else this shit does not work
   return () => {

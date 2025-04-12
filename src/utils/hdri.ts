@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { envMapLoader } from "./assetLoader";
 import { allHDRs } from "./assetPaths";
-import { gui } from "../helpers/visualHelpers";
+import { pane } from "../helpers/visualHelpers";
 
 // one toggle to control them all
 let textureToggle: THREE.Texture | null;
@@ -13,8 +13,10 @@ const hdrParams = {
 };
 
 // setting up gui
-const hdriFolder = gui.addFolder("☀️ HDRI");
-hdriFolder.close();
+const hdriFolder = pane.addFolder({
+  title: "☀️ HDRI",
+  expanded: false,
+});
 
 // environment map for better lightings but does not project shadows
 export function addHDRI(scene: THREE.Scene) {
@@ -27,11 +29,20 @@ export function addHDRI(scene: THREE.Scene) {
   });
 
   // gui part
-  hdriFolder.add(hdrParams, "enabled").name("Enable").onChange(toggleHDRI);
   hdriFolder
-    .add(hdrParams, "blurIntensity", 0, 1, 0.01)
-    .name("Blur")
-    .onChange(updateBlur);
+    .addBinding(hdrParams, "enabled", {
+      label: "Enable",
+    })
+    .on("change", ({ value }) => toggleHDRI(value));
+
+  hdriFolder
+    .addBinding(hdrParams, "blurIntensity", {
+      label: "Blur",
+      min: 0,
+      max: 1,
+      step: 0.01,
+    })
+    .on("change", updateBlur);
 
   // dont ask why isnt value passed when the function is called
   function toggleHDRI(value: boolean) {

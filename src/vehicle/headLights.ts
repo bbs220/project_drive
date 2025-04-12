@@ -2,89 +2,81 @@ import * as THREE from "three";
 import { type Scene } from "three";
 import { carFolder } from ".";
 
-// all the different headlights parameters
-const valueForHeadLights = {
-  x: 0.6, // adjustable to liking dont go above 10
-  y: 0, // keep this always zero
-  z: 1.8, // relative to chassis model
-  internalDistance: 10, // distance between the target of the headlights and the headlight origin points
-  color: "#ffffff", // color of headlights
-  distance: 10, // 0 is infinity other int number is finite
-  penumbra: 0.5, // set ONLY between 0 and 1
-  coneAngle: 0.5, // DONT go above 1.5
-  downLookAngle: 0, // how down the headlight cones should be tilted ONLY go above 0 , DONT go below 0 thats into negative values
-  intensity: 0, // intensity of the lights also setting it to 0 turns off the spotlight
+const headlightParams = {
+  enabled: false,
+  helpers: false,
+  intensity: 0,
+  distance: 10,
+  angle: 0.5,
+  penumbra: 0.5,
+  color: "#ffffff",
+  x: 0.6,
+  y: 0,
+  z: 1.8,
+  internalDistance: 10,
+  downLookAngle: 0,
 };
 
 // left side first
 const leftHeadLight = new THREE.SpotLight(
-  valueForHeadLights.color,
-  valueForHeadLights.intensity,
-  valueForHeadLights.distance,
-  valueForHeadLights.coneAngle,
-  valueForHeadLights.penumbra
+  headlightParams.color,
+  headlightParams.intensity,
+  headlightParams.distance,
+  headlightParams.angle,
+  headlightParams.penumbra
 );
 
 leftHeadLight.castShadow = true;
-
 leftHeadLight.position.set(
-  -valueForHeadLights.z,
-  valueForHeadLights.y,
-  -valueForHeadLights.x
+  -headlightParams.z,
+  headlightParams.y,
+  -headlightParams.x
 );
 
 const leftHeadLightHelper = new THREE.SpotLightHelper(
   leftHeadLight,
-  valueForHeadLights.color
+  headlightParams.color
 );
-
-leftHeadLightHelper.visible = false;
+leftHeadLightHelper.visible = headlightParams.helpers;
 
 const leftTarget = new THREE.Object3D();
-
 leftTarget.position.set(
-  valueForHeadLights.z - valueForHeadLights.internalDistance,
-  valueForHeadLights.y - valueForHeadLights.downLookAngle,
-  -valueForHeadLights.x
+  headlightParams.z - headlightParams.internalDistance,
+  headlightParams.y - headlightParams.downLookAngle,
+  -headlightParams.x
 );
-
 leftHeadLight.target = leftTarget;
 
 // right side second
 const rightHeadLight = new THREE.SpotLight(
-  valueForHeadLights.color,
-  valueForHeadLights.intensity,
-  valueForHeadLights.distance,
-  valueForHeadLights.coneAngle,
-  valueForHeadLights.penumbra
+  headlightParams.color,
+  headlightParams.intensity,
+  headlightParams.distance,
+  headlightParams.angle,
+  headlightParams.penumbra
 );
 
 rightHeadLight.castShadow = true;
-
 rightHeadLight.position.set(
-  -valueForHeadLights.z,
-  valueForHeadLights.y,
-  valueForHeadLights.x
+  -headlightParams.z,
+  headlightParams.y,
+  headlightParams.x
 );
 
 const rightHeadLightHelper = new THREE.SpotLightHelper(
   rightHeadLight,
-  valueForHeadLights.color
+  headlightParams.color
 );
-
-rightHeadLightHelper.visible = false;
+rightHeadLightHelper.visible = headlightParams.helpers;
 
 const rightTarget = new THREE.Object3D();
-
 rightTarget.position.set(
-  valueForHeadLights.z - valueForHeadLights.internalDistance,
-  valueForHeadLights.y - valueForHeadLights.downLookAngle,
-  valueForHeadLights.x
+  headlightParams.z - headlightParams.internalDistance,
+  headlightParams.y - headlightParams.downLookAngle,
+  headlightParams.x
 );
-
 rightHeadLight.target = rightTarget;
 
-// creates headlights
 export function useHeadLights(scene: Scene) {
   scene.add(
     leftHeadLight,
@@ -93,57 +85,78 @@ export function useHeadLights(scene: Scene) {
     rightHeadLightHelper
   );
 
-  const headlightFolder = carFolder.addFolder("Headlights");
-  headlightFolder.close();
+  const headlightFolder = carFolder.addFolder({
+    title: "💡 Headlights",
+    expanded: false,
+  });
+
+  function updateBothLights() {
+    leftHeadLight.intensity = headlightParams.enabled
+      ? headlightParams.intensity
+      : 0;
+    rightHeadLight.intensity = headlightParams.enabled
+      ? headlightParams.intensity
+      : 0;
+    leftHeadLight.distance = headlightParams.distance;
+    rightHeadLight.distance = headlightParams.distance;
+    leftHeadLight.angle = headlightParams.angle;
+    rightHeadLight.angle = headlightParams.angle;
+    leftHeadLight.penumbra = headlightParams.penumbra;
+    rightHeadLight.penumbra = headlightParams.penumbra;
+    leftHeadLightHelper.visible = headlightParams.helpers;
+    rightHeadLightHelper.visible = headlightParams.helpers;
+  }
 
   headlightFolder
-    .add(leftHeadLightHelper, "visible")
-    .name("Headlights Helper")
-    .onChange((value: boolean) => {
-      updateHelperVisibility("visible", value);
-    });
+    .addBinding(headlightParams, "enabled", {
+      label: "Enable",
+    })
+    .on("change", updateBothLights);
+
   headlightFolder
-    .add(leftHeadLight, "intensity", 0, 100)
-    .step(1)
-    .name("Headlights Intensity")
-    .onChange((value: number) => {
-      updateBothSpotlights("intensity", value);
-    });
+    .addBinding(headlightParams, "helpers", {
+      label: "Show Helpers",
+    })
+    .on("change", updateBothLights);
+
   headlightFolder
-    .add(leftHeadLight, "distance", 1, 100)
-    .name("Headlights Cone Distance")
-    .step(0.1)
-    .onChange((value: number) => {
-      updateBothSpotlights("distance", value);
-    });
+    .addBinding(headlightParams, "intensity", {
+      label: "Intensity",
+      min: 0,
+      max: 100,
+      step: 1,
+    })
+    .on("change", updateBothLights);
+
   headlightFolder
-    .add(leftHeadLight, "angle", 0, 1.5)
-    .name("Headlights Cone Angle")
-    .step(0.01)
-    .onChange((value: number) => {
-      updateBothSpotlights("angle", value);
-    });
+    .addBinding(headlightParams, "distance", {
+      label: "Distance",
+      min: 1,
+      max: 100,
+      step: 0.1,
+    })
+    .on("change", updateBothLights);
+
   headlightFolder
-    .add(leftHeadLight, "penumbra", 0, 1)
-    .step(0.1)
-    .name("Headlights Cone Penumbra")
-    .onChange((value: number) => {
-      updateBothSpotlights("penumbra", value);
-    });
+    .addBinding(headlightParams, "angle", {
+      label: "Cone Angle",
+      min: 0,
+      max: 1.5,
+      step: 0.01,
+    })
+    .on("change", updateBothLights);
+
+  headlightFolder
+    .addBinding(headlightParams, "penumbra", {
+      label: "Penumbra",
+      min: 0,
+      max: 1,
+      step: 0.1,
+    })
+    .on("change", updateBothLights);
 }
 
-// hacky code but it gets the job done
-function updateBothSpotlights(property: string, value: number) {
-  (leftHeadLight as any)[property] = value;
-  (rightHeadLight as any)[property] = value;
-}
-// same hacky stuff
-function updateHelperVisibility(property: string, value: boolean) {
-  (leftHeadLightHelper as any)[property] = value;
-  (rightHeadLightHelper as any)[property] = value;
-}
-
-// for syncing the headlights to chassis basically use this in main recursive animate function
+// for syncing the headlights to chassis
 export function syncHeadlights(model: THREE.Object3D) {
   if (model) {
     model.add(leftTarget, rightTarget, leftHeadLight, rightHeadLight);

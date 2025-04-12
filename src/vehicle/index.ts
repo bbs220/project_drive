@@ -5,7 +5,7 @@ import { ctrlToggle, enableControls } from "./steeringControls";
 import { allCarModels } from "../utils/assetPaths";
 import { groundCollistonMaterial } from "../ground";
 import { useHeadLights } from "./headLights";
-import { gui } from "../helpers/visualHelpers";
+import { pane } from "../helpers/visualHelpers";
 import { info, nosContainer, speedElement } from "../ui/vehicleUI";
 import { soundManagerVehicle } from "../audio";
 
@@ -96,8 +96,10 @@ const wheelVisual: THREE.Group<THREE.Object3DEventMap>[] = [];
 
 const wheelCollisionMaterial = new CANNON.Material("wheel");
 
-export const carFolder = gui.addFolder("🚗 Vehicle");
-carFolder.close();
+export const carFolder = pane.addFolder({
+  title: "🚗 Vehicle",
+  expanded: false,
+});
 
 // adding vehicle to the physics world
 export function addVehicle(
@@ -214,16 +216,24 @@ export function addVehicle(
 
   // quick controls for vehicle
   carFolder
-    .add(ctrlToggle, "value")
-    .onChange(() => enableControls(vehicle))
-    .name("Enable Vehicle");
-  carFolder.add({ resetVehicle }, "resetVehicle").name("Reset Vehicle");
+    .addBinding(ctrlToggle, "value", {
+      label: "Enable Vehicle",
+    })
+    .on("change", () => enableControls(vehicle));
 
-  // for bringing the car back to position (0,0,0) in case it crashes somewhere
-  function resetVehicle() {
-    chassisBody.position.set(0, 2, 10);
-    chassisBody.quaternion.set(0, -1, 0, 1);
-    chassisBody.velocity.set(0, 0, 0);
-    vehicle.chassisBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
-  }
+  const vehicleControls = {
+    reset: () => {
+      chassisBody.position.set(0, 2, 10);
+      chassisBody.quaternion.set(0, -1, 0, 1);
+      chassisBody.velocity.set(0, 0, 0);
+      vehicle.chassisBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
+    },
+  };
+
+  carFolder
+    .addButton({
+      title: "Reset Vehicle",
+      label: "Reset",
+    })
+    .on("click", vehicleControls.reset);
 }

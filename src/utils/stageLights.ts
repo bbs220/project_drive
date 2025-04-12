@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { gui } from "../helpers/visualHelpers";
+import { pane } from "../helpers/visualHelpers";
 
 // parameters for the 4 point lights
 const lightsParams = {
@@ -56,48 +56,68 @@ export function stageLights(scene: THREE.Scene) {
 }
 
 // gui stuff
-const lightsFolder = gui.addFolder("💡 Stage Lights");
-lightsFolder.close();
+const lightsFolder = pane.addFolder({
+  title: "💡 Stage Lights",
+  expanded: false,
+});
+
 function updateLightIntensities() {
   lightsAndHelpers.forEach(([light]) => {
     light.intensity = lightsParams.intensity;
   });
 }
+
 function toggleLightVisibility() {
   lightsAndHelpers.forEach(([light, helper]) => {
     light.visible = lightsParams.enabled;
     helper.visible = lightsParams.helpers;
   });
 }
+
 function updateLightPositions() {
   lightPositions.forEach((_, index) => {
     const light = lightsAndHelpers[index][0];
     light.position.setY(lightsParams.y);
   });
 }
+
 lightsFolder
-  .add(lightsParams, "enabled")
-  .name("Enabled")
-  .onChange(toggleLightVisibility);
+  .addBinding(lightsParams, "enabled", {
+    label: "Enabled",
+  })
+  .on("change", toggleLightVisibility);
+
 lightsFolder
-  .add(lightsParams, "helpers")
-  .name("Helpers")
-  .onChange(toggleLightVisibility);
+  .addBinding(lightsParams, "helpers", {
+    label: "Helpers",
+  })
+  .on("change", toggleLightVisibility);
+
 lightsFolder
-  .addColor(lightsParams, "color")
-  .name("Color")
-  .onChange(() => {
+  .addBinding(lightsParams, "color", {
+    label: "Color",
+    view: "color",
+  })
+  .on("change", () => {
     lightsAndHelpers.forEach(([light]) => {
       light.color.set(lightsParams.color);
     });
   });
+
 lightsFolder
-  .add(lightsParams, "intensity", 0, 100)
-  .step(1)
-  .name("Intensity")
-  .onChange(updateLightIntensities);
+  .addBinding(lightsParams, "intensity", {
+    label: "Intensity",
+    min: 0,
+    max: 100,
+    step: 1,
+  })
+  .on("change", updateLightIntensities);
+
 lightsFolder
-  .add(lightsParams, "y", 0, 10)
-  .name("Y Position")
-  .step(1)
-  .onChange(() => updateLightPositions());
+  .addBinding(lightsParams, "y", {
+    label: "Y Position",
+    min: 0,
+    max: 10,
+    step: 1,
+  })
+  .on("change", updateLightPositions);
