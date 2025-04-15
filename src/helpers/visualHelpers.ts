@@ -13,7 +13,7 @@ export const stats = new Stats({
   precision: 2,
   horizontal: true,
   minimal: false,
-  mode: 0,
+  mode: 2,
 });
 
 // append the stats container to the body of the document

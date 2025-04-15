@@ -3,7 +3,7 @@ import * as CANNON from "cannon-es";
 import { modelLoader } from "../utils/assetLoader";
 import { ctrlToggle, enableControls } from "./steeringControls";
 import { allCarModels } from "../utils/assetPaths";
-import { groundCollistonMaterial } from "../ground";
+import { groundCollistonMaterial } from "../ground/ground";
 import { useHeadLights } from "./headLights";
 import { pane } from "../helpers/visualHelpers";
 import { info, nosContainer, speedElement } from "../ui/vehicleUI";

@@ -4,7 +4,7 @@ import { initPhysicsDebugger, physicsDebug } from "./physics/debugger";
 import { pane, stats } from "./helpers/visualHelpers";
 import { useCamera, use3dRenderer, useScene } from "./include/coreComponents";
 import { speedCalulation } from "./ui/vehicleUI";
-import { useGroundMesh, useGroundPhysicsBody } from "./ground";
+import { useGroundMesh, useGroundPhysicsBody } from "./ground/ground";
 import { use2dRenderer } from "./include/otherRenderer";
 import { lockOnToggle, switchOrbitControls } from "./utils/thirdPersonCamOrbit";
 import { stageLights } from "./utils/stageLights";

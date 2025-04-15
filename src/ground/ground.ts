@@ -2,6 +2,8 @@ import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { progressManager } from "../ui/loadingScreenUI";
 import { allImageTextures } from "../utils/assetPaths";
+import frag from "../shaders/frag.glsl";
+import vert from "../shaders/vert.glsl";
 
 // for how many repeats of the texture within the plane
 const tilingValue = 16;
@@ -39,9 +41,10 @@ export function useGroundMesh() {
     params.wSegment,
     params.hSegment
   );
-  const groundMaterial = new THREE.MeshStandardMaterial({
+  const groundMaterial = new THREE.ShaderMaterial({
     wireframe: false,
-    map: blueprintTexture,
+    fragmentShader: frag,
+    vertexShader: vert,
   });
   const ground = new THREE.Mesh(groundShape, groundMaterial);
   ground.receiveShadow = true;
