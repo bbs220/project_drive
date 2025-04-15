@@ -44,9 +44,6 @@ export function postProcessing(
   afterImgPass.enabled = false;
   composer.addPass(afterImgPass);
 
-  // gui with subfolders phew!
-  // ...existing code...
-
   // gui with subfolders
   const postFolder = pane.addFolder({
     title: "✨ Post Processing",

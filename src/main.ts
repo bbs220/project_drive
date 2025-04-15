@@ -93,7 +93,7 @@ worldBoundary(mainWORLD);
 const groundMesh = useGroundMesh();
 mainSCENE.add(groundMesh);
 
-// creating a infinite ground in invisible physics world
+// creating a finite ground in invisible physics world
 const groundBody = useGroundPhysicsBody();
 mainWORLD.addBody(groundBody);
 
