@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { stats } from "../helpers/visualHelpers";
 
 // scene
 export function useScene() {
@@ -28,6 +29,7 @@ export function use3dRenderer() {
     antialias: true,
     alpha: true,
   });
+  stats.init(renderer);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   // regular tonemapping sucks and isnt made for realistic light bounces
