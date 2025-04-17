@@ -1,23 +1,6 @@
 export const allImageTextures = {
   blueSquare: "images/blue_square.png",
-  blackSquare: "images/black_square.png",
   grass: "images/grass_texture.png",
-  blue1: "images/prototype textures/prototype_512x512_blue1.png",
-  blue2: "images/prototype textures/prototype_512x512_blue2.png",
-  blue3: "images/prototype textures/prototype_512x512_blue3.png",
-  brown: "images/prototype textures/prototype_512x512_brown.png",
-  cyan: "images/prototype textures/prototype_512x512_cyan.png",
-  green1: "images/prototype textures/prototype_512x512_green1.png",
-  green2: "images/prototype textures/prototype_512x512_green2.png",
-  grey1: "images/prototype textures/prototype_512x512_grey1.png",
-  grey2: "images/prototype textures/prototype_512x512_grey2.png",
-  grey3: "images/prototype textures/prototype_512x512_grey3.png",
-  grey4: "images/prototype textures/prototype_512x512_grey4.png",
-  orange: "images/prototype textures/prototype_512x512_orange.png",
-  purple: "images/prototype textures/prototype_512x512_purple.png",
-  red: "images/prototype textures/prototype_512x512_red.png",
-  white: "images/prototype textures/prototype_512x512_white.png",
-  yellow: "images/prototype textures/prototype_512x512_yellow.png",
 };
 
 export const allHDRs = {
