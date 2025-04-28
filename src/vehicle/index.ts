@@ -16,7 +16,7 @@ export const chassisBody = new CANNON.Body({ mass: 300 });
 
 const chassisShape = new CANNON.Box(new CANNON.Vec3(2, 0.3, 1));
 chassisBody.addShape(chassisShape);
-chassisBody.position.set(0, 2, 10);
+chassisBody.position.set(0, 2, 0);
 chassisBody.quaternion.set(0, -1, 0, 1);
 
 // init raycast vehicle
@@ -188,9 +188,6 @@ export function addVehicle(
   );
   world.addContactMaterial(wheel_ground);
 
-  // adding controls here
-  // controlsForVehicle(vehicle);
-
   // loads model and only plays animation if it consists animations data
   modelLoader.load(selectedCar.chassis, function (gltf) {
     chassisMesh = gltf.scene;
@@ -223,7 +220,7 @@ export function addVehicle(
 
   const vehicleControls = {
     reset: () => {
-      chassisBody.position.set(0, 2, 10);
+      chassisBody.position.set(0, 2, 0);
       chassisBody.quaternion.set(0, -1, 0, 1);
       chassisBody.velocity.set(0, 0, 0);
       vehicle.chassisBody.angularVelocity = new CANNON.Vec3(0, 0, 0);

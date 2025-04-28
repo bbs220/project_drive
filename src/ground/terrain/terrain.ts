@@ -20,4 +20,33 @@ export function buildTerrain(_scene: THREE.Scene, _world: CANNON.World) {
     title: "⛰️ Terrain",
     expanded: false,
   });
+
+  const terrainSize = 100;
+  const elementSize = 1;
+
+  const heightfieldData: number[][] = [];
+  for (let i = 0; i < terrainSize; i++) {
+    heightfieldData[i] = [];
+    for (let j = 0; j < terrainSize; j++) {
+      heightfieldData[i][j] = 0;
+    }
+  }
+
+  const heightfieldShape = new CANNON.Heightfield(heightfieldData, {
+    elementSize: elementSize,
+  });
+
+  const terrainBody = new CANNON.Body({
+    mass: 0,
+    shape: heightfieldShape,
+  });
+
+  terrainBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+  terrainBody.position.set(-terrainSize / 2, 0, terrainSize / 2);
+
+  _world.addBody(terrainBody);
+
+  return {
+    getTerrainBody: () => terrainBody,
+  };
 }

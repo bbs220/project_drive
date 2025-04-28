@@ -4,7 +4,6 @@ import { initPhysicsDebugger, physicsDebug } from "./physics/debugger";
 import { pane, stats } from "./helpers/visualHelpers";
 import { useCamera, use3dRenderer, useScene } from "./include/coreComponents";
 import { speedCalulation } from "./ui/vehicleUI";
-import { useGroundMesh, useGroundPhysicsBody } from "./ground/ground";
 import { use2dRenderer } from "./include/otherRenderer";
 import { lockOnToggle, switchOrbitControls } from "./utils/thirdPersonCamOrbit";
 import { stageLights } from "./utils/stageLights";
@@ -89,14 +88,6 @@ initPhysicsDebugger(mainSCENE, mainWORLD);
 // this had no visual shape but it is infinite
 worldBoundary(mainWORLD);
 
-// creating a finite ground in visible mesh
-const groundMesh = useGroundMesh();
-// mainSCENE.add(groundMesh);
-
-// creating a finite ground in invisible physics world
-const groundBody = useGroundPhysicsBody();
-// mainWORLD.addBody(groundBody);
-
 // quick controls for common needs
 const sceneFolder = pane.addFolder({
   title: "🌍 Scene",
@@ -179,11 +170,6 @@ function threeAndCannonSync() {
   if (vehicle) {
     speedCalulation(vehicle);
   }
-
-  // base ground sync
-  // its really basic for now
-  groundMesh.position.copy(groundBody.position);
-  groundMesh.quaternion.copy(groundBody.quaternion);
 }
 
 // clean webgl render function
