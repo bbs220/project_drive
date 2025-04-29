@@ -3,7 +3,7 @@ import * as CANNON from "cannon-es";
 import { modelLoader } from "../utils/assetLoader";
 import { ctrlToggle, enableControls } from "./steeringControls";
 import { allCarModels } from "../utils/assetPaths";
-import { groundCollistonMaterial } from "../ground/ground";
+import { groundCollisonMaterial } from "../ground/terrain/terrain";
 import { useHeadLights } from "./headLights";
 import { pane } from "../helpers/visualHelpers";
 import { info, nosContainer, speedElement } from "../ui/vehicleUI";
@@ -178,7 +178,7 @@ export function addVehicle(
   // material for collision between wheels and ground plane
   const wheel_ground = new CANNON.ContactMaterial(
     wheelCollisionMaterial,
-    groundCollistonMaterial,
+    groundCollisonMaterial,
     {
       friction: 0.3,
       restitution: 0,
