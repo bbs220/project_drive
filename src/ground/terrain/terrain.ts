@@ -20,8 +20,14 @@ const noiseParams = {
   scale: 1,
 };
 
+// keep this a multiple of 2 for the heightfield to work properly
+// this is the size of the terrain in threejs units
+const terrainSize = 64;
+const elementSize = 1;
+
 // for how many repeats of the texture within the plane
-const tilingValue = 16;
+// for consistency with the cannon heightfield
+const tilingValue = terrainSize;
 
 // this is max value dont go above 16
 const anisotrophicValue = 16;
@@ -41,13 +47,12 @@ const blueprintTexture = new THREE.TextureLoader(progressManager).load(
 let noise2D = createNoise2D(() => noiseParams.seed);
 
 export function buildTerrain(_scene: THREE.Scene, _world: CANNON.World) {
+  console.log("logging simplex noise : ", noise2D(0, 0));
+
   const terrainFolder = pane.addFolder({
     title: "⛰️ Terrain",
     expanded: false,
   });
-
-  const terrainSize = 10;
-  const elementSize = 1;
 
   const heightfieldData: number[][] = [];
   for (let i = 0; i <= terrainSize; i++) {
@@ -67,7 +72,6 @@ export function buildTerrain(_scene: THREE.Scene, _world: CANNON.World) {
   });
 
   terrainBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-  terrainBody.position.set(-terrainSize / 2, 0, terrainSize / 2);
 
   _world.addBody(terrainBody);
 
@@ -76,12 +80,18 @@ export function buildTerrain(_scene: THREE.Scene, _world: CANNON.World) {
     map: blueprintTexture,
   });
   const terrainMesh = new THREE.Mesh(terrainGeometry, terrainMaterial);
-  terrainMesh.rotation.x = -Math.PI / 2;
-  terrainMesh.position.set(0, 0, 0);
   terrainMesh.receiveShadow = true;
   _scene.add(terrainMesh);
 
+  terrainBody.position.set(-terrainSize / 2, 0, terrainSize / 2);
+
+  terrainFolder.addBinding(terrainMaterial, "wireframe", {
+    label: "Wireframe",
+  });
+
   return {
+    terrainMesh,
+    terrainBody,
     getTerrainBody: () => terrainBody,
   };
 }
