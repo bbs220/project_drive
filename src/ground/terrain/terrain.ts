@@ -69,13 +69,19 @@ export function buildTerrain(_scene: THREE.Scene, _world: CANNON.World) {
   const terrainBody = new CANNON.Body({
     mass: 0,
     shape: heightfieldShape,
+    material: terrainCollisonMaterial,
   });
 
   terrainBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
 
   _world.addBody(terrainBody);
 
-  const terrainGeometry = new THREE.PlaneGeometry(terrainSize, terrainSize);
+  const terrainGeometry = new THREE.PlaneGeometry(
+    terrainSize,
+    terrainSize,
+    terrainSize,
+    terrainSize
+  );
   const terrainMaterial = new THREE.MeshStandardMaterial({
     map: blueprintTexture,
   });
@@ -88,6 +94,9 @@ export function buildTerrain(_scene: THREE.Scene, _world: CANNON.World) {
   terrainFolder.addBinding(terrainMaterial, "wireframe", {
     label: "Wireframe",
   });
+  terrainFolder.addBinding(terrainMaterial, "flatShading", {
+    label: "Flat Shading",
+  });
 
   return {
     terrainMesh,
@@ -96,4 +105,4 @@ export function buildTerrain(_scene: THREE.Scene, _world: CANNON.World) {
   };
 }
 
-export const groundCollisonMaterial = new CANNON.Material("ground");
+export const terrainCollisonMaterial = new CANNON.Material("terrain");
