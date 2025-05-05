@@ -117,7 +117,7 @@ sceneFolder.addBinding(ambientLight, "visible", {
 // adding a simple vehicle here
 addVehicle(mainSCENE, mainWORLD, mainCAMERA);
 
-const { terrainBody, terrainMesh } = buildTerrain(mainSCENE, mainWORLD);
+buildTerrain(mainSCENE, mainWORLD);
 
 // this thing returns a function that should be used in renderLoopMain()
 // do not fucking have both the renderer and composer on at the same time
@@ -169,10 +169,6 @@ function threeAndCannonSync() {
   // getting the speed in kmph
   if (vehicle) {
     speedCalulation(vehicle);
-  }
-
-  if (terrainMesh && terrainBody) {
-    terrainMesh.quaternion.copy(terrainBody.quaternion);
   }
 }
 

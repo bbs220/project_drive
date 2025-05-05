@@ -22,8 +22,7 @@ const noiseParams = {
 
 // keep this a multiple of 2 for the heightfield to work properly
 // this is the size of the terrain in threejs units
-const terrainSize = 64;
-const elementSize = 1;
+const terrainSize = 32;
 
 // for how many repeats of the texture within the plane
 // for consistency with the cannon heightfield
@@ -54,55 +53,48 @@ export function buildTerrain(_scene: THREE.Scene, _world: CANNON.World) {
     expanded: false,
   });
 
-  const heightfieldData: number[][] = [];
-  for (let i = 0; i <= terrainSize; i++) {
-    heightfieldData[i] = [];
-    for (let j = 0; j <= terrainSize; j++) {
-      heightfieldData[i][j] = 0;
-    }
-  }
-
-  const heightfieldShape = new CANNON.Heightfield(heightfieldData, {
-    elementSize: elementSize,
-  });
-
-  const terrainBody = new CANNON.Body({
-    mass: 0,
-    shape: heightfieldShape,
-    material: terrainCollisonMaterial,
-  });
-
-  terrainBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-
-  _world.addBody(terrainBody);
-
   const terrainGeometry = new THREE.PlaneGeometry(
     terrainSize,
     terrainSize,
     terrainSize,
     terrainSize
   );
+
   const terrainMaterial = new THREE.MeshStandardMaterial({
     map: blueprintTexture,
   });
   const terrainMesh = new THREE.Mesh(terrainGeometry, terrainMaterial);
   terrainMesh.receiveShadow = true;
+  terrainMesh.rotation.set(-Math.PI / 2, 0, 0);
   _scene.add(terrainMesh);
 
-  terrainBody.position.set(-terrainSize / 2, 0, terrainSize / 2);
+  const matrix: number[][] = [];
+  const resolution = terrainSize + 1;
+
+  for (let i = 0; i < resolution; i++) {
+    matrix.push([]);
+    for (let j = 0; j < resolution; j++) {
+      matrix[i][j] = 0;
+    }
+  }
+
+  const heightfieldShape = new CANNON.Heightfield(matrix, {
+    elementSize: terrainSize / (resolution - 1),
+  });
+
+  const heightfieldBody = new CANNON.Body({
+    mass: 0, // Static ground
+    shape: heightfieldShape,
+    material: terrainCollisonMaterial,
+  });
+
+  heightfieldBody.position.set(-terrainSize / 2, 0, terrainSize / 2);
+  heightfieldBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+  _world.addBody(heightfieldBody);
 
   terrainFolder.addBinding(terrainMaterial, "wireframe", {
     label: "Wireframe",
   });
-  terrainFolder.addBinding(terrainMaterial, "flatShading", {
-    label: "Flat Shading",
-  });
-
-  return {
-    terrainMesh,
-    terrainBody,
-    getTerrainBody: () => terrainBody,
-  };
 }
 
 export const terrainCollisonMaterial = new CANNON.Material("terrain");
