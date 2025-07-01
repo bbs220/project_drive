@@ -1,5 +1,5 @@
 <!-- fill this up later -->
-# ✨ Character Controller And Driver
+# ✨ An Arcade Driving game
 
 ## 👋 A physics based game driving game in three.js and typescript
 
