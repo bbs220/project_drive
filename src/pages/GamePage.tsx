@@ -1,7 +1,9 @@
+import CoreCanvas from "../components/sceneComponents/CoreCanvas";
+
 const GamePage = () => {
   return (
-    <div className="w-full min-h-dvh flex justify-center items-center">
-      👋 hello world
+    <div className="w-full h-full">
+      <CoreCanvas />
     </div>
   );
 };

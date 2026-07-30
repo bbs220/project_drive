@@ -1,4 +1,4 @@
 const SideBar = () => {
-  return <div className="bg-blue-400">SideBar</div>;
+  return <aside></aside>;
 };
 export default SideBar;
