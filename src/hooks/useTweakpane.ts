@@ -1,22 +1,34 @@
 import { useState, useEffect, useRef } from "react";
 import { Pane } from "tweakpane";
 
-// conditional type: Extracts 'V' if it's { value: V }, otherwise returns the type itself
+type FolderApi = ReturnType<Pane["addFolder"]>;
+
+type TweakpaneOptions<V = unknown> = {
+  value: V;
+  folder?: string;
+  label?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  options?: Record<string, V> | { text: string; value: V }[];
+  picker?: "inline" | "popup";
+  expanded?: boolean;
+  [key: string]: unknown;
+};
+
 type ExtractValue<T> = T extends { value: infer V } ? V : T;
 
-// mapped type: Loops over your config object and applies ExtractValue to every key
 type TweakpaneState<T> = {
   [K in keyof T]: ExtractValue<T[K]>;
 };
 
-// lives in module scope to share the pane across all components
 let sharedPane: Pane | null = null;
+let sharedFolders: Record<string, FolderApi> = {};
 let activeHooksCount = 0;
 
-export function useTweakpane<T extends Record<string, unknown>>(
-  config: T,
-): TweakpaneState<T> {
-  // initialize React state for rendering
+export function useTweakpane<T extends Record<string, unknown>>(config: {
+  [K in keyof T]: T[K] extends { value: infer V } ? TweakpaneOptions<V> : T[K];
+}): TweakpaneState<T> {
   const [params, setParams] = useState<TweakpaneState<T>>(() => {
     const initialState = {} as TweakpaneState<T>;
 
@@ -34,37 +46,56 @@ export function useTweakpane<T extends Record<string, unknown>>(
   });
 
   const configRef = useRef(config);
-
-  // create a stable, mutable object specifically for Tweakpane to bind to.
-  // never replace this object; we just let Tweakpane mutate its properties.
   const tweakpaneTargetRef = useRef({ ...params });
 
   useEffect(() => {
-    // ONLY run tweakpane if Vite is in development mode
     if (!import.meta.env.DEV) return;
 
     if (!sharedPane) {
       sharedPane = new Pane({ title: "🛠️ Controls" });
+      sharedFolders = {};
     }
     activeHooksCount++;
 
     const initialConfig = configRef.current;
-
-    // structurally type the binding so we can call dispose() safely
     const bindings: Array<{ dispose: () => void }> = [];
+
+    const getFolder = (path: string): FolderApi => {
+      if (sharedFolders[path]) return sharedFolders[path];
+
+      const parts = path.split("/");
+      let currentPane: Pane | FolderApi = sharedPane!;
+      let currentPath = "";
+
+      for (const part of parts) {
+        currentPath += (currentPath ? "/" : "") + part;
+        if (!sharedFolders[currentPath]) {
+          sharedFolders[currentPath] = currentPane.addFolder({ title: part });
+        }
+        currentPane = sharedFolders[currentPath];
+      }
+      return currentPane as FolderApi;
+    };
 
     (Object.keys(initialConfig) as Array<keyof T>).forEach((key) => {
       const item = initialConfig[key];
-      const options =
-        typeof item === "object" && item !== null && "value" in item
-          ? item
-          : {};
+      const isConfigObject =
+        typeof item === "object" && item !== null && "value" in item;
 
-      // bind Tweakpane to our stable ref object
-      const binding = sharedPane!
+      let options: Omit<TweakpaneOptions, "folder"> = {};
+      let folder: string | undefined = undefined;
+
+      if (isConfigObject) {
+        const { folder: f, ...rest } = item as TweakpaneOptions;
+        folder = f;
+        options = rest;
+      }
+
+      const targetPane = folder ? getFolder(folder) : sharedPane!;
+
+      const binding = targetPane
         .addBinding(tweakpaneTargetRef.current, key as string, options)
-        .on("change", (ev) => {
-          // when Tweakpane mutates the ref, sync that change to React state to trigger a render
+        .on("change", (ev: { value: unknown }) => {
           setParams((prev) => ({ ...prev, [key]: ev.value }));
         });
 
@@ -72,15 +103,13 @@ export function useTweakpane<T extends Record<string, unknown>>(
     });
 
     return () => {
-      // remove only the inputs associated with this specific component
       bindings.forEach((binding) => binding.dispose());
-
       activeHooksCount--;
 
-      // if no components are using the pane anymore, destroy the whole window
       if (activeHooksCount === 0 && sharedPane) {
         sharedPane.dispose();
         sharedPane = null;
+        sharedFolders = {};
       }
     };
   }, []);
