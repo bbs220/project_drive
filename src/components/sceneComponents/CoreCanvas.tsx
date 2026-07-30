@@ -28,14 +28,8 @@ const CoreScene = () => {
 
 const CoreCanvas = () => {
   const { setDpr, setPhyDebug } = useTweakpane({
-    setDpr: {
-      value: 1,
-      min: 0.1,
-      max: 1,
-      label: "Resolution Scale",
-      folder: "🏞️ Scene",
-    },
-    setPhyDebug: { value: false, label: "Debug", folder: "⚙️ Physics" },
+    setDpr: { value: 1, min: 0.1, max: 1, label: "Resolution" },
+    setPhyDebug: { value: false, label: "Physics Debug" },
   });
 
   return (
