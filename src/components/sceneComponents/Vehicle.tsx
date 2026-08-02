@@ -6,34 +6,29 @@ import {
   CuboidCollider,
   type RapierRigidBody,
 } from "@react-three/rapier";
+import { useVehicleInput } from "../../hooks/useVehicleInput";
 import {
   useVehicleCreator,
   type WheelInfo,
 } from "../../hooks/useVehicleCreator";
 
-// define chassis dimensions and mass
-const chassisWidth = 2;
-const chassisHeight = 1;
-const chassisLength = 4;
-const chassisMass = 1500;
+// define chassis dimensions
+const chassisWidth = 1.6;
+const chassisHeight = 0.8;
+const chassisLength = 4.16;
 
-// define wheel dimensions and physics
-const wheelRadius = 0.4;
-const wheelWidth = 0.3;
-const suspensionRestLength = 0.3;
-const suspensionStiffness = 30;
-const maxSuspensionTravel = 1;
-const frictionSlip = 10;
-const sideFrictionStiffness = 1;
+// define wheel tuning constants
+const wheelRadius = 0.35;
+const wheelWidth = 0.25;
 
 // helper to create standard wheel config
 const createWheelInfo = (x: number, z: number): WheelInfo => ({
   axleCs: new THREE.Vector3(-1, 0, 0),
-  suspensionRestLength,
-  suspensionStiffness,
-  maxSuspensionTravel,
-  frictionSlip,
-  sideFrictionStiffness,
+  suspensionRestLength: 0.125,
+  suspensionStiffness: 24,
+  maxSuspensionTravel: 1,
+  frictionSlip: 1.5,
+  sideFrictionStiffness: 3,
   position: new THREE.Vector3(x, -chassisHeight / 2, z),
   radius: wheelRadius,
 });
@@ -61,17 +56,21 @@ const Vehicle = () => {
   // ref array for the visual wheel meshes
   const wheelsRef = useRef<THREE.Object3D[]>([]);
 
-  // initialize the vehicle creator hook
-  useVehicleCreator(chassisRef, wheelsRef, wheelsInfo);
+  // get current vehicle inputs
+  const controlsRef = useVehicleInput();
+
+  // initialize the vehicle controller hook
+  useVehicleCreator(chassisRef, wheelsRef, wheelsInfo, controlsRef);
 
   return (
     <group>
       {/* lift spawn height and disable auto colliders */}
       <RigidBody
-        position={[0, 4, 0]}
+        position={[0, 5, 0]}
         ref={chassisRef}
         colliders={false}
-        mass={chassisMass}
+        mass={800}
+        friction={0}
       >
         {/* explicit chassis collider to exclude wheels */}
         <CuboidCollider

@@ -7,6 +7,7 @@ import {
 } from "@react-three/rapier";
 import { type RefObject, useEffect, useRef } from "react";
 import * as THREE from "three";
+import type { VehicleControls } from "./useVehicleInput";
 
 // define up vector
 const up = new THREE.Vector3(0, 1, 0);
@@ -27,19 +28,23 @@ export type WheelInfo = {
   radius: number;
 };
 
+// define tuning constants
+const engineForceVal = 1500;
+const brakeForceVal = 50;
+const steeringAngleVal = 0.5;
+
 // define vehicle controller hook
 export const useVehicleCreator = (
   chassisRef: RefObject<RapierRigidBody | null>,
-  wheelsRef: RefObject<THREE.Object3D[] | null>,
-  wheelsInfo: WheelInfo[] | null,
+  wheelsRef: RefObject<THREE.Object3D[]>,
+  wheelsInfo: WheelInfo[],
+  controlsRef: RefObject<VehicleControls>,
 ) => {
   // get rapier world
   const { world } = useRapier();
 
   // initialize vehicle controller ref
-  const vehicleController = useRef<DynamicRayCastVehicleController | null>(
-    null,
-  );
+  const vehicleCreator = useRef<DynamicRayCastVehicleController | null>(null);
 
   // handle vehicle mount and unmount
   useEffect(() => {
@@ -54,8 +59,6 @@ export const useVehicleCreator = (
 
     // define downward suspension direction
     const suspensionDirection = new THREE.Vector3(0, -1, 0);
-
-    if (!wheelsInfo) return;
 
     // iterate through wheels and apply config
     for (const [index, wheel] of wheelsInfo.entries()) {
@@ -73,27 +76,57 @@ export const useVehicleCreator = (
     }
 
     // assign to ref
-    vehicleController.current = vehicle;
+    vehicleCreator.current = vehicle;
 
     // cleanup on unmount
     return () => {
-      vehicleController.current = null;
+      vehicleCreator.current = null;
       world.removeVehicleController(vehicle);
     };
   }, [chassisRef, wheelsInfo, wheelsRef, world]);
 
   // handle physics step updates
   useAfterPhysicsStep((world) => {
-    if (!vehicleController.current) return;
+    if (!vehicleCreator.current || !controlsRef.current) return;
 
-    const controller = vehicleController.current;
+    const controller = vehicleCreator.current;
+    const controls = controlsRef.current;
+
+    // calculate applied engine force
+    const currentEngineForce = controls.forward
+      ? engineForceVal
+      : controls.backward
+        ? -engineForceVal
+        : 0;
+
+    // calculate applied steering angle
+    const currentSteering = controls.left
+      ? steeringAngleVal
+      : controls.right
+        ? -steeringAngleVal
+        : 0;
+
+    // calculate applied brake force
+    const currentBrake = controls.brake ? brakeForceVal : 0;
+
+    // apply engine force to rear wheels
+    controller.setWheelEngineForce(2, currentEngineForce);
+    controller.setWheelEngineForce(3, currentEngineForce);
+
+    // apply steering to front wheels
+    controller.setWheelSteering(0, currentSteering);
+    controller.setWheelSteering(1, currentSteering);
+
+    // apply brakes to all wheels
+    controller.setWheelBrake(0, currentBrake);
+    controller.setWheelBrake(1, currentBrake);
+    controller.setWheelBrake(2, currentBrake);
+    controller.setWheelBrake(3, currentBrake);
 
     // update vehicle forces
     controller.updateVehicle(world.timestep);
 
     const { current: wheels } = wheelsRef;
-
-    if (!wheels) return;
 
     // iterate through wheels to sync visual meshes
     for (const [index, wheel] of wheels.entries()) {
@@ -120,6 +153,6 @@ export const useVehicleCreator = (
   });
 
   return {
-    vehicleController,
+    vehicleCreator,
   };
 };
