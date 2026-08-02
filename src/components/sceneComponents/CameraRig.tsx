@@ -32,7 +32,14 @@ const CameraRig = ({ targetRef }: CameraRigProps) => {
   });
 
   // render default orbit controls
-  return <OrbitControls ref={controlsRef} makeDefault maxDistance={8} />;
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      makeDefault
+      maxDistance={8}
+      maxPolarAngle={1.3}
+    />
+  );
 };
 
 export default CameraRig;
