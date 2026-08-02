@@ -28,7 +28,7 @@ export type WheelInfo = {
 };
 
 // define vehicle controller hook
-export const useVehicleController = (
+export const useVehicleCreator = (
   chassisRef: RefObject<RapierRigidBody | null>,
   wheelsRef: RefObject<THREE.Object3D[] | null>,
   wheelsInfo: WheelInfo[] | null,
