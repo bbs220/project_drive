@@ -5,7 +5,6 @@ import {
   Environment,
   GizmoHelper,
   GizmoViewport,
-  OrbitControls,
   PerspectiveCamera,
   Stats,
 } from "@react-three/drei";
@@ -23,7 +22,6 @@ const CoreScene = () => {
         fov={sceneConstants.fov}
         position={[0, 5, 10]}
       />
-      <OrbitControls makeDefault />
       <GizmoHelper alignment="top-left" margin={[60, 120]}>
         <GizmoViewport labelColor="white" visible />
       </GizmoHelper>

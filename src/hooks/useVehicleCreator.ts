@@ -1,4 +1,3 @@
-// import required types and hooks
 import type { DynamicRayCastVehicleController } from "@dimforge/rapier3d-compat";
 import {
   type RapierRigidBody,
@@ -28,10 +27,12 @@ export type WheelInfo = {
   radius: number;
 };
 
-// define tuning constants
-const engineForceVal = 1500;
-const brakeForceVal = 50;
-const steeringAngleVal = 0.5;
+// define controller tuning parameters
+export type ControllerTuning = {
+  engineForce: number;
+  brakeForce: number;
+  steeringAngle: number;
+};
 
 // define vehicle controller hook
 export const useVehicleCreator = (
@@ -39,6 +40,7 @@ export const useVehicleCreator = (
   wheelsRef: RefObject<THREE.Object3D[]>,
   wheelsInfo: WheelInfo[],
   controlsRef: RefObject<VehicleControls>,
+  tuning: ControllerTuning,
 ) => {
   // get rapier world
   const { world } = useRapier();
@@ -94,20 +96,20 @@ export const useVehicleCreator = (
 
     // calculate applied engine force
     const currentEngineForce = controls.forward
-      ? engineForceVal
+      ? tuning.engineForce
       : controls.backward
-        ? -engineForceVal
+        ? -tuning.engineForce
         : 0;
 
     // calculate applied steering angle
     const currentSteering = controls.left
-      ? steeringAngleVal
+      ? tuning.steeringAngle
       : controls.right
-        ? -steeringAngleVal
+        ? -tuning.steeringAngle
         : 0;
 
     // calculate applied brake force
-    const currentBrake = controls.brake ? brakeForceVal : 0;
+    const currentBrake = controls.brake ? tuning.brakeForce : 0;
 
     // apply engine force to rear wheels
     controller.setWheelEngineForce(2, currentEngineForce);
