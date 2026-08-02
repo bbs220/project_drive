@@ -10,6 +10,7 @@ import {
 import { sceneConstants } from "../../constants/sceneConstants";
 import { physcConstants } from "../../constants/physcConstants";
 import { bankHDR } from "../../utils/assetpaths";
+import Ground from "./Ground";
 
 const CoreScene = () => {
   return (
@@ -23,6 +24,7 @@ const CoreScene = () => {
       <ambientLight />
       <Stats showPanel={0} />
       <Environment files={bankHDR.skyDay} background />
+      <Ground />
     </>
   );
 };
