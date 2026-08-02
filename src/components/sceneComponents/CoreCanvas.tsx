@@ -9,6 +9,7 @@ import {
 } from "@react-three/drei";
 import { sceneConstants } from "../../constants/sceneConstants";
 import { physcConstants } from "../../constants/physcConstants";
+import { bankHDR } from "../../utils/assetpaths";
 
 const CoreScene = () => {
   return (
@@ -21,7 +22,7 @@ const CoreScene = () => {
       <OrbitControls makeDefault />
       <ambientLight />
       <Stats showPanel={0} />
-      <Environment preset={"night"} background />
+      <Environment files={bankHDR.skyDay} background />
     </>
   );
 };

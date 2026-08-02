@@ -4,10 +4,12 @@ import WelcomePage from "./pages/WelcomePage";
 import GamePage from "./pages/GamePage";
 import LayoutState from "./layout/LayoutState";
 import NotFoundPage from "./pages/NotFoundPage";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 export const coreRouter = createBrowserRouter([
   {
     element: <App />,
+    errorElement: <ErrorBoundary />,
     children: [
       {
         path: "/",
@@ -17,7 +19,6 @@ export const coreRouter = createBrowserRouter([
         path: "/play",
         element: (
           <LayoutState>
-            {/* this page mounts the 3d canvas */}
             <GamePage />
           </LayoutState>
         ),
