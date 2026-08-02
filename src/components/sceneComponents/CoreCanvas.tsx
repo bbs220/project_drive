@@ -3,6 +3,8 @@ import { Physics } from "@react-three/rapier";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import {
   Environment,
+  GizmoHelper,
+  GizmoViewport,
   OrbitControls,
   PerspectiveCamera,
   Stats,
@@ -21,6 +23,9 @@ const CoreScene = () => {
         position={[0, 5, 10]}
       />
       <OrbitControls makeDefault />
+      <GizmoHelper alignment="top-left" margin={[60, 120]}>
+        <GizmoViewport labelColor="white" visible />
+      </GizmoHelper>
       <ambientLight />
       <Stats showPanel={0} />
       <Environment files={bankHDR.skyDay} background />
