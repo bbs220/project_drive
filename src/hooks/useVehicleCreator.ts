@@ -48,6 +48,9 @@ export const useVehicleCreator = (
   // initialize vehicle controller ref
   const vehicleCreator = useRef<DynamicRayCastVehicleController | null>(null);
 
+  // initialize ref to store manually calculated wheel rotations
+  const manualWheelRotations = useRef([0, 0, 0, 0]);
+
   // handle vehicle mount and unmount
   useEffect(() => {
     const { current: chassis } = chassisRef;
@@ -89,10 +92,12 @@ export const useVehicleCreator = (
 
   // handle physics step updates
   useAfterPhysicsStep((world) => {
-    if (!vehicleCreator.current || !controlsRef.current) return;
+    if (!vehicleCreator.current || !controlsRef.current || !chassisRef.current)
+      return;
 
     const controller = vehicleCreator.current;
     const controls = controlsRef.current;
+    const chassis = chassisRef.current;
 
     // calculate applied engine force
     const currentEngineForce = controls.forward
@@ -130,6 +135,17 @@ export const useVehicleCreator = (
 
     const { current: wheels } = wheelsRef;
 
+    // calculate exact forward speed of the car for forced manual rotation
+    const linvel = chassis.linvel();
+    const rot = chassis.rotation();
+    const velocity = new THREE.Vector3(linvel.x, linvel.y, linvel.z);
+
+    // determine forward direction vector based on chassis rotation
+    const forwardVector = new THREE.Vector3(0, 0, 1).applyQuaternion(
+      new THREE.Quaternion(rot.x, rot.y, rot.z, rot.w),
+    );
+    const forwardSpeed = velocity.dot(forwardVector);
+
     // iterate through wheels to sync visual meshes
     for (const [index, wheel] of wheels.entries()) {
       const wheelAxleCs = controller.wheelAxleCs(index)!;
@@ -137,14 +153,25 @@ export const useVehicleCreator = (
         controller.wheelChassisConnectionPointCs(index)?.y || 0;
       const suspension = controller.wheelSuspensionLength(index) || 0;
       const steering = controller.wheelSteering(index) || 0;
-      const rotationRad = controller.wheelRotation(index) || 0;
+
+      // strictly force manual rotation math and ignore rapier getter completely
+      const angularVelocity = -(forwardSpeed / wheelsInfo[index].radius);
+      manualWheelRotations.current[index] += angularVelocity * world.timestep;
+      const rotationRad = manualWheelRotations.current[index];
 
       // sync vertical position
       wheel.position.y = connection - suspension;
 
+      // convert raw rapier object to three vector safely
+      const axleVector = new THREE.Vector3(
+        wheelAxleCs.x,
+        wheelAxleCs.y,
+        wheelAxleCs.z,
+      );
+
       // apply steering and rotation quaternions
       _wheelSteeringQuat.setFromAxisAngle(up, steering);
-      _wheelRotationQuat.setFromAxisAngle(wheelAxleCs, rotationRad);
+      _wheelRotationQuat.setFromAxisAngle(axleVector, rotationRad);
 
       // combine quaternions onto wheel
       wheel.quaternion.multiplyQuaternions(
