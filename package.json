@@ -26,6 +26,8 @@
     "three": "^0.185.1",
     "tweakpane": "^4.0.5",
     "use-sound": "^5.0.0",
+    "vite-plugin-glsl": "^1.6.1",
+    "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
@@ -34,7 +36,7 @@
     "@rolldown/plugin-babel": "^0.2.3",
     "@tweakpane/core": "^2.0.5",
     "@types/babel__core": "^7.20.5",
-    "@types/node": "^24.13.2",
+    "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
