@@ -1,12 +1,11 @@
 import { useRef, useMemo } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 import {
   RigidBody,
   CuboidCollider,
   type RapierRigidBody,
 } from "@react-three/rapier";
-
-// import custom hooks
 import { useVehicleInput } from "../../hooks/useVehicleInput";
 import {
   useVehicleCreator,
@@ -14,28 +13,21 @@ import {
 } from "../../hooks/useVehicleCreator";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import CameraRig from "./CameraRig";
+import { vehicleConstants } from "../../constants/sceneConstants";
 
-// define tweakpane configuration object outside component
-const tuningConfig = {
-  chassisWidth: { value: 1.6, min: 0.5, max: 3, label: "width" },
-  chassisHeight: { value: 0.8, min: 0.2, max: 2, label: "height" },
-  chassisLength: { value: 4.16, min: 2, max: 6, label: "length" },
-  mass: { value: 800, min: 400, max: 2000, label: "mass" },
-  wheelRadius: { value: 0.35, min: 0.1, max: 1, label: "wheel radius" },
-  wheelWidth: { value: 0.25, min: 0.1, max: 1, label: "wheel width" },
-  suspensionRestLength: { value: 0.125, min: 0.01, max: 1, label: "susp rest" },
-  suspensionStiffness: { value: 24, min: 1, max: 100, label: "susp stiffness" },
-  maxSuspensionTravel: { value: 1, min: 0.1, max: 2, label: "susp travel" },
-  frictionSlip: { value: 1.5, min: 0.1, max: 5, label: "friction slip" },
-  sideFrictionStiffness: {
-    value: 3,
-    min: 0.1,
-    max: 10,
-    label: "side friction",
-  },
-  engineForce: { value: 50, min: 10, max: 500, label: "engine force" },
-  brakeForce: { value: 50, min: 10, max: 200, label: "brake force" },
-  steeringAngle: { value: 0.5, min: 0.1, max: 1, label: "steering angle" },
+// helper function to completely reset vehicle physics state
+const respawnVehicle = (chassis: RapierRigidBody) => {
+  // reset position to origin height
+  chassis.setTranslation({ x: 0, y: 5, z: 0 }, true);
+
+  // reset rotation to default identity quaternion
+  chassis.setRotation({ x: 0, y: 0, z: 0, w: 1 }, true);
+
+  // zero out linear momentum
+  chassis.setLinvel({ x: 0, y: 0, z: 0 }, true);
+
+  // zero out angular momentum
+  chassis.setAngvel({ x: 0, y: 0, z: 0 }, true);
 };
 
 export const Vehicle = () => {
@@ -51,8 +43,8 @@ export const Vehicle = () => {
   // get current vehicle inputs
   const controlsRef = useVehicleInput();
 
-  // initialize tweakpane hook
-  const params = useTweakpane("vehicle tuning", tuningConfig);
+  // initialize tweakpane hook using extracted constants
+  const params = useTweakpane("vehicle tuning", vehicleConstants);
 
   // recalculate wheels dynamically when tweakpane values change
   const wheelsInfo = useMemo<WheelInfo[]>(() => {
@@ -100,6 +92,18 @@ export const Vehicle = () => {
     geo.rotateZ(Math.PI / 2);
     return geo;
   }, [params.wheelRadius, params.wheelWidth]);
+
+  // handle respawn logic
+  useFrame(() => {
+    // exit early if chassis is missing
+    if (!chassisRef.current) return;
+
+    // check if vehicle has fallen below bounds
+    if (chassisRef.current.translation().y < -10) {
+      // trigger extracted respawn function
+      respawnVehicle(chassisRef.current);
+    }
+  });
 
   return (
     <group>
