@@ -44,7 +44,7 @@ export const Vehicle = () => {
   const controlsRef = useVehicleInput();
 
   // initialize tweakpane hook using extracted constants
-  const params = useTweakpane("vehicle tuning", vehicleConstants);
+  const params = useTweakpane("🚗 Vehicle Tuning", vehicleConstants);
 
   // recalculate wheels dynamically when tweakpane values change
   const wheelsInfo = useMemo<WheelInfo[]>(() => {
