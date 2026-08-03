@@ -19,7 +19,8 @@ export const vehicleConstants = {
     max: 10,
     label: "side friction",
   },
-  engineForce: { value: 50, min: 10, max: 500, label: "engine force" },
-  brakeForce: { value: 50, min: 10, max: 200, label: "brake force" },
+  engineForce: { value: 10, min: 1, max: 500, label: "engine force" },
+  brakeForce: { value: 20, min: 1, max: 500, label: "brake force" },
   steeringAngle: { value: 0.5, min: 0.1, max: 1, label: "steering angle" },
+  flipImpulse: { value: 0.5, min: 0.1, max: 100, label: "flip impulse" },
 };

@@ -1,3 +1,4 @@
+// import required types and hooks
 import type { DynamicRayCastVehicleController } from "@dimforge/rapier3d-compat";
 import {
   type RapierRigidBody,
@@ -32,6 +33,7 @@ export type ControllerTuning = {
   engineForce: number;
   brakeForce: number;
   steeringAngle: number;
+  flipImpulse: number;
 };
 
 // define vehicle controller hook
@@ -99,36 +101,82 @@ export const useVehicleCreator = (
     const controls = controlsRef.current;
     const chassis = chassisRef.current;
 
-    // calculate applied engine force
-    const currentEngineForce = controls.forward
-      ? tuning.engineForce
-      : controls.backward
-        ? -tuning.engineForce
-        : 0;
+    // extract current rotation quaternion
+    const rot = chassis.rotation();
+    const chassisQuat = new THREE.Quaternion(rot.x, rot.y, rot.z, rot.w);
 
-    // calculate applied steering angle
-    const currentSteering = controls.left
-      ? tuning.steeringAngle
-      : controls.right
-        ? -tuning.steeringAngle
-        : 0;
+    // calculate local up vector to check if vehicle is flipped
+    const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(chassisQuat);
+    const isFlipped = localUp.y < 0.2;
 
-    // calculate applied brake force
-    const currentBrake = controls.brake ? tuning.brakeForce : 0;
+    // handle gta style mid air flip recovery
+    if (isFlipped) {
+      // zero out engine and steering to prevent weird wheel behavior while flipped
+      controller.setWheelEngineForce(2, 0);
+      controller.setWheelEngineForce(3, 0);
+      controller.setWheelSteering(0, 0);
+      controller.setWheelSteering(1, 0);
+      controller.setWheelBrake(0, 0);
+      controller.setWheelBrake(1, 0);
+      controller.setWheelBrake(2, 0);
+      controller.setWheelBrake(3, 0);
 
-    // apply engine force to rear wheels
-    controller.setWheelEngineForce(2, currentEngineForce);
-    controller.setWheelEngineForce(3, currentEngineForce);
+      // calculate raw rotational inputs
+      const rollInput = controls.left ? -1 : controls.right ? 1 : 0;
+      const pitchInput = controls.forward ? 1 : controls.backward ? -1 : 0;
 
-    // apply steering to front wheels
-    controller.setWheelSteering(0, currentSteering);
-    controller.setWheelSteering(1, currentSteering);
+      // apply torque impulse if user is pressing keys
+      if (rollInput !== 0 || pitchInput !== 0) {
+        // create a torque vector based on tuning input
+        const localTorque = new THREE.Vector3(
+          pitchInput * tuning.flipImpulse,
+          0,
+          rollInput * tuning.flipImpulse,
+        );
 
-    // apply brakes to all wheels
-    controller.setWheelBrake(0, currentBrake);
-    controller.setWheelBrake(1, currentBrake);
-    controller.setWheelBrake(2, currentBrake);
-    controller.setWheelBrake(3, currentBrake);
+        // convert local torque to world space so it rolls intuitively
+        const worldTorque = localTorque.applyQuaternion(chassisQuat);
+
+        // apply the actual rotational bounce impulse to the chassis
+        chassis.applyTorqueImpulse(
+          { x: worldTorque.x, y: worldTorque.y, z: worldTorque.z },
+          true,
+        );
+      }
+    } else {
+      // normal driving physics when wheels are down
+
+      // calculate applied engine force
+      const currentEngineForce = controls.forward
+        ? tuning.engineForce
+        : controls.backward
+          ? -tuning.engineForce
+          : 0;
+
+      // calculate applied steering angle
+      const currentSteering = controls.left
+        ? tuning.steeringAngle
+        : controls.right
+          ? -tuning.steeringAngle
+          : 0;
+
+      // calculate applied brake force
+      const currentBrake = controls.brake ? tuning.brakeForce : 0;
+
+      // apply engine force to rear wheels
+      controller.setWheelEngineForce(2, currentEngineForce);
+      controller.setWheelEngineForce(3, currentEngineForce);
+
+      // apply steering to front wheels
+      controller.setWheelSteering(0, currentSteering);
+      controller.setWheelSteering(1, currentSteering);
+
+      // apply brakes to all wheels
+      controller.setWheelBrake(0, currentBrake);
+      controller.setWheelBrake(1, currentBrake);
+      controller.setWheelBrake(2, currentBrake);
+      controller.setWheelBrake(3, currentBrake);
+    }
 
     // update vehicle forces
     controller.updateVehicle(world.timestep);
@@ -137,12 +185,11 @@ export const useVehicleCreator = (
 
     // calculate exact forward speed of the car for forced manual rotation
     const linvel = chassis.linvel();
-    const rot = chassis.rotation();
     const velocity = new THREE.Vector3(linvel.x, linvel.y, linvel.z);
 
     // determine forward direction vector based on chassis rotation
     const forwardVector = new THREE.Vector3(0, 0, 1).applyQuaternion(
-      new THREE.Quaternion(rot.x, rot.y, rot.z, rot.w),
+      chassisQuat,
     );
     const forwardSpeed = velocity.dot(forwardVector);
 
@@ -154,9 +201,13 @@ export const useVehicleCreator = (
       const suspension = controller.wheelSuspensionLength(index) || 0;
       const steering = controller.wheelSteering(index) || 0;
 
-      // strictly force manual rotation math and ignore rapier getter completely
+      // strictly force manual rotation math and invert the speed to fix backward spinning
       const angularVelocity = -(forwardSpeed / wheelsInfo[index].radius);
+
+      // accumulate the rotation over time
       manualWheelRotations.current[index] += angularVelocity * world.timestep;
+
+      // extract final rotation value
       const rotationRad = manualWheelRotations.current[index];
 
       // sync vertical position
