@@ -16,6 +16,8 @@ import Vehicle from "./Vehicle";
 import Boxes from "./Boxes";
 
 const CoreScene = () => {
+  const isDev = import.meta.env.DEV;
+
   return (
     <>
       <PerspectiveCamera
@@ -23,11 +25,11 @@ const CoreScene = () => {
         fov={sceneConstants.fov}
         position={[0, 5, 10]}
       />
-      <GizmoHelper alignment="top-left" margin={[60, 120]}>
-        <GizmoViewport labelColor="white" visible />
+      <GizmoHelper alignment="top-left" margin={[60, 120]} visible={isDev}>
+        <GizmoViewport labelColor="white" visible={isDev} disabled />
       </GizmoHelper>
       <ambientLight />
-      <Stats showPanel={0} />
+      <Stats showPanel={isDev ? 0 : 4} />
       <Environment files={bankHDR.skyDay} background />
       <Boxes />
       <Vehicle />
