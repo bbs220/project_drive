@@ -1,4 +1,3 @@
-// import required types and hooks
 import type { DynamicRayCastVehicleController } from "@dimforge/rapier3d-compat";
 import {
   type RapierRigidBody,
