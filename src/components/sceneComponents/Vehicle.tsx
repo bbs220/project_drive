@@ -140,16 +140,18 @@ export const Vehicle = () => {
 
         {/* render visual wheels as children of chassis */}
         {wheelsInfo.map((info, index) => (
-          <mesh
+          <group
             key={index}
             position={[info.position.x, info.position.y, info.position.z]}
-            geometry={wheelGeo}
             ref={(el) => {
               if (el) wheelsRef.current[index] = el;
             }}
           >
-            <meshStandardMaterial color="yellow" wireframe />
-          </mesh>
+            {/* base wheel geometry */}
+            <mesh geometry={wheelGeo}>
+              <meshStandardMaterial color="red" wireframe />
+            </mesh>
+          </group>
         ))}
       </RigidBody>
     </group>
