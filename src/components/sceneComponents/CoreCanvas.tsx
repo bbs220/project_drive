@@ -14,6 +14,7 @@ import { bankHDR } from "../../utils/assetpaths";
 import Ground from "./Ground";
 import VehicleCar from "./VehicleCar";
 import Boxes from "./Boxes";
+import AllVehiclesHUD from "./AllVehiclesHUD";
 
 const CoreScene = () => {
   const isDev = import.meta.env.DEV;
@@ -45,11 +46,14 @@ const CoreCanvas = () => {
   });
 
   return (
-    <Canvas shadows={"variance"} dpr={setDpr}>
-      <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>
-        <CoreScene />
-      </Physics>
-    </Canvas>
+    <>
+      <Canvas shadows={"variance"} dpr={setDpr}>
+        <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>
+          <CoreScene />
+        </Physics>
+      </Canvas>
+      <AllVehiclesHUD />
+    </>
   );
 };
 
