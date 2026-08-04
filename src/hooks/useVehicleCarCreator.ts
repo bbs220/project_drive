@@ -8,6 +8,7 @@ import {
 import { type RefObject, useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { VehicleCarControls } from "./useVehicleCarInput";
+import { useCarStore } from "../stores/useCarStore";
 
 // define up vector
 const up = new THREE.Vector3(0, 1, 0);
@@ -202,6 +203,15 @@ export const useVehicleCarCreator = (
       chassisQuat,
     );
     const forwardSpeed = velocity.dot(forwardVector);
+
+    // calculate two dimensional ground speed ignoring vertical falling
+    const groundSpeedMs = Math.sqrt(linvel.x * linvel.x + linvel.z * linvel.z);
+
+    // convert meters per second to kilometers per hour
+    const speedKmh = Math.round(groundSpeedMs * 3.6);
+
+    // update global state store with current speed
+    useCarStore.setState({ speed: speedKmh });
 
     // iterate through wheels to sync visual meshes
     for (const [index, wheel] of wheels.entries()) {

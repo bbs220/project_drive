@@ -1,3 +1,5 @@
+import { useCarStore } from "../../stores/useCarStore";
+
 const AllVehiclesControlsDisplay = () => {
   return (
     <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap border-t border-white/10 bg-black/60 px-6 py-2 font-mono text-[10px] text-white/60 backdrop-blur-md sm:text-xs">
@@ -20,6 +22,12 @@ const AllVehiclesControlsDisplay = () => {
 
 // main heads up display wrapper
 const AllVehiclesHUD = () => {
+  // subscribe to speed value from global store
+  const currentSpeed = useCarStore((state) => state.speed);
+
+  // pad speed with leading zeros for arcade styling
+  const displaySpeed = String(currentSpeed).padStart(3, "0");
+
   return (
     // full screen non interactive overlay
     <div className="pointer-events-none absolute inset-0 z-10 font-sans">
@@ -27,8 +35,10 @@ const AllVehiclesHUD = () => {
       <AllVehiclesControlsDisplay />
       {/* // inline speedometer */}
       <div className="absolute bottom-6 right-6 flex items-baseline drop-shadow-md text-white">
-        {/* // speed value placeholder */}
-        <span className="text-6xl font-black italic tracking-tighter">000</span>
+        {/* // inject live padded speed value */}
+        <span className="text-6xl font-black italic tracking-tighter">
+          {displaySpeed}
+        </span>
         {/* // speed unit */}
         <span className="ml-2 text-xl font-bold text-gray-300">KM/H</span>
       </div>
