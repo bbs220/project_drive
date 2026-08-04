@@ -30,6 +30,13 @@ const CoreScene = () => {
   );
   const carRef = useRef<THREE.Mesh>(null);
 
+  const { cameraDebug } = useTweakpane(
+    { title: "☀️ Scene" },
+    {
+      cameraDebug: { value: false, label: "Camera Debug" },
+    },
+  );
+
   return (
     <>
       <PerspectiveCamera
@@ -43,7 +50,7 @@ const CoreScene = () => {
       <ambientLight />
       <Stats showPanel={isDev ? 0 : 4} />
       <Environment files={bankHDR.skyDay} background />
-      <CameraRig targetRef={carRef} debugMode={true} />
+      <CameraRig targetRef={carRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} />
       <Terrain params={terrainParams} />
       <City terrainParams={terrainParams} />
@@ -52,10 +59,13 @@ const CoreScene = () => {
 };
 
 const CoreCanvas = () => {
-  const { setDpr, setPhyDebug } = useTweakpane({
-    setDpr: { value: 1, min: 0.1, max: 1, label: "Resolution" },
-    setPhyDebug: { value: false, label: "Physics Debug" },
-  });
+  const { setDpr, setPhyDebug } = useTweakpane(
+    { title: "☀️ Scene", expanded: true },
+    {
+      setDpr: { value: 1, min: 0.1, max: 1, label: "Resolution" },
+      setPhyDebug: { value: false, label: "Physics Debug" },
+    },
+  );
 
   return (
     <>
