@@ -31,8 +31,14 @@ export const vehiclePlaneConstants = {};
 export const vehicleHelicopterConstants = {};
 
 export const terrainConstants = {
-  size: { value: 300, min: 50, max: 1000, label: "size" },
-  resolution: { value: 64, min: 16, max: 256, step: 1, label: "resolution" },
+  size: { value: 300, min: 50, max: 1000, label: "terrain size" },
+  resolution: {
+    value: 64,
+    min: 16,
+    max: 256,
+    step: 1,
+    label: "noise resolution",
+  },
   noiseScale: { value: 0.01, min: 0.01, max: 1, label: "noise scale" },
   noiseHeight: { value: 2, min: 0.01, max: 30, label: "noise height" },
 };

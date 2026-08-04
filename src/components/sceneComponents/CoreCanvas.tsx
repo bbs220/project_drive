@@ -62,7 +62,13 @@ const CoreCanvas = () => {
   const { setDpr, setPhyDebug } = useTweakpane(
     { title: "☀️ Scene", expanded: true },
     {
-      setDpr: { value: 1, min: 0.1, max: 1, label: "Resolution" },
+      setDpr: {
+        value: 1,
+        min: 0.1,
+        max: 1,
+        step: 0.1,
+        label: "Viewport Resolution",
+      },
       setPhyDebug: { value: false, label: "Physics Debug" },
     },
   );
