@@ -23,7 +23,7 @@ type HelicopterTelemetry = {
   collective: number;
 };
 
-// define strict global state interface
+// define strict global state
 type VehicleState = {
   // track active control
   activeControl: ControlState;

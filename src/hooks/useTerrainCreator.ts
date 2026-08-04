@@ -6,12 +6,12 @@ import { createNoise2D } from "simplex-noise";
 export const generateTerrainNoise = createNoise2D();
 
 // define terrain hook parameters
-export interface TerrainParams {
+export type TerrainParams = {
   size: number;
   resolution: number;
   noiseScale: number;
   noiseHeight: number;
-}
+};
 
 // export terrain generator hook
 export const useTerrainCreator = (params: TerrainParams) => {

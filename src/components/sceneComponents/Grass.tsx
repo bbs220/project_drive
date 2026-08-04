@@ -13,10 +13,10 @@ import { grassConstants } from "../../constants/sceneConstants";
 // dummy object to calculate matrix math outside the render loop
 const dummy = new THREE.Object3D();
 
-// define props interface
-interface GrassProps {
+// define props
+type GrassProps = {
   params: TerrainParams;
-}
+};
 
 const Grass = ({ params }: GrassProps) => {
   // initialize refs for mesh and material

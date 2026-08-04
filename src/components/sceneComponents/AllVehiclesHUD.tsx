@@ -39,7 +39,7 @@ const AllVehiclesHUD = () => {
   return (
     // full screen non interactive overlay
     <div className="pointer-events-none absolute inset-0 z-10 font-sans">
-      {/* // only render car interface if player is actively driving */}
+      {/* // only render car display if player is actively driving */}
       {activeControl === "car" && (
         <>
           {/* // dynamic vehicle controls */}

@@ -1,16 +1,15 @@
 import { RigidBody } from "@react-three/rapier";
-import { useTweakpane } from "../../hooks/useTweakpane";
-import { useTerrainCreator } from "../../hooks/useTerrainCreator";
+import {
+  useTerrainCreator,
+  type TerrainParams,
+} from "../../hooks/useTerrainCreator";
 import Grass from "./Grass";
-import { terrainConstants } from "../../constants/sceneConstants";
 
-const Terrain = () => {
-  // initialize tweakpane hook for live tuning
-  const params = useTweakpane(
-    { title: "🏞️ Terrain Tuning", expanded: false },
-    terrainConstants,
-  );
+type TerrainProps = {
+  params: TerrainParams;
+};
 
+const Terrain = ({ params }: TerrainProps) => {
   // generate procedural geometry via custom hook
   const { geometry } = useTerrainCreator(params);
 

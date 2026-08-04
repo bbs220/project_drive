@@ -17,7 +17,7 @@ const up = new THREE.Vector3(0, 1, 0);
 const _wheelSteeringQuat = new THREE.Quaternion();
 const _wheelRotationQuat = new THREE.Quaternion();
 
-// define wheel info interface
+// define wheel info
 export type WheelInfo = {
   axleCs: THREE.Vector3;
   suspensionRestLength: number;

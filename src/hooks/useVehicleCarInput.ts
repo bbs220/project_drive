@@ -1,15 +1,15 @@
 // import required react hooks
 import { useEffect, useRef } from "react";
 
-// define control state interface
-export interface VehicleCarControls {
+// define control state
+export type VehicleCarControls = {
   forward: boolean;
   backward: boolean;
   left: boolean;
   right: boolean;
   brake: boolean;
   boost: boolean;
-}
+};
 
 // export default hook
 export const useVehicleCarInput = () => {

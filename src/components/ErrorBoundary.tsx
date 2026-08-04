@@ -1,15 +1,14 @@
-// import required react dependencies
 import { Component, type ErrorInfo, type ReactNode } from "react";
 
-// define props interface
-interface Props {
+// define props
+type Props = {
   children?: ReactNode;
-}
+};
 
-// define state interface
-interface State {
+// define state
+type State = {
   hasError: boolean;
-}
+};
 
 // create standard error boundary class
 class ErrorBoundary extends Component<Props, State> {

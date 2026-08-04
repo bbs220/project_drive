@@ -21,7 +21,7 @@ const WelcomePage = () => {
             {`// Drive //`}
           </span>
 
-          {/* Tech UI Decal: A small square in the corner for that Designer's Republic interface feel */}
+          {/* Tech UI Decal: A small square in the corner for that Designer's Republic feel */}
           <span className="absolute right-3 top-3 w-1.5 h-1.5 bg-zinc-600 group-hover:bg-zinc-950 transition-colors duration-500 z-20"></span>
         </button>
       </Link>
