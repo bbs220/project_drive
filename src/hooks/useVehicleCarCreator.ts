@@ -8,7 +8,7 @@ import {
 import { type RefObject, useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { VehicleCarControls } from "./useVehicleCarInput";
-import { useCarStore } from "../stores/useVehicleStore";
+import { useVehicleStore } from "../stores/useVehicleStore";
 
 // define up vector
 const up = new THREE.Vector3(0, 1, 0);
@@ -106,8 +106,23 @@ export const useVehicleCarCreator = (
       return;
 
     const controller = vehicleCarCreator.current;
-    const controls = controlsRef.current;
     const chassis = chassisRef.current;
+
+    // check global store to see if player is actively controlling the car
+    const { activeControl } = useVehicleStore.getState();
+
+    // intercept controls to apply parking brake and ignore inputs if player is in another vehicle
+    const controls =
+      activeControl === "car"
+        ? controlsRef.current
+        : {
+            forward: false,
+            backward: false,
+            left: false,
+            right: false,
+            brake: true,
+            boost: false,
+          };
 
     // extract current rotation quaternion
     const rot = chassis.rotation();
@@ -117,7 +132,7 @@ export const useVehicleCarCreator = (
     const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(chassisQuat);
     const isFlipped = localUp.y < 0.2;
 
-    // handle gta style mid air flip recovery
+    // handle mid air flip recovery
     if (isFlipped) {
       // zero out engine and steering to prevent weird wheel behavior while flipped
       controller.setWheelEngineForce(2, 0);
@@ -210,8 +225,10 @@ export const useVehicleCarCreator = (
     // convert meters per second to kilometers per hour
     const speedKmh = Math.round(groundSpeedMs * 3.6);
 
-    // update global state store with current speed
-    useCarStore.setState({ speed: speedKmh });
+    // only update global state if car is actively being driven to save performance
+    if (activeControl === "car") {
+      useVehicleStore.getState().setCarTelemetry({ speed: speedKmh });
+    }
 
     // iterate through wheels to sync visual meshes
     for (const [index, wheel] of wheels.entries()) {

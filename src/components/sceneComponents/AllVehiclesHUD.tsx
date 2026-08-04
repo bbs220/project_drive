@@ -1,4 +1,4 @@
-import { useCarStore } from "../../stores/useVehicleStore";
+import { useVehicleStore } from "../../stores/useVehicleStore";
 
 // display minimal car controls
 const AllVehiclesControlsDisplay = () => {
@@ -27,8 +27,11 @@ const AllVehiclesControlsDisplay = () => {
 
 // main heads up display wrapper
 const AllVehiclesHUD = () => {
-  // subscribe to speed value from global store
-  const currentSpeed = useCarStore((state) => state.speed);
+  // subscribe to active control state to conditionally render ui
+  const activeControl = useVehicleStore((state) => state.activeControl);
+
+  // subscribe to strict car telemetry speed from global store
+  const currentSpeed = useVehicleStore((state) => state.carTelemetry.speed);
 
   // pad speed string for arcade styling
   const displaySpeed = String(currentSpeed).padStart(3, "0");
@@ -36,17 +39,22 @@ const AllVehiclesHUD = () => {
   return (
     // full screen non interactive overlay
     <div className="pointer-events-none absolute inset-0 z-10 font-sans">
-      {/* // dynamic vehicle controls will swap here based on active vehicle */}
-      <AllVehiclesControlsDisplay />
-      {/* // inline speedometer */}
-      <div className="absolute bottom-6 right-6 flex items-baseline drop-shadow-md text-white">
-        {/* // inject live padded speed value with tabular mono font to prevent jumping */}
-        <span className="font-mono text-6xl font-black italic tabular-nums tracking-tighter">
-          {displaySpeed}
-        </span>
-        {/* // speed unit */}
-        <span className="ml-2 text-xl font-bold text-gray-300">KM/H</span>
-      </div>
+      {/* // only render car interface if player is actively driving */}
+      {activeControl === "car" && (
+        <>
+          {/* // dynamic vehicle controls */}
+          <AllVehiclesControlsDisplay />
+          {/* // inline speedometer */}
+          <div className="absolute bottom-6 right-6 flex items-baseline drop-shadow-md text-white">
+            {/* // inject live padded speed value with tabular mono font to prevent jumping */}
+            <span className="font-mono text-6xl font-black italic tabular-nums tracking-tighter">
+              {displaySpeed}
+            </span>
+            {/* // speed unit */}
+            <span className="ml-2 text-xl font-bold text-gray-300">KM/H</span>
+          </div>
+        </>
+      )}
     </div>
   );
 };

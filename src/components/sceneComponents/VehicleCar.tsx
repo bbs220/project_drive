@@ -13,7 +13,7 @@ import {
 } from "../../hooks/useVehicleCarCreator";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import CameraRig from "./CameraRig";
-import { vehicleConstants } from "../../constants/sceneConstants";
+import { vehicleCarConstants } from "../../constants/sceneConstants";
 
 // helper function to completely reset vehicle physics state
 const respawnVehicle = (chassis: RapierRigidBody) => {
@@ -44,7 +44,7 @@ export const VehicleCar = () => {
   const controlsRef = useVehicleCarInput();
 
   // initialize tweakpane hook using extracted constants
-  const params = useTweakpane("Vehicle Tuning: 🚗 Car", vehicleConstants);
+  const params = useTweakpane("Vehicle Tuning: 🚗 Car", vehicleCarConstants);
 
   // recalculate wheels dynamically when tweakpane values change
   const wheelsInfo = useMemo<WheelInfo[]>(() => {
