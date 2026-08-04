@@ -1,3 +1,4 @@
+// import required types and hooks
 import type { DynamicRayCastVehicleController } from "@dimforge/rapier3d-compat";
 import {
   type RapierRigidBody,
@@ -30,6 +31,7 @@ export type WheelInfo = {
 // define controller tuning parameters
 export type ControllerTuning = {
   engineForce: number;
+  boostMultiplier: number;
   brakeForce: number;
   steeringAngle: number;
   flipImpulse: number;
@@ -145,9 +147,12 @@ export const useVehicleCreator = (
     } else {
       // normal driving physics when wheels are down
 
-      // calculate applied engine force
+      // calculate boost multiplier using live tuning value
+      const boostMultiplier = controls.boost ? tuning.boostMultiplier : 1;
+
+      // calculate applied engine force with boost only on forward acceleration
       const currentEngineForce = controls.forward
-        ? tuning.engineForce
+        ? tuning.engineForce * boostMultiplier
         : controls.backward
           ? -tuning.engineForce
           : 0;

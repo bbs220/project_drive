@@ -3,3 +3,9 @@
 @theme {
   --font-inter: "Inter", sans-serif;
 }
+
+:root {
+  .tp-dfwv {
+    width: 340px !important;
+  }
+}
