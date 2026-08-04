@@ -6,11 +6,11 @@ import {
   CuboidCollider,
   type RapierRigidBody,
 } from "@react-three/rapier";
-import { useVehicleInput } from "../../hooks/useVehicleInput";
+import { useVehicleCarInput } from "../../hooks/useVehicleCarInput";
 import {
-  useVehicleCreator,
+  useVehicleCarCreator,
   type WheelInfo,
-} from "../../hooks/useVehicleCreator";
+} from "../../hooks/useVehicleCarCreator";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import CameraRig from "./CameraRig";
 import { vehicleConstants } from "../../constants/sceneConstants";
@@ -30,7 +30,7 @@ const respawnVehicle = (chassis: RapierRigidBody) => {
   chassis.setAngvel({ x: 0, y: 0, z: 0 }, true);
 };
 
-export const Vehicle = () => {
+export const VehicleCar = () => {
   // ref for the main chassis rigid body
   const chassisRef = useRef<RapierRigidBody>(null);
 
@@ -41,7 +41,7 @@ export const Vehicle = () => {
   const wheelsRef = useRef<THREE.Object3D[]>([]);
 
   // get current vehicle inputs
-  const controlsRef = useVehicleInput();
+  const controlsRef = useVehicleCarInput();
 
   // initialize tweakpane hook using extracted constants
   const params = useTweakpane("🚗 Vehicle Tuning", vehicleConstants);
@@ -80,7 +80,7 @@ export const Vehicle = () => {
   ]);
 
   // initialize the vehicle controller hook with tuning params
-  useVehicleCreator(chassisRef, wheelsRef, wheelsInfo, controlsRef, params);
+  useVehicleCarCreator(chassisRef, wheelsRef, wheelsInfo, controlsRef, params);
 
   // precompute wheel geometry
   const wheelGeo = useMemo(() => {
@@ -158,4 +158,4 @@ export const Vehicle = () => {
   );
 };
 
-export default Vehicle;
+export default VehicleCar;

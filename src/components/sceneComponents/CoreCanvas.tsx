@@ -12,7 +12,7 @@ import { sceneConstants } from "../../constants/sceneConstants";
 import { physcConstants } from "../../constants/physcConstants";
 import { bankHDR } from "../../utils/assetpaths";
 import Ground from "./Ground";
-import Vehicle from "./Vehicle";
+import VehicleCar from "./VehicleCar";
 import Boxes from "./Boxes";
 
 const CoreScene = () => {
@@ -32,7 +32,7 @@ const CoreScene = () => {
       <Stats showPanel={isDev ? 0 : 4} />
       <Environment files={bankHDR.skyDay} background />
       <Boxes />
-      <Vehicle />
+      <VehicleCar />
       <Ground />
     </>
   );

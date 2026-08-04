@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 
 // define control state interface
-export interface VehicleControls {
+export interface VehicleCarControls {
   forward: boolean;
   backward: boolean;
   left: boolean;
@@ -12,9 +12,9 @@ export interface VehicleControls {
 }
 
 // export default hook
-export const useVehicleInput = () => {
+export const useVehicleCarInput = () => {
   // ref to hold current inputs without triggering rerenders
-  const vehicleInputControls = useRef<VehicleControls>({
+  const vehicleInputControls = useRef<VehicleCarControls>({
     forward: false,
     backward: false,
     left: false,

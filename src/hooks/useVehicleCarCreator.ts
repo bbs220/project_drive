@@ -7,7 +7,7 @@ import {
 } from "@react-three/rapier";
 import { type RefObject, useEffect, useRef } from "react";
 import * as THREE from "three";
-import type { VehicleControls } from "./useVehicleInput";
+import type { VehicleCarControls } from "./useVehicleCarInput";
 
 // define up vector
 const up = new THREE.Vector3(0, 1, 0);
@@ -38,18 +38,20 @@ export type ControllerTuning = {
 };
 
 // define vehicle controller hook
-export const useVehicleCreator = (
+export const useVehicleCarCreator = (
   chassisRef: RefObject<RapierRigidBody | null>,
   wheelsRef: RefObject<THREE.Object3D[]>,
   wheelsInfo: WheelInfo[],
-  controlsRef: RefObject<VehicleControls>,
+  controlsRef: RefObject<VehicleCarControls>,
   tuning: ControllerTuning,
 ) => {
   // get rapier world
   const { world } = useRapier();
 
   // initialize vehicle controller ref
-  const vehicleCreator = useRef<DynamicRayCastVehicleController | null>(null);
+  const vehicleCarCreator = useRef<DynamicRayCastVehicleController | null>(
+    null,
+  );
 
   // initialize ref to store manually calculated wheel rotations
   const manualWheelRotations = useRef([0, 0, 0, 0]);
@@ -84,21 +86,25 @@ export const useVehicleCreator = (
     }
 
     // assign to ref
-    vehicleCreator.current = vehicle;
+    vehicleCarCreator.current = vehicle;
 
     // cleanup on unmount
     return () => {
-      vehicleCreator.current = null;
+      vehicleCarCreator.current = null;
       world.removeVehicleController(vehicle);
     };
   }, [chassisRef, wheelsInfo, wheelsRef, world]);
 
   // handle physics step updates
   useAfterPhysicsStep((world) => {
-    if (!vehicleCreator.current || !controlsRef.current || !chassisRef.current)
+    if (
+      !vehicleCarCreator.current ||
+      !controlsRef.current ||
+      !chassisRef.current
+    )
       return;
 
-    const controller = vehicleCreator.current;
+    const controller = vehicleCarCreator.current;
     const controls = controlsRef.current;
     const chassis = chassisRef.current;
 
@@ -237,6 +243,6 @@ export const useVehicleCreator = (
   });
 
   return {
-    vehicleCreator,
+    vehicleCarCreator,
   };
 };
