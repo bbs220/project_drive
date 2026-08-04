@@ -2,8 +2,11 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { createNoise2D } from "simplex-noise";
 
+// create a singleton noise generator so grass and terrain always match perfectly
+export const generateTerrainNoise = createNoise2D();
+
 // define terrain hook parameters
-interface TerrainParams {
+export interface TerrainParams {
   size: number;
   resolution: number;
   noiseScale: number;
@@ -13,9 +16,6 @@ interface TerrainParams {
 // export terrain generator hook
 export const useTerrainCreator = (params: TerrainParams) => {
   return useMemo(() => {
-    // initialize simplex noise generator
-    const generateNoise = createNoise2D();
-
     // create base plane geometry
     const geometry = new THREE.PlaneGeometry(
       params.size,
@@ -35,9 +35,9 @@ export const useTerrainCreator = (params: TerrainParams) => {
       const x = positions[i];
       const z = positions[i + 2];
 
-      // calculate smooth elevation using simplex noise
+      // calculate smooth elevation using shared singleton noise
       const y =
-        generateNoise(x * params.noiseScale, z * params.noiseScale) *
+        generateTerrainNoise(x * params.noiseScale, z * params.noiseScale) *
         params.noiseHeight;
 
       // apply height to vertical axis

@@ -36,3 +36,15 @@ export const terrainConstants = {
   noiseScale: { value: 0.01, min: 0.01, max: 1, label: "noise scale" },
   noiseHeight: { value: 2, min: 0.01, max: 30, label: "noise height" },
 };
+
+export const grassConstants = {
+  grassCount: {
+    value: 20000,
+    min: 1000,
+    max: 500000,
+    step: 1000,
+    label: "grass count",
+  },
+  baseColor: { value: "#06402B", label: "base color" },
+  tipColor: { value: "#98a869", label: "tip color" },
+};
