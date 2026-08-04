@@ -11,10 +11,10 @@ import {
 import { sceneConstants } from "../../constants/sceneConstants";
 import { physcConstants } from "../../constants/physcConstants";
 import { bankHDR } from "../../utils/assetpaths";
-import Ground from "./Ground";
 import VehicleCar from "./VehicleCar";
 import Boxes from "./Boxes";
 import AllVehiclesHUD from "./AllVehiclesHUD";
+import Terrain from "./Terrain";
 
 const CoreScene = () => {
   const isDev = import.meta.env.DEV;
@@ -34,7 +34,7 @@ const CoreScene = () => {
       <Environment files={bankHDR.skyDay} background />
       <Boxes />
       <VehicleCar />
-      <Ground />
+      <Terrain />
     </>
   );
 };
