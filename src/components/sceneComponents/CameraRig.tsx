@@ -4,22 +4,23 @@ import { OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 
-// define props interface
-interface CameraRigProps {
+// define props with optional debug flag
+type CameraRigProps = {
   targetRef: React.RefObject<THREE.Mesh | null>;
-}
+  debugMode?: boolean;
+};
 
 // preallocate vector to avoid garbage collection
 const targetPosition = new THREE.Vector3();
 
-const CameraRig = ({ targetRef }: CameraRigProps) => {
+const CameraRig = ({ targetRef, debugMode = false }: CameraRigProps) => {
   // create a reference to the orbit controls instance
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
   // sync camera target to visual mesh every frame
   useFrame(() => {
-    // exit early if refs are not mounted
-    if (!targetRef.current || !controlsRef.current) return;
+    // exit early if debug mode is active or refs are missing
+    if (debugMode || !targetRef.current || !controlsRef.current) return;
 
     // extract interpolated world position from visual mesh
     targetRef.current.getWorldPosition(targetPosition);
@@ -36,8 +37,9 @@ const CameraRig = ({ targetRef }: CameraRigProps) => {
     <OrbitControls
       ref={controlsRef}
       makeDefault
-      maxDistance={8}
-      maxPolarAngle={1.3}
+      // remove constraints when debugging to allow free roaming
+      maxDistance={debugMode ? Infinity : 8}
+      maxPolarAngle={debugMode ? Math.PI : 1.3}
     />
   );
 };

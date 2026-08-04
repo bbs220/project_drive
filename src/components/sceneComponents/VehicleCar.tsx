@@ -1,4 +1,4 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, forwardRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import {
@@ -12,7 +12,6 @@ import {
   type WheelInfo,
 } from "../../hooks/useVehicleCarCreator";
 import { useTweakpane } from "../../hooks/useTweakpane";
-import CameraRig from "./CameraRig";
 import { vehicleCarConstants } from "../../constants/sceneConstants";
 
 // helper function to completely reset vehicle physics state
@@ -30,12 +29,10 @@ const respawnVehicle = (chassis: RapierRigidBody) => {
   chassis.setAngvel({ x: 0, y: 0, z: 0 }, true);
 };
 
-export const VehicleCar = () => {
+// wrap component in forward ref to expose visual mesh to parent
+export const VehicleCar = forwardRef<THREE.Mesh>((_props, ref) => {
   // ref for the main chassis rigid body
   const chassisRef = useRef<RapierRigidBody>(null);
-
-  // create ref for visual mesh to enable interpolated camera tracking
-  const chassisVisualRef = useRef<THREE.Mesh>(null);
 
   // ref array for the visual wheel meshes
   const wheelsRef = useRef<THREE.Object3D[]>([]);
@@ -110,8 +107,6 @@ export const VehicleCar = () => {
 
   return (
     <group>
-      <CameraRig targetRef={chassisVisualRef} />
-
       {/* lift spawn height and disable auto colliders */}
       <RigidBody
         position={[0, 5, 0]}
@@ -129,8 +124,8 @@ export const VehicleCar = () => {
           ]}
         />
 
-        {/* chassis visual mesh */}
-        <mesh ref={chassisVisualRef}>
+        {/* attach forwarded ref directly to chassis visual mesh */}
+        <mesh ref={ref}>
           <boxGeometry
             args={[
               params.chassisWidth,
@@ -159,6 +154,9 @@ export const VehicleCar = () => {
       </RigidBody>
     </group>
   );
-};
+});
+
+// assign display name for react devtools compatibility
+VehicleCar.displayName = "VehicleCar";
 
 export default VehicleCar;

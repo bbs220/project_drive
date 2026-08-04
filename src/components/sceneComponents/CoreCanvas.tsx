@@ -1,6 +1,3 @@
-import { Canvas } from "@react-three/fiber";
-import { Physics } from "@react-three/rapier";
-import { useTweakpane } from "../../hooks/useTweakpane";
 import {
   Environment,
   GizmoHelper,
@@ -8,15 +5,30 @@ import {
   PerspectiveCamera,
   Stats,
 } from "@react-three/drei";
-import { sceneConstants } from "../../constants/sceneConstants";
+import { Canvas } from "@react-three/fiber";
+import { Physics } from "@react-three/rapier";
+import { useRef } from "react";
+import * as THREE from "three";
 import { physcConstants } from "../../constants/physcConstants";
+import {
+  sceneConstants,
+  terrainConstants,
+} from "../../constants/sceneConstants";
+import { useTweakpane } from "../../hooks/useTweakpane";
 import { bankHDR } from "../../utils/assetpaths";
-import VehicleCar from "./VehicleCar";
 import AllVehiclesHUD from "./AllVehiclesHUD";
+import CameraRig from "./CameraRig";
+import City from "./City";
 import Terrain from "./Terrain";
+import VehicleCar from "./VehicleCar";
 
 const CoreScene = () => {
   const isDev = import.meta.env.DEV;
+  const terrainParams = useTweakpane(
+    { title: "🏞️ Terrain Tuning", expanded: false },
+    terrainConstants,
+  );
+  const carRef = useRef<THREE.Mesh>(null);
 
   return (
     <>
@@ -31,8 +43,10 @@ const CoreScene = () => {
       <ambientLight />
       <Stats showPanel={isDev ? 0 : 4} />
       <Environment files={bankHDR.skyDay} background />
-      <VehicleCar />
-      <Terrain />
+      <CameraRig targetRef={carRef} debugMode={true} />
+      <VehicleCar ref={carRef} />
+      <Terrain params={terrainParams} />
+      <City terrainParams={terrainParams} />
     </>
   );
 };
