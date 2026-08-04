@@ -1,4 +1,4 @@
-import { useCarStore } from "../../stores/useCarStore";
+import { useCarStore } from "../../stores/useVehicleStore";
 
 // display minimal car controls
 const AllVehiclesControlsDisplay = () => {

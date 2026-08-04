@@ -8,7 +8,7 @@ import {
 import { type RefObject, useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { VehicleCarControls } from "./useVehicleCarInput";
-import { useCarStore } from "../stores/useCarStore";
+import { useCarStore } from "../stores/useVehicleStore";
 
 // define up vector
 const up = new THREE.Vector3(0, 1, 0);
