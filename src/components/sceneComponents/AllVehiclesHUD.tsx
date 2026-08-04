@@ -1,5 +1,6 @@
 import { useCarStore } from "../../stores/useCarStore";
 
+// display minimal car controls
 const AllVehiclesControlsDisplay = () => {
   return (
     <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap border-t border-white/10 bg-black/60 px-6 py-2 font-mono text-[10px] text-white/60 backdrop-blur-md sm:text-xs">
@@ -15,6 +16,10 @@ const AllVehiclesControlsDisplay = () => {
         <span>
           <strong className="text-white">SHIFT</strong> boost
         </span>
+        <span className="h-1 w-1 bg-white/20"></span>
+        <span>
+          <strong className="text-white">AD</strong> roll
+        </span>
       </div>
     </div>
   );
@@ -25,7 +30,7 @@ const AllVehiclesHUD = () => {
   // subscribe to speed value from global store
   const currentSpeed = useCarStore((state) => state.speed);
 
-  // pad speed with leading zeros for arcade styling
+  // pad speed string for arcade styling
   const displaySpeed = String(currentSpeed).padStart(3, "0");
 
   return (
@@ -35,8 +40,8 @@ const AllVehiclesHUD = () => {
       <AllVehiclesControlsDisplay />
       {/* // inline speedometer */}
       <div className="absolute bottom-6 right-6 flex items-baseline drop-shadow-md text-white">
-        {/* // inject live padded speed value */}
-        <span className="text-6xl font-black italic tracking-tighter">
+        {/* // inject live padded speed value with tabular mono font to prevent jumping */}
+        <span className="font-mono text-6xl font-black italic tabular-nums tracking-tighter">
           {displaySpeed}
         </span>
         {/* // speed unit */}
