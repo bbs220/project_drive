@@ -2,6 +2,14 @@ export const sceneConstants = {
   fov: 60,
 };
 
+export const vehicleRespawnLimit = -50;
+
+export const vehicleRespawnPos = {
+  car: [0, 5, 0] as [number, number, number],
+  plane: [10, 5, 0] as [number, number, number],
+  helicopter: [-10, 5, 0] as [number, number, number],
+};
+
 export const vehicleCarConstants = {
   chassisWidth: { value: 1.6, min: 0.5, max: 3, label: "width" },
   chassisHeight: { value: 0.8, min: 0.2, max: 2, label: "height" },
@@ -29,8 +37,3 @@ export const vehicleCarConstants = {
 export const vehiclePlaneConstants = {};
 
 export const vehicleHelicopterConstants = {};
-
-export const cityConstants = {
-  maxStories: { value: 10, min: 10, max: 100, step: 1, label: "max stories" },
-  density: { value: 0.8, min: 0.1, max: 1.0, step: 0.1, label: "density" },
-};

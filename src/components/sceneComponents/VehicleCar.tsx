@@ -1,33 +1,23 @@
-import { useRef, useMemo, forwardRef } from "react";
-import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import {
-  RigidBody,
   CuboidCollider,
+  RigidBody,
   type RapierRigidBody,
 } from "@react-three/rapier";
-import { useVehicleCarInput } from "../../hooks/useVehicleCarInput";
+import { forwardRef, useMemo, useRef } from "react";
+import * as THREE from "three";
+import {
+  vehicleRespawnLimit,
+  vehicleCarConstants,
+  vehicleRespawnPos,
+} from "../../constants/otherConstants";
+import { useTweakpane } from "../../hooks/useTweakpane";
 import {
   useVehicleCarCreator,
   type WheelInfo,
 } from "../../hooks/useVehicleCarCreator";
-import { useTweakpane } from "../../hooks/useTweakpane";
-import { vehicleCarConstants } from "../../constants/otherConstants";
-
-// helper function to completely reset vehicle physics state
-const respawnVehicle = (chassis: RapierRigidBody) => {
-  // reset position to origin height
-  chassis.setTranslation({ x: 0, y: 5, z: 0 }, true);
-
-  // reset rotation to default identity quaternion
-  chassis.setRotation({ x: 0, y: 0, z: 0, w: 1 }, true);
-
-  // zero out linear momentum
-  chassis.setLinvel({ x: 0, y: 0, z: 0 }, true);
-
-  // zero out angular momentum
-  chassis.setAngvel({ x: 0, y: 0, z: 0 }, true);
-};
+import { useVehicleCarInput } from "../../hooks/useVehicleCarInput";
+import respawnVehicle from "../../utils/respawnVehicle";
 
 // wrap component in forward ref to expose visual mesh to parent
 export const VehicleCar = forwardRef<THREE.Mesh>((_props, ref) => {
@@ -99,9 +89,14 @@ export const VehicleCar = forwardRef<THREE.Mesh>((_props, ref) => {
     if (!chassisRef.current) return;
 
     // check if vehicle has fallen below bounds
-    if (chassisRef.current.translation().y < -50) {
+    if (chassisRef.current.translation().y < vehicleRespawnLimit) {
       // trigger extracted respawn function
-      respawnVehicle(chassisRef.current);
+      respawnVehicle({
+        vehicleBody: chassisRef.current,
+        x: vehicleRespawnPos.car[0],
+        y: vehicleRespawnPos.car[1],
+        z: vehicleRespawnPos.car[2],
+      });
     }
   });
 
@@ -109,7 +104,7 @@ export const VehicleCar = forwardRef<THREE.Mesh>((_props, ref) => {
     <group>
       {/* lift spawn height and disable auto colliders */}
       <RigidBody
-        position={[0, 5, 0]}
+        position={vehicleRespawnPos.car}
         ref={chassisRef}
         colliders={false}
         mass={params.mass}
@@ -147,7 +142,7 @@ export const VehicleCar = forwardRef<THREE.Mesh>((_props, ref) => {
           >
             {/* base wheel geometry */}
             <mesh geometry={wheelGeo}>
-              <meshStandardMaterial color="red" wireframe />
+              <meshStandardMaterial color="yellow" wireframe />
             </mesh>
           </group>
         ))}
