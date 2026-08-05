@@ -39,7 +39,7 @@ const CameraRig = ({ targetRef, debugMode = false }: CameraRigProps) => {
       makeDefault
       // remove constraints when debugging to allow free roaming
       maxDistance={debugMode ? Infinity : 8}
-      minDistance={debugMode ? Infinity : 6}
+      minDistance={debugMode ? 0 : 6}
       maxPolarAngle={debugMode ? Math.PI : 1.3}
     />
   );

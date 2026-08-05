@@ -39,6 +39,7 @@ const VehicleHelicopter = forwardRef<THREE.Mesh>((_props, ref) => {
       friction={0}
       position={vehicleRespawnPos.helicopter}
       type={"dynamic"}
+      canSleep={false}
     >
       <group>
         <mesh ref={ref}>

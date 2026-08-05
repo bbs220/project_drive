@@ -66,7 +66,6 @@ const CoreScene = () => {
   // sync dropdown state to global store
   useEffect(() => {
     setActiveControl(activeVehicle as ControlState);
-    console.log(activeVehicle);
   }, [activeVehicle, setActiveControl]);
 
   return (

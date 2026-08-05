@@ -109,6 +109,7 @@ export const VehicleCar = forwardRef<THREE.Mesh>((_props, ref) => {
         colliders={false}
         mass={params.mass}
         friction={0}
+        canSleep={false}
       >
         {/* explicit chassis collider to exclude wheels */}
         <CuboidCollider
