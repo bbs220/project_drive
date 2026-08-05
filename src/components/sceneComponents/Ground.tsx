@@ -5,9 +5,9 @@ import { useLoader } from "@react-three/fiber";
 import { useMemo } from "react";
 
 const groundDim = {
-  width: 100,
+  width: 250,
   height: 0.1,
-  depth: 100,
+  depth: 250,
 };
 
 const Ground = () => {
@@ -41,4 +41,5 @@ const Ground = () => {
     </RigidBody>
   );
 };
+
 export default Ground;

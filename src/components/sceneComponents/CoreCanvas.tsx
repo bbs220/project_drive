@@ -17,10 +17,15 @@ import AllVehiclesHUD from "./AllVehiclesHUD";
 import CameraRig from "./CameraRig";
 import City from "./City";
 import VehicleCar from "./VehicleCar";
+import Ground from "./Ground";
+import VehicleHelicopter from "./VehicleHelicopter";
+import VehiclePlane from "./VehiclePlane";
 
 const CoreScene = () => {
   const isDev = import.meta.env.DEV;
   const carRef = useRef<THREE.Mesh>(null);
+  const heliRef = useRef<THREE.Mesh>(null);
+  const planeRef = useRef<THREE.Mesh>(null);
 
   const { cameraDebug } = useTweakpane(
     { title: "☀️ Scene" },
@@ -44,7 +49,10 @@ const CoreScene = () => {
       <Environment files={bankHDR.skyDay} background />
       <CameraRig targetRef={carRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} />
+      <VehicleHelicopter ref={heliRef} />
+      <VehiclePlane ref={planeRef} />
       <City />
+      <Ground />
     </>
   );
 };
