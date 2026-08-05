@@ -12,7 +12,7 @@ import {
   type WheelInfo,
 } from "../../hooks/useVehicleCarCreator";
 import { useTweakpane } from "../../hooks/useTweakpane";
-import { vehicleCarConstants } from "../../constants/sceneConstants";
+import { vehicleCarConstants } from "../../constants/otherConstants";
 
 // helper function to completely reset vehicle physics state
 const respawnVehicle = (chassis: RapierRigidBody) => {

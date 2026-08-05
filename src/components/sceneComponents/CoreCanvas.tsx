@@ -10,24 +10,16 @@ import { Physics } from "@react-three/rapier";
 import { useRef } from "react";
 import * as THREE from "three";
 import { physcConstants } from "../../constants/physcConstants";
-import {
-  sceneConstants,
-  terrainConstants,
-} from "../../constants/sceneConstants";
+import { sceneConstants } from "../../constants/otherConstants";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { bankHDR } from "../../utils/assetpaths";
 import AllVehiclesHUD from "./AllVehiclesHUD";
 import CameraRig from "./CameraRig";
 import City from "./City";
-import Terrain from "./Terrain";
 import VehicleCar from "./VehicleCar";
 
 const CoreScene = () => {
   const isDev = import.meta.env.DEV;
-  const terrainParams = useTweakpane(
-    { title: "🏞️ Terrain Tuning", expanded: false },
-    terrainConstants,
-  );
   const carRef = useRef<THREE.Mesh>(null);
 
   const { cameraDebug } = useTweakpane(
@@ -52,8 +44,7 @@ const CoreScene = () => {
       <Environment files={bankHDR.skyDay} background />
       <CameraRig targetRef={carRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} />
-      <Terrain params={terrainParams} />
-      <City terrainParams={terrainParams} />
+      <City />
     </>
   );
 };
