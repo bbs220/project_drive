@@ -7,7 +7,7 @@ import {
 } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { physcConstants } from "../../constants/physcConstants";
 import { sceneConstants } from "../../constants/otherConstants";
@@ -16,23 +16,58 @@ import { bankHDR } from "../../utils/assetpaths";
 import AllVehiclesHUD from "./AllVehiclesHUD";
 import CameraRig from "./CameraRig";
 import City from "./City";
-import VehicleCar from "./VehicleCar";
 import Ground from "./Ground";
+import VehicleCar from "./VehicleCar";
 import VehicleHelicopter from "./VehicleHelicopter";
 import VehiclePlane from "./VehiclePlane";
+import {
+  useVehicleStore,
+  type ControlState,
+} from "../../stores/useVehicleStore";
 
 const CoreScene = () => {
+  // define environment check
   const isDev = import.meta.env.DEV;
+
+  // initialize refs for all instantiated vehicles
   const carRef = useRef<THREE.Mesh>(null);
   const heliRef = useRef<THREE.Mesh>(null);
   const planeRef = useRef<THREE.Mesh>(null);
 
-  const { cameraDebug } = useTweakpane(
+  // fetch active vehicle and setter from global store
+  const activeControl = useVehicleStore((state) => state.activeControl);
+  const setActiveControl = useVehicleStore((state) => state.setActiveControl);
+
+  // determine active reference based on state
+  const activeTargetRef =
+    activeControl === "helicopter"
+      ? heliRef
+      : activeControl === "plane"
+        ? planeRef
+        : carRef;
+
+  // configure debug tools with dropdown options
+  const { cameraDebug, activeVehicle } = useTweakpane(
     { title: "☀️ Scene" },
     {
       cameraDebug: { value: false, label: "Camera Debug" },
+      activeVehicle: {
+        value: activeControl as ControlState,
+        label: "Current Vehicle",
+        options: {
+          Car: "car",
+          Plane: "plane",
+          Helicopter: "helicopter",
+        },
+      },
     },
   );
+
+  // sync dropdown state to global store
+  useEffect(() => {
+    setActiveControl(activeVehicle as ControlState);
+    console.log(activeVehicle);
+  }, [activeVehicle, setActiveControl]);
 
   return (
     <>
@@ -47,7 +82,8 @@ const CoreScene = () => {
       <ambientLight />
       <Stats showPanel={isDev ? 0 : 4} />
       <Environment files={bankHDR.skyDay} background />
-      <CameraRig targetRef={carRef} debugMode={cameraDebug} />
+      {/* dynamically route camera rig to the active vehicle */}
+      <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} />
       <VehicleHelicopter ref={heliRef} />
       <VehiclePlane ref={planeRef} />
@@ -58,6 +94,7 @@ const CoreScene = () => {
 };
 
 const CoreCanvas = () => {
+  // configure main canvas physics and rendering
   const { setDpr, setPhyDebug } = useTweakpane(
     { title: "☀️ Scene", expanded: true },
     {
