@@ -1,8 +1,7 @@
-// import required react hooks
 import { useEffect, useRef } from "react";
 
 // define control state
-export type VehicleCarControls = {
+export type typeAllVehicleControls = {
   forward: boolean;
   backward: boolean;
   left: boolean;
@@ -12,9 +11,9 @@ export type VehicleCarControls = {
 };
 
 // export default hook
-export const useVehicleCarInput = () => {
+export const useAllVehicleInput = () => {
   // ref to hold current inputs without triggering rerenders
-  const vehicleInputControls = useRef<VehicleCarControls>({
+  const vehicleInputControls = useRef<typeAllVehicleControls>({
     forward: false,
     backward: false,
     left: false,
@@ -29,26 +28,21 @@ export const useVehicleCarInput = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.code) {
         case "KeyW":
-        case "ArrowUp":
           vehicleInputControls.current.forward = true;
           break;
         case "KeyS":
-        case "ArrowDown":
           vehicleInputControls.current.backward = true;
           break;
         case "KeyA":
-        case "ArrowLeft":
           vehicleInputControls.current.left = true;
           break;
         case "KeyD":
-        case "ArrowRight":
           vehicleInputControls.current.right = true;
           break;
         case "Space":
           vehicleInputControls.current.brake = true;
           break;
         case "ShiftLeft":
-        case "ShiftRight":
           vehicleInputControls.current.boost = true;
           break;
       }
@@ -58,26 +52,21 @@ export const useVehicleCarInput = () => {
     const handleKeyUp = (e: KeyboardEvent) => {
       switch (e.code) {
         case "KeyW":
-        case "ArrowUp":
           vehicleInputControls.current.forward = false;
           break;
         case "KeyS":
-        case "ArrowDown":
           vehicleInputControls.current.backward = false;
           break;
         case "KeyA":
-        case "ArrowLeft":
           vehicleInputControls.current.left = false;
           break;
         case "KeyD":
-        case "ArrowRight":
           vehicleInputControls.current.right = false;
           break;
         case "Space":
           vehicleInputControls.current.brake = false;
           break;
         case "ShiftLeft":
-        case "ShiftRight":
           vehicleInputControls.current.boost = false;
           break;
       }

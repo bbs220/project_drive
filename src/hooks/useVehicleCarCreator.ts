@@ -7,7 +7,7 @@ import {
 } from "@react-three/rapier";
 import { type RefObject, useEffect, useRef } from "react";
 import * as THREE from "three";
-import type { VehicleCarControls } from "./useVehicleCarInput";
+import type { typeAllVehicleControls } from "./useAllVehicleInput";
 import { useVehicleStore } from "../stores/useVehicleStore";
 
 // define up vector
@@ -43,7 +43,7 @@ export const useVehicleCarCreator = (
   chassisRef: RefObject<RapierRigidBody | null>,
   wheelsRef: RefObject<THREE.Object3D[]>,
   wheelsInfo: WheelInfo[],
-  controlsRef: RefObject<VehicleCarControls>,
+  controlsRef: RefObject<typeAllVehicleControls>,
   tuning: ControllerTuning,
 ) => {
   // get rapier world

@@ -16,7 +16,7 @@ import {
   useVehicleCarCreator,
   type WheelInfo,
 } from "../../hooks/useVehicleCarCreator";
-import { useVehicleCarInput } from "../../hooks/useVehicleCarInput";
+import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import respawnVehicle from "../../utils/respawnVehicle";
 
 // wrap component in forward ref to expose visual mesh to parent
@@ -28,7 +28,7 @@ export const VehicleCar = forwardRef<THREE.Mesh>((_props, ref) => {
   const wheelsRef = useRef<THREE.Object3D[]>([]);
 
   // get current vehicle inputs
-  const controlsRef = useVehicleCarInput();
+  const controlsRef = useAllVehicleInput();
 
   // initialize tweakpane hook using extracted constants
   const params = useTweakpane(
