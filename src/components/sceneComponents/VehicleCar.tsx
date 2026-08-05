@@ -99,7 +99,7 @@ export const VehicleCar = forwardRef<THREE.Mesh>((_props, ref) => {
     if (!chassisRef.current) return;
 
     // check if vehicle has fallen below bounds
-    if (chassisRef.current.translation().y < -10) {
+    if (chassisRef.current.translation().y < -50) {
       // trigger extracted respawn function
       respawnVehicle(chassisRef.current);
     }

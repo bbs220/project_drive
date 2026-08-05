@@ -56,15 +56,6 @@ export const grassConstants = {
 };
 
 export const cityConstants = {
-  buildingCount: {
-    value: 600,
-    min: 100,
-    max: 2000,
-    step: 10,
-    label: "building count",
-  },
-  minDistance: { value: 12, min: 5, max: 30, label: "road width gap" },
-  cityRadius: { value: 140, min: 50, max: 400, label: "city bounds" },
-  minHeight: { value: 10, min: 2, max: 20, label: "min height" },
-  maxHeight: { value: 60, min: 20, max: 150, label: "max height" },
+  maxStories: { value: 10, min: 10, max: 100, step: 1, label: "max stories" },
+  density: { value: 0.8, min: 0.1, max: 1.0, step: 0.1, label: "density" },
 };
