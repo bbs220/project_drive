@@ -160,7 +160,11 @@ const AltimeterTape = ({ altitude }: { altitude: number }) => {
   // format altitude to prevent padding issues on negative numbers
   const formatAltitude = (val: number) => {
     const isNegative = val < 0;
-    const absoluteString = Math.abs(val).toString().padStart(3, "0");
+    // pad negative values to maintain consistent character width
+    const paddingLength = isNegative ? 2 : 3;
+    const absoluteString = Math.abs(val)
+      .toString()
+      .padStart(paddingLength, "0");
     return isNegative ? `-${absoluteString}` : absoluteString;
   };
 
@@ -176,10 +180,10 @@ const AltimeterTape = ({ altitude }: { altitude: number }) => {
         className="absolute right-4 top-1/2 flex w-full flex-col transition-transform duration-75 ease-linear"
         style={{ transform: `translateY(calc(-50% + ${offsetPx}px))` }}
       >
-        {/* render five items to prevent blank gaps during scroll but visually hide the outer two */}
+        {/* render items to prevent blank gaps during scroll but visually hide the outer elements */}
         {[2, 1, 0, -1, -2].map((offset) => {
           const val = baseAlt + offset;
-          // allow dropping to negative fifty altitude
+          // allow dropping to negative bounds
           const isVisible = val >= -50;
 
           return (

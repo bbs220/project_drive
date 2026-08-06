@@ -4,6 +4,7 @@ import * as THREE from "three";
 import type { RapierRigidBody } from "@react-three/rapier";
 import type { typeAllVehicleControls } from "./useAllVehicleInput";
 import { useVehicleStore } from "../stores/useVehicleStore";
+import { vehicleRespawnLimit } from "../constants/otherConstants";
 
 // initialize reusable three js objects outside the loop to prevent memory leaks
 const euler = new THREE.Euler();
@@ -201,8 +202,11 @@ export const useVehicleHelicopterCreator = (
     // fetch current position translation from rapier
     const currentPosition = chassis.translation();
 
-    // calculate altitude by flooring the y axis value and ensuring it does not drop below zero
-    const altitude = Math.max(Math.floor(currentPosition.y), 0);
+    // calculate altitude by flooring the y axis value and clamping to negative bounds
+    const altitude = Math.max(
+      Math.floor(currentPosition.y),
+      vehicleRespawnLimit,
+    );
 
     // extract pitch roll and yaw for ui attitude indicator
     const currentPitch = euler.x;
