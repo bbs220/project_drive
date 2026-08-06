@@ -9,11 +9,13 @@ type CarTelemetry = {
 };
 
 // define telemetry specific to fixed wing planes
-type PlaneTelemetry = {
+export type PlaneTelemetry = {
   airspeed: number;
   altitude: number;
   throttle: number;
-  horizonLock: boolean;
+  pitch: number;
+  roll: number;
+  yaw: number;
 };
 
 // define telemetry specific to helicopters
@@ -65,7 +67,14 @@ export const useVehicleStore = create<VehicleState>((set) => ({
     })),
 
   // initialize plane telemetry
-  planeTelemetry: { airspeed: 0, altitude: 0, throttle: 0, horizonLock: false },
+  planeTelemetry: {
+    airspeed: 0,
+    altitude: 0,
+    throttle: 0,
+    pitch: 0,
+    roll: 0,
+    yaw: 0,
+  },
 
   // setter for plane telemetry safely merges new data
   setPlaneTelemetry: (data) =>
