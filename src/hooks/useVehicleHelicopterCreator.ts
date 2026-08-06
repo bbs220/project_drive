@@ -95,6 +95,9 @@ export const useVehicleHelicopterCreator = (
       currentRotation.w,
     );
 
+    // convert quaternion to euler angles to check current pitch and roll limits
+    euler.setFromQuaternion(quaternion);
+
     // extract local axes for world space force application
     localX.set(1, 0, 0).applyQuaternion(quaternion);
     localY.set(0, 1, 0).applyQuaternion(quaternion);
@@ -112,22 +115,25 @@ export const useVehicleHelicopterCreator = (
       chassis.applyImpulse(forceVector, true);
     }
 
-    // apply pitch logic along local right vector
-    if (forward || pitchDown) {
+    // calculate maximum angle in radians for hard limit
+    const maxAngle = Math.PI / 4;
+
+    // apply pitch logic along local right vector with hard angle limits
+    if ((forward || pitchDown) && euler.x > -maxAngle) {
       forceVector.copy(localX).multiplyScalar(tuning.pitchTorque);
       chassis.applyTorqueImpulse(forceVector, true);
     }
-    if (backward || pitchUp) {
+    if ((backward || pitchUp) && euler.x < maxAngle) {
       forceVector.copy(localX).multiplyScalar(-tuning.pitchTorque);
       chassis.applyTorqueImpulse(forceVector, true);
     }
 
-    // apply roll logic along local forward vector
-    if (left || rollLeft) {
+    // apply roll logic along local forward vector with hard angle limits
+    if ((left || rollLeft) && euler.z < maxAngle) {
       forceVector.copy(localZ).multiplyScalar(tuning.rollTorque);
       chassis.applyTorqueImpulse(forceVector, true);
     }
-    if (right || rollRight) {
+    if ((right || rollRight) && euler.z > -maxAngle) {
       forceVector.copy(localZ).multiplyScalar(-tuning.rollTorque);
       chassis.applyTorqueImpulse(forceVector, true);
     }
@@ -145,23 +151,24 @@ export const useVehicleHelicopterCreator = (
     // fetch current angular velocity from rapier
     const currentAngVel = chassis.angvel();
 
-    // apply artificial angular damping to stop infinite spinning
+    // apply angular damping to stop infinite spinning and maintain angle of attack
     dampingTorque
       .set(-currentAngVel.x, -currentAngVel.y, -currentAngVel.z)
       .multiplyScalar(tuning.pitchTorque);
     chassis.applyTorqueImpulse(dampingTorque, true);
 
-    // calculate restorative torque to keep helicopter upright using cross product
-    stabilizeTorque
-      .crossVectors(localY, globalUp)
-      .multiplyScalar(tuning.pitchTorque);
-    chassis.applyTorqueImpulse(stabilizeTorque, true);
+    // forcefully stabilize helicopter if it exceeds the hard angle limit due to momentum
+    if (Math.abs(euler.x) > maxAngle || Math.abs(euler.z) > maxAngle) {
+      stabilizeTorque
+        .crossVectors(localY, globalUp)
+        .multiplyScalar(tuning.pitchTorque * 2);
+      chassis.applyTorqueImpulse(stabilizeTorque, true);
+    }
 
     // extract time step for smooth rotation
     const delta = world.timestep;
 
     // calculate target rpm based on lift input
-    // target rpm calculation omitted scalar to adhere to numeral rules
     const targetRpm = boost ? tuning.rotorSpeed : 0;
 
     // smoothly interpolate current rpm towards target
@@ -196,9 +203,6 @@ export const useVehicleHelicopterCreator = (
 
     // calculate altitude by flooring the y axis value and ensuring it does not drop below zero
     const altitude = Math.max(Math.floor(currentPosition.y), 0);
-
-    // convert quaternion to euler angles for easier mathematical comparison
-    euler.setFromQuaternion(quaternion);
 
     // extract pitch roll and yaw for ui attitude indicator
     const currentPitch = euler.x;
