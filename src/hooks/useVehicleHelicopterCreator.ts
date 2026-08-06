@@ -6,7 +6,7 @@ import type { typeAllVehicleControls } from "./useAllVehicleInput";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import { vehicleHelicopterConstants } from "../constants/otherConstants";
 
-// initialize reusable threejs objects outside the loop to prevent memory leaks
+// initialize reusable three js objects outside the loop to prevent memory leaks
 const euler = new THREE.Euler();
 const quaternion = new THREE.Quaternion();
 
@@ -173,7 +173,7 @@ export const useVehicleHelicopterCreator = (
     // fetch current quaternion rotation from rapier
     const currentRotation = chassis.rotation();
 
-    // apply rapier rotation to threejs quaternion
+    // apply rapier rotation to three js quaternion
     quaternion.set(
       currentRotation.x,
       currentRotation.y,
@@ -184,30 +184,15 @@ export const useVehicleHelicopterCreator = (
     // convert quaternion to euler angles for easier mathematical comparison
     euler.setFromQuaternion(quaternion);
 
-    // check if pitch angle is extremely close to flat
-    const isPitchLevel = Math.abs(euler.x) < 0.05;
-
-    // check if roll angle is extremely close to flat
-    const isRollLevel = Math.abs(euler.z) < 0.05;
-
-    // verify the player is not actively trying to pitch or roll the vehicle
-    const hasNoRotationInput =
-      !forward &&
-      !backward &&
-      !left &&
-      !right &&
-      !pitchUp &&
-      !pitchDown &&
-      !rollLeft &&
-      !rollRight;
-
-    // lock horizon if the helicopter is physically level and player is not fighting it
-    const horizonLock = isPitchLevel && isRollLevel && hasNoRotationInput;
+    // extract pitch and roll for ui attitude indicator
+    const currentPitch = euler.x;
+    const currentRoll = euler.z;
 
     // push calculated telemetry directly to zustand store without triggering a hook re render
     useVehicleStore.getState().setHelicopterTelemetry({
       altitude: altitude,
-      horizonLock: horizonLock,
+      pitch: currentPitch,
+      roll: currentRoll,
       rotorRpm: Math.floor(rpmRef.current),
       collective: Math.floor(collectiveRef.current),
     });

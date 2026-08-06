@@ -17,11 +17,12 @@ type PlaneTelemetry = {
 };
 
 // define telemetry specific to helicopters
-type HelicopterTelemetry = {
+export type HelicopterTelemetry = {
   rotorRpm: number;
   altitude: number;
   collective: number;
-  horizonLock: boolean;
+  pitch: number;
+  roll: number;
 };
 
 // define strict global state
@@ -76,7 +77,8 @@ export const useVehicleStore = create<VehicleState>((set) => ({
     rotorRpm: 0,
     altitude: 0,
     collective: 0,
-    horizonLock: false,
+    pitch: 0,
+    roll: 0,
   },
 
   // setter for helicopter telemetry safely merges new data
