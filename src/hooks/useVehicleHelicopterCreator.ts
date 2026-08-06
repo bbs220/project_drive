@@ -4,11 +4,14 @@ import * as THREE from "three";
 import type { RapierRigidBody } from "@react-three/rapier";
 import type { typeAllVehicleControls } from "./useAllVehicleInput";
 import { useVehicleStore } from "../stores/useVehicleStore";
-import { vehicleHelicopterConstants } from "../constants/otherConstants";
 
 // initialize reusable three js objects outside the loop to prevent memory leaks
 const euler = new THREE.Euler();
 const quaternion = new THREE.Quaternion();
+const localX = new THREE.Vector3();
+const localY = new THREE.Vector3();
+const localZ = new THREE.Vector3();
+const forceVector = new THREE.Vector3();
 
 // define helicopter tuning parameters
 export type typeHelicopterTuning = {
@@ -75,64 +78,63 @@ export const useVehicleHelicopterCreator = (
       yawLeft,
       yawRight,
     } = controls;
-    const { zeroVector } = vehicleHelicopterConstants.physics;
 
-    // apply lift logic
+    // fetch current quaternion rotation from rapier
+    const currentRotation = chassis.rotation();
+
+    // apply rapier rotation to three js quaternion
+    quaternion.set(
+      currentRotation.x,
+      currentRotation.y,
+      currentRotation.z,
+      currentRotation.w,
+    );
+
+    // extract local axes for world space force application
+    localX.set(1, 0, 0).applyQuaternion(quaternion);
+    localY.set(0, 1, 0).applyQuaternion(quaternion);
+    localZ.set(0, 0, 1).applyQuaternion(quaternion);
+
+    // apply lift logic along local up vector
     if (boost) {
-      chassis.applyImpulse(
-        { x: zeroVector, y: tuning.liftForce, z: zeroVector },
-        true,
-      );
+      forceVector.copy(localY).multiplyScalar(tuning.liftForce);
+      chassis.applyImpulse(forceVector, true);
     }
 
-    // apply descent logic
+    // apply descent logic along local up vector
     if (brake) {
-      chassis.applyImpulse(
-        { x: zeroVector, y: -tuning.descendForce, z: zeroVector },
-        true,
-      );
+      forceVector.copy(localY).multiplyScalar(-tuning.descendForce);
+      chassis.applyImpulse(forceVector, true);
     }
 
-    // apply pitch logic
+    // apply pitch logic along local right vector
     if (forward || pitchDown) {
-      chassis.applyTorqueImpulse(
-        { x: tuning.pitchTorque, y: zeroVector, z: zeroVector },
-        true,
-      );
+      forceVector.copy(localX).multiplyScalar(tuning.pitchTorque);
+      chassis.applyTorqueImpulse(forceVector, true);
     }
     if (backward || pitchUp) {
-      chassis.applyTorqueImpulse(
-        { x: -tuning.pitchTorque, y: zeroVector, z: zeroVector },
-        true,
-      );
+      forceVector.copy(localX).multiplyScalar(-tuning.pitchTorque);
+      chassis.applyTorqueImpulse(forceVector, true);
     }
 
-    // apply roll logic
+    // apply roll logic along local forward vector
     if (left || rollLeft) {
-      chassis.applyTorqueImpulse(
-        { x: zeroVector, y: zeroVector, z: tuning.rollTorque },
-        true,
-      );
+      forceVector.copy(localZ).multiplyScalar(tuning.rollTorque);
+      chassis.applyTorqueImpulse(forceVector, true);
     }
     if (right || rollRight) {
-      chassis.applyTorqueImpulse(
-        { x: zeroVector, y: zeroVector, z: -tuning.rollTorque },
-        true,
-      );
+      forceVector.copy(localZ).multiplyScalar(-tuning.rollTorque);
+      chassis.applyTorqueImpulse(forceVector, true);
     }
 
-    // apply yaw logic
+    // apply yaw logic along local up vector
     if (yawLeft) {
-      chassis.applyTorqueImpulse(
-        { x: zeroVector, y: tuning.yawTorque, z: zeroVector },
-        true,
-      );
+      forceVector.copy(localY).multiplyScalar(tuning.yawTorque);
+      chassis.applyTorqueImpulse(forceVector, true);
     }
     if (yawRight) {
-      chassis.applyTorqueImpulse(
-        { x: zeroVector, y: -tuning.yawTorque, z: zeroVector },
-        true,
-      );
+      forceVector.copy(localY).multiplyScalar(-tuning.yawTorque);
+      chassis.applyTorqueImpulse(forceVector, true);
     }
 
     // extract time step for smooth rotation
@@ -169,17 +171,6 @@ export const useVehicleHelicopterCreator = (
 
     // calculate altitude by flooring the y axis value and ensuring it does not drop below zero
     const altitude = Math.max(Math.floor(currentPosition.y), 0);
-
-    // fetch current quaternion rotation from rapier
-    const currentRotation = chassis.rotation();
-
-    // apply rapier rotation to three js quaternion
-    quaternion.set(
-      currentRotation.x,
-      currentRotation.y,
-      currentRotation.z,
-      currentRotation.w,
-    );
 
     // convert quaternion to euler angles for easier mathematical comparison
     euler.setFromQuaternion(quaternion);
