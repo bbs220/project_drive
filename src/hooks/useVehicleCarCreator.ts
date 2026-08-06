@@ -30,7 +30,7 @@ export type WheelInfo = {
 };
 
 // define controller tuning parameters
-export type ControllerTuning = {
+export type typeCarTuning = {
   engineForce: number;
   boostMultiplier: number;
   brakeForce: number;
@@ -44,7 +44,7 @@ export const useVehicleCarCreator = (
   wheelsRef: RefObject<THREE.Object3D[]>,
   wheelsInfo: WheelInfo[],
   controlsRef: RefObject<typeAllVehicleControls>,
-  tuning: ControllerTuning,
+  tuning: typeCarTuning,
 ) => {
   // get rapier world
   const { world } = useRapier();
