@@ -1,4 +1,3 @@
-// import zustand
 import { create } from "zustand";
 
 // define possible control states
@@ -14,6 +13,7 @@ type PlaneTelemetry = {
   airspeed: number;
   altitude: number;
   throttle: number;
+  horizonLock: boolean;
 };
 
 // define telemetry specific to helicopters
@@ -21,6 +21,7 @@ type HelicopterTelemetry = {
   rotorRpm: number;
   altitude: number;
   collective: number;
+  horizonLock: boolean;
 };
 
 // define strict global state
@@ -62,7 +63,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
     })),
 
   // initialize plane telemetry
-  planeTelemetry: { airspeed: 0, altitude: 0, throttle: 0 },
+  planeTelemetry: { airspeed: 0, altitude: 0, throttle: 0, horizonLock: false },
 
   // setter for plane telemetry safely merges new data
   setPlaneTelemetry: (data) =>
@@ -71,7 +72,12 @@ export const useVehicleStore = create<VehicleState>((set) => ({
     })),
 
   // initialize helicopter telemetry
-  helicopterTelemetry: { rotorRpm: 0, altitude: 0, collective: 0 },
+  helicopterTelemetry: {
+    rotorRpm: 0,
+    altitude: 0,
+    collective: 0,
+    horizonLock: false,
+  },
 
   // setter for helicopter telemetry safely merges new data
   setHelicopterTelemetry: (data) =>

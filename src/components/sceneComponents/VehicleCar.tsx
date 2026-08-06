@@ -104,11 +104,11 @@ export const VehicleCar = forwardRef<THREE.Mesh>((_props, ref) => {
     <group>
       {/* lift spawn height and disable auto colliders */}
       <RigidBody
-        position={vehicleRespawnPos.car}
         ref={chassisRef}
         colliders={false}
-        mass={params.mass}
         friction={0}
+        position={vehicleRespawnPos.car}
+        mass={params.mass}
         canSleep={false}
       >
         {/* explicit chassis collider to exclude wheels */}
