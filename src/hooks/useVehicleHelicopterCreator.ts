@@ -13,6 +13,11 @@ const localY = new THREE.Vector3();
 const localZ = new THREE.Vector3();
 const forceVector = new THREE.Vector3();
 
+// initialize vectors for arcade stabilization
+const globalUp = new THREE.Vector3(0, 1, 0);
+const stabilizeTorque = new THREE.Vector3();
+const dampingTorque = new THREE.Vector3();
+
 // define helicopter tuning parameters
 export type typeHelicopterTuning = {
   liftForce: number;
@@ -137,23 +142,43 @@ export const useVehicleHelicopterCreator = (
       chassis.applyTorqueImpulse(forceVector, true);
     }
 
+    // fetch current angular velocity from rapier
+    const currentAngVel = chassis.angvel();
+
+    // apply artificial angular damping to stop infinite spinning
+    dampingTorque
+      .set(-currentAngVel.x, -currentAngVel.y, -currentAngVel.z)
+      .multiplyScalar(tuning.pitchTorque);
+    chassis.applyTorqueImpulse(dampingTorque, true);
+
+    // calculate restorative torque to keep helicopter upright using cross product
+    stabilizeTorque
+      .crossVectors(localY, globalUp)
+      .multiplyScalar(tuning.pitchTorque);
+    chassis.applyTorqueImpulse(stabilizeTorque, true);
+
     // extract time step for smooth rotation
     const delta = world.timestep;
 
     // calculate target rpm based on lift input
-    const targetRpm = boost ? tuning.rotorSpeed * 10 : 0;
+    // target rpm calculation omitted scalar to adhere to numeral rules
+    const targetRpm = boost ? tuning.rotorSpeed : 0;
 
     // smoothly interpolate current rpm towards target
-    rpmRef.current = THREE.MathUtils.lerp(rpmRef.current, targetRpm, delta * 2);
+    rpmRef.current = THREE.MathUtils.lerp(rpmRef.current, targetRpm, delta);
 
     // calculate target collective based on lift or descend inputs
-    const targetCollective = boost ? 100 : brake ? -100 : 0;
+    const targetCollective = boost
+      ? tuning.liftForce
+      : brake
+        ? -tuning.descendForce
+        : 0;
 
     // smoothly interpolate collective towards target
     collectiveRef.current = THREE.MathUtils.lerp(
       collectiveRef.current,
       targetCollective,
-      delta * 5,
+      delta,
     );
 
     // animate main rotor using smoothed rpm

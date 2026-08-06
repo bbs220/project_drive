@@ -38,13 +38,13 @@ export const vehiclePlaneConstants = {};
 
 export const vehicleHelicopterConstants = {
   tuning: {
-    liftForce: { value: 300, min: 50, max: 1000, label: "lift force" },
+    liftForce: { value: 100, min: 50, max: 1000, label: "lift force" },
     descendForce: { value: 250, min: 50, max: 1000, label: "descend force" },
     pitchTorque: { value: 10, min: 1, max: 100, label: "pitch torque" },
     rollTorque: { value: 10, min: 1, max: 100, label: "roll torque" },
     yawTorque: { value: 10, min: 1, max: 100, label: "yaw torque" },
     rotorSpeed: { value: 25, min: 1, max: 100, label: "rotor speed" },
-    cabinMass: { value: 500, min: 100, max: 2000, label: "cabin mass" },
+    cabinMass: { value: 100, min: 50, max: 1000, label: "cabin mass" },
     tailMass: { value: 1, min: 0.1, max: 50, label: "tail mass" },
     cabinWidth: { value: 2, min: 0.5, max: 5, label: "cabin width" },
     cabinHeight: { value: 2, min: 0.5, max: 5, label: "cabin height" },
