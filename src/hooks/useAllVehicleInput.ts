@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-// define control state
+// define all possible control states
 export type typeAllVehicleControls = {
   forward: boolean;
   backward: boolean;
@@ -8,6 +8,12 @@ export type typeAllVehicleControls = {
   right: boolean;
   brake: boolean;
   boost: boolean;
+  pitchUp: boolean;
+  pitchDown: boolean;
+  rollLeft: boolean;
+  rollRight: boolean;
+  yawLeft: boolean;
+  yawRight: boolean;
 };
 
 // export default hook
@@ -20,6 +26,12 @@ export const useAllVehicleInput = () => {
     right: false,
     brake: false,
     boost: false,
+    pitchUp: false,
+    pitchDown: false,
+    rollLeft: false,
+    rollRight: false,
+    yawLeft: false,
+    yawRight: false,
   });
 
   // handle key press events
@@ -27,6 +39,7 @@ export const useAllVehicleInput = () => {
     // keydown event handler
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.code) {
+        // standard driving and throttle
         case "KeyW":
           vehicleInputControls.current.forward = true;
           break;
@@ -45,12 +58,34 @@ export const useAllVehicleInput = () => {
         case "ShiftLeft":
           vehicleInputControls.current.boost = true;
           break;
+        // yaw controls
+        case "KeyQ":
+          vehicleInputControls.current.yawLeft = true;
+          break;
+        case "KeyE":
+          vehicleInputControls.current.yawRight = true;
+          break;
+        // pitch controls
+        case "Numpad5":
+          vehicleInputControls.current.pitchUp = true;
+          break;
+        case "Numpad8":
+          vehicleInputControls.current.pitchDown = true;
+          break;
+        // roll controls
+        case "Numpad4":
+          vehicleInputControls.current.rollLeft = true;
+          break;
+        case "Numpad6":
+          vehicleInputControls.current.rollRight = true;
+          break;
       }
     };
 
     // keyup event handler
     const handleKeyUp = (e: KeyboardEvent) => {
       switch (e.code) {
+        // standard driving and throttle
         case "KeyW":
           vehicleInputControls.current.forward = false;
           break;
@@ -68,6 +103,27 @@ export const useAllVehicleInput = () => {
           break;
         case "ShiftLeft":
           vehicleInputControls.current.boost = false;
+          break;
+        // yaw controls
+        case "KeyQ":
+          vehicleInputControls.current.yawLeft = false;
+          break;
+        case "KeyE":
+          vehicleInputControls.current.yawRight = false;
+          break;
+        // pitch controls
+        case "Numpad5":
+          vehicleInputControls.current.pitchUp = false;
+          break;
+        case "Numpad8":
+          vehicleInputControls.current.pitchDown = false;
+          break;
+        // roll controls
+        case "Numpad4":
+          vehicleInputControls.current.rollLeft = false;
+          break;
+        case "Numpad6":
+          vehicleInputControls.current.rollRight = false;
           break;
       }
     };
