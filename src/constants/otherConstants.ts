@@ -36,9 +36,7 @@ export const vehicleCarConstants = {
 
 export const vehiclePlaneConstants = {};
 
-// define helicopter constants
 export const vehicleHelicopterConstants = {
-  // tweakpane compatible flat object
   tuning: {
     liftForce: { value: 300, min: 50, max: 1000, label: "lift force" },
     descendForce: { value: 250, min: 50, max: 1000, label: "descend force" },
@@ -52,7 +50,6 @@ export const vehicleHelicopterConstants = {
     cabinHeight: { value: 2, min: 0.5, max: 5, label: "cabin height" },
     cabinLength: { value: 3, min: 1, max: 8, label: "cabin length" },
   },
-  // static arrays and vectors that do not need live tweaking
   colliders: {
     cabinPos: [0, 0, 0] as [number, number, number],
     tailPos: [0, 0.5, 2.5] as [number, number, number],

@@ -135,6 +135,25 @@ const VehicleHelicopter = forwardRef<THREE.Mesh>((_props, ref) => {
             <meshStandardMaterial color={"black"} />
           </mesh>
         </group>
+        <group ref={tailRotorRef} position={[0.25, 0.5, 3.8]}>
+          <mesh
+            rotation={[0, 0, vehicleHelicopterConstants.rotations.quarterTurn]}
+          >
+            <cylinderGeometry args={[0.05, 0.05, 0.3]} />
+            <meshStandardMaterial color={"black"} />
+          </mesh>
+          <mesh position={[0.15, 0, 0]}>
+            <boxGeometry args={[0.05, 1.5, 0.15]} />
+            <meshStandardMaterial color={"black"} />
+          </mesh>
+          <mesh
+            position={[0.15, 0, 0]}
+            rotation={[vehicleHelicopterConstants.rotations.quarterTurn, 0, 0]}
+          >
+            <boxGeometry args={[0.05, 1.5, 0.15]} />
+            <meshStandardMaterial color={"black"} />
+          </mesh>
+        </group>
       </group>
     </RigidBody>
   );
