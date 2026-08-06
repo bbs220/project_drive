@@ -23,6 +23,7 @@ export type HelicopterTelemetry = {
   collective: number;
   pitch: number;
   roll: number;
+  yaw: number;
 };
 
 // define strict global state
@@ -79,6 +80,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
     collective: 0,
     pitch: 0,
     roll: 0,
+    yaw: 0,
   },
 
   // setter for helicopter telemetry safely merges new data

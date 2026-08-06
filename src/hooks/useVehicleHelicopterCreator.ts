@@ -184,15 +184,17 @@ export const useVehicleHelicopterCreator = (
     // convert quaternion to euler angles for easier mathematical comparison
     euler.setFromQuaternion(quaternion);
 
-    // extract pitch and roll for ui attitude indicator
+    // extract pitch roll and yaw for ui attitude indicator
     const currentPitch = euler.x;
     const currentRoll = euler.z;
+    const currentYaw = euler.y;
 
     // push calculated telemetry directly to zustand store without triggering a hook re render
     useVehicleStore.getState().setHelicopterTelemetry({
       altitude: altitude,
       pitch: currentPitch,
       roll: currentRoll,
+      yaw: currentYaw,
       rotorRpm: Math.floor(rpmRef.current),
       collective: Math.floor(collectiveRef.current),
     });

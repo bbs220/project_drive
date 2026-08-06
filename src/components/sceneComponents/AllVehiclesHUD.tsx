@@ -54,33 +54,52 @@ const HelicopterControlsDisplay = () => {
 const AttitudeIndicator = ({
   pitch,
   roll,
+  yaw,
 }: {
   pitch: number;
   roll: number;
+  yaw: number;
 }) => {
   // clamp pitch visual translation to prevent the horizon from leaving the circular bounds
   const pitchOffset = Math.max(Math.min(pitch * 40, 40), -40);
 
   return (
-    <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 bg-sky-500 shadow-md">
-      {/* rotating and translating container mapping to roll and pitch */}
+    <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-black/40 p-2 shadow-md backdrop-blur-md">
+      {/* rotating compass bezel mapping to yaw */}
       <div
-        className="absolute inset-0 flex flex-col transition-transform duration-75 ease-linear"
-        style={{
-          transform: `rotate(${roll}rad) translateY(${pitchOffset}px)`,
-        }}
+        className="absolute inset-1 rounded-full font-mono text-[8px] font-bold text-white/70"
+        style={{ transform: `rotate(${-yaw}rad)` }}
       >
-        {/* sky section */}
-        <div className="h-[200%] w-[200%] -translate-x-1/4 -translate-y-1/2 bg-sky-500" />
-        {/* ground section */}
-        <div className="h-[200%] w-[200%] -translate-x-1/4 border-t-2 border-white bg-amber-700" />
+        <span className="absolute left-1/2 top-0 -translate-x-1/2">N</span>
+        <span className="absolute right-0 top-1/2 -translate-y-1/2">E</span>
+        <span className="absolute bottom-0 left-1/2 -translate-x-1/2">S</span>
+        <span className="absolute left-0 top-1/2 -translate-y-1/2">W</span>
+        <span className="absolute right-2 top-2">NE</span>
+        <span className="absolute bottom-2 right-2">SE</span>
+        <span className="absolute bottom-2 left-2">SW</span>
+        <span className="absolute left-2 top-2">NW</span>
       </div>
 
-      {/* fixed reticle overlay */}
-      <div className="absolute flex items-center justify-center gap-4">
-        <div className="h-0.5 w-4 bg-yellow-400" />
-        <div className="h-1 w-1 rounded-full bg-yellow-400" />
-        <div className="h-0.5 w-4 bg-yellow-400" />
+      <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 bg-sky-500 shadow-inner">
+        {/* rotating and translating container mapping to roll and pitch */}
+        <div
+          className="absolute inset-0 flex flex-col transition-transform duration-75 ease-linear"
+          style={{
+            transform: `rotate(${roll}rad) translateY(${pitchOffset}px)`,
+          }}
+        >
+          {/* sky section */}
+          <div className="h-[200%] w-[200%] -translate-x-1/4 -translate-y-1/2 bg-sky-500" />
+          {/* ground section */}
+          <div className="h-[200%] w-[200%] -translate-x-1/4 border-t-2 border-white bg-amber-700" />
+        </div>
+
+        {/* fixed reticle overlay */}
+        <div className="absolute flex items-center justify-center gap-4">
+          <div className="h-0.5 w-4 bg-yellow-400" />
+          <div className="h-1 w-1 rounded-full bg-yellow-400" />
+          <div className="h-0.5 w-4 bg-yellow-400" />
+        </div>
       </div>
     </div>
   );
@@ -88,17 +107,17 @@ const AttitudeIndicator = ({
 
 // smooth scrolling altimeter tape component
 const AltimeterTape = ({ altitude }: { altitude: number }) => {
-  // calculate nearest base of ten for smooth tape anchoring
-  const baseAlt = Math.floor(altitude / 10) * 10;
+  // calculate base altitude for single unit increments
+  const baseAlt = Math.floor(altitude);
 
-  // extract remainder to dynamically shift the tape between intervals
-  const remainder = altitude % 10;
+  // extract remainder to dynamically shift the tape smoothly between single units
+  const remainder = altitude % 1;
 
-  // calculate pixel offset treating each step as twenty four pixels high
-  const offsetPx = -(remainder / 10) * 24;
+  // calculate pixel offset treating each single step as twenty four pixels high
+  const offsetPx = -remainder * 24;
 
   return (
-    <div className="relative flex h-32 w-20 items-center overflow-hidden rounded-md border border-white/20 bg-black/50 pr-4 text-right font-mono text-xl shadow-lg backdrop-blur-md">
+    <div className="relative flex h-32 w-24 items-center overflow-hidden rounded-md border border-white/20 bg-black/50 pr-4 text-right font-mono text-xl shadow-lg backdrop-blur-md">
       {/* static center indicator arrow */}
       <div className="absolute right-0 top-1/2 z-10 -mt-2 h-0 w-0 border-y-8 border-r-8 border-y-transparent border-r-yellow-400" />
 
@@ -107,22 +126,29 @@ const AltimeterTape = ({ altitude }: { altitude: number }) => {
         className="absolute right-4 top-1/2 flex w-full flex-col transition-transform duration-75 ease-linear"
         style={{ transform: `translateY(calc(-50% + ${offsetPx}px))` }}
       >
-        {/* generate neighboring altitude labels based on current anchor */}
-        {[40, 30, 20, 10, 0, -10, -20, -30, -40].map((offset) => {
+        {/* generate neighboring altitude labels based on single unit increments */}
+        {[4, 3, 2, 1, 0, -1, -2, -3, -4].map((offset) => {
           const val = baseAlt + offset;
           const isVisible = val >= 0;
           return (
             <div
               key={offset}
-              className={`flex h-6 items-center justify-end font-bold tracking-tighter ${
-                Math.abs(offset) > 10
+              className={`flex h-6 items-center justify-end gap-1 font-bold tracking-tighter ${
+                Math.abs(offset) > 2
                   ? "text-white/30"
                   : Math.abs(offset) > 0
                     ? "text-white/60"
                     : "text-white"
               }`}
             >
-              {isVisible ? String(val).padStart(3, "0") : ""}
+              {isVisible ? (
+                <>
+                  <span>{String(val).padStart(3, "0")}</span>
+                  <span className="text-[10px] text-white/40">M</span>
+                </>
+              ) : (
+                ""
+              )}
             </div>
           );
         })}
@@ -154,6 +180,11 @@ const AllVehiclesHUD = () => {
   // subscribe to strict helicopter telemetry roll from global store
   const currentHeliRoll = useVehicleStore(
     (state) => state.helicopterTelemetry?.roll || 0,
+  );
+
+  // subscribe to strict helicopter telemetry yaw from global store for the compass bezel
+  const currentHeliYaw = useVehicleStore(
+    (state) => state.helicopterTelemetry?.yaw || 0,
   );
 
   // pad speed string for arcade styling
@@ -189,10 +220,11 @@ const AllVehiclesHUD = () => {
 
           {/* advanced aviation instruments container */}
           <div className="absolute bottom-6 right-6 flex items-center gap-6">
-            {/* dynamic artificial horizon */}
+            {/* dynamic artificial horizon with compass bezel */}
             <AttitudeIndicator
               pitch={currentHeliPitch}
               roll={currentHeliRoll}
+              yaw={currentHeliYaw}
             />
 
             {/* scrolling altimeter tape */}
