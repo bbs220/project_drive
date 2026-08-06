@@ -67,17 +67,58 @@ const AttitudeIndicator = ({
     <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-black/40 p-2 shadow-md backdrop-blur-md">
       {/* rotating compass bezel mapping to yaw */}
       <div
-        className="absolute inset-1 rounded-full font-mono text-[8px] font-bold text-white/70"
+        className="absolute inset-1 rounded-full font-mono text-xs font-bold text-white/80"
         style={{ transform: `rotate(${-yaw}rad)` }}
       >
-        <span className="absolute left-1/2 top-0 -translate-x-1/2">N</span>
-        <span className="absolute right-0 top-1/2 -translate-y-1/2">E</span>
-        <span className="absolute bottom-0 left-1/2 -translate-x-1/2">S</span>
-        <span className="absolute left-0 top-1/2 -translate-y-1/2">W</span>
-        <span className="absolute right-2 top-2">NE</span>
-        <span className="absolute bottom-2 right-2">SE</span>
-        <span className="absolute bottom-2 left-2">SW</span>
-        <span className="absolute left-2 top-2">NW</span>
+        {/* counter rotate spans so text stays upright */}
+        <span
+          className="absolute left-1/2 top-0"
+          style={{ transform: `translateX(-50%) rotate(${yaw}rad)` }}
+        >
+          N
+        </span>
+        <span
+          className="absolute right-0 top-1/2"
+          style={{ transform: `translateY(-50%) rotate(${yaw}rad)` }}
+        >
+          E
+        </span>
+        <span
+          className="absolute bottom-0 left-1/2"
+          style={{ transform: `translateX(-50%) rotate(${yaw}rad)` }}
+        >
+          S
+        </span>
+        <span
+          className="absolute left-0 top-1/2"
+          style={{ transform: `translateY(-50%) rotate(${yaw}rad)` }}
+        >
+          W
+        </span>
+        <span
+          className="absolute right-2 top-2"
+          style={{ transform: `rotate(${yaw}rad)` }}
+        >
+          NE
+        </span>
+        <span
+          className="absolute bottom-2 right-2"
+          style={{ transform: `rotate(${yaw}rad)` }}
+        >
+          SE
+        </span>
+        <span
+          className="absolute bottom-2 left-2"
+          style={{ transform: `rotate(${yaw}rad)` }}
+        >
+          SW
+        </span>
+        <span
+          className="absolute left-2 top-2"
+          style={{ transform: `rotate(${yaw}rad)` }}
+        >
+          NW
+        </span>
       </div>
 
       <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 bg-sky-500 shadow-inner">
@@ -116,34 +157,45 @@ const AltimeterTape = ({ altitude }: { altitude: number }) => {
   // calculate pixel offset treating each single step as twenty four pixels high
   const offsetPx = -remainder * 24;
 
+  // format altitude to prevent padding issues on negative numbers
+  const formatAltitude = (val: number) => {
+    const isNegative = val < 0;
+    const absoluteString = Math.abs(val).toString().padStart(3, "0");
+    return isNegative ? `-${absoluteString}` : absoluteString;
+  };
+
   return (
-    <div className="relative flex h-32 w-24 items-center overflow-hidden rounded-md border border-white/20 bg-black/50 pr-4 text-right font-mono text-xl shadow-lg backdrop-blur-md">
-      {/* static center indicator arrow */}
-      <div className="absolute right-0 top-1/2 z-10 -mt-2 h-0 w-0 border-y-8 border-r-8 border-y-transparent border-r-yellow-400" />
+    <div className="relative flex h-24 w-20 items-center overflow-hidden rounded-md border border-white/20 bg-black/50 pl-2 pr-4 text-right font-mono text-xl shadow-lg backdrop-blur-md">
+      {/* static center indicator chevron */}
+      <div className="absolute left-2 top-1/2 z-10 -translate-y-1/2 font-black text-yellow-400">
+        {">"}
+      </div>
 
       {/* scrolling container shifting vertically per frame */}
       <div
         className="absolute right-4 top-1/2 flex w-full flex-col transition-transform duration-75 ease-linear"
         style={{ transform: `translateY(calc(-50% + ${offsetPx}px))` }}
       >
-        {/* generate neighboring altitude labels based on single unit increments */}
-        {[4, 3, 2, 1, 0, -1, -2, -3, -4].map((offset) => {
+        {/* render five items to prevent blank gaps during scroll but visually hide the outer two */}
+        {[2, 1, 0, -1, -2].map((offset) => {
           const val = baseAlt + offset;
-          const isVisible = val >= 0;
+          // allow dropping to negative fifty altitude
+          const isVisible = val >= -50;
+
           return (
             <div
               key={offset}
               className={`flex h-6 items-center justify-end gap-1 font-bold tracking-tighter ${
-                Math.abs(offset) > 2
-                  ? "text-white/30"
-                  : Math.abs(offset) > 0
-                    ? "text-white/60"
+                Math.abs(offset) > 1
+                  ? "opacity-0"
+                  : Math.abs(offset) === 1
+                    ? "text-white/50"
                     : "text-white"
               }`}
             >
               {isVisible ? (
                 <>
-                  <span>{String(val).padStart(3, "0")}</span>
+                  <span>{formatAltitude(val)}</span>
                   <span className="text-[10px] text-white/40">M</span>
                 </>
               ) : (
