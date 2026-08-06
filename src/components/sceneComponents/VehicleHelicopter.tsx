@@ -83,14 +83,7 @@ const VehicleHelicopter = forwardRef<THREE.Mesh>((_props, ref) => {
         position={vehicleHelicopterConstants.colliders.tailPos}
         mass={params.tailMass}
       />
-      <CuboidCollider
-        args={[0.1, 0.1, 1.75]}
-        position={vehicleHelicopterConstants.colliders.leftSkidPos}
-      />
-      <CuboidCollider
-        args={[0.1, 0.1, 1.75]}
-        position={vehicleHelicopterConstants.colliders.rightSkidPos}
-      />
+      <CuboidCollider args={[1.2, 0.2, 1.75]} position={[0, -1.2, 0]} />
       <group ref={ref}>
         <RoundedBox
           args={[params.cabinWidth, params.cabinHeight, params.cabinLength]}
