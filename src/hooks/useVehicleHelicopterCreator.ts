@@ -160,42 +160,46 @@ export const useVehicleHelicopterCreator = (
       );
     }
 
+    // determine if helicopter is high enough off the ground to maneuver
+    const isAirborne = currentPosition.y > 1.5;
+
     // calculate forward and backward thrust scalar
     const thrustPower = tuning.liftForce * delta * 10;
 
     // apply forward thrust along flat horizontal plane
-    if (forward) {
+    if (forward && isAirborne) {
       forceVector.copy(flatForward).multiplyScalar(-thrustPower);
       chassis.applyImpulse(forceVector, true);
     }
 
     // apply backward thrust along flat horizontal plane
-    if (backward) {
+    if (backward && isAirborne) {
       forceVector.copy(flatForward).multiplyScalar(thrustPower);
       chassis.applyImpulse(forceVector, true);
     }
 
     // apply pitch logic along local right vector
-    if (forward || pitchDown) {
+    if ((forward || pitchDown) && isAirborne) {
       forceVector.copy(localX).multiplyScalar(-tuning.pitchTorque);
       chassis.applyTorqueImpulse(forceVector, true);
     }
-    if (backward || pitchUp) {
+    if ((backward || pitchUp) && isAirborne) {
       forceVector.copy(localX).multiplyScalar(tuning.pitchTorque);
       chassis.applyTorqueImpulse(forceVector, true);
     }
 
     // apply roll logic along local forward vector
-    if (left || rollLeft) {
+    if ((left || rollLeft) && isAirborne) {
       forceVector.copy(localZ).multiplyScalar(tuning.rollTorque);
       chassis.applyTorqueImpulse(forceVector, true);
     }
-    if (right || rollRight) {
+    if ((right || rollRight) && isAirborne) {
       forceVector.copy(localZ).multiplyScalar(-tuning.rollTorque);
       chassis.applyTorqueImpulse(forceVector, true);
     }
 
     // apply yaw logic along local up vector
+    // yaw is allowed on the ground to simulate pedal turning
     if (yawLeft) {
       forceVector.copy(localY).multiplyScalar(tuning.yawTorque);
       chassis.applyTorqueImpulse(forceVector, true);
@@ -221,8 +225,31 @@ export const useVehicleHelicopterCreator = (
     stabilizeTorque.multiplyScalar(tuning.pitchTorque * 2.5);
     chassis.applyTorqueImpulse(stabilizeTorque, true);
 
-    // calculate target rpm based on lift input
-    const targetRpm = boost ? tuning.rotorSpeed : 0;
+    // determine target rpm based on flight state and player input
+    let targetRpm: number;
+
+    // handle airborne rotor states
+    if (isAirborne) {
+      if (boost) {
+        // max speed when gaining altitude
+        targetRpm = tuning.rotorSpeed;
+      } else if (brake) {
+        // reduced speed when losing altitude
+        targetRpm = tuning.rotorSpeed * 0.6;
+      } else {
+        // high idle speed to maintain illusion of flight
+        targetRpm = tuning.rotorSpeed * 0.8;
+      }
+    } else {
+      // handle grounded rotor states
+      if (boost) {
+        // spool up for takeoff
+        targetRpm = tuning.rotorSpeed;
+      } else {
+        // engine off
+        targetRpm = 0;
+      }
+    }
 
     // smoothly interpolate current rpm towards target
     rpmRef.current = THREE.MathUtils.lerp(rpmRef.current, targetRpm, delta);
