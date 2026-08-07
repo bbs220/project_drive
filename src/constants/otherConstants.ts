@@ -34,7 +34,48 @@ export const vehicleCarConstants = {
   flipImpulse: { value: 0.5, min: 0.1, max: 100, label: "flip impulse" },
 };
 
-export const vehiclePlaneConstants = {};
+export const vehiclePlaneConstants = {
+  tuning: {
+    thrustPower: { value: 60, min: 10, max: 200, label: "thrust power" },
+    pitchTorque: { value: 5, min: 1, max: 50, label: "pitch torque" },
+    rollTorque: { value: 5, min: 1, max: 50, label: "roll torque" },
+    yawTorque: { value: 3, min: 1, max: 50, label: "yaw torque" },
+    liftMultiplier: { value: 8, min: 1, max: 50, label: "lift multiplier" },
+  },
+  colliders: {
+    fuselageArgs: [0.6, 0.6, 2.1] as [number, number, number],
+    fuselagePos: [0, 0, 0] as [number, number, number],
+    wingsArgs: [2.5, 0.1, 0.6] as [number, number, number],
+    wingsPos: [0, -0.3, 0.2] as [number, number, number],
+    wheelsArgs: [0.6, 0.3, 1.0] as [number, number, number],
+    wheelsPos: [0, -0.9, -0.35] as [number, number, number],
+  },
+  visuals: {
+    fuselageArgs: [0.6, 2.8, 4, 16] as [number, number, number, number],
+    cockpitPos: [0, 0.4, -0.8] as [number, number, number],
+    cockpitArgs: [0.55, 16, 16] as [number, number, number],
+    wingPos: [0, -0.3, 0.2] as [number, number, number],
+    wingArgs: [5, 0.1, 1.2] as [number, number, number],
+    turbinePos: [0, 0.7, 1] as [number, number, number],
+    turbineArgs: [0.4, 0.4, 1.2, 16] as [number, number, number, number],
+    leftTailPos: [-0.5, 0.5, 2] as [number, number, number],
+    rightTailPos: [0.5, 0.5, 2] as [number, number, number],
+    tailArgs: [0.1, 1.5, 0.8] as [number, number, number],
+    frontGearPos: [0, -0.6, -1.2] as [number, number, number],
+    leftRearGearPos: [-0.4, -0.6, 0.5] as [number, number, number],
+    rightRearGearPos: [0.4, -0.6, 0.5] as [number, number, number],
+    strutPos: [0, -0.1, 0] as [number, number, number],
+    strutArgs: [0.05, 0.05, 0.8] as [number, number, number],
+    frontWheelPos: [0, -0.45, 0] as [number, number, number],
+    frontWheelArgs: [0.15, 0.15, 0.1] as [number, number, number],
+    rearWheelPos: [0, -0.4, 0] as [number, number, number],
+    rearWheelArgs: [0.2, 0.2, 0.15] as [number, number, number],
+  },
+  rotations: {
+    quarterTurn: Math.PI / 2,
+    eighthTurn: Math.PI / 4,
+  },
+};
 
 export const vehicleHelicopterConstants = {
   tuning: {
