@@ -1,3 +1,4 @@
+import { vehicleRespawnLimit } from "../../constants/otherConstants";
 import { useVehicleStore } from "../../stores/useVehicleStore";
 
 // display minimal car controls
@@ -124,15 +125,15 @@ const AttitudeIndicator = ({
       <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 bg-sky-500 shadow-inner">
         {/* rotating and translating container mapping to roll and pitch */}
         <div
-          className="absolute inset-0 flex flex-col transition-transform duration-75 ease-linear"
+          className="absolute inset-0 flex flex-col"
           style={{
             transform: `rotate(${roll}rad) translateY(${pitchOffset}px)`,
           }}
         >
           {/* sky section */}
-          <div className="h-[200%] w-[200%] -translate-x-1/4 -translate-y-1/2 bg-sky-500" />
+          <div className="h-[400%] w-[400%] -translate-x-1/4 -translate-y-1/2 bg-sky-500" />
           {/* ground section */}
-          <div className="h-[200%] w-[200%] -translate-x-1/4 border-t-2 border-white bg-amber-700" />
+          <div className="h-[400%] w-[400%] -translate-x-1/4 border-t-2 border-white bg-red-800" />
         </div>
 
         {/* fixed reticle overlay */}
@@ -177,14 +178,14 @@ const AltimeterTape = ({ altitude }: { altitude: number }) => {
 
       {/* scrolling container shifting vertically per frame */}
       <div
-        className="absolute right-4 top-1/2 flex w-full flex-col transition-transform duration-75 ease-linear"
+        className="absolute right-4 top-1/2 flex w-full flex-col"
         style={{ transform: `translateY(calc(-50% + ${offsetPx}px))` }}
       >
         {/* render items to prevent blank gaps during scroll but visually hide the outer elements */}
         {[2, 1, 0, -1, -2].map((offset) => {
           const val = baseAlt + offset;
           // allow dropping to negative bounds
-          const isVisible = val >= -50;
+          const isVisible = val >= vehicleRespawnLimit;
 
           return (
             <div
