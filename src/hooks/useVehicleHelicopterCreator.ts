@@ -23,10 +23,12 @@ const dampingTorque = new THREE.Vector3();
 export type typeHelicopterTuning = {
   liftForce: number;
   descendForce: number;
+  hoverMultiplier: number;
   pitchTorque: number;
   rollTorque: number;
   yawTorque: number;
   rotorSpeed: number;
+  altitudeLimit: number;
 };
 
 // define vehicle controller hook
@@ -85,6 +87,24 @@ export const useVehicleHelicopterCreator = (
       yawRight,
     } = controls;
 
+    // extract time step for smooth rotation and physics
+    const delta = world.timestep;
+
+    // fetch current position translation from rapier
+    const currentPosition = chassis.translation();
+
+    // fetch current linear velocity
+    const currentLinVel = chassis.linvel();
+
+    // fetch mass of the chassis
+    const chassisMass = chassis.mass();
+
+    // calculate altitude by flooring the y axis value and clamping to negative bounds
+    const altitude = Math.max(
+      Math.floor(currentPosition.y),
+      vehicleRespawnLimit,
+    );
+
     // fetch current quaternion rotation from rapier
     const currentRotation = chassis.rotation();
 
@@ -104,37 +124,73 @@ export const useVehicleHelicopterCreator = (
     localY.set(0, 1, 0).applyQuaternion(quaternion);
     localZ.set(0, 0, 1).applyQuaternion(quaternion);
 
-    // apply lift logic along local up vector
-    if (boost) {
-      forceVector.copy(localY).multiplyScalar(tuning.liftForce);
+    // create a strictly horizontal forward vector to prevent thrust from pushing helicopter down
+    const flatForward = new THREE.Vector3(localZ.x, 0, localZ.z).normalize();
+
+    // calculate exact impulse required to counteract standard gravity using tweakable multiplier
+    const hoverImpulse = chassisMass * tuning.hoverMultiplier * delta;
+
+    // apply baseline hover force along global up vector to prevent falling
+    if (!brake) {
+      forceVector.copy(globalUp).multiplyScalar(hoverImpulse);
       chassis.applyImpulse(forceVector, true);
     }
 
-    // apply descent logic along local up vector
+    // apply additional lift logic along local up vector if below altitude limit
+    if (boost && currentPosition.y < tuning.altitudeLimit) {
+      forceVector.copy(localY).multiplyScalar(tuning.liftForce * delta);
+      chassis.applyImpulse(forceVector, true);
+    }
+
+    // apply descent logic along global up vector by overriding hover
     if (brake) {
-      forceVector.copy(localY).multiplyScalar(-tuning.descendForce);
+      forceVector.copy(globalUp).multiplyScalar(-tuning.descendForce * delta);
       chassis.applyImpulse(forceVector, true);
     }
 
-    // calculate maximum angle in radians for hard limit
-    const maxAngle = Math.PI / 4;
-
-    // apply pitch logic along local right vector with hard angle limits
-    if ((forward || pitchDown) && euler.x > -maxAngle) {
-      forceVector.copy(localX).multiplyScalar(tuning.pitchTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+    // dampen vertical velocity to stabilize hover when no vertical input is active
+    if (!boost && !brake) {
+      chassis.setLinvel(
+        {
+          x: currentLinVel.x,
+          y: THREE.MathUtils.lerp(currentLinVel.y, 0, delta * 5),
+          z: currentLinVel.z,
+        },
+        true,
+      );
     }
-    if ((backward || pitchUp) && euler.x < maxAngle) {
+
+    // calculate forward and backward thrust scalar
+    const thrustPower = tuning.liftForce * delta * 10;
+
+    // apply forward thrust along flat horizontal plane
+    if (forward) {
+      forceVector.copy(flatForward).multiplyScalar(-thrustPower);
+      chassis.applyImpulse(forceVector, true);
+    }
+
+    // apply backward thrust along flat horizontal plane
+    if (backward) {
+      forceVector.copy(flatForward).multiplyScalar(thrustPower);
+      chassis.applyImpulse(forceVector, true);
+    }
+
+    // apply pitch logic along local right vector
+    if (forward || pitchDown) {
       forceVector.copy(localX).multiplyScalar(-tuning.pitchTorque);
       chassis.applyTorqueImpulse(forceVector, true);
     }
+    if (backward || pitchUp) {
+      forceVector.copy(localX).multiplyScalar(tuning.pitchTorque);
+      chassis.applyTorqueImpulse(forceVector, true);
+    }
 
-    // apply roll logic along local forward vector with hard angle limits
-    if ((left || rollLeft) && euler.z < maxAngle) {
+    // apply roll logic along local forward vector
+    if (left || rollLeft) {
       forceVector.copy(localZ).multiplyScalar(tuning.rollTorque);
       chassis.applyTorqueImpulse(forceVector, true);
     }
-    if ((right || rollRight) && euler.z > -maxAngle) {
+    if (right || rollRight) {
       forceVector.copy(localZ).multiplyScalar(-tuning.rollTorque);
       chassis.applyTorqueImpulse(forceVector, true);
     }
@@ -152,22 +208,18 @@ export const useVehicleHelicopterCreator = (
     // fetch current angular velocity from rapier
     const currentAngVel = chassis.angvel();
 
-    // apply angular damping to stop infinite spinning and maintain angle of attack
+    // apply angular damping to stop infinite spinning
     dampingTorque
       .set(-currentAngVel.x, -currentAngVel.y, -currentAngVel.z)
       .multiplyScalar(tuning.pitchTorque);
     chassis.applyTorqueImpulse(dampingTorque, true);
 
-    // forcefully stabilize helicopter if it exceeds the hard angle limit due to momentum
-    if (Math.abs(euler.x) > maxAngle || Math.abs(euler.z) > maxAngle) {
-      stabilizeTorque
-        .crossVectors(localY, globalUp)
-        .multiplyScalar(tuning.pitchTorque * 2);
-      chassis.applyTorqueImpulse(stabilizeTorque, true);
-    }
+    // calculate soft auto leveling spring force to replace hard jitter limits
+    stabilizeTorque.crossVectors(localY, globalUp);
 
-    // extract time step for smooth rotation
-    const delta = world.timestep;
+    // apply continuous self leveling torque that naturally resists extreme angles
+    stabilizeTorque.multiplyScalar(tuning.pitchTorque * 2.5);
+    chassis.applyTorqueImpulse(stabilizeTorque, true);
 
     // calculate target rpm based on lift input
     const targetRpm = boost ? tuning.rotorSpeed : 0;
@@ -198,15 +250,6 @@ export const useVehicleHelicopterCreator = (
     if (tailRotorRef.current) {
       tailRotorRef.current.rotation.x += delta * rpmRef.current;
     }
-
-    // fetch current position translation from rapier
-    const currentPosition = chassis.translation();
-
-    // calculate altitude by flooring the y axis value and clamping to negative bounds
-    const altitude = Math.max(
-      Math.floor(currentPosition.y),
-      vehicleRespawnLimit,
-    );
 
     // extract pitch roll and yaw for ui attitude indicator
     const currentPitch = euler.x;
