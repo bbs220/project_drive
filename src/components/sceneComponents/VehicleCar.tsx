@@ -19,8 +19,8 @@ import {
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import respawnVehicle from "../../utils/respawnVehicle";
 
-// wrap component in forward ref to expose visual mesh to parent
-export const VehicleCar = forwardRef<THREE.Mesh>((_props, ref) => {
+// wrap component in forward ref to expose visual group to parent
+const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
   // ref for the main chassis rigid body
   const chassisRef = useRef<RapierRigidBody>(null);
 
@@ -121,33 +121,36 @@ export const VehicleCar = forwardRef<THREE.Mesh>((_props, ref) => {
           ]}
         />
 
-        {/* attach forwarded ref directly to chassis visual mesh */}
-        <mesh ref={ref}>
-          <boxGeometry
-            args={[
-              params.chassisWidth,
-              params.chassisHeight,
-              params.chassisLength,
-            ]}
-          />
-          <meshStandardMaterial color="blue" />
-        </mesh>
+        {/* wrap visual elements in a group to forward the ref uniformly */}
+        <group ref={ref}>
+          {/* chassis visual mesh */}
+          <mesh>
+            <boxGeometry
+              args={[
+                params.chassisWidth,
+                params.chassisHeight,
+                params.chassisLength,
+              ]}
+            />
+            <meshStandardMaterial color="blue" />
+          </mesh>
 
-        {/* render visual wheels as children of chassis */}
-        {wheelsInfo.map((info, index) => (
-          <group
-            key={index}
-            position={[info.position.x, info.position.y, info.position.z]}
-            ref={(el) => {
-              if (el) wheelsRef.current[index] = el;
-            }}
-          >
-            {/* base wheel geometry */}
-            <mesh geometry={wheelGeo}>
-              <meshStandardMaterial color="yellow" wireframe />
-            </mesh>
-          </group>
-        ))}
+          {/* render visual wheels as children of chassis */}
+          {wheelsInfo.map((info, index) => (
+            <group
+              key={index}
+              position={[info.position.x, info.position.y, info.position.z]}
+              ref={(el) => {
+                if (el) wheelsRef.current[index] = el;
+              }}
+            >
+              {/* base wheel geometry */}
+              <mesh geometry={wheelGeo}>
+                <meshStandardMaterial color="yellow" wireframe />
+              </mesh>
+            </group>
+          ))}
+        </group>
       </RigidBody>
     </group>
   );
