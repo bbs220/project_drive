@@ -6,7 +6,7 @@ import * as THREE from "three";
 
 // define props with optional debug flag
 type CameraRigProps = {
-  targetRef: React.RefObject<THREE.Mesh | null>;
+  targetRef: React.RefObject<THREE.Group | null>;
   debugMode?: boolean;
 };
 

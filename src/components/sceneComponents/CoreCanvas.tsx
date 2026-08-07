@@ -30,9 +30,9 @@ const CoreScene = () => {
   const isDev = import.meta.env.DEV;
 
   // initialize refs for all instantiated vehicles
-  const carRef = useRef<THREE.Mesh>(null);
-  const heliRef = useRef<THREE.Mesh>(null);
-  const planeRef = useRef<THREE.Mesh>(null);
+  const carRef = useRef<THREE.Group>(null);
+  const heliRef = useRef<THREE.Group>(null);
+  const planeRef = useRef<THREE.Group>(null);
 
   // fetch active vehicle and setter from global store
   const activeControl = useVehicleStore((state) => state.activeControl);
