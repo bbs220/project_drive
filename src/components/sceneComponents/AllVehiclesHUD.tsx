@@ -66,12 +66,12 @@ const AttitudeIndicator = ({
 
   return (
     <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-black/40 p-2 shadow-md backdrop-blur-md">
-      {/* rotating compass bezel mapping to yaw */}
+      {/* // rotating compass bezel mapping to yaw */}
       <div
         className="absolute inset-1 rounded-full font-mono text-xs font-bold text-white/80"
         style={{ transform: `rotate(${-yaw}rad)` }}
       >
-        {/* counter rotate spans so text stays upright */}
+        {/* // counter rotate spans so text stays upright */}
         <span
           className="absolute left-1/2 top-0"
           style={{ transform: `translateX(-50%) rotate(${yaw}rad)` }}
@@ -121,22 +121,20 @@ const AttitudeIndicator = ({
           NW
         </span>
       </div>
-
-      <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 bg-sky-500 shadow-inner">
-        {/* rotating and translating container mapping to roll and pitch */}
+      <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 shadow-inner">
+        {/* // rotating and translating container mapping to roll and pitch */}
         <div
-          className="absolute inset-0 flex flex-col"
+          className="absolute inset-0"
           style={{
             transform: `rotate(${roll}rad) translateY(${pitchOffset}px)`,
           }}
         >
-          {/* sky section */}
-          <div className="h-[400%] w-[400%] -translate-x-1/4 -translate-y-1/2 bg-sky-500" />
-          {/* ground section */}
-          <div className="h-[400%] w-[400%] -translate-x-1/4 border-t-2 border-white bg-red-800" />
+          {/* // oversized sky section anchored to center */}
+          <div className="absolute bottom-1/2 -left-full h-[400%] w-[400%] bg-sky-500" />
+          {/* // oversized ground section anchored to center */}
+          <div className="absolute top-1/2 -left-full h-[400%] w-[400%] border-t-2 border-white bg-red-800" />
         </div>
-
-        {/* fixed reticle overlay */}
+        {/* // fixed reticle overlay */}
         <div className="absolute flex items-center justify-center gap-4">
           <div className="h-0.5 w-4 bg-yellow-400" />
           <div className="h-1 w-1 rounded-full bg-yellow-400" />
