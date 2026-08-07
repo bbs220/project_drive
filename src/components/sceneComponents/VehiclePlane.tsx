@@ -46,7 +46,7 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
       <group ref={ref}>
         <mesh rotation={[Math.PI / 2, 0, 0]}>
           <capsuleGeometry args={[0.6, 2.8, 4, 16]} />
-          <meshStandardMaterial color={"white"} />
+          <meshStandardMaterial color={"green"} />
         </mesh>
         {/* // create dark cockpit window at the front */}
         <mesh position={[0, 0.3, -1]}>
@@ -76,7 +76,7 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
         {/* // create front landing gear strut and wheel */}
         <group position={[0, -0.6, -1.2]}>
           <mesh position={[0, -0.2, 0]}>
-            <cylinderGeometry args={[0.05, 0.05, 0.4]} />
+            <cylinderGeometry args={[0.05, 0.05, 0.8]} />
             <meshStandardMaterial color={"gray"} />
           </mesh>
           <mesh position={[0, -0.4, 0]} rotation={[0, 0, Math.PI / 2]}>
@@ -87,7 +87,7 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
         {/* // create left rear landing gear */}
         <group position={[-0.4, -0.6, 0.5]}>
           <mesh position={[0, -0.2, 0]}>
-            <cylinderGeometry args={[0.05, 0.05, 0.4]} />
+            <cylinderGeometry args={[0.05, 0.05, 0.8]} />
             <meshStandardMaterial color={"gray"} />
           </mesh>
           <mesh position={[0, -0.4, 0]} rotation={[0, 0, Math.PI / 2]}>
@@ -98,7 +98,7 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
         {/* // create right rear landing gear */}
         <group position={[0.4, -0.6, 0.5]}>
           <mesh position={[0, -0.2, 0]}>
-            <cylinderGeometry args={[0.05, 0.05, 0.4]} />
+            <cylinderGeometry args={[0.05, 0.05, 0.8]} />
             <meshStandardMaterial color={"gray"} />
           </mesh>
           <mesh position={[0, -0.4, 0]} rotation={[0, 0, Math.PI / 2]}>
