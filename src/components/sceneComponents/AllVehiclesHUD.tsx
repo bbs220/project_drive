@@ -32,7 +32,32 @@ const HelicopterControlsDisplay = () => {
     <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap border-t border-white/10 bg-black/60 px-6 py-2 font-mono text-[10px] text-white/60 backdrop-blur-md sm:text-xs">
       <div className="flex items-center gap-3">
         <span>
-          <strong className="text-white">SHIFT/SPACE</strong> lift/descend
+          <strong className="text-white">SHIFT/SPACE</strong> ascend/descend
+        </span>
+        <span className="h-1 w-1 bg-white/20"></span>
+        <span>
+          <strong className="text-white">WS</strong> pitch
+        </span>
+        <span className="h-1 w-1 bg-white/20"></span>
+        <span>
+          <strong className="text-white">AD</strong> roll
+        </span>
+        <span className="h-1 w-1 bg-white/20"></span>
+        <span>
+          <strong className="text-white">QE</strong> yaw
+        </span>
+      </div>
+    </div>
+  );
+};
+
+// display minimal plane controls
+const PlaneControlsDisplay = () => {
+  return (
+    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap border-t border-white/10 bg-black/60 px-6 py-2 font-mono text-[10px] text-white/60 backdrop-blur-md sm:text-xs">
+      <div className="flex items-center gap-3">
+        <span>
+          <strong className="text-white">SHIFT</strong> throttle
         </span>
         <span className="h-1 w-1 bg-white/20"></span>
         <span>
@@ -66,12 +91,12 @@ const AttitudeIndicator = ({
 
   return (
     <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-black/40 p-2 shadow-md backdrop-blur-md">
-      {/* // rotating compass bezel mapping to yaw */}
+      {/* rotating compass bezel mapping to yaw */}
       <div
         className="absolute inset-1 rounded-full font-mono text-xs font-bold text-white/80"
         style={{ transform: `rotate(${-yaw}rad)` }}
       >
-        {/* // counter rotate spans so text stays upright */}
+        {/* counter rotate spans so text stays upright */}
         <span
           className="absolute left-1/2 top-0"
           style={{ transform: `translateX(-50%) rotate(${yaw}rad)` }}
@@ -121,20 +146,22 @@ const AttitudeIndicator = ({
           NW
         </span>
       </div>
+
       <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 shadow-inner">
-        {/* // rotating and translating container mapping to roll and pitch */}
+        {/* rotating and translating container mapping to roll and pitch */}
         <div
           className="absolute inset-0"
           style={{
             transform: `rotate(${roll}rad) translateY(${pitchOffset}px)`,
           }}
         >
-          {/* // oversized sky section anchored to center */}
+          {/* oversized sky section anchored to center */}
           <div className="absolute bottom-1/2 -left-full h-[400%] w-[400%] bg-sky-500" />
-          {/* // oversized ground section anchored to center */}
+          {/* oversized ground section anchored to center */}
           <div className="absolute top-1/2 -left-full h-[400%] w-[400%] border-t-2 border-white bg-red-800" />
         </div>
-        {/* // fixed reticle overlay */}
+
+        {/* fixed reticle overlay */}
         <div className="absolute flex items-center justify-center gap-4">
           <div className="h-0.5 w-4 bg-yellow-400" />
           <div className="h-1 w-1 rounded-full bg-yellow-400" />
@@ -285,6 +312,14 @@ const AllVehiclesHUD = () => {
             {/* scrolling altimeter tape */}
             <AltimeterTape altitude={currentHeliAltitude} />
           </div>
+        </>
+      )}
+
+      {/* only render plane display if player is actively flying */}
+      {activeControl === "plane" && (
+        <>
+          {/* dynamic plane controls */}
+          <PlaneControlsDisplay />
         </>
       )}
     </div>
