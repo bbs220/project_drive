@@ -20,6 +20,7 @@ export type PlaneTelemetry = {
 
 // define telemetry specific to helicopters
 export type HelicopterTelemetry = {
+  airspeed: number;
   rotorRpm: number;
   altitude: number;
   collective: number;
@@ -84,6 +85,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
 
   // initialize helicopter telemetry
   helicopterTelemetry: {
+    airspeed: 0,
     rotorRpm: 0,
     altitude: 0,
     collective: 0,

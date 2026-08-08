@@ -102,6 +102,9 @@ export const useVehiclePlaneCreator = (
       vehicleRespawnLimit,
     );
 
+    // determine if plane is high enough off the ground to be considered flying
+    const isAirborne = currentPosition.y > 1.5;
+
     // fetch current quaternion rotation from rapier
     const currentRotation = chassis.rotation();
 
@@ -129,6 +132,18 @@ export const useVehiclePlaneCreator = (
     // smoothly interpolate throttle towards zero when braking
     if (brake) {
       throttleRef.current = THREE.MathUtils.lerp(throttleRef.current, 0, delta);
+    }
+
+    // apply ground brakes by forcefully dampening horizontal velocity when touching the runway
+    if (brake && !isAirborne) {
+      chassis.setLinvel(
+        {
+          x: THREE.MathUtils.lerp(currentLinVel.x, 0, delta * 5),
+          y: currentLinVel.y,
+          z: THREE.MathUtils.lerp(currentLinVel.z, 0, delta * 5),
+        },
+        true,
+      );
     }
 
     // calculate forward thrust

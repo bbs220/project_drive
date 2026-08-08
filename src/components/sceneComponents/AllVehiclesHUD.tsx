@@ -61,6 +61,10 @@ const PlaneControlsDisplay = () => {
         </span>
         <span className="h-1 w-1 bg-white/20"></span>
         <span>
+          <strong className="text-white">SPACE</strong> brake
+        </span>
+        <span className="h-1 w-1 bg-white/20"></span>
+        <span>
           <strong className="text-white">WS</strong> pitch
         </span>
         <span className="h-1 w-1 bg-white/20"></span>
@@ -254,6 +258,11 @@ const AllVehiclesHUD = () => {
     (state) => state.helicopterTelemetry?.altitude || 0,
   );
 
+  // subscribe to strict helicopter telemetry airspeed from global store
+  const currentHeliAirspeed = useVehicleStore(
+    (state) => state.helicopterTelemetry?.airspeed || 0,
+  );
+
   // subscribe to strict helicopter telemetry pitch from global store
   const currentHeliPitch = useVehicleStore(
     (state) => state.helicopterTelemetry?.pitch || 0,
@@ -269,8 +278,35 @@ const AllVehiclesHUD = () => {
     (state) => state.helicopterTelemetry?.yaw || 0,
   );
 
-  // pad speed string for arcade styling
+  // subscribe to strict plane telemetry airspeed from global store
+  const currentPlaneAirspeed = useVehicleStore(
+    (state) => state.planeTelemetry?.airspeed || 0,
+  );
+
+  // subscribe to strict plane telemetry altitude from global store
+  const currentPlaneAltitude = useVehicleStore(
+    (state) => state.planeTelemetry?.altitude || 0,
+  );
+
+  // subscribe to strict plane telemetry pitch from global store
+  const currentPlanePitch = useVehicleStore(
+    (state) => state.planeTelemetry?.pitch || 0,
+  );
+
+  // subscribe to strict plane telemetry roll from global store
+  const currentPlaneRoll = useVehicleStore(
+    (state) => state.planeTelemetry?.roll || 0,
+  );
+
+  // subscribe to strict plane telemetry yaw from global store for the compass bezel
+  const currentPlaneYaw = useVehicleStore(
+    (state) => state.planeTelemetry?.yaw || 0,
+  );
+
+  // pad speed strings for arcade styling
   const displayCarSpeed = String(currentCarSpeed).padStart(3, "0");
+  const displayHeliSpeed = String(currentHeliAirspeed).padStart(3, "0");
+  const displayPlaneSpeed = String(currentPlaneAirspeed).padStart(3, "0");
 
   return (
     // full screen non interactive overlay
@@ -289,7 +325,9 @@ const AllVehiclesHUD = () => {
             </span>
 
             {/* speed unit */}
-            <span className="ml-2 text-xl font-bold text-gray-300">KM/H</span>
+            <span className="ml-2 inline-block text-xl font-bold text-gray-300">
+              KM/H
+            </span>
           </div>
         </>
       )}
@@ -300,8 +338,8 @@ const AllVehiclesHUD = () => {
           {/* dynamic helicopter controls */}
           <HelicopterControlsDisplay />
 
-          {/* advanced aviation instruments container */}
-          <div className="absolute bottom-6 right-6 flex items-center gap-6">
+          {/* advanced aviation instruments container anchored to bottom left */}
+          <div className="absolute bottom-6 left-6 flex items-end gap-6">
             {/* dynamic artificial horizon with compass bezel */}
             <AttitudeIndicator
               pitch={currentHeliPitch}
@@ -312,6 +350,16 @@ const AllVehiclesHUD = () => {
             {/* scrolling altimeter tape */}
             <AltimeterTape altitude={currentHeliAltitude} />
           </div>
+
+          {/* inline helicopter airspeed anchored to bottom right */}
+          <div className="absolute bottom-6 right-6 flex items-baseline text-white drop-shadow-md">
+            <span className="tabular-nums font-mono text-6xl font-black italic tracking-tighter">
+              {displayHeliSpeed}
+            </span>
+            <span className="ml-2 inline-block text-xl font-bold text-gray-300">
+              KTS
+            </span>
+          </div>
         </>
       )}
 
@@ -320,6 +368,29 @@ const AllVehiclesHUD = () => {
         <>
           {/* dynamic plane controls */}
           <PlaneControlsDisplay />
+
+          {/* advanced aviation instruments container anchored to bottom left */}
+          <div className="absolute bottom-6 left-6 flex items-end gap-6">
+            {/* dynamic artificial horizon with compass bezel */}
+            <AttitudeIndicator
+              pitch={currentPlanePitch}
+              roll={currentPlaneRoll}
+              yaw={currentPlaneYaw}
+            />
+
+            {/* scrolling altimeter tape */}
+            <AltimeterTape altitude={currentPlaneAltitude} />
+          </div>
+
+          {/* inline plane airspeed anchored to bottom right */}
+          <div className="absolute bottom-6 right-6 flex items-baseline text-white drop-shadow-md">
+            <span className="tabular-nums font-mono text-6xl font-black italic tracking-tighter">
+              {displayPlaneSpeed}
+            </span>
+            <span className="ml-2 inline-block text-xl font-bold text-gray-300">
+              KTS
+            </span>
+          </div>
         </>
       )}
     </div>

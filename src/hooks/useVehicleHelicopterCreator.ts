@@ -19,6 +19,9 @@ const globalUp = new THREE.Vector3(0, 1, 0);
 const stabilizeTorque = new THREE.Vector3();
 const dampingTorque = new THREE.Vector3();
 
+// add this new vector to hold our velocity
+const currentVelVector = new THREE.Vector3();
+
 // define helicopter tuning parameters
 export type typeHelicopterTuning = {
   liftForce: number;
@@ -95,6 +98,9 @@ export const useVehicleHelicopterCreator = (
 
     // fetch current linear velocity
     const currentLinVel = chassis.linvel();
+
+    // convert rapier plain object to a three js vector
+    currentVelVector.set(currentLinVel.x, currentLinVel.y, currentLinVel.z);
 
     // fetch mass of the chassis
     const chassisMass = chassis.mass();
@@ -278,6 +284,12 @@ export const useVehicleHelicopterCreator = (
       tailRotorRef.current.rotation.x += delta * rpmRef.current;
     }
 
+    // calculate true dimensional speed
+    const speedMps = currentVelVector.length();
+
+    // convert to knots for authentic aviation telemetry
+    const speedKnots = speedMps * 1.94384;
+
     // extract pitch roll and yaw for ui attitude indicator
     const currentPitch = euler.x;
     const currentRoll = euler.z;
@@ -286,6 +298,7 @@ export const useVehicleHelicopterCreator = (
     // push calculated telemetry directly to zustand store without triggering a hook re render
     useVehicleStore.getState().setHelicopterTelemetry({
       altitude: altitude,
+      airspeed: Math.floor(speedKnots),
       pitch: currentPitch,
       roll: currentRoll,
       yaw: currentYaw,
