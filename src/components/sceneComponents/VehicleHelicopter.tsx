@@ -80,81 +80,106 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
           mass={params.cabinMass}
         />
         <CuboidCollider
-          args={[0.2, 0.2, 1.5]}
+          args={vehicleHelicopterConstants.colliders.tailArgs}
           position={vehicleHelicopterConstants.colliders.tailPos}
           mass={params.tailMass}
         />
-        <CuboidCollider args={[1.2, 0.2, 1.75]} position={[0, -1.2, 0]} />
+        <CuboidCollider
+          args={vehicleHelicopterConstants.colliders.skidArgs}
+          position={vehicleHelicopterConstants.colliders.skidPos}
+        />
 
         {/* visual elements perfectly wrapped in the forwarded ref group */}
         <group ref={ref}>
           <RoundedBox
             args={[params.cabinWidth, params.cabinHeight, params.cabinLength]}
-            radius={0.5}
-            smoothness={4}
+            radius={vehicleHelicopterConstants.visuals.cabinRadius}
+            smoothness={vehicleHelicopterConstants.visuals.cabinSmoothness}
           >
             <meshStandardMaterial color={"red"} />
           </RoundedBox>
           <mesh position={vehicleHelicopterConstants.colliders.tailPos}>
-            <boxGeometry args={[0.4, 0.4, 3]} />
+            <boxGeometry
+              args={vehicleHelicopterConstants.visuals.tailBoxArgs}
+            />
             <meshStandardMaterial color={"darkred"} />
           </mesh>
           <mesh position={vehicleHelicopterConstants.colliders.leftSkidPos}>
-            <boxGeometry args={[0.2, 0.2, 3.5]} />
+            <boxGeometry args={vehicleHelicopterConstants.visuals.skidArgs} />
             <meshStandardMaterial color={"gray"} />
           </mesh>
           <mesh position={vehicleHelicopterConstants.colliders.rightSkidPos}>
-            <boxGeometry args={[0.2, 0.2, 3.5]} />
+            <boxGeometry args={vehicleHelicopterConstants.visuals.skidArgs} />
             <meshStandardMaterial color={"gray"} />
           </mesh>
           <group
             ref={mainRotorRef}
-            position={[0, params.cabinHeight / 2 + 0.2, 0]}
+            position={[
+              vehicleHelicopterConstants.physics.zeroVector,
+              params.cabinHeight / 2 +
+                vehicleHelicopterConstants.visuals.mainRotorOffset,
+              vehicleHelicopterConstants.physics.zeroVector,
+            ]}
           >
-            <mesh position={[0, 0.1, 0]}>
-              <cylinderGeometry args={[0.1, 0.1, 0.6]} />
+            <mesh position={vehicleHelicopterConstants.visuals.rotorMastPos}>
+              <cylinderGeometry
+                args={vehicleHelicopterConstants.visuals.rotorMastArgs}
+              />
               <meshStandardMaterial color={"black"} />
             </mesh>
-            <mesh position={[0, 0.4, 0]}>
-              <boxGeometry args={[0.2, 0.05, 8]} />
+            <mesh position={vehicleHelicopterConstants.visuals.bladePos}>
+              <boxGeometry
+                args={vehicleHelicopterConstants.visuals.bladeArgs}
+              />
               <meshStandardMaterial color={"black"} />
             </mesh>
             <mesh
-              position={[0, 0.4, 0]}
+              position={vehicleHelicopterConstants.visuals.bladePos}
               rotation={[
                 vehicleHelicopterConstants.physics.zeroVector,
                 vehicleHelicopterConstants.rotations.quarterTurn,
                 vehicleHelicopterConstants.physics.zeroVector,
               ]}
             >
-              <boxGeometry args={[0.2, 0.05, 8]} />
+              <boxGeometry
+                args={vehicleHelicopterConstants.visuals.bladeArgs}
+              />
               <meshStandardMaterial color={"black"} />
             </mesh>
           </group>
-          <group ref={tailRotorRef} position={[0.25, 0.5, 3.8]}>
+          <group
+            ref={tailRotorRef}
+            position={vehicleHelicopterConstants.visuals.tailRotorGroupPos}
+          >
             <mesh
               rotation={[
-                0,
-                0,
+                vehicleHelicopterConstants.physics.zeroVector,
+                vehicleHelicopterConstants.physics.zeroVector,
                 vehicleHelicopterConstants.rotations.quarterTurn,
               ]}
             >
-              <cylinderGeometry args={[0.05, 0.05, 0.3]} />
+              <cylinderGeometry
+                args={vehicleHelicopterConstants.visuals.tailRotorMastArgs}
+              />
               <meshStandardMaterial color={"black"} />
             </mesh>
-            <mesh position={[0.15, 0, 0]}>
-              <boxGeometry args={[0.05, 1.5, 0.15]} />
+            <mesh position={vehicleHelicopterConstants.visuals.tailBladePos}>
+              <boxGeometry
+                args={vehicleHelicopterConstants.visuals.tailBladeArgs}
+              />
               <meshStandardMaterial color={"black"} />
             </mesh>
             <mesh
-              position={[0.15, 0, 0]}
+              position={vehicleHelicopterConstants.visuals.tailBladePos}
               rotation={[
                 vehicleHelicopterConstants.rotations.quarterTurn,
-                0,
-                0,
+                vehicleHelicopterConstants.physics.zeroVector,
+                vehicleHelicopterConstants.physics.zeroVector,
               ]}
             >
-              <boxGeometry args={[0.05, 1.5, 0.15]} />
+              <boxGeometry
+                args={vehicleHelicopterConstants.visuals.tailBladeArgs}
+              />
               <meshStandardMaterial color={"black"} />
             </mesh>
           </group>

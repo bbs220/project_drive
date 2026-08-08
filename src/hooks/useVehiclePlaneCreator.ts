@@ -14,14 +14,14 @@ const localY = new THREE.Vector3();
 const localZ = new THREE.Vector3();
 const forceVector = new THREE.Vector3();
 const dampingTorque = new THREE.Vector3();
-const globalUp = new THREE.Vector3(0, 1, 0);
 
 // add this new vector to hold our velocity
 const currentVelVector = new THREE.Vector3();
 
-// define plane tuning parameters
+// define plane tuning parameters including new brake force
 export type typePlaneTuning = {
   thrustPower: number;
+  brakeForce: number;
   pitchTorque: number;
   rollTorque: number;
   yawTorque: number;
@@ -134,13 +134,21 @@ export const useVehiclePlaneCreator = (
       throttleRef.current = THREE.MathUtils.lerp(throttleRef.current, 0, delta);
     }
 
-    // apply ground brakes by forcefully dampening horizontal velocity when touching the runway
+    // apply ground brakes by forcefully dampening horizontal velocity using tweakpane value
     if (brake && !isAirborne) {
       chassis.setLinvel(
         {
-          x: THREE.MathUtils.lerp(currentLinVel.x, 0, delta * 5),
+          x: THREE.MathUtils.lerp(
+            currentLinVel.x,
+            0,
+            delta * tuning.brakeForce,
+          ),
           y: currentLinVel.y,
-          z: THREE.MathUtils.lerp(currentLinVel.z, 0, delta * 5),
+          z: THREE.MathUtils.lerp(
+            currentLinVel.z,
+            0,
+            delta * tuning.brakeForce,
+          ),
         },
         true,
       );
@@ -171,8 +179,8 @@ export const useVehiclePlaneCreator = (
       gravityImpulse,
     );
 
-    // apply vertical lift force along global up vector
-    forceVector.copy(globalUp).multiplyScalar(dynamicLift);
+    // apply lift force along local up vector so turning and pitching actively deflects the flight path
+    forceVector.copy(localY).multiplyScalar(dynamicLift);
     chassis.applyImpulse(forceVector, true);
 
     // apply pitch torque along local right vector

@@ -57,11 +57,7 @@ const PlaneControlsDisplay = () => {
     <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap border-t border-white/10 bg-black/60 px-6 py-2 font-mono text-[10px] text-white/60 backdrop-blur-md sm:text-xs">
       <div className="flex items-center gap-3">
         <span>
-          <strong className="text-white">SHIFT</strong> throttle
-        </span>
-        <span className="h-1 w-1 bg-white/20"></span>
-        <span>
-          <strong className="text-white">SPACE</strong> brake
+          <strong className="text-white">SHIFT/SPACE</strong> take off/airbrake
         </span>
         <span className="h-1 w-1 bg-white/20"></span>
         <span>
