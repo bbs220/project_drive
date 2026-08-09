@@ -22,8 +22,9 @@ Maintain strict contrast between digital telemetry readouts and human-readable l
   * Use for static labels, menus, and chat.
   * Clean and squared-off to contrast the heavy stylization of the main numbers.
 
-## 🌟 Visual Effects (Bloom)
+## 🌟 Visual Effects (Bloom & Containers)
 To achieve the glowing neon aesthetic without expensive 3D lighting calculations:
-* Apply multi-layered drop shadows or text shadows to neon UI elements.
+* Containers must never have box shadows or block-level dropshadows. They use glowing borders only (e.g., using colored border utilities and border glow).
+* Only the text and inner elements within a container have text-shadow or drop-shadow effects.
 * Create a dense inner core of light (e.g., `5px` spread) surrounded by a softer, wider falloff (e.g., `20px` spread).
 * This perfectly mimics a WebGL post-processing bloom pass while keeping UI rendering completely separate and highly performant.

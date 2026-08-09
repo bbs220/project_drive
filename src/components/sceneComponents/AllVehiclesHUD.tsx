@@ -4,22 +4,35 @@ import { useVehicleStore } from "../../stores/useVehicleStore";
 // display minimal car controls
 const CarControlsDisplay = () => {
   return (
-    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap border-t border-white/10 bg-black/60 px-6 py-2 font-mono text-[10px] text-white/60 backdrop-blur-md sm:text-xs">
-      <div className="flex items-center gap-3">
-        <span>
-          <strong className="text-white">WASD</strong> drive
+    // container with glowing border only and no box shadow
+    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap rounded-md border border-tron-cyan bg-tron-bg/80 px-8 py-2.5 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
+      <div className="flex items-center gap-4">
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            WASD
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">drive</span>
         </span>
-        <span className="h-1 w-1 bg-white/20"></span>
-        <span>
-          <strong className="text-white">SPACE</strong> brake
+        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            SPACE
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">brake</span>
         </span>
-        <span className="h-1 w-1 bg-white/20"></span>
-        <span>
-          <strong className="text-white">SHIFT</strong> boost
+        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            SHIFT
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">boost</span>
         </span>
-        <span className="h-1 w-1 bg-white/20"></span>
-        <span>
-          <strong className="text-white">AD</strong> roll
+        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            AD
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">roll</span>
         </span>
       </div>
     </div>
@@ -29,22 +42,37 @@ const CarControlsDisplay = () => {
 // display minimal helicopter controls
 const HelicopterControlsDisplay = () => {
   return (
-    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap border-t border-white/10 bg-black/60 px-6 py-2 font-mono text-[10px] text-white/60 backdrop-blur-md sm:text-xs">
-      <div className="flex items-center gap-3">
-        <span>
-          <strong className="text-white">SHIFT/SPACE</strong> ascend/descend
+    // container with glowing border only and no box shadow
+    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap rounded-md border border-tron-cyan bg-tron-bg/80 px-8 py-2.5 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
+      <div className="flex items-center gap-4">
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            SHIFT/SPACE
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">
+            ascend/descend
+          </span>
         </span>
-        <span className="h-1 w-1 bg-white/20"></span>
-        <span>
-          <strong className="text-white">WS</strong> pitch
+        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            WS
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">pitch</span>
         </span>
-        <span className="h-1 w-1 bg-white/20"></span>
-        <span>
-          <strong className="text-white">AD</strong> roll
+        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            AD
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">roll</span>
         </span>
-        <span className="h-1 w-1 bg-white/20"></span>
-        <span>
-          <strong className="text-white">QE</strong> yaw
+        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            QE
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">yaw</span>
         </span>
       </div>
     </div>
@@ -54,22 +82,37 @@ const HelicopterControlsDisplay = () => {
 // display minimal plane controls
 const PlaneControlsDisplay = () => {
   return (
-    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap border-t border-white/10 bg-black/60 px-6 py-2 font-mono text-[10px] text-white/60 backdrop-blur-md sm:text-xs">
-      <div className="flex items-center gap-3">
-        <span>
-          <strong className="text-white">SHIFT/SPACE</strong> take off/airbrake
+    // container with glowing border only and no box shadow
+    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap rounded-md border border-tron-cyan bg-tron-bg/80 px-8 py-2.5 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
+      <div className="flex items-center gap-4">
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            SHIFT/SPACE
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">
+            take off/airbrake
+          </span>
         </span>
-        <span className="h-1 w-1 bg-white/20"></span>
-        <span>
-          <strong className="text-white">WS</strong> pitch
+        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            WS
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">pitch</span>
         </span>
-        <span className="h-1 w-1 bg-white/20"></span>
-        <span>
-          <strong className="text-white">AD</strong> roll
+        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            AD
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">roll</span>
         </span>
-        <span className="h-1 w-1 bg-white/20"></span>
-        <span>
-          <strong className="text-white">QE</strong> yaw
+        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            QE
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">yaw</span>
         </span>
       </div>
     </div>
@@ -90,10 +133,11 @@ const AttitudeIndicator = ({
   const pitchOffset = Math.max(Math.min(pitch * 40, 40), -40);
 
   return (
-    <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-black/40 p-2 shadow-md backdrop-blur-md">
+    // attitude container with glowing border only and no outer shadow
+    <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-tron-cyan bg-tron-bg/80 p-2 [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
       {/* rotating compass bezel mapping to yaw */}
       <div
-        className="absolute inset-1 rounded-full font-mono text-xs font-bold text-white/80"
+        className="absolute inset-1 rounded-full font-label text-xs font-bold text-tron-cyan/80"
         style={{ transform: `rotate(${-yaw}rad)` }}
       >
         {/* counter rotate spans so text stays upright */}
@@ -147,25 +191,25 @@ const AttitudeIndicator = ({
         </span>
       </div>
 
-      <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 shadow-inner">
+      <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-tron-cyan/50 shadow-inner">
         {/* rotating and translating container mapping to roll and pitch */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 transition-transform duration-75"
           style={{
             transform: `rotate(${roll}rad) translateY(${pitchOffset}px)`,
           }}
         >
-          {/* oversized sky section anchored to center */}
-          <div className="absolute bottom-1/2 -left-full h-[400%] w-[400%] bg-sky-500" />
-          {/* oversized ground section anchored to center */}
-          <div className="absolute top-1/2 -left-full h-[400%] w-[400%] border-t-2 border-white bg-red-800" />
+          {/* oversized transparent sky section anchored to center */}
+          <div className="absolute -left-full bottom-1/2 h-[400%] w-[400%] bg-transparent" />
+          {/* oversized tinted ground section anchored to center with thicker horizon line */}
+          <div className="absolute -left-full top-1/2 h-[400%] w-[400%] border-t-[3px] border-tron-cyan bg-tron-cyan/10" />
         </div>
 
-        {/* fixed reticle overlay */}
+        {/* fixed reticle overlay isolated with bright yellow */}
         <div className="absolute flex items-center justify-center gap-4">
-          <div className="h-0.5 w-4 bg-yellow-400" />
-          <div className="h-1 w-1 rounded-full bg-yellow-400" />
-          <div className="h-0.5 w-4 bg-yellow-400" />
+          <div className="h-0.5 w-4 bg-tron-yellow shadow-neon-yellow" />
+          <div className="h-1 w-1 rounded-full bg-tron-yellow shadow-neon-yellow" />
+          <div className="h-0.5 w-4 bg-tron-yellow shadow-neon-yellow" />
         </div>
       </div>
     </div>
@@ -195,9 +239,10 @@ const AltimeterTape = ({ altitude }: { altitude: number }) => {
   };
 
   return (
-    <div className="relative flex h-24 w-20 items-center overflow-hidden rounded-md border border-white/20 bg-black/50 pl-2 pr-4 text-right font-mono text-xl shadow-lg backdrop-blur-md">
-      {/* static center indicator chevron */}
-      <div className="absolute left-2 top-1/2 z-10 -translate-y-1/2 font-black text-yellow-400">
+    // altimeter container with glowing border only and no outer shadow
+    <div className="relative flex h-24 w-20 items-center overflow-hidden rounded-md border border-tron-cyan bg-tron-bg/80 pl-2 pr-4 text-right font-telemetry text-tron-cyan [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
+      {/* static center indicator chevron glowing yellow */}
+      <div className="absolute left-2 top-1/2 z-10 -translate-y-1/2 font-black text-tron-yellow [text-shadow:0_0_10px_var(--color-tron-yellow)]">
         {">"}
       </div>
 
@@ -215,18 +260,18 @@ const AltimeterTape = ({ altitude }: { altitude: number }) => {
           return (
             <div
               key={offset}
-              className={`flex h-6 items-center justify-end gap-1 font-bold tracking-tighter ${
+              className={`flex h-6 items-center justify-end gap-1 font-bold tracking-tighter transition-all duration-75 ${
                 Math.abs(offset) > 1
                   ? "opacity-0"
                   : Math.abs(offset) === 1
-                    ? "text-white/50"
-                    : "text-white"
+                    ? "text-tron-cyan/40 text-base"
+                    : "text-tron-yellow text-xl [text-shadow:0_0_8px_var(--color-tron-yellow)]"
               }`}
             >
               {isVisible ? (
                 <>
                   <span>{formatAltitude(val)}</span>
-                  <span className="text-[10px] text-white/40">M</span>
+                  <span className="text-[10px] opacity-60">M</span>
                 </>
               ) : (
                 ""
@@ -306,7 +351,7 @@ const AllVehiclesHUD = () => {
 
   return (
     // full screen non interactive overlay
-    <div className="pointer-events-none absolute inset-0 z-10 font-sans">
+    <div className="pointer-events-none absolute inset-0 z-10">
       {/* only render car display if player is actively driving */}
       {activeControl === "car" && (
         <>
@@ -314,14 +359,14 @@ const AllVehiclesHUD = () => {
           <CarControlsDisplay />
 
           {/* inline speedometer */}
-          <div className="absolute bottom-6 right-6 flex items-baseline text-white drop-shadow-md">
+          <div className="absolute bottom-6 right-8 flex items-baseline">
             {/* inject live padded speed value with tabular mono font to prevent jumping */}
-            <span className="tabular-nums font-mono text-6xl font-black italic tracking-tighter">
+            <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
               {displayCarSpeed}
             </span>
 
-            {/* speed unit */}
-            <span className="ml-2 inline-block text-xl font-bold text-gray-300">
+            {/* speed unit using strict width to prevent container shifting */}
+            <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
               KM/H
             </span>
           </div>
@@ -335,7 +380,7 @@ const AllVehiclesHUD = () => {
           <HelicopterControlsDisplay />
 
           {/* advanced aviation instruments container anchored to bottom left */}
-          <div className="absolute bottom-6 left-6 flex items-end gap-6">
+          <div className="absolute bottom-6 left-8 flex items-end gap-6">
             {/* dynamic artificial horizon with compass bezel */}
             <AttitudeIndicator
               pitch={currentHeliPitch}
@@ -348,11 +393,11 @@ const AllVehiclesHUD = () => {
           </div>
 
           {/* inline helicopter airspeed anchored to bottom right */}
-          <div className="absolute bottom-6 right-6 flex items-baseline text-white drop-shadow-md">
-            <span className="tabular-nums font-mono text-6xl font-black italic tracking-tighter">
+          <div className="absolute bottom-6 right-8 flex items-baseline">
+            <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
               {displayHeliSpeed}
             </span>
-            <span className="ml-2 inline-block text-xl font-bold text-gray-300">
+            <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
               KTS
             </span>
           </div>
@@ -366,7 +411,7 @@ const AllVehiclesHUD = () => {
           <PlaneControlsDisplay />
 
           {/* advanced aviation instruments container anchored to bottom left */}
-          <div className="absolute bottom-6 left-6 flex items-end gap-6">
+          <div className="absolute bottom-6 left-8 flex items-end gap-6">
             {/* dynamic artificial horizon with compass bezel */}
             <AttitudeIndicator
               pitch={currentPlanePitch}
@@ -379,11 +424,11 @@ const AllVehiclesHUD = () => {
           </div>
 
           {/* inline plane airspeed anchored to bottom right */}
-          <div className="absolute bottom-6 right-6 flex items-baseline text-white drop-shadow-md">
-            <span className="tabular-nums font-mono text-6xl font-black italic tracking-tighter">
+          <div className="absolute bottom-6 right-8 flex items-baseline">
+            <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
               {displayPlaneSpeed}
             </span>
-            <span className="ml-2 inline-block text-xl font-bold text-gray-300">
+            <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
               KTS
             </span>
           </div>
