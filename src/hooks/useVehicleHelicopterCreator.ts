@@ -111,6 +111,12 @@ export const useVehicleHelicopterCreator = (
       vehicleRespawnLimit,
     );
 
+    // kill switch to reset rotor and collective states if helicopter falls out of bounds
+    if (currentPosition.y < vehicleRespawnLimit) {
+      rpmRef.current = 0;
+      collectiveRef.current = 0;
+    }
+
     // fetch current quaternion rotation from rapier
     const currentRotation = chassis.rotation();
 

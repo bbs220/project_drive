@@ -102,6 +102,11 @@ export const useVehiclePlaneCreator = (
       vehicleRespawnLimit,
     );
 
+    // kill switch to reset engine throttle if plane falls out of bounds
+    if (currentPosition.y < vehicleRespawnLimit) {
+      throttleRef.current = 0;
+    }
+
     // determine if plane is high enough off the ground to be considered flying
     const isAirborne = currentPosition.y > 1.5;
 
