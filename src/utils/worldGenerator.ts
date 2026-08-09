@@ -55,8 +55,8 @@ export const getTerrainData = (x: number, z: number): typeTerrainData => {
 
   // urban development city blocks and roads
   if (urbanScore > proceduralConstants.thresholds.urbanSprawl) {
-    // borders between cells become roads
-    if (cityCell < proceduralConstants.thresholds.roadEdge) {
+    // positive distance values represent the outer borders of the cells
+    if (cityCell > proceduralConstants.thresholds.roadEdge) {
       return { type: "road", elevation: worldHeight };
     }
 

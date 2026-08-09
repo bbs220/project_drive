@@ -19,7 +19,7 @@ export const proceduralConstants = {
     waterLevel: -10,
     cliffSlope: 1.5,
     urbanSprawl: 0.3,
-    roadEdge: -0.85,
+    roadEdge: 0.75,
   },
   enums: {
     openSimplex: FastNoiseLite.NoiseType.OpenSimplex2,
