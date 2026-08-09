@@ -135,9 +135,9 @@ const AttitudeIndicator = ({
   return (
     // attitude container with glowing border only and no outer shadow
     <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-tron-cyan bg-tron-bg/80 p-2 [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
-      {/* rotating compass bezel mapping to yaw */}
+      {/* rotating compass bezel mapping to yaw with bright yellow text */}
       <div
-        className="absolute inset-1 rounded-full font-label text-xs font-bold text-tron-cyan/80"
+        className="absolute inset-1 rounded-full font-label text-xs font-bold text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]"
         style={{ transform: `rotate(${-yaw}rad)` }}
       >
         {/* counter rotate spans so text stays upright */}
