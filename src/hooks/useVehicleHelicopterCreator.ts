@@ -22,6 +22,9 @@ const dampingTorque = new THREE.Vector3();
 // add this new vector to hold our velocity
 const currentVelVector = new THREE.Vector3();
 
+// helper to safely pass three js vectors to rapier without triggering rust memory aliasing
+const asVec = (vec: THREE.Vector3) => ({ x: vec.x, y: vec.y, z: vec.z });
+
 // define helicopter tuning parameters
 export type typeHelicopterTuning = {
   liftForce: number;
@@ -145,19 +148,19 @@ export const useVehicleHelicopterCreator = (
     // apply baseline hover force along global up vector to prevent falling
     if (!brake) {
       forceVector.copy(globalUp).multiplyScalar(hoverImpulse);
-      chassis.applyImpulse(forceVector, true);
+      chassis.applyImpulse(asVec(forceVector), true);
     }
 
     // apply additional lift logic along local up vector if below altitude limit
     if (boost && currentPosition.y < tuning.altitudeLimit) {
       forceVector.copy(localY).multiplyScalar(tuning.liftForce * delta);
-      chassis.applyImpulse(forceVector, true);
+      chassis.applyImpulse(asVec(forceVector), true);
     }
 
     // apply descent logic along global up vector by overriding hover
     if (brake) {
       forceVector.copy(globalUp).multiplyScalar(-tuning.descendForce * delta);
-      chassis.applyImpulse(forceVector, true);
+      chassis.applyImpulse(asVec(forceVector), true);
     }
 
     // dampen vertical velocity to stabilize hover when no vertical input is active
@@ -181,44 +184,44 @@ export const useVehicleHelicopterCreator = (
     // apply forward thrust along flat horizontal plane
     if (forward && isAirborne) {
       forceVector.copy(flatForward).multiplyScalar(-thrustPower);
-      chassis.applyImpulse(forceVector, true);
+      chassis.applyImpulse(asVec(forceVector), true);
     }
 
     // apply backward thrust along flat horizontal plane
     if (backward && isAirborne) {
       forceVector.copy(flatForward).multiplyScalar(thrustPower);
-      chassis.applyImpulse(forceVector, true);
+      chassis.applyImpulse(asVec(forceVector), true);
     }
 
     // apply pitch logic along local right vector
     if ((forward || pitchDown) && isAirborne) {
       forceVector.copy(localX).multiplyScalar(-tuning.pitchTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+      chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
     if ((backward || pitchUp) && isAirborne) {
       forceVector.copy(localX).multiplyScalar(tuning.pitchTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+      chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
 
     // apply roll logic along local forward vector
     if ((left || rollLeft) && isAirborne) {
       forceVector.copy(localZ).multiplyScalar(tuning.rollTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+      chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
     if ((right || rollRight) && isAirborne) {
       forceVector.copy(localZ).multiplyScalar(-tuning.rollTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+      chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
 
     // apply yaw logic along local up vector
     // yaw is allowed on the ground to simulate pedal turning
     if (yawLeft) {
       forceVector.copy(localY).multiplyScalar(tuning.yawTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+      chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
     if (yawRight) {
       forceVector.copy(localY).multiplyScalar(-tuning.yawTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+      chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
 
     // fetch current angular velocity from rapier
@@ -228,14 +231,14 @@ export const useVehicleHelicopterCreator = (
     dampingTorque
       .set(-currentAngVel.x, -currentAngVel.y, -currentAngVel.z)
       .multiplyScalar(tuning.pitchTorque);
-    chassis.applyTorqueImpulse(dampingTorque, true);
+    chassis.applyTorqueImpulse(asVec(dampingTorque), true);
 
     // calculate soft auto leveling spring force to replace hard jitter limits
     stabilizeTorque.crossVectors(localY, globalUp);
 
     // apply continuous self leveling torque that naturally resists extreme angles
     stabilizeTorque.multiplyScalar(tuning.pitchTorque * 2.5);
-    chassis.applyTorqueImpulse(stabilizeTorque, true);
+    chassis.applyTorqueImpulse(asVec(stabilizeTorque), true);
 
     // determine target rpm based on flight state and player input
     let targetRpm: number;

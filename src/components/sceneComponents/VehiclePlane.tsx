@@ -21,25 +21,33 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
   // ref for the main chassis rigid body
   const chassisRef = useRef<RapierRigidBody>(null);
 
+  // refs for targeting individual landing gear assemblies
+  const frontGearRef = useRef<THREE.Group>(null);
+  const leftGearRef = useRef<THREE.Group>(null);
+  const rightGearRef = useRef<THREE.Group>(null);
+
   // initialize vehicle controls
   const vehicleInput = useAllVehicleInput();
 
   // initialize tweakpane hook using extracted constants
   const params = useTweakpane(
-    { title: "✈️ Plane Tuning", expanded: false },
+    { title: "✈️ plane tuning", expanded: false },
     vehiclePlaneConstants.tuning,
   );
 
   // initialize plane physics controller with required arguments
   useVehiclePlaneCreator(chassisRef, vehicleInput, params);
 
-  // handle respawn logic
-  useFrame(() => {
+  // handle respawn logic and gear animations
+  useFrame((_, delta) => {
     // exit early if chassis is missing
     if (!chassisRef.current) return;
 
+    // fetch current position
+    const position = chassisRef.current.translation();
+
     // check if vehicle has fallen below bounds
-    if (chassisRef.current.translation().y < vehicleRespawnLimit) {
+    if (position.y < vehicleRespawnLimit) {
       // trigger extracted respawn function
       respawnVehicle({
         vehicleBody: chassisRef.current,
@@ -47,6 +55,42 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
         y: vehicleRespawnPos.plane[1],
         z: vehicleRespawnPos.plane[2],
       });
+    }
+
+    // determine if plane is high enough off the ground to trigger gear retraction
+    const isHighEnough =
+      position.y > vehiclePlaneConstants.animations.gearRetractHeight;
+
+    // assign target fold angle based on altitude
+    const targetAngle = isHighEnough
+      ? vehiclePlaneConstants.rotations.quarterTurn
+      : 0;
+
+    // smoothly fold front gear backwards into belly
+    if (frontGearRef.current) {
+      frontGearRef.current.rotation.x = THREE.MathUtils.lerp(
+        frontGearRef.current.rotation.x,
+        -targetAngle,
+        delta * vehiclePlaneConstants.animations.gearRetractSpeed,
+      );
+    }
+
+    // smoothly fold left rear gear forwards into belly
+    if (leftGearRef.current) {
+      leftGearRef.current.rotation.x = THREE.MathUtils.lerp(
+        leftGearRef.current.rotation.x,
+        targetAngle,
+        delta * vehiclePlaneConstants.animations.gearRetractSpeed,
+      );
+    }
+
+    // smoothly fold right rear gear forwards into belly
+    if (rightGearRef.current) {
+      rightGearRef.current.rotation.x = THREE.MathUtils.lerp(
+        rightGearRef.current.rotation.x,
+        targetAngle,
+        delta * vehiclePlaneConstants.animations.gearRetractSpeed,
+      );
     }
   });
 
@@ -129,7 +173,10 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
           </mesh>
 
           {/* create front landing gear strut and wheel */}
-          <group position={vehiclePlaneConstants.visuals.frontGearPos}>
+          <group
+            ref={frontGearRef}
+            position={vehiclePlaneConstants.visuals.frontGearPos}
+          >
             <mesh position={vehiclePlaneConstants.visuals.strutPos}>
               <cylinderGeometry
                 args={vehiclePlaneConstants.visuals.strutArgs}
@@ -148,7 +195,10 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
           </group>
 
           {/* create left rear landing gear */}
-          <group position={vehiclePlaneConstants.visuals.leftRearGearPos}>
+          <group
+            ref={leftGearRef}
+            position={vehiclePlaneConstants.visuals.leftRearGearPos}
+          >
             <mesh position={vehiclePlaneConstants.visuals.strutPos}>
               <cylinderGeometry
                 args={vehiclePlaneConstants.visuals.strutArgs}
@@ -167,7 +217,10 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
           </group>
 
           {/* create right rear landing gear */}
-          <group position={vehiclePlaneConstants.visuals.rightRearGearPos}>
+          <group
+            ref={rightGearRef}
+            position={vehiclePlaneConstants.visuals.rightRearGearPos}
+          >
             <mesh position={vehiclePlaneConstants.visuals.strutPos}>
               <cylinderGeometry
                 args={vehiclePlaneConstants.visuals.strutArgs}

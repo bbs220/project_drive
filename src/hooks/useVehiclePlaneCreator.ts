@@ -18,7 +18,10 @@ const dampingTorque = new THREE.Vector3();
 // add this new vector to hold our velocity
 const currentVelVector = new THREE.Vector3();
 
-// define plane tuning parameters including new brake force
+// helper to safely pass three js vectors to rapier without triggering rust memory aliasing
+const asVec = (vec: THREE.Vector3) => ({ x: vec.x, y: vec.y, z: vec.z });
+
+// define plane tuning parameters
 export type typePlaneTuning = {
   thrustPower: number;
   brakeForce: number;
@@ -164,7 +167,7 @@ export const useVehiclePlaneCreator = (
 
     // apply thrust along local forward axis
     forceVector.copy(localZ).multiplyScalar(-currentThrust);
-    chassis.applyImpulse(forceVector, true);
+    chassis.applyImpulse(asVec(forceVector), true);
 
     // calculate true dimensional speed
     const speedMps = currentVelVector.length();
@@ -184,38 +187,38 @@ export const useVehiclePlaneCreator = (
       gravityImpulse,
     );
 
-    // apply lift force along local up vector so turning and pitching actively deflects the flight path
+    // apply lift force along local up vector
     forceVector.copy(localY).multiplyScalar(dynamicLift);
-    chassis.applyImpulse(forceVector, true);
+    chassis.applyImpulse(asVec(forceVector), true);
 
     // apply pitch torque along local right vector
     if (forward || pitchDown) {
       forceVector.copy(localX).multiplyScalar(-tuning.pitchTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+      chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
     if (backward || pitchUp) {
       forceVector.copy(localX).multiplyScalar(tuning.pitchTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+      chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
 
     // apply roll torque along local forward vector
     if (left || rollLeft) {
       forceVector.copy(localZ).multiplyScalar(tuning.rollTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+      chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
     if (right || rollRight) {
       forceVector.copy(localZ).multiplyScalar(-tuning.rollTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+      chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
 
     // apply yaw torque along local up vector
     if (yawLeft) {
       forceVector.copy(localY).multiplyScalar(tuning.yawTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+      chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
     if (yawRight) {
       forceVector.copy(localY).multiplyScalar(-tuning.yawTorque);
-      chassis.applyTorqueImpulse(forceVector, true);
+      chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
 
     // fetch current angular velocity from rapier
@@ -225,7 +228,7 @@ export const useVehiclePlaneCreator = (
     dampingTorque
       .set(-currentAngVel.x, -currentAngVel.y, -currentAngVel.z)
       .multiplyScalar(tuning.pitchTorque);
-    chassis.applyTorqueImpulse(dampingTorque, true);
+    chassis.applyTorqueImpulse(asVec(dampingTorque), true);
 
     // push calculated telemetry directly to zustand store without triggering a hook re render
     useVehicleStore.getState().setPlaneTelemetry({

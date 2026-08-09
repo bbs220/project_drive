@@ -76,6 +76,10 @@ export const vehiclePlaneConstants = {
     quarterTurn: Math.PI / 2,
     eighthTurn: Math.PI / 4,
   },
+  animations: {
+    gearRetractHeight: 4,
+    gearRetractSpeed: 2,
+  },
 };
 
 // define baseline physical constants for helicopter flight model and visuals
