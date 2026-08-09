@@ -1,10 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  --font-inter: "Inter", sans-serif;
+  /* typography system mapped to semantic names */
+  --font-label: "Inter", sans-serif;
+  --font-telemetry: "Share Tech Mono", monospace;
+
+  /* synthwave color palette */
+  --color-tron-bg: #050505;
+  --color-tron-cyan: #00f3ff;
+  --color-tron-magenta: #ff00ff;
+  --color-tron-lime: #39ff14;
+  --color-tron-warn: #ff2a00;
+
+  /* css bloom effects using variable references */
+  --shadow-neon-cyan:
+    0 0 5px var(--color-tron-cyan), 0 0 20px var(--color-tron-cyan);
+  --shadow-neon-magenta:
+    0 0 5px var(--color-tron-magenta), 0 0 20px var(--color-tron-magenta);
 }
 
 :root {
+  /* tweakpane width override */
   .tp-dfwv {
     width: 340px !important;
   }
