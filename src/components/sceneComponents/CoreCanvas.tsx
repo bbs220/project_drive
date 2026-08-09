@@ -80,9 +80,10 @@ const CoreScene = () => {
       </GizmoHelper>
       <ambientLight />
       <Stats showPanel={isDev ? 0 : 4} />
-      <Environment files={bankHDR.skyDay} background />
+      <Environment files={bankHDR.skyNight} background />
       {/* dynamically route camera rig to the active vehicle */}
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
+      <gridHelper args={[250, 10, "yellow", "blue"]} position={[0, 0.1, 0]} />
       <VehicleCar ref={carRef} />
       <VehicleHelicopter ref={heliRef} />
       <VehiclePlane ref={planeRef} />

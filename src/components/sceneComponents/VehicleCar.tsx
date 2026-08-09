@@ -110,7 +110,6 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
         position={vehicleRespawnPos.car}
         mass={params.mass}
         canSleep={false}
-        rotation={[0, Math.PI, 0]}
       >
         {/* explicit chassis collider to exclude wheels */}
         <CuboidCollider
