@@ -83,7 +83,6 @@ const CoreScene = () => {
       <Environment files={bankHDR.skyNight} background />
       {/* dynamically route camera rig to the active vehicle */}
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
-      <gridHelper args={[250, 10, "yellow", "blue"]} position={[0, 0.1, 0]} />
       <VehicleCar ref={carRef} />
       <VehicleHelicopter ref={heliRef} />
       <VehiclePlane ref={planeRef} />
