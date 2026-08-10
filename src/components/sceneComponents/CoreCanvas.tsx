@@ -23,9 +23,6 @@ import BackgroundLight from "./BackgroundLight";
 import PostprocessingEffects from "./PostprocessingEffects";
 
 const CoreScene = () => {
-  // define environment check
-  const isDev = import.meta.env.DEV;
-
   // initialize refs for all instantiated vehicles
   const carRef = useRef<THREE.Group>(null);
   const heliRef = useRef<THREE.Group>(null);
@@ -73,7 +70,7 @@ const CoreScene = () => {
         position={[0, 5, 10]}
       />
       <ambientLight />
-      <Stats showPanel={isDev ? 0 : 4} />
+      <Stats showPanel={sceneConstants.isDev ? 0 : 4} />
       <BackgroundLight />
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} />
@@ -104,7 +101,7 @@ const CoreCanvas = () => {
 
   return (
     <>
-      <ProceduralRadar />
+      {sceneConstants.isDev && <ProceduralRadar />}
       <AllVehiclesHUD />
       <Canvas shadows={"variance"} dpr={setDpr}>
         <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>

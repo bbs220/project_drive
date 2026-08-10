@@ -1,4 +1,5 @@
 export const sceneConstants = {
+  isDev: import.meta.env.DEV,
   fov: 60,
 };
 

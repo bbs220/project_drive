@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Pane } from "tweakpane";
+import { sceneConstants } from "../constants/otherConstants";
 
 type FolderApi = ReturnType<Pane["addFolder"]>;
 
@@ -78,7 +79,7 @@ export function useTweakpane<T extends Record<string, unknown>>(
   const tweakpaneTargetRef = useRef({ ...params });
 
   useEffect(() => {
-    if (!import.meta.env.DEV) return;
+    if (!sceneConstants.isDev) return;
 
     if (!sharedPane) {
       sharedPane = new Pane({ title: "🛠️ Controls" });
