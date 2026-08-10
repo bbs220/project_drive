@@ -3,7 +3,8 @@ varying vec3 vWorldPosition;
 
 // uniforms injected from react
 uniform vec3 uBgColor;
-uniform vec3 uGridColor;
+uniform vec3 uLineColor;
+uniform vec3 uCrossColor;
 uniform float uGridSize;
 uniform float uSubGridSize;
 uniform float uCrossSize;
@@ -38,18 +39,21 @@ void main() {
   // combine horizontal and vertical to form the plus symbol and apply dimming opacity
   float crossAlpha = max(horizBar,vertBar) * uCrossOpacity;
 
-  // combine main large grid with inner crosses
-  float finalAlpha = max(mainAlpha,crossAlpha);
+  // base color mixing starting with background
+  vec3 finalColor = uBgColor;
+
+  // apply main grid lines
+  finalColor = mix(finalColor,uLineColor,mainAlpha);
+
+  // apply cross markers
+  finalColor = mix(finalColor,uCrossColor,crossAlpha);
 
   // calculate distance from center for the radial fade
   float dist = length(vWorldPosition.xz);
 
   // apply smooth radial fade to blend into the void
   float fade = 1.0 - smoothstep(0.0,uFadeDistance,dist);
-  finalAlpha *= fade;
-
-  // mix the background and neon color based on alpha
-  vec3 finalColor = mix(uBgColor,uGridColor,finalAlpha);
+  finalColor = mix(uBgColor,finalColor,fade);
 
   gl_FragColor = vec4(finalColor,1.0);
 
