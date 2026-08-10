@@ -1,9 +1,4 @@
-import {
-  GizmoHelper,
-  GizmoViewport,
-  PerspectiveCamera,
-  Stats,
-} from "@react-three/drei";
+import { PerspectiveCamera, Stats } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { useEffect, useRef } from "react";
@@ -77,9 +72,6 @@ const CoreScene = () => {
         fov={sceneConstants.fov}
         position={[0, 5, 10]}
       />
-      <GizmoHelper alignment="top-left" margin={[60, 120]} visible={isDev}>
-        <GizmoViewport labelColor="white" visible={isDev} disabled />
-      </GizmoHelper>
       <ambientLight />
       <Stats showPanel={isDev ? 0 : 4} />
       <BackgroundLight />
