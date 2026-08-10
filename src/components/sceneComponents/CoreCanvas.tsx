@@ -25,6 +25,7 @@ import {
 import ProceduralChunk from "./ProceduralChunk";
 import ProceduralRadar from "../ProceduralRadar";
 import BackgroundLight from "./BackgroundLight";
+import PostprocessingEffects from "./PostprocessingEffects";
 
 const CoreScene = () => {
   // define environment check
@@ -117,6 +118,7 @@ const CoreCanvas = () => {
         <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>
           <CoreScene />
         </Physics>
+        <PostprocessingEffects />
       </Canvas>
     </>
   );
