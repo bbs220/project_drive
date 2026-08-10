@@ -24,6 +24,8 @@ import {
   useVehicleStore,
   type ControlState,
 } from "../../stores/useVehicleStore";
+import ProceduralChunk from "./ProceduralChunk";
+import ProceduralRadar from "../ProceduralRadar";
 
 const CoreScene = () => {
   // define environment check
@@ -50,7 +52,7 @@ const CoreScene = () => {
   const { cameraDebug, activeVehicle } = useTweakpane(
     { title: "☀️ Scene" },
     {
-      cameraDebug: { value: false, label: "Camera Debug" },
+      cameraDebug: { value: true, label: "Camera Debug" },
       activeVehicle: {
         value: activeControl as ControlState,
         label: "Current Vehicle",
@@ -81,13 +83,13 @@ const CoreScene = () => {
       <ambientLight />
       <Stats showPanel={isDev ? 0 : 4} />
       <Environment files={bankHDR.skyNight} background />
-      {/* dynamically route camera rig to the active vehicle */}
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} />
       <VehicleHelicopter ref={heliRef} />
       <VehiclePlane ref={planeRef} />
       <City />
       <Ground />
+      <ProceduralChunk />
     </>
   );
 };
@@ -110,12 +112,13 @@ const CoreCanvas = () => {
 
   return (
     <>
+      <ProceduralRadar />
+      <AllVehiclesHUD />
       <Canvas shadows={"variance"} dpr={setDpr}>
         <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>
           <CoreScene />
         </Physics>
       </Canvas>
-      <AllVehiclesHUD />
     </>
   );
 };
