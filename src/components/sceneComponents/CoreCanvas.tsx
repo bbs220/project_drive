@@ -5,10 +5,11 @@ import {
   PerspectiveCamera,
   Stats,
 } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useLoader } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { HDRLoader } from "three/examples/jsm/loaders/HDRLoader.js";
 import { physcConstants } from "../../constants/physcConstants";
 import { sceneConstants } from "../../constants/otherConstants";
 import { useTweakpane } from "../../hooks/useTweakpane";
@@ -27,6 +28,19 @@ import {
 import ProceduralChunk from "./ProceduralChunk";
 import ProceduralRadar from "../ProceduralRadar";
 
+// pre extract global keys and urls to prevent react from recreating them every frame
+const envKeys = Object.keys(bankHDR);
+const envUrls = Object.values(bankHDR);
+
+// auto generate the tweakpane dropdown options directly from the asset bank
+const envOptions = envKeys.reduce(
+  (acc, key) => {
+    acc[key] = key;
+    return acc;
+  },
+  {} as Record<string, string>,
+);
+
 const CoreScene = () => {
   // define environment check
   const isDev = import.meta.env.DEV;
@@ -35,6 +49,16 @@ const CoreScene = () => {
   const carRef = useRef<THREE.Group>(null);
   const heliRef = useRef<THREE.Group>(null);
   const planeRef = useRef<THREE.Group>(null);
+
+  // auto load and cache all hdris simultaneously using the updated HDRLoader
+  const envTextures = useLoader(HDRLoader, envUrls);
+
+  // strictly apply equirectangular mapping to all loaded textures
+  useMemo(() => {
+    envTextures.forEach((tex) => {
+      tex.mapping = THREE.EquirectangularReflectionMapping;
+    });
+  }, [envTextures]);
 
   // fetch active vehicle and setter from global store
   const activeControl = useVehicleStore((state) => state.activeControl);
@@ -48,18 +72,23 @@ const CoreScene = () => {
         ? planeRef
         : carRef;
 
-  // configure debug tools with dropdown options
-  const { cameraDebug, activeVehicle } = useTweakpane(
+  // configure debug tools with dynamic dropdown options
+  const { cameraDebug, activeVehicle, activeEnvironment } = useTweakpane(
     { title: "☀️ Scene" },
     {
-      cameraDebug: { value: true, label: "Camera Debug" },
+      cameraDebug: { value: true, label: "camera debug" },
+      activeEnvironment: {
+        value: "skyNight",
+        label: "environment",
+        options: envOptions,
+      },
       activeVehicle: {
         value: activeControl as ControlState,
-        label: "Current Vehicle",
+        label: "current vehicle",
         options: {
-          Car: "car",
-          Plane: "plane",
-          Helicopter: "helicopter",
+          car: "car",
+          plane: "plane",
+          helicopter: "helicopter",
         },
       },
     },
@@ -69,6 +98,10 @@ const CoreScene = () => {
   useEffect(() => {
     setActiveControl(activeVehicle as ControlState);
   }, [activeVehicle, setActiveControl]);
+
+  // find the index of the currently selected environment to apply the correct texture
+  const activeIndex = envKeys.indexOf(activeEnvironment as string);
+  const activeSkyMap = envTextures[activeIndex];
 
   return (
     <>
@@ -82,7 +115,9 @@ const CoreScene = () => {
       </GizmoHelper>
       <ambientLight />
       <Stats showPanel={isDev ? 0 : 4} />
-      <Environment files={bankHDR.skyNight} background />
+      // pass the cached texture directly to the map prop instead of fetching
+      files
+      <Environment map={activeSkyMap} background />
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} />
       <VehicleHelicopter ref={heliRef} />
@@ -104,9 +139,9 @@ const CoreCanvas = () => {
         min: 0.1,
         max: 1,
         step: 0.1,
-        label: "Viewport Resolution",
+        label: "viewport resolution",
       },
-      setPhyDebug: { value: false, label: "Physics Debug" },
+      setPhyDebug: { value: false, label: "physics debug" },
     },
   );
 
