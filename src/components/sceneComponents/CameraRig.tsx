@@ -15,10 +15,10 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
 
   // live tuning params to perfect the camera feel for different vehicles
   const params = useTweakpane(
-    { title: "🎥 camera rig", expanded: false },
+    { title: "🎥 Camera Rig", expanded: false },
     {
       distance: { value: 6, min: 5, max: 50, label: "chase distance" },
-      heightOffset: { value: 0, min: 0, max: 10, label: "target height" },
+      heightOffset: { value: 0.8, min: 0, max: 10, label: "target height" },
       forwardOffset: { value: 0, min: -10, max: 10, label: "target forward" },
       sensitivity: {
         value: 0.004,
@@ -39,9 +39,8 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
   const lookAtTarget = useRef(new THREE.Vector3());
   const currentPosition = useRef(new THREE.Vector3());
 
-  // dummy vectors to extract world data without memory leaks
+  // dummy vector to extract world data without memory leaks
   const dummyTarget = new THREE.Vector3();
-  const localOffset = new THREE.Vector3();
 
   // handle pointer lock and raw mouse inputs exclusively when not debugging
   useEffect(() => {
@@ -93,21 +92,15 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
     // sync live tweakpane distance to the math sphere
     spherical.current.radius = params.distance as number;
 
-    // extract the exact world position of the currently driven vehicle
-    targetRef.current.getWorldPosition(dummyTarget);
-
-    // calculate the local offset based on the vehicle rotation
-    localOffset.set(
+    // set the exact local coordinates we want to focus on
+    dummyTarget.set(
       0,
       params.heightOffset as number,
       params.forwardOffset as number,
     );
 
-    // apply the vehicle rotation to the offset vector so it always points forward
-    localOffset.applyQuaternion(targetRef.current.quaternion);
-
-    // add the calculated shift to the base position
-    dummyTarget.add(localOffset);
+    // flawlessly convert those local coordinates into true world space
+    targetRef.current.localToWorld(dummyTarget);
 
     // smoothly lerp the invisible target point so the camera catches up organically
     lookAtTarget.current.lerp(dummyTarget, params.smoothness as number);
