@@ -8,7 +8,6 @@ import { sceneConstants } from "../../constants/otherConstants";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import AllVehiclesHUD from "./AllVehiclesHUD";
 import CameraRig from "./CameraRig";
-import City from "./City";
 import Ground from "./Ground";
 import VehicleCar from "./VehicleCar";
 import VehicleHelicopter from "./VehicleHelicopter";
@@ -76,9 +75,8 @@ const CoreScene = () => {
       <VehicleCar ref={carRef} />
       <VehicleHelicopter ref={heliRef} />
       <VehiclePlane ref={planeRef} />
-      <City />
-      <Ground />
-      <ChunkManager />
+      <Ground targetRef={activeTargetRef} />
+      <ChunkManager targetRef={activeTargetRef} />
     </>
   );
 };
