@@ -19,7 +19,7 @@ type typeChunkProps = {
   chunkZ: number;
 };
 
-const ProceduralChunk = ({ chunkX, chunkZ }: typeChunkProps) => {
+const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
   // subscribe strictly to the city version triggered by the ui radar
   const version = useCityStore((state) => state.version);
 
@@ -139,4 +139,4 @@ const ProceduralChunk = ({ chunkX, chunkZ }: typeChunkProps) => {
   );
 };
 
-export default ProceduralChunk;
+export default ProceduralCity;

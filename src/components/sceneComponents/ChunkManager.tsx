@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import ProceduralChunk from "./ProceduralChunk";
+import ProceduralCity from "./ProceduralCity";
 
 // define props to accept the active vehicle reference
 type typeChunkManagerProps = {
@@ -52,7 +52,7 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
     <group>
       {/* map through the active coordinates and strictly assign keys so react handles the unmounting cleanly */}
       {activeChunks.map((coord) => (
-        <ProceduralChunk
+        <ProceduralCity
           key={`chunk_${coord.chunkX}_${coord.chunkZ}`}
           chunkX={coord.chunkX}
           chunkZ={coord.chunkZ}
