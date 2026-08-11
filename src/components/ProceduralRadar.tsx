@@ -116,7 +116,7 @@ const ProceduralRadar = () => {
   }, [params, regenerateCity]);
 
   return (
-    <div className="pointer-events-none border-2 border-gray-600 rounded-md overflow-hidden absolute right-64 top-2 z-50 -translate-x-1/2 ">
+    <div className="pointer-events-none border-2 border-gray-600 rounded-md overflow-hidden absolute right-64 top-2 z-20 -translate-x-1/2 ">
       <canvas ref={canvasRef} className="h-48 w-48" />
     </div>
   );
