@@ -8,7 +8,6 @@ import { sceneConstants } from "../../constants/otherConstants";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import AllVehiclesHUD from "./AllVehiclesHUD";
 import CameraRig from "./CameraRig";
-import Ground from "./Ground";
 import VehicleCar from "./VehicleCar";
 import VehicleHelicopter from "./VehicleHelicopter";
 import VehiclePlane from "./VehiclePlane";
@@ -20,6 +19,7 @@ import ProceduralRadar from "../ProceduralRadar";
 import BackgroundLight from "./BackgroundLight";
 import PostprocessingEffects from "./PostprocessingEffects";
 import ChunkManager from "./ChunkManager";
+import ProceduralGround from "./ProceduralGround";
 
 const CoreScene = () => {
   // initialize refs for all instantiated vehicles
@@ -75,7 +75,7 @@ const CoreScene = () => {
       <VehicleCar ref={carRef} />
       <VehicleHelicopter ref={heliRef} />
       <VehiclePlane ref={planeRef} />
-      <Ground targetRef={activeTargetRef} />
+      <ProceduralGround targetRef={activeTargetRef} />
       <ChunkManager targetRef={activeTargetRef} />
     </>
   );

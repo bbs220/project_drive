@@ -121,7 +121,7 @@ const ProceduralChunk = ({ chunkX, chunkZ }: typeChunkProps) => {
           args={[undefined, undefined, buildings.length]}
         >
           <boxGeometry />
-          <meshBasicMaterial color="#00F3FF" toneMapped={false} />
+          <meshBasicMaterial color="blue" toneMapped={false} />
         </instancedMesh>
       )}
 
@@ -132,7 +132,7 @@ const ProceduralChunk = ({ chunkX, chunkZ }: typeChunkProps) => {
           args={[undefined, undefined, roads.length]}
         >
           <boxGeometry />
-          <meshBasicMaterial color="#FF00FF" toneMapped={false} />
+          <meshBasicMaterial color="red" toneMapped={false} />
         </instancedMesh>
       )}
     </group>
