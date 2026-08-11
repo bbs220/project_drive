@@ -8,27 +8,37 @@ import {
 import { useCityStore } from "../stores/useCItyStore";
 
 const ProceduralRadar = () => {
-  // hook up tweakpane to live edit the procedural noise params
+  // hook up tweakpane to live edit the procedural grid parameters
   const params = useTweakpane(
-    { title: "🏙️ City Generator", expanded: false },
+    { title: "🏙️ city generator", expanded: false },
     {
       urbanFrequency: {
         value: generatorState.urbanFrequency,
         min: 0.0001,
         max: 0.02,
       },
-      cityFrequency: {
-        value: generatorState.cityFrequency,
-        min: 0.001,
-        max: 0.1,
-      },
       heightFrequency: {
         value: generatorState.heightFrequency,
         min: 0.001,
         max: 0.2,
       },
-      urbanSprawl: { value: generatorState.urbanSprawl, min: -1.0, max: 1.0 },
-      roadEdge: { value: generatorState.roadEdge, min: 0.0, max: 1.0 },
+      urbanSprawl: {
+        value: generatorState.urbanSprawl,
+        min: 0.0,
+        max: 1.0,
+      },
+      blockSize: {
+        value: generatorState.blockSize,
+        min: 30,
+        max: 150,
+        step: 10,
+      },
+      roadWidth: {
+        value: generatorState.roadWidth,
+        min: 10,
+        max: 60,
+        step: 10,
+      },
       maxBuildingHeight: {
         value: generatorState.maxBuildingHeight,
         min: 10,
@@ -43,19 +53,19 @@ const ProceduralRadar = () => {
 
   // draw the raw noise arrays to a pixel canvas whenever parameters change
   useEffect(() => {
-    // 1 sync the math variables
-    syncGeneratorParams(params);
+    // sync the math variables
+    syncGeneratorParams(params as typeof generatorState);
 
-    // 2 tell the 3d scene to rebuild the meshes across the zustand bridge
+    // tell the 3d scene to rebuild the meshes across the zustand bridge
     regenerateCity();
 
-    // 3 draw the 2d canvas radar
+    // draw the 2d canvas radar
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // render radar at 1:1 resolution for smooth gradients without skipping data
+    // render radar at actual resolution for smooth gradients without skipping data
     const mapSize = 300;
     const resolution = 1;
     const dim = mapSize / resolution;
@@ -83,7 +93,7 @@ const ProceduralRadar = () => {
           shade = 0;
         }
 
-        // assign the calculated shade to r g and b for perfect grayscale
+        // assign the calculated shade to rgb for perfect grayscale
         imgData.data[i++] = shade;
         imgData.data[i++] = shade;
         imgData.data[i++] = shade;

@@ -8,62 +8,62 @@ export type typeTerrainData = {
 
 // local mutable state for live tuning defaults
 export const generatorState = {
-  urbanFrequency: 0.007,
-  cityFrequency: 0.01,
-  heightFrequency: 0.05,
-  urbanSprawl: 0,
-  roadEdge: 0.75,
-  maxBuildingHeight: 80,
+  urbanFrequency: 0.004,
+  heightFrequency: 0.01,
+  urbanSprawl: 0.26,
+  blockSize: 80,
+  roadWidth: 10,
+  maxBuildingHeight: 60,
 };
 
-// initialize urbanization noise for density
+// initialize urbanization noise for sprawling city islands
 const urbanNoise = new FastNoiseLite();
 urbanNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
-
-// initialize city noise for architecture
-const cityNoise = new FastNoiseLite();
-cityNoise.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
-cityNoise.SetCellularDistanceFunction(
-  FastNoiseLite.CellularDistanceFunction.Euclidean,
-);
-cityNoise.SetCellularReturnType(FastNoiseLite.CellularReturnType.Distance);
 
 // initialize height noise for skyscrapers
 const heightNoise = new FastNoiseLite();
 heightNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
 
-// sync tweakpane params directly into the noise instances
+// sync tweakpane params directly into the math state
 export const syncGeneratorParams = (params: typeof generatorState) => {
   urbanNoise.SetFrequency(params.urbanFrequency);
-  cityNoise.SetFrequency(params.cityFrequency);
   heightNoise.SetFrequency(params.heightFrequency);
 
   generatorState.urbanSprawl = params.urbanSprawl;
-  generatorState.roadEdge = params.roadEdge;
+  generatorState.blockSize = params.blockSize;
+  generatorState.roadWidth = params.roadWidth;
   generatorState.maxBuildingHeight = params.maxBuildingHeight;
 };
 
 // master evaluator function to determine chunk contents
 export const getTerrainData = (x: number, z: number): typeTerrainData => {
-  const urbanScore = urbanNoise.GetNoise(x, z);
+  // normalize fastnoiselite from bounds to strict zero to one for sprawl
+  const rawUrban = urbanNoise.GetNoise(x, z);
+  const urbanScore = (rawUrban + 1) / 2;
 
-  // leave the underlying grid completely empty if outside the urban sprawl
+  // leave the underlying grid completely empty if outside the urban sprawl percentage
   if (urbanScore < generatorState.urbanSprawl) {
     return { type: "empty", elevation: 0 };
   }
 
-  const cityCell = cityNoise.GetNoise(x, z);
+  // calculate positive modulo to ensure continuous grid across negative coordinates
+  const modX =
+    ((x % generatorState.blockSize) + generatorState.blockSize) %
+    generatorState.blockSize;
+  const modZ =
+    ((z % generatorState.blockSize) + generatorState.blockSize) %
+    generatorState.blockSize;
 
-  // outer edges of the voronoi cells become the road network
-  if (cityCell > generatorState.roadEdge) {
+  // if the coordinate falls within the road width threshold it becomes a street
+  if (modX < generatorState.roadWidth || modZ < generatorState.roadWidth) {
     return { type: "road", elevation: 0 };
   }
 
-  // normalize noise to ensure buildings always have a minimum height
+  // normalize height noise and apply scaling for buildings
   const rawHeight = (heightNoise.GetNoise(x, z) + 1) / 2;
   const buildingHeight =
     Math.max(0.1, rawHeight) * generatorState.maxBuildingHeight;
 
-  // inner cells become buildings with procedural heights
+  // inner block squares become buildings
   return { type: "building", elevation: buildingHeight };
 };
