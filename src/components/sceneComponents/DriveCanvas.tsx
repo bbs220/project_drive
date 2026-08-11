@@ -20,7 +20,7 @@ import BackgroundLight from "./BackgroundLight";
 import PostprocessingEffects from "./PostprocessingEffects";
 import ChunkManager from "./ChunkManager";
 
-const CoreScene = () => {
+const DriveScene = () => {
   // initialize refs for all instantiated vehicles
   const carRef = useRef<THREE.Group>(null);
   const heliRef = useRef<THREE.Group>(null);
@@ -79,7 +79,7 @@ const CoreScene = () => {
   );
 };
 
-const CoreCanvas = () => {
+const DriveCanvas = () => {
   // configure main canvas physics and rendering
   const { setDpr, setPhyDebug } = useTweakpane(
     { title: "☀️ Scene", expanded: true },
@@ -101,7 +101,7 @@ const CoreCanvas = () => {
       <AllVehiclesHUD />
       <Canvas shadows={"variance"} dpr={setDpr}>
         <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>
-          <CoreScene />
+          <DriveScene />
         </Physics>
         <PostprocessingEffects />
       </Canvas>
@@ -109,4 +109,4 @@ const CoreCanvas = () => {
   );
 };
 
-export default CoreCanvas;
+export default DriveCanvas;
