@@ -22,7 +22,6 @@ type GroundTileProps = {
     crossSize: number;
     crossOpacity: number;
     gridThickness: number;
-    fadeDistance: number;
   };
 };
 
@@ -45,14 +44,12 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
       uCrossSize: { value: params.crossSize },
       uCrossOpacity: { value: params.crossOpacity },
       uGridThickness: { value: params.gridThickness },
-      uFadeDistance: { value: params.fadeDistance },
     }),
     [
       params.bgColor,
       params.crossColor,
       params.crossOpacity,
       params.crossSize,
-      params.fadeDistance,
       params.gridSize,
       params.gridThickness,
       params.lineColor,
@@ -70,7 +67,6 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
     mat.uniforms.uCrossSize.value = params.crossSize;
     mat.uniforms.uCrossOpacity.value = params.crossOpacity;
     mat.uniforms.uGridThickness.value = params.gridThickness;
-    mat.uniforms.uFadeDistance.value = params.fadeDistance;
 
     mat.uniforms.uBgColor.value.set(params.bgColor);
     mat.uniforms.uLineColor.value.set(params.lineColor).multiplyScalar(2);
@@ -107,14 +103,13 @@ type typeGroundProps = {
 const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
   // parent manages the ui state strictly once
   const params = useTweakpane(
-    { title: "➕ grid shader", expanded: false },
+    { title: "➕ Grid Shader", expanded: false },
     {
       gridSize: { value: 10.0, min: 5.0, max: 50.0, step: 5 },
       subGridSize: { value: 2.5, min: 0.5, max: 2.5, step: 0.5 },
       crossSize: { value: 0.08, min: 0.01, max: 0.5 },
       crossOpacity: { value: 0.2, min: 0.0, max: 1.0 },
       gridThickness: { value: 0.1, min: 0.1, max: 5.0, step: 0.1 },
-      fadeDistance: { value: 500.0, min: 50.0, max: 500.0 },
       lineColor: { value: "#ffffff" },
       crossColor: { value: "#00f3ff" },
       bgColor: { value: "#050505" },

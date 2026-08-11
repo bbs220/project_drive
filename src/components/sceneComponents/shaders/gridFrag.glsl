@@ -10,7 +10,6 @@ uniform float uSubGridSize;
 uniform float uCrossSize;
 uniform float uCrossOpacity;
 uniform float uGridThickness;
-uniform float uFadeDistance;
 
 void main() {
   // calculate main outer grid cells
@@ -47,13 +46,6 @@ void main() {
 
   // apply cross markers
   finalColor = mix(finalColor,uCrossColor,crossAlpha);
-
-  // calculate distance from center for the radial fade
-  float dist = length(vWorldPosition.xz);
-
-  // apply smooth radial fade to blend into the void
-  float fade = 1.0 - smoothstep(0.0,uFadeDistance,dist);
-  finalColor = mix(uBgColor,finalColor,fade);
 
   gl_FragColor = vec4(finalColor,1.0);
 
