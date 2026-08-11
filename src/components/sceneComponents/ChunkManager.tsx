@@ -1,14 +1,15 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import ProceduralCity from "./ProceduralCity";
+import ProceduralGround from "./ProceduralGround";
 
 // define props to accept the active vehicle reference
 type typeChunkManagerProps = {
   targetRef: React.RefObject<THREE.Group | null>;
 };
 
-// match this exactly to the chunksize used in your proceduralchunk math
+// match this exactly to the chunksize used in your proceduralcity math
 const chunkSize = 300;
 
 const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
@@ -27,7 +28,6 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
     targetRef.current.getWorldPosition(dummyPosition.current);
 
     // calculate which chunk the vehicle is currently standing inside
-    // math.round is used because chunk 0 spans from -150 to 150
     const currentX = Math.round(dummyPosition.current.x / chunkSize);
     const currentZ = Math.round(dummyPosition.current.z / chunkSize);
 
@@ -37,20 +37,26 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
     }
   });
 
-  // dynamically generate the 3x3 grid centered around the vehicle
-  const activeChunks = [];
-  for (let x = -1; x <= 1; x++) {
-    for (let z = -1; z <= 1; z++) {
-      activeChunks.push({
-        chunkX: centerChunk.x + x,
-        chunkZ: centerChunk.z + z,
-      });
+  // memoize the 3x3 grid array so it only recreates when the center chunk shifts
+  const activeChunks = useMemo(() => {
+    const chunks = [];
+    for (let x = -1; x <= 1; x++) {
+      for (let z = -1; z <= 1; z++) {
+        chunks.push({
+          chunkX: centerChunk.x + x,
+          chunkZ: centerChunk.z + z,
+        });
+      }
     }
-  }
+    return chunks;
+  }, [centerChunk]);
 
   return (
     <group>
-      {/* map through the active coordinates and strictly assign keys so react handles the unmounting cleanly */}
+      {/* feed the exact same grid math array into the ground component */}
+      <ProceduralGround activeChunks={activeChunks} />
+
+      {/* map through the active coordinates and strictly assign keys to handle unmounting */}
       {activeChunks.map((coord) => (
         <ProceduralCity
           key={`chunk_${coord.chunkX}_${coord.chunkZ}`}
