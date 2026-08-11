@@ -8,6 +8,7 @@ export type typeTerrainData = {
 
 // local mutable state for live tuning defaults
 export const generatorState = {
+  seed: 1337,
   urbanFrequency: 0.004,
   heightFrequency: 0.01,
   urbanSprawl: 0.26,
@@ -26,6 +27,10 @@ heightNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
 
 // sync tweakpane params directly into the math state
 export const syncGeneratorParams = (params: typeof generatorState) => {
+  // apply the global seed to all noise instances
+  urbanNoise.SetSeed(params.seed);
+  heightNoise.SetSeed(params.seed);
+
   urbanNoise.SetFrequency(params.urbanFrequency);
   heightNoise.SetFrequency(params.heightFrequency);
 

@@ -69,9 +69,9 @@ const CoreScene = () => {
         fov={sceneConstants.fov}
         position={[0, 5, 10]}
       />
-      <ambientLight />
       <Stats showPanel={sceneConstants.isDev ? 0 : 4} />
       <BackgroundLight />
+      <fog attach="fog" args={["#000000", 150, 400]} />
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} />
       <VehicleHelicopter ref={heliRef} />

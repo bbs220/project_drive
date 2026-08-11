@@ -44,6 +44,14 @@ const ProceduralRadar = () => {
         min: 10,
         max: 200,
       },
+      // append this directly into the hook config
+      seed: {
+        value: generatorState.seed,
+        min: 0,
+        max: 10000,
+        step: 1,
+        label: "regenerate seed",
+      },
     },
   );
 
