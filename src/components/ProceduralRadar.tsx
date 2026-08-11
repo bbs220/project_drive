@@ -10,7 +10,7 @@ import { useCityStore } from "../stores/useCItyStore";
 const ProceduralRadar = () => {
   // hook up tweakpane to live edit the procedural grid parameters
   const params = useTweakpane(
-    { title: "🏙️ city generator", expanded: false },
+    { title: "🏙️ City Generator", expanded: false },
     {
       urbanFrequency: {
         value: generatorState.urbanFrequency,

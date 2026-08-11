@@ -13,7 +13,13 @@ export type typeInstanceConfig = {
 // reusable dummy object to calculate matrix math without memory overhead
 const dummy = new THREE.Object3D();
 
-const ProceduralChunk = () => {
+// define props to accept chunk grid coordinates
+type typeChunkProps = {
+  chunkX: number;
+  chunkZ: number;
+};
+
+const ProceduralChunk = ({ chunkX, chunkZ }: typeChunkProps) => {
   // subscribe strictly to the city version triggered by the ui radar
   const version = useCityStore((state) => state.version);
 
@@ -38,17 +44,25 @@ const ProceduralChunk = () => {
     const cellSize = 10;
     const halfCell = cellSize / 2;
 
-    // loop through every coordinate offset by half a cell to perfectly center the grid
+    // calculate the exact mathematical world offset for this specific chunk
+    const worldOffsetX = chunkX * chunkSize;
+    const worldOffsetZ = chunkZ * chunkSize;
+
+    // loop through local coordinates offset by half a cell to perfectly center the grid
     for (let x = -halfChunk + halfCell; x < halfChunk; x += cellSize) {
       for (let z = -halfChunk + halfCell; z < halfChunk; z += cellSize) {
-        // ask the generator what belongs at this exact world coordinate
-        const data = getTerrainData(x, z);
+        // inject the chunk offset into the local loop to find the true world coordinate
+        const worldX = x + worldOffsetX;
+        const worldZ = z + worldOffsetZ;
 
-        // inject version into the key to force dependency usage
-        const key = `v${activeVersion}_${x}_${z}`;
+        // strictly ask the generator what belongs at the absolute world coordinate
+        const data = getTerrainData(worldX, worldZ);
+
+        // inject version and world coordinates into the key for perfect caching
+        const key = `v${activeVersion}_${worldX}_${worldZ}`;
 
         if (data.type === "building") {
-          // buildings sit flush on the ground and stretch upwards
+          // position instances locally so they stay perfectly inside their chunk wrapper
           tempBuildings.push({
             key: `b_${key}`,
             position: [x, data.elevation / 2, z],
@@ -69,7 +83,7 @@ const ProceduralChunk = () => {
       buildings: tempBuildings,
       roads: tempRoads,
     };
-  }, [version]);
+  }, [version, chunkX, chunkZ]);
 
   // write the positional matrices to the gpu whenever the data changes
   useLayoutEffect(() => {
@@ -95,7 +109,12 @@ const ProceduralChunk = () => {
   }, [buildings, roads]);
 
   return (
-    <group key={version}>
+    // shift the entire chunk group to its proper grid location in the 3d world
+    <group
+      position={[chunkX * 300, 0, chunkZ * 300]}
+      key={`${version}_${chunkX}_${chunkZ}`}
+    >
+      {/* buildings are static objects using the neon cyan grid color */}
       {buildings.length > 0 && (
         <instancedMesh
           ref={buildingsRef}

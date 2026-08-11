@@ -17,10 +17,10 @@ import {
   useVehicleStore,
   type ControlState,
 } from "../../stores/useVehicleStore";
-import ProceduralChunk from "./ProceduralChunk";
 import ProceduralRadar from "../ProceduralRadar";
 import BackgroundLight from "./BackgroundLight";
 import PostprocessingEffects from "./PostprocessingEffects";
+import ChunkManager from "./ChunkManager";
 
 const CoreScene = () => {
   // initialize refs for all instantiated vehicles
@@ -71,14 +71,14 @@ const CoreScene = () => {
       />
       <Stats showPanel={sceneConstants.isDev ? 0 : 4} />
       <BackgroundLight />
-      <fog attach="fog" args={["#000000", 150, 400]} />
+      <fog attach="fog" args={["violet", 150, 400]} />
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} />
       <VehicleHelicopter ref={heliRef} />
       <VehiclePlane ref={planeRef} />
       <City />
       <Ground />
-      <ProceduralChunk />
+      <ChunkManager />
     </>
   );
 };
