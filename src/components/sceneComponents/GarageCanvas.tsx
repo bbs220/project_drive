@@ -1,8 +1,15 @@
 import { Canvas } from "@react-three/fiber";
-import { PerspectiveCamera, Stats, OrbitControls } from "@react-three/drei";
-import BackgroundLight from "./BackgroundLight";
+import {
+  PerspectiveCamera,
+  Stats,
+  OrbitControls,
+  Environment,
+} from "@react-three/drei";
 import { sceneConstants } from "../../constants/otherConstants";
 import Floor from "./Floor";
+import PostprocessingEffects from "./PostprocessingEffects";
+import { useTweakpane } from "../../hooks/useTweakpane";
+import { bankHDR } from "../../utils/assetpaths";
 
 const GarageScene = () => {
   return (
@@ -19,7 +26,7 @@ const GarageScene = () => {
         maxDistance={12}
       />
 
-      <BackgroundLight />
+      <Environment files={bankHDR.studio} environmentIntensity={0.4} />
 
       {/* quad spotlight setup targeting the center origin */}
       {/* front right */}
@@ -68,10 +75,25 @@ const GarageScene = () => {
 };
 
 const GarageCanvas = () => {
+  // configure main canvas physics and rendering
+  const { setDpr } = useTweakpane(
+    { title: "☀️ Scene", expanded: true },
+    {
+      setDpr: {
+        value: 1,
+        min: 0.1,
+        max: 1,
+        step: 0.1,
+        label: "viewport resolution",
+      },
+    },
+  );
+
   return (
     // enabling shadows is critical for the showroom aesthetic
-    <Canvas shadows={"variance"}>
+    <Canvas shadows={"soft"} dpr={setDpr}>
       <GarageScene />
+      <PostprocessingEffects />
     </Canvas>
   );
 };

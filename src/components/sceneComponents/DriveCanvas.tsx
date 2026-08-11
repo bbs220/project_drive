@@ -99,7 +99,7 @@ const DriveCanvas = () => {
     <>
       {sceneConstants.isDev && <ProceduralRadar />}
       <AllVehiclesHUD />
-      <Canvas shadows={"variance"} dpr={setDpr}>
+      <Canvas shadows={"soft"} dpr={setDpr}>
         <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>
           <DriveScene />
         </Physics>
