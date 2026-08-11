@@ -1,10 +1,11 @@
 import { createBrowserRouter } from "react-router";
 import App from "./App";
 import WelcomePage from "./pages/WelcomePage";
-import GamePage from "./pages/GamePage";
+import DrivePage from "./pages/DrivePage";
 import LayoutState from "./layout/LayoutState";
 import NotFoundPage from "./pages/NotFoundPage";
 import ErrorBoundary from "./components/ErrorBoundary";
+import GaragePage from "./pages/GaragePage";
 
 export const coreRouter = createBrowserRouter([
   {
@@ -16,10 +17,18 @@ export const coreRouter = createBrowserRouter([
         element: <WelcomePage />,
       },
       {
-        path: "/play",
+        path: "/drive",
         element: (
           <LayoutState>
-            <GamePage />
+            <DrivePage />
+          </LayoutState>
+        ),
+      },
+      {
+        path: "/garage",
+        element: (
+          <LayoutState>
+            <GaragePage />
           </LayoutState>
         ),
       },

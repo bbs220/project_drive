@@ -1,10 +1,10 @@
 import CoreCanvas from "../components/sceneComponents/CoreCanvas";
 
-const GamePage = () => {
+const DrivePage = () => {
   return (
     <div className="w-full h-full">
       <CoreCanvas />
     </div>
   );
 };
-export default GamePage;
+export default DrivePage;

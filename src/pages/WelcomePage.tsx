@@ -18,7 +18,7 @@ const WelcomePage = () => {
         </p>
       </div>
       {/* // interactive entry button */}
-      <Link to={"/play"}>
+      <Link to={"/drive"}>
         {/* // button container utilizing the custom shadow neon magenta class */}
         <button className="group relative flex items-center justify-center px-12 py-5 bg-transparent border border-tron-magenta cursor-pointer overflow-hidden transition-all duration-500 ease-out hover:scale-105 shadow-neon-magenta hover:bg-tron-magenta">
           {/* // stark utilitarian cyan bar on the left edge */}
