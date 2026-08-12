@@ -1,4 +1,3 @@
-// import required types and hooks
 import type { DynamicRayCastVehicleController } from "@dimforge/rapier3d-compat";
 import {
   type RapierRigidBody,
@@ -18,7 +17,7 @@ const _wheelSteeringQuat = new THREE.Quaternion();
 const _wheelRotationQuat = new THREE.Quaternion();
 
 // define wheel info
-export type WheelInfo = {
+export type typeWheelInfo = {
   axleCs: THREE.Vector3;
   suspensionRestLength: number;
   suspensionStiffness: number;
@@ -36,13 +35,14 @@ export type typeCarTuning = {
   brakeForce: number;
   steeringAngle: number;
   flipImpulse: number;
+  maxSpeed: number;
 };
 
 // define vehicle controller hook
 export const useVehicleCarCreator = (
   chassisRef: RefObject<RapierRigidBody | null>,
   wheelsRef: RefObject<THREE.Object3D[]>,
-  wheelsInfo: WheelInfo[],
+  wheelsInfo: typeWheelInfo[],
   controlsRef: RefObject<typeAllVehicleControls>,
   tuning: typeCarTuning,
 ) => {
@@ -124,9 +124,10 @@ export const useVehicleCarCreator = (
             boost: false,
           };
 
-    // extract current rotation quaternion
+    // extract current rotation quaternion and linear velocity
     const rot = chassis.rotation();
     const chassisQuat = new THREE.Quaternion(rot.x, rot.y, rot.z, rot.w);
+    const linvel = chassis.linvel();
 
     // calculate local up vector to check if vehicle is flipped
     const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(chassisQuat);
@@ -169,15 +170,25 @@ export const useVehicleCarCreator = (
     } else {
       // normal driving physics when wheels are down
 
+      // calculate three dimensional velocity magnitude
+      const currentSpeed = Math.sqrt(
+        linvel.x * linvel.x + linvel.y * linvel.y + linvel.z * linvel.z,
+      );
+
       // calculate boost multiplier using live tuning value
       const boostMultiplier = controls.boost ? tuning.boostMultiplier : 1;
 
       // calculate applied engine force with boost only on forward acceleration
-      const currentEngineForce = controls.forward
+      let currentEngineForce = controls.forward
         ? tuning.engineForce * boostMultiplier
         : controls.backward
           ? -tuning.engineForce
           : 0;
+
+      // engine governor overrides throttle if vehicle exceeds maximum procedural safe speed
+      if (currentSpeed >= tuning.maxSpeed && controls.forward) {
+        currentEngineForce = 0;
+      }
 
       // calculate applied steering angle
       const currentSteering = controls.left
@@ -210,7 +221,6 @@ export const useVehicleCarCreator = (
     const { current: wheels } = wheelsRef;
 
     // calculate exact forward speed of the car for forced manual rotation
-    const linvel = chassis.linvel();
     const velocity = new THREE.Vector3(linvel.x, linvel.y, linvel.z);
 
     // determine forward direction vector based on chassis rotation

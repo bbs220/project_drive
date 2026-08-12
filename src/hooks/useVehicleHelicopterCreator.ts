@@ -35,6 +35,7 @@ export type typeHelicopterTuning = {
   yawTorque: number;
   rotorSpeed: number;
   altitudeLimit: number;
+  maxSpeed: number;
 };
 
 // define vehicle controller hook
@@ -104,6 +105,9 @@ export const useVehicleHelicopterCreator = (
 
     // convert rapier plain object to a three js vector
     currentVelVector.set(currentLinVel.x, currentLinVel.y, currentLinVel.z);
+
+    // calculate true dimensional speed early for the engine governor
+    const currentSpeed = currentVelVector.length();
 
     // fetch mass of the chassis
     const chassisMass = chassis.mass();
@@ -178,18 +182,25 @@ export const useVehicleHelicopterCreator = (
     // determine if helicopter is high enough off the ground to maneuver
     const isAirborne = currentPosition.y > 1.5;
 
-    // calculate forward and backward thrust scalar
-    const thrustPower = tuning.liftForce * delta * 10;
+    // calculate base forward and backward thrust scalar
+    let forwardThrust = tuning.liftForce * delta * 10;
+    let backwardThrust = tuning.liftForce * delta * 10;
+
+    // engine governor overrides thrust if helicopter exceeds maximum procedural safe speed
+    if (currentSpeed >= tuning.maxSpeed) {
+      if (forward) forwardThrust = 0;
+      if (backward) backwardThrust = 0;
+    }
 
     // apply forward thrust along flat horizontal plane
     if (forward && isAirborne) {
-      forceVector.copy(flatForward).multiplyScalar(-thrustPower);
+      forceVector.copy(flatForward).multiplyScalar(-forwardThrust);
       chassis.applyImpulse(asVec(forceVector), true);
     }
 
     // apply backward thrust along flat horizontal plane
     if (backward && isAirborne) {
-      forceVector.copy(flatForward).multiplyScalar(thrustPower);
+      forceVector.copy(flatForward).multiplyScalar(backwardThrust);
       chassis.applyImpulse(asVec(forceVector), true);
     }
 
@@ -293,11 +304,8 @@ export const useVehicleHelicopterCreator = (
       tailRotorRef.current.rotation.x += delta * rpmRef.current;
     }
 
-    // calculate true dimensional speed
-    const speedMps = currentVelVector.length();
-
     // convert to knots for authentic aviation telemetry
-    const speedKnots = speedMps * 1.94384;
+    const speedKnots = currentSpeed * 1.94384;
 
     // extract pitch roll and yaw for ui attitude indicator
     const currentPitch = euler.x;

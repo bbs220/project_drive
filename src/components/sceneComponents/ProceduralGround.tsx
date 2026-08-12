@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import fragmentShader from "./shaders/gridFrag.glsl";
 import vertexShader from "./shaders/gridVert.glsl";
 import { useTweakpane } from "../../hooks/useTweakpane";
+import { RigidBody } from "@react-three/rapier";
 
 const groundDim = {
   width: 300,
@@ -74,25 +75,27 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
   }, [params]);
 
   return (
-    <mesh
-      position={[
-        chunkX * groundDim.width,
-        -2, // safely tucked down
-        chunkZ * groundDim.depth,
-      ]}
-      receiveShadow
-    >
-      <boxGeometry
-        args={[groundDim.width, groundDim.height, groundDim.depth]}
-      />
-      {/* attach the local ref to intercept the material strictly after rendering */}
-      <shaderMaterial
-        ref={materialRef}
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        uniforms={uniforms}
-      />
-    </mesh>
+    <RigidBody colliders={"cuboid"} type="fixed">
+      <mesh
+        position={[
+          chunkX * groundDim.width,
+          -0.5, // safely tucked down
+          chunkZ * groundDim.depth,
+        ]}
+        receiveShadow
+      >
+        <boxGeometry
+          args={[groundDim.width, groundDim.height, groundDim.depth]}
+        />
+        {/* attach the local ref to intercept the material strictly after rendering */}
+        <shaderMaterial
+          ref={materialRef}
+          vertexShader={vertexShader}
+          fragmentShader={fragmentShader}
+          uniforms={uniforms}
+        />
+      </mesh>
+    </RigidBody>
   );
 };
 

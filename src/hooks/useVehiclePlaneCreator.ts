@@ -29,6 +29,7 @@ export type typePlaneTuning = {
   rollTorque: number;
   yawTorque: number;
   liftMultiplier: number;
+  maxSpeed: number;
 };
 
 // define vehicle controller hook
@@ -162,15 +163,20 @@ export const useVehiclePlaneCreator = (
       );
     }
 
+    // calculate true dimensional speed early for engine governor
+    const speedMps = currentVelVector.length();
+
     // calculate forward thrust
-    const currentThrust = tuning.thrustPower * throttleRef.current * delta;
+    let currentThrust = tuning.thrustPower * throttleRef.current * delta;
+
+    // engine governor overrides thrust if plane exceeds maximum procedural safe speed
+    if (speedMps >= tuning.maxSpeed) {
+      currentThrust = 0;
+    }
 
     // apply thrust along local forward axis
     forceVector.copy(localZ).multiplyScalar(-currentThrust);
     chassis.applyImpulse(asVec(forceVector), true);
-
-    // calculate true dimensional speed
-    const speedMps = currentVelVector.length();
 
     // convert to knots for authentic aviation telemetry
     const speedKnots = speedMps * 1.94384;

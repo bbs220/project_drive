@@ -33,6 +33,7 @@ export const vehicleCarConstants = {
   brakeForce: { value: 2, min: 1, max: 500, label: "brake force" },
   steeringAngle: { value: 0.5, min: 0.1, max: 1, label: "steering angle" },
   flipImpulse: { value: 0.5, min: 0.1, max: 100, label: "flip impulse" },
+  maxSpeed: { value: 88, min: 10, max: 200, label: "max speed" },
 };
 
 export const vehiclePlaneConstants = {
@@ -43,6 +44,7 @@ export const vehiclePlaneConstants = {
     rollTorque: { value: 5, min: 1, max: 50, label: "roll torque" },
     yawTorque: { value: 3, min: 1, max: 50, label: "yaw torque" },
     liftMultiplier: { value: 8, min: 1, max: 50, label: "lift multiplier" },
+    maxSpeed: { value: 205, min: 50, max: 500, label: "max speed" },
   },
   colliders: {
     fuselageArgs: [0.6, 0.6, 2.1] as [number, number, number],
@@ -104,6 +106,7 @@ export const vehicleHelicopterConstants = {
     cabinWidth: { value: 2, min: 1, max: 5, label: "cabin width" },
     cabinHeight: { value: 2, min: 1, max: 5, label: "cabin height" },
     cabinLength: { value: 3, min: 1, max: 5, label: "cabin length" },
+    maxSpeed: { value: 82, min: 20, max: 200, label: "max speed" },
   },
   colliders: {
     cabinPos: [0, 0, 0] as [number, number, number],
