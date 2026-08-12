@@ -3,3 +3,13 @@ export const bankHDR = {
   skyNight: "/hdri/NightSkyHDRI001_2K_HDR.hdr",
   studio: "/hdri/NightEnvironmentHDRI001_2K_HDR.hdr",
 };
+
+export const modelsBank = {
+  helicopter01: "/models/lightHelicopter01.glb",
+  plane01: "/models/lightPlane01.glb",
+  runner01: "/models/runner01.glb",
+  runner02: "/models/runner02.glb",
+  runner03: "/models/runner03.glb",
+  runner04: "/models/runner04.glb",
+  willow01: "/models/tronWillow01.glb",
+};
