@@ -92,10 +92,8 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
     if (chassisRef.current.translation().y < vehicleRespawnLimit) {
       // trigger extracted respawn function
       respawnVehicle({
+        vehicleType: "car",
         vehicleBody: chassisRef.current,
-        x: vehicleRespawnPos.car[0],
-        y: vehicleRespawnPos.car[1],
-        z: vehicleRespawnPos.car[2],
       });
     }
   });
@@ -108,6 +106,7 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
         colliders={false}
         friction={0}
         position={vehicleRespawnPos.car}
+        rotation={[0, Math.PI, 0]}
         mass={params.mass}
         canSleep={false}
       >

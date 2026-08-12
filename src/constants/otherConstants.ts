@@ -11,6 +11,15 @@ export const vehicleRespawnPos = {
   helicopter: [-10, 5, 0] as [number, number, number],
 };
 
+export const vehicleRespawnRot = {
+  // 180 degrees on the y axis to flip the car forward
+  car: { x: 0, y: 1, z: 0, w: 0 },
+  // default identity quaternion (0 degrees)
+  plane: { x: 0, y: 0, z: 0, w: 1 },
+  // default identity quaternion (0 degrees)
+  helicopter: { x: 0, y: 0, z: 0, w: 1 },
+};
+
 export const vehicleCarConstants = {
   chassisWidth: { value: 1.6, min: 0.5, max: 3, label: "width" },
   chassisHeight: { value: 0.8, min: 0.2, max: 2, label: "height" },

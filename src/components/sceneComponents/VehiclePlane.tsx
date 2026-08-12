@@ -50,10 +50,8 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
     if (position.y < vehicleRespawnLimit) {
       // trigger extracted respawn function
       respawnVehicle({
+        vehicleType: "plane",
         vehicleBody: chassisRef.current,
-        x: vehicleRespawnPos.plane[0],
-        y: vehicleRespawnPos.plane[1],
-        z: vehicleRespawnPos.plane[2],
       });
     }
 

@@ -53,10 +53,8 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
     if (chassisRef.current.translation().y < vehicleRespawnLimit) {
       // trigger extracted respawn function
       respawnVehicle({
+        vehicleType: "helicopter",
         vehicleBody: chassisRef.current,
-        x: vehicleRespawnPos.helicopter[0],
-        y: vehicleRespawnPos.helicopter[1],
-        z: vehicleRespawnPos.helicopter[2],
       });
     }
   });
