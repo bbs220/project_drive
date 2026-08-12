@@ -32,7 +32,19 @@ const CarControlsDisplay = () => {
           <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
             AD
           </strong>
-          <span className="tracking-wider text-gray-200 uppercase">roll</span>
+          <span className="tracking-wider text-gray-200 uppercase">
+            steer/roll
+          </span>
+        </span>
+        {/* respawn control */}
+        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            R
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">
+            respawn
+          </span>
         </span>
       </div>
     </div>
@@ -74,6 +86,16 @@ const HelicopterControlsDisplay = () => {
           </strong>
           <span className="tracking-wider text-gray-200 uppercase">yaw</span>
         </span>
+        {/* respawn control */}
+        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            R
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">
+            respawn
+          </span>
+        </span>
       </div>
     </div>
   );
@@ -113,6 +135,16 @@ const PlaneControlsDisplay = () => {
             QE
           </strong>
           <span className="tracking-wider text-gray-200 uppercase">yaw</span>
+        </span>
+        {/* respawn control */}
+        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+        <span className="flex items-center gap-2">
+          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+            R
+          </strong>
+          <span className="tracking-wider text-gray-200 uppercase">
+            respawn
+          </span>
         </span>
       </div>
     </div>
