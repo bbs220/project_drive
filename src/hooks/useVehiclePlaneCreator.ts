@@ -5,8 +5,9 @@ import type { RapierRigidBody } from "@react-three/rapier";
 import type { typeAllVehicleControls } from "./useAllVehicleInput";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import { vehicleRespawnLimit } from "../constants/otherConstants";
+import respawnVehicle from "../utils/respawnVehicle";
 
-// initialize reusable three js objects outside the loop
+// initialize reusable objects outside the loop
 const euler = new THREE.Euler();
 const quaternion = new THREE.Quaternion();
 const localX = new THREE.Vector3();
@@ -18,7 +19,7 @@ const dampingTorque = new THREE.Vector3();
 // add this new vector to hold our velocity
 const currentVelVector = new THREE.Vector3();
 
-// helper to safely pass three js vectors to rapier without triggering rust memory aliasing
+// helper to safely pass library vectors to rapier without triggering rust memory aliasing
 const asVec = (vec: THREE.Vector3) => ({ x: vec.x, y: vec.y, z: vec.z });
 
 // define plane tuning parameters
@@ -60,30 +61,30 @@ export const useVehiclePlaneCreator = (
             right: false,
             brake: false,
             boost: false,
-            pitchUp: false,
-            pitchDown: false,
-            rollLeft: false,
-            rollRight: false,
             yawLeft: false,
             yawRight: false,
+            respawn: false,
           };
 
     // assign refs to local variables
     const chassis = chassisRef.current;
-    const {
-      boost,
-      brake,
-      forward,
-      backward,
-      left,
-      right,
-      pitchUp,
-      pitchDown,
-      rollLeft,
-      rollRight,
-      yawLeft,
-      yawRight,
-    } = controls;
+
+    // manual respawn trigger
+    if (controls.respawn) {
+      respawnVehicle({
+        vehicleType: "plane",
+        vehicleBody: chassis,
+      });
+
+      // zero out engine throttle on respawn
+      throttleRef.current = 0;
+
+      // exit the physics step early
+      return;
+    }
+
+    const { boost, brake, forward, backward, left, right, yawLeft, yawRight } =
+      controls;
 
     // extract time step for smooth physics
     const delta = world.timestep;
@@ -94,7 +95,7 @@ export const useVehiclePlaneCreator = (
     // fetch current linear velocity from rapier
     const currentLinVel = chassis.linvel();
 
-    // convert rapier plain object to a three js vector
+    // convert rapier plain object to a library vector
     currentVelVector.set(currentLinVel.x, currentLinVel.y, currentLinVel.z);
 
     // fetch mass of the chassis
@@ -106,18 +107,13 @@ export const useVehiclePlaneCreator = (
       vehicleRespawnLimit,
     );
 
-    // kill switch to reset engine throttle if plane falls out of bounds
-    if (currentPosition.y < vehicleRespawnLimit) {
-      throttleRef.current = 0;
-    }
-
-    // determine if plane is high enough off the ground to be considered flying
+    // determine if plane is airborne
     const isAirborne = currentPosition.y > 1.5;
 
     // fetch current quaternion rotation from rapier
     const currentRotation = chassis.rotation();
 
-    // apply rapier rotation to three js quaternion
+    // apply rapier rotation to library quaternion
     quaternion.set(
       currentRotation.x,
       currentRotation.y,
@@ -144,20 +140,13 @@ export const useVehiclePlaneCreator = (
     }
 
     // apply ground brakes by forcefully dampening horizontal velocity using tweakpane value
+    const safeBrakeForce = tuning.brakeForce || 5;
     if (brake && !isAirborne) {
       chassis.setLinvel(
         {
-          x: THREE.MathUtils.lerp(
-            currentLinVel.x,
-            0,
-            delta * tuning.brakeForce,
-          ),
+          x: THREE.MathUtils.lerp(currentLinVel.x, 0, delta * safeBrakeForce),
           y: currentLinVel.y,
-          z: THREE.MathUtils.lerp(
-            currentLinVel.z,
-            0,
-            delta * tuning.brakeForce,
-          ),
+          z: THREE.MathUtils.lerp(currentLinVel.z, 0, delta * safeBrakeForce),
         },
         true,
       );
@@ -169,8 +158,8 @@ export const useVehiclePlaneCreator = (
     // calculate forward thrust
     let currentThrust = tuning.thrustPower * throttleRef.current * delta;
 
-    // fallback speed
-    const safeMaxSpeed = tuning.maxSpeed || 100;
+    // fallback speed limit
+    const safeMaxSpeed = tuning.maxSpeed || 200;
 
     // engine governor overrides thrust if plane exceeds maximum procedural safe speed
     if (speedMps >= safeMaxSpeed) {
@@ -200,22 +189,22 @@ export const useVehiclePlaneCreator = (
     forceVector.copy(localY).multiplyScalar(dynamicLift);
     chassis.applyImpulse(asVec(forceVector), true);
 
-    // apply pitch torque along local right vector
-    if (forward || pitchDown) {
+    // apply pitch torque along local right vector using primary movement keys
+    if (forward) {
       forceVector.copy(localX).multiplyScalar(-tuning.pitchTorque);
       chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
-    if (backward || pitchUp) {
+    if (backward) {
       forceVector.copy(localX).multiplyScalar(tuning.pitchTorque);
       chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
 
-    // apply roll torque along local forward vector
-    if (left || rollLeft) {
+    // apply roll torque along local forward vector using primary steering keys
+    if (left) {
       forceVector.copy(localZ).multiplyScalar(tuning.rollTorque);
       chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
-    if (right || rollRight) {
+    if (right) {
       forceVector.copy(localZ).multiplyScalar(-tuning.rollTorque);
       chassis.applyTorqueImpulse(asVec(forceVector), true);
     }

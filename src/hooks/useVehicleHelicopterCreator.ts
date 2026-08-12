@@ -5,6 +5,7 @@ import type { RapierRigidBody } from "@react-three/rapier";
 import type { typeAllVehicleControls } from "./useAllVehicleInput";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import { vehicleRespawnLimit } from "../constants/otherConstants";
+import respawnVehicle from "../utils/respawnVehicle";
 
 // initialize reusable three js objects outside the loop to prevent memory leaks
 const euler = new THREE.Euler();
@@ -69,30 +70,29 @@ export const useVehicleHelicopterCreator = (
             right: false,
             brake: false,
             boost: false,
-            pitchUp: false,
-            pitchDown: false,
-            rollLeft: false,
-            rollRight: false,
             yawLeft: false,
             yawRight: false,
+            respawn: false,
           };
 
     // assign refs to local variables
     const chassis = chassisRef.current;
-    const {
-      boost,
-      brake,
-      forward,
-      backward,
-      left,
-      right,
-      pitchUp,
-      pitchDown,
-      rollLeft,
-      rollRight,
-      yawLeft,
-      yawRight,
-    } = controls;
+
+    // manual respawn trigger
+    if (controls.respawn) {
+      respawnVehicle({
+        vehicleType: "helicopter",
+        vehicleBody: chassis,
+      });
+      // reset visual engine states instantly
+      rpmRef.current = 0;
+      collectiveRef.current = 0;
+      // exit the physics step early to prevent applying forces to a teleporting body
+      return;
+    }
+
+    const { boost, brake, forward, backward, left, right, yawLeft, yawRight } =
+      controls;
 
     // extract time step for smooth rotation and physics
     const delta = world.timestep;
@@ -117,12 +117,6 @@ export const useVehicleHelicopterCreator = (
       Math.floor(currentPosition.y),
       vehicleRespawnLimit,
     );
-
-    // kill switch to reset rotor and collective states if helicopter falls out of bounds
-    if (currentPosition.y < vehicleRespawnLimit) {
-      rpmRef.current = 0;
-      collectiveRef.current = 0;
-    }
 
     // fetch current quaternion rotation from rapier
     const currentRotation = chassis.rotation();
@@ -208,27 +202,26 @@ export const useVehicleHelicopterCreator = (
     }
 
     // apply pitch logic along local right vector
-    if ((forward || pitchDown) && isAirborne) {
+    if (forward && isAirborne) {
       forceVector.copy(localX).multiplyScalar(-tuning.pitchTorque);
       chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
-    if ((backward || pitchUp) && isAirborne) {
+    if (backward && isAirborne) {
       forceVector.copy(localX).multiplyScalar(tuning.pitchTorque);
       chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
 
     // apply roll logic along local forward vector
-    if ((left || rollLeft) && isAirborne) {
+    if (left && isAirborne) {
       forceVector.copy(localZ).multiplyScalar(tuning.rollTorque);
       chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
-    if ((right || rollRight) && isAirborne) {
+    if (right && isAirborne) {
       forceVector.copy(localZ).multiplyScalar(-tuning.rollTorque);
       chassis.applyTorqueImpulse(asVec(forceVector), true);
     }
 
     // apply yaw logic along local up vector
-    // yaw is allowed on the ground to simulate pedal turning
     if (yawLeft) {
       forceVector.copy(localY).multiplyScalar(tuning.yawTorque);
       chassis.applyTorqueImpulse(asVec(forceVector), true);
@@ -260,22 +253,16 @@ export const useVehicleHelicopterCreator = (
     // handle airborne rotor states
     if (isAirborne) {
       if (boost) {
-        // max speed when gaining altitude
         targetRpm = tuning.rotorSpeed;
       } else if (brake) {
-        // reduced speed when losing altitude
         targetRpm = tuning.rotorSpeed * 0.6;
       } else {
-        // high idle speed to maintain illusion of flight
         targetRpm = tuning.rotorSpeed * 0.8;
       }
     } else {
-      // handle grounded rotor states
       if (boost) {
-        // spool up for takeoff
         targetRpm = tuning.rotorSpeed;
       } else {
-        // engine off
         targetRpm = 0;
       }
     }

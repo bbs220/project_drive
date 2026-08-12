@@ -8,6 +8,7 @@ import { type RefObject, useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { typeAllVehicleControls } from "./useAllVehicleInput";
 import { useVehicleStore } from "../stores/useVehicleStore";
+import respawnVehicle from "../utils/respawnVehicle";
 
 // define up vector
 const up = new THREE.Vector3(0, 1, 0);
@@ -122,7 +123,22 @@ export const useVehicleCarCreator = (
             right: false,
             brake: true,
             boost: false,
+            yawLeft: false,
+            yawRight: false,
+            respawn: false,
           };
+
+    // manual respawn trigger
+    if (controls.respawn) {
+      // execute centralized respawn logic
+      respawnVehicle({
+        vehicleType: "car",
+        vehicleBody: chassis,
+      });
+
+      // exit the physics step early to prevent applying forces to a teleporting body
+      return;
+    }
 
     // extract current rotation quaternion and linear velocity
     const rot = chassis.rotation();

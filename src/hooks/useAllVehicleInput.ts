@@ -1,19 +1,16 @@
 import { useEffect, useRef } from "react";
 
-// define all possible control states
+// define all possible control states without redundant numpad axes
 export type typeAllVehicleControls = {
-  forward: boolean;
-  backward: boolean;
-  left: boolean;
-  right: boolean;
-  brake: boolean;
-  boost: boolean;
-  pitchUp: boolean;
-  pitchDown: boolean;
-  rollLeft: boolean;
-  rollRight: boolean;
-  yawLeft: boolean;
-  yawRight: boolean;
+  forward: boolean; // w - also pitch up for aerial vehicles
+  backward: boolean; // s - also pitch down for aerial vehicles
+  left: boolean; // a - also roll left for aerial vehicles
+  right: boolean; // d - also roll right for aerial vehicles
+  brake: boolean; // space - decend for heli and slow down for plane
+  boost: boolean; // left shift - ascend for heli and take off for plane
+  yawLeft: boolean; // q - only on aerial vehicles
+  yawRight: boolean; // e - only on aerial vehicles
+  respawn: boolean; // r - works across all vehicles
 };
 
 // export default hook
@@ -26,12 +23,9 @@ export const useAllVehicleInput = () => {
     right: false,
     brake: false,
     boost: false,
-    pitchUp: false,
-    pitchDown: false,
-    rollLeft: false,
-    rollRight: false,
     yawLeft: false,
     yawRight: false,
+    respawn: false,
   });
 
   // handle key press events
@@ -39,19 +33,21 @@ export const useAllVehicleInput = () => {
     // keydown event handler
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.code) {
-        // standard driving and throttle
+        // standard driving and throttle and pitch
         case "KeyW":
           vehicleInputControls.current.forward = true;
           break;
         case "KeyS":
           vehicleInputControls.current.backward = true;
           break;
+        // standard steering and roll
         case "KeyA":
           vehicleInputControls.current.left = true;
           break;
         case "KeyD":
           vehicleInputControls.current.right = true;
           break;
+        // brakes and boost
         case "Space":
           vehicleInputControls.current.brake = true;
           break;
@@ -65,19 +61,8 @@ export const useAllVehicleInput = () => {
         case "KeyE":
           vehicleInputControls.current.yawRight = true;
           break;
-        // pitch controls
-        case "Numpad5":
-          vehicleInputControls.current.pitchUp = true;
-          break;
-        case "Numpad8":
-          vehicleInputControls.current.pitchDown = true;
-          break;
-        // roll controls
-        case "Numpad4":
-          vehicleInputControls.current.rollLeft = true;
-          break;
-        case "Numpad6":
-          vehicleInputControls.current.rollRight = true;
+        case "KeyR":
+          vehicleInputControls.current.respawn = true;
           break;
       }
     };
@@ -85,19 +70,21 @@ export const useAllVehicleInput = () => {
     // keyup event handler
     const handleKeyUp = (e: KeyboardEvent) => {
       switch (e.code) {
-        // standard driving and throttle
+        // standard driving and throttle and pitch
         case "KeyW":
           vehicleInputControls.current.forward = false;
           break;
         case "KeyS":
           vehicleInputControls.current.backward = false;
           break;
+        // standard steering and roll
         case "KeyA":
           vehicleInputControls.current.left = false;
           break;
         case "KeyD":
           vehicleInputControls.current.right = false;
           break;
+        // brakes and boost
         case "Space":
           vehicleInputControls.current.brake = false;
           break;
@@ -111,19 +98,8 @@ export const useAllVehicleInput = () => {
         case "KeyE":
           vehicleInputControls.current.yawRight = false;
           break;
-        // pitch controls
-        case "Numpad5":
-          vehicleInputControls.current.pitchUp = false;
-          break;
-        case "Numpad8":
-          vehicleInputControls.current.pitchDown = false;
-          break;
-        // roll controls
-        case "Numpad4":
-          vehicleInputControls.current.rollLeft = false;
-          break;
-        case "Numpad6":
-          vehicleInputControls.current.rollRight = false;
+        case "KeyR":
+          vehicleInputControls.current.respawn = false;
           break;
       }
     };
