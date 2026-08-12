@@ -14,7 +14,7 @@ import {
 import { useTweakpane } from "../../hooks/useTweakpane";
 import {
   useVehicleCarCreator,
-  type WheelInfo,
+  type typeWheelInfo,
 } from "../../hooks/useVehicleCarCreator";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import respawnVehicle from "../../utils/respawnVehicle";
@@ -37,9 +37,9 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
   );
 
   // recalculate wheels dynamically when tweakpane values change
-  const wheelsInfo = useMemo<WheelInfo[]>(() => {
+  const wheelsInfo = useMemo<typeWheelInfo[]>(() => {
     // helper to create standard wheel config
-    const createWheelInfo = (x: number, z: number): WheelInfo => ({
+    const createWheelInfo = (x: number, z: number): typeWheelInfo => ({
       axleCs: new THREE.Vector3(-1, 0, 0),
       suspensionRestLength: params.suspensionRestLength,
       suspensionStiffness: params.suspensionStiffness,

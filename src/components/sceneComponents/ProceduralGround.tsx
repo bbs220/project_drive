@@ -26,11 +26,9 @@ type GroundTileProps = {
   };
 };
 
-// completely hides the ref mutation from the parent compiler
 const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
-  // standard r3f pattern: initialize uniforms exactly once
   const uniforms = useMemo(
     () => ({
       uBgColor: { value: new THREE.Color(params.bgColor) },
@@ -46,48 +44,34 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
       uCrossOpacity: { value: params.crossOpacity },
       uGridThickness: { value: params.gridThickness },
     }),
-    [
-      params.bgColor,
-      params.crossColor,
-      params.crossOpacity,
-      params.crossSize,
-      params.gridSize,
-      params.gridThickness,
-      params.lineColor,
-      params.subGridSize,
-    ], // empty array guarantees this object is never touched by react again
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
-  // perfectly legal: updating a generic ref target inside an effect
   useEffect(() => {
     if (!materialRef.current) return;
     const mat = materialRef.current;
-
     mat.uniforms.uGridSize.value = params.gridSize;
     mat.uniforms.uSubGridSize.value = params.subGridSize;
     mat.uniforms.uCrossSize.value = params.crossSize;
     mat.uniforms.uCrossOpacity.value = params.crossOpacity;
     mat.uniforms.uGridThickness.value = params.gridThickness;
-
     mat.uniforms.uBgColor.value.set(params.bgColor);
     mat.uniforms.uLineColor.value.set(params.lineColor).multiplyScalar(2);
     mat.uniforms.uCrossColor.value.set(params.crossColor).multiplyScalar(2);
   }, [params]);
 
   return (
-    <RigidBody colliders={"cuboid"} type="fixed">
-      <mesh
-        position={[
-          chunkX * groundDim.width,
-          -0.5, // safely tucked down
-          chunkZ * groundDim.depth,
-        ]}
-        receiveShadow
-      >
+    <RigidBody
+      type="fixed"
+      colliders="cuboid"
+      friction={1.5}
+      position={[chunkX * groundDim.width, -0.5, chunkZ * groundDim.depth]}
+    >
+      <mesh receiveShadow>
         <boxGeometry
           args={[groundDim.width, groundDim.height, groundDim.depth]}
         />
-        {/* attach the local ref to intercept the material strictly after rendering */}
         <shaderMaterial
           ref={materialRef}
           vertexShader={vertexShader}

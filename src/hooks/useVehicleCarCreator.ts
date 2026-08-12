@@ -185,8 +185,11 @@ export const useVehicleCarCreator = (
           ? -tuning.engineForce
           : 0;
 
+      // fallback speed
+      const safeMaxSpeed = tuning.maxSpeed || 50;
+
       // engine governor overrides throttle if vehicle exceeds maximum procedural safe speed
-      if (currentSpeed >= tuning.maxSpeed && controls.forward) {
+      if (currentSpeed >= safeMaxSpeed && controls.forward) {
         currentEngineForce = 0;
       }
 

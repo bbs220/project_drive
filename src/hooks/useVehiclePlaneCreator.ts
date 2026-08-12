@@ -169,8 +169,11 @@ export const useVehiclePlaneCreator = (
     // calculate forward thrust
     let currentThrust = tuning.thrustPower * throttleRef.current * delta;
 
+    // fallback speed
+    const safeMaxSpeed = tuning.maxSpeed || 100;
+
     // engine governor overrides thrust if plane exceeds maximum procedural safe speed
-    if (speedMps >= tuning.maxSpeed) {
+    if (speedMps >= safeMaxSpeed) {
       currentThrust = 0;
     }
 

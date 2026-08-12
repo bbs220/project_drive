@@ -186,8 +186,11 @@ export const useVehicleHelicopterCreator = (
     let forwardThrust = tuning.liftForce * delta * 10;
     let backwardThrust = tuning.liftForce * delta * 10;
 
+    // fallback speed
+    const safeMaxSpeed = tuning.maxSpeed || 100;
+
     // engine governor overrides thrust if helicopter exceeds maximum procedural safe speed
-    if (currentSpeed >= tuning.maxSpeed) {
+    if (currentSpeed >= safeMaxSpeed) {
       if (forward) forwardThrust = 0;
       if (backward) backwardThrust = 0;
     }
