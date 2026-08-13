@@ -17,8 +17,8 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
   const params = useTweakpane(
     { title: "🎥 Camera Rig", expanded: false },
     {
-      distance: { value: 6, min: 5, max: 50, label: "chase distance" },
-      heightOffset: { value: 0.8, min: 0, max: 10, label: "target height" },
+      distance: { value: 18, min: 5, max: 50, label: "chase distance" },
+      heightOffset: { value: 0, min: 0, max: 10, label: "target height" },
       forwardOffset: { value: 0, min: -10, max: 10, label: "target forward" },
       sensitivity: {
         value: 0.004,
