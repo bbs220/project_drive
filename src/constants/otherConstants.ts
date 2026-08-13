@@ -7,8 +7,8 @@ export const vehicleRespawnLimit = -50;
 
 export const vehicleRespawnPos = {
   car: [0, 5, 0] as [number, number, number],
-  plane: [10, 5, 0] as [number, number, number],
-  helicopter: [-10, 5, 0] as [number, number, number],
+  plane: [20, 5, 0] as [number, number, number],
+  helicopter: [-20, 5, 0] as [number, number, number],
 };
 
 export const vehicleRespawnRot = {
