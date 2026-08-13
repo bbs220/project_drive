@@ -37,6 +37,7 @@ export type typeHelicopterTuning = {
   rotorSpeed: number;
   altitudeLimit: number;
   maxSpeed: number;
+  airborneThreshold: number;
 };
 
 // define vehicle controller hook
@@ -174,7 +175,8 @@ export const useVehicleHelicopterCreator = (
     }
 
     // determine if helicopter is high enough off the ground to maneuver
-    const isAirborne = currentPosition.y > 1.5;
+    const safeThreshold = tuning.airborneThreshold || 3.5;
+    const isAirborne = currentPosition.y > safeThreshold;
 
     // calculate base forward and backward thrust scalar
     let forwardThrust = tuning.liftForce * delta * 10;

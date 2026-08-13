@@ -27,9 +27,7 @@ type typeCabinGLTF = GLTF & {
     heliBarrel: THREE.Mesh;
     heliTailWingRight: THREE.Mesh;
   };
-  materials: {
-    Chopper_material: THREE.MeshPhysicalMaterial;
-  };
+  materials: { Chopper_material: THREE.MeshPhysicalMaterial };
 };
 
 // define strict types for the top rotor geometry
@@ -48,12 +46,8 @@ type typeTopRotorGLTF = GLTF & {
 
 // define strict types for the tail rotor geometry
 type typeTailRotorGLTF = GLTF & {
-  nodes: {
-    heliTailRotor: THREE.Mesh;
-  };
-  materials: {
-    ["rear_rotors.002"]: THREE.MeshPhysicalMaterial;
-  };
+  nodes: { heliTailRotor: THREE.Mesh };
+  materials: { ["rear_rotors.002"]: THREE.MeshPhysicalMaterial };
 };
 
 // main vehicle component updated to match group typing
@@ -108,19 +102,15 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
         ]}
         canSleep={false}
       >
+        {/* dynamic cabin collider */}
         <CuboidCollider
           args={[
             params.cabinWidth / 2,
             params.cabinHeight / 2,
             params.cabinLength / 2,
           ]}
-          position={vehicleHelicopterConstants.colliders.cabinPos}
+          position={[params.cabinPosX, params.cabinPosY, params.cabinPosZ]}
           mass={params.cabinMass}
-        />
-        <CuboidCollider
-          args={vehicleHelicopterConstants.colliders.tailArgs}
-          position={vehicleHelicopterConstants.colliders.tailPos}
-          mass={params.tailMass}
         />
 
         {/* visual elements perfectly wrapped in the forwarded ref group */}
@@ -176,14 +166,13 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
             </group>
           </group>
 
-          {/* main top rotor animated via physics hook */}
+          {/* main top rotor animated via physics hook and dialable y axis anchor */}
           <group
             ref={mainRotorRef}
             position={[
-              vehicleHelicopterConstants.physics.zeroVector,
-              params.cabinHeight / 2 +
-                vehicleHelicopterConstants.visuals.mainRotorOffset,
-              vehicleHelicopterConstants.physics.zeroVector,
+              params.mainRotorPosX,
+              params.mainRotorPosY,
+              params.mainRotorPosZ,
             ]}
           >
             <mesh
@@ -210,10 +199,14 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
             </mesh>
           </group>
 
-          {/* tail rotor animated via physics hook */}
+          {/* tail rotor animated via physics hook and dialable xyz anchor */}
           <group
             ref={tailRotorRef}
-            position={vehicleHelicopterConstants.visuals.tailRotorGroupPos}
+            position={[
+              params.tailRotorPosX,
+              params.tailRotorPosY,
+              params.tailRotorPosZ,
+            ]}
           >
             <mesh
               name="heliTailRotor"

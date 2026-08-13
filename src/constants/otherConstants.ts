@@ -94,9 +94,9 @@ export const vehiclePlaneConstants = {
   },
 };
 
-// define baseline physical constants for helicopter flight model and visuals
 export const vehicleHelicopterConstants = {
   tuning: {
+    // flight mechanics
     liftForce: { value: 200, min: 50, max: 1000, label: "lift force" },
     descendForce: { value: 250, min: 50, max: 1000, label: "descend force" },
     hoverMultiplier: {
@@ -110,42 +110,34 @@ export const vehicleHelicopterConstants = {
     yawTorque: { value: 10, min: 1, max: 100, label: "yaw torque" },
     rotorSpeed: { value: 50, min: 1, max: 100, label: "rotor speed" },
     altitudeLimit: { value: 12, min: 10, max: 100, label: "altitude limit" },
-    cabinMass: { value: 100, min: 50, max: 500, label: "cabin mass" },
-    tailMass: { value: 1, min: 0.1, max: 50, label: "tail mass" },
-    cabinWidth: { value: 2, min: 1, max: 5, label: "cabin width" },
-    cabinHeight: { value: 2, min: 1, max: 5, label: "cabin height" },
-    cabinLength: { value: 3, min: 1, max: 5, label: "cabin length" },
     maxSpeed: { value: 82, min: 20, max: 200, label: "max speed" },
-  },
-  colliders: {
-    cabinPos: [0, 0, 0] as [number, number, number],
-    tailPos: [0, 0.5, 2.5] as [number, number, number],
-    tailArgs: [0.2, 0.2, 1.5] as [number, number, number],
-    leftSkidPos: [-1, -1.2, 0] as [number, number, number],
-    rightSkidPos: [1, -1.2, 0] as [number, number, number],
-    skidArgs: [1.2, 0.2, 1.75] as [number, number, number],
-    skidPos: [0, -1.2, 0] as [number, number, number],
-  },
-  visuals: {
-    cabinRadius: 0.5,
-    cabinSmoothness: 4,
-    tailBoxArgs: [0.4, 0.4, 3] as [number, number, number],
-    skidArgs: [0.2, 0.2, 3.5] as [number, number, number],
-    mainRotorOffset: 0.2,
-    rotorMastPos: [0, 0.1, 0] as [number, number, number],
-    rotorMastArgs: [0.1, 0.1, 0.6] as [number, number, number],
-    bladePos: [0, 0.4, 0] as [number, number, number],
-    bladeArgs: [0.2, 0.05, 8] as [number, number, number],
-    tailRotorGroupPos: [0.25, 0.5, 3.8] as [number, number, number],
-    tailRotorMastArgs: [0.05, 0.05, 0.3] as [number, number, number],
-    tailBladePos: [0.15, 0, 0] as [number, number, number],
-    tailBladeArgs: [0.05, 1.5, 0.15] as [number, number, number],
+    airborneThreshold: {
+      value: 3.5,
+      min: 1,
+      max: 10,
+      label: "airborne height",
+    },
+    // cabin colliders representing the whole body including tail
+    cabinMass: { value: 100, min: 50, max: 500, label: "cabin mass" },
+    cabinWidth: { value: 3.5, min: 0.1, max: 20, label: "cabin width" },
+    cabinHeight: { value: 5.5, min: 0.1, max: 20, label: "cabin height" },
+    cabinLength: { value: 14, min: 0.1, max: 20, label: "cabin length" },
+    cabinPosX: { value: 0, min: -20, max: 20, label: "cabin pos x" },
+    cabinPosY: { value: 0, min: -20, max: 20, label: "cabin pos y" },
+    cabinPosZ: { value: 1, min: -20, max: 20, label: "cabin pos z" },
+    // rotor visual anchors
+    mainRotorPosX: { value: 0, min: -20, max: 20, label: "main rotor x" },
+    mainRotorPosY: { value: 2.25, min: -20, max: 20, label: "main rotor y" },
+    mainRotorPosZ: { value: -0.9, min: -20, max: 20, label: "main rotor z" },
+    tailRotorPosX: { value: 0, min: -20, max: 20, label: "tail rotor x" },
+    tailRotorPosY: { value: 0.1, min: -20, max: 20, label: "tail rotor y" },
+    tailRotorPosZ: { value: 6.46, min: -20, max: 20, label: "tail rotor z" },
   },
   rotations: {
     quarterTurn: Math.PI / 2,
   },
   physics: {
-    friction: 0,
+    friction: 1.5,
     zeroVector: 0,
   },
 };
