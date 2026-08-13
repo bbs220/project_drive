@@ -47,50 +47,35 @@ export const vehicleCarConstants = {
 
 export const vehiclePlaneConstants = {
   tuning: {
-    thrustPower: { value: 60, min: 10, max: 200, label: "thrust power" },
+    // flight mechanics
+    thrustPower: { value: 300, min: 50, max: 1000, label: "thrust power" },
     brakeForce: { value: 5, min: 1, max: 50, label: "brake force" },
-    pitchTorque: { value: 5, min: 1, max: 50, label: "pitch torque" },
-    rollTorque: { value: 5, min: 1, max: 50, label: "roll torque" },
-    yawTorque: { value: 3, min: 1, max: 50, label: "yaw torque" },
-    liftMultiplier: { value: 8, min: 1, max: 50, label: "lift multiplier" },
-    maxSpeed: { value: 205, min: 50, max: 500, label: "max speed" },
+    pitchTorque: { value: 10, min: 1, max: 100, label: "pitch torque" },
+    rollTorque: { value: 10, min: 1, max: 100, label: "roll torque" },
+    yawTorque: { value: 10, min: 1, max: 100, label: "yaw torque" },
+    liftMultiplier: { value: 0.1, min: 0.01, max: 1, label: "lift multiplier" },
+    maxSpeed: { value: 200, min: 50, max: 500, label: "max speed" },
+    airborneThreshold: {
+      value: 2.5,
+      min: 1,
+      max: 10,
+      label: "airborne height",
+    },
+    // plane colliders
+    planeMass: { value: 100, min: 50, max: 500, label: "plane mass" },
+    planeWidth: { value: 8.5, min: 0.1, max: 20, label: "plane width" },
+    planeHeight: { value: 3.5, min: 0.1, max: 20, label: "plane height" },
+    planeLength: { value: 20, min: 0.1, max: 20, label: "plane length" },
+    planePosX: { value: 0, min: -20, max: 20, label: "plane pos x" },
+    planePosY: { value: 0, min: -20, max: 20, label: "plane pos y" },
+    planePosZ: { value: 2.7, min: -20, max: 20, label: "plane pos z" },
+    // visual anchors
+    cockpitPosX: { value: 0, min: -20, max: 20, label: "cockpit pos x" },
+    cockpitPosY: { value: 0.68, min: -20, max: 20, label: "cockpit pos y" },
+    cockpitPosZ: { value: -2.8, min: -20, max: 20, label: "cockpit pos z" },
   },
-  colliders: {
-    fuselageArgs: [0.6, 0.6, 2.1] as [number, number, number],
-    fuselagePos: [0, 0, 0] as [number, number, number],
-    wingsArgs: [2.5, 0.1, 0.6] as [number, number, number],
-    wingsPos: [0, -0.3, 0.2] as [number, number, number],
-    wheelsArgs: [0.6, 0.3, 1.0] as [number, number, number],
-    wheelsPos: [0, -0.9, -0.35] as [number, number, number],
-  },
-  visuals: {
-    fuselageArgs: [0.6, 2.8, 4, 16] as [number, number, number, number],
-    cockpitPos: [0, 0.4, -0.8] as [number, number, number],
-    cockpitArgs: [0.55, 16, 16] as [number, number, number],
-    wingPos: [0, -0.3, 0.2] as [number, number, number],
-    wingArgs: [5, 0.1, 1.2] as [number, number, number],
-    turbinePos: [0, 0.7, 1] as [number, number, number],
-    turbineArgs: [0.4, 0.4, 1.2, 16] as [number, number, number, number],
-    leftTailPos: [-0.5, 0.5, 2] as [number, number, number],
-    rightTailPos: [0.5, 0.5, 2] as [number, number, number],
-    tailArgs: [0.1, 1.5, 0.8] as [number, number, number],
-    frontGearPos: [0, -0.6, -1.2] as [number, number, number],
-    leftRearGearPos: [-0.4, -0.6, 0.5] as [number, number, number],
-    rightRearGearPos: [0.4, -0.6, 0.5] as [number, number, number],
-    strutPos: [0, -0.1, 0] as [number, number, number],
-    strutArgs: [0.05, 0.05, 0.8] as [number, number, number],
-    frontWheelPos: [0, -0.45, 0] as [number, number, number],
-    frontWheelArgs: [0.15, 0.15, 0.1] as [number, number, number],
-    rearWheelPos: [0, -0.4, 0] as [number, number, number],
-    rearWheelArgs: [0.2, 0.2, 0.15] as [number, number, number],
-  },
-  rotations: {
-    quarterTurn: Math.PI / 2,
-    eighthTurn: Math.PI / 4,
-  },
-  animations: {
-    gearRetractHeight: 4,
-    gearRetractSpeed: 2,
+  physics: {
+    friction: 1.5,
   },
 };
 

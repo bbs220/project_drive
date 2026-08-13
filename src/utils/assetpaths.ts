@@ -18,4 +18,6 @@ export const modelsSeperatedBank = {
   helicopter01cabin: "/models/lightHelicopter01cabin.glb",
   helicopter01topRotor: "/models/lightHelicopter01topRotor.glb",
   helicopter01tailRotor: "/models/lightHelicopter01tailRotor.glb",
+  lightPlane01cockpit: "/models/lightPlane01cockpit.glb",
+  lightPlane01airframe: "/models/lightPlane01airframe.glb",
 };

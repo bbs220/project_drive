@@ -64,7 +64,7 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
 
   // initialize tweakpane hook using extracted constants
   const params = useTweakpane(
-    { title: "helicopter tuning", expanded: false },
+    { title: "🚁 Helicopter Tuning", expanded: false },
     vehicleHelicopterConstants.tuning,
   );
 

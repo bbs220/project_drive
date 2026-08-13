@@ -8,23 +8,43 @@ import * as THREE from "three";
 import { useVehiclePlaneCreator } from "../../hooks/useVehiclePlaneCreator";
 import {
   vehiclePlaneConstants,
-  vehicleRespawnLimit,
   vehicleRespawnPos,
+  vehicleRespawnRot,
 } from "../../constants/otherConstants";
-import { useFrame } from "@react-three/fiber";
-import respawnVehicle from "../../utils/respawnVehicle";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useTweakpane } from "../../hooks/useTweakpane";
+import { useGLTF } from "@react-three/drei";
+import { type GLTF } from "three-stdlib";
+import { modelsSeperatedBank } from "../../utils/assetpaths";
 
-// main plane component with built in respawn
+// define strict types for the airframe geometry
+type typeAirframeGLTF = GLTF & {
+  nodes: {
+    planeBody: THREE.Mesh;
+    planeStripes: THREE.Mesh;
+    planeThrusters: THREE.Mesh;
+  };
+  materials: {
+    ["black.001"]: THREE.MeshStandardMaterial;
+    ["tron.002"]: THREE.MeshStandardMaterial;
+    ["tron.003"]: THREE.MeshStandardMaterial;
+  };
+};
+
+// define strict types for the cockpit geometry
+type typeCockpitGLTF = GLTF & {
+  nodes: {
+    planeCockpit: THREE.Mesh;
+  };
+  materials: {
+    ["Material.001"]: THREE.MeshStandardMaterial;
+  };
+};
+
+// main vehicle component updated to match group typing
 const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
   // ref for the main chassis rigid body
   const chassisRef = useRef<RapierRigidBody>(null);
-
-  // refs for targeting individual landing gear assemblies
-  const frontGearRef = useRef<THREE.Group>(null);
-  const leftGearRef = useRef<THREE.Group>(null);
-  const rightGearRef = useRef<THREE.Group>(null);
 
   // initialize vehicle controls
   const vehicleInput = useAllVehicleInput();
@@ -35,205 +55,87 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
     vehiclePlaneConstants.tuning,
   );
 
-  // initialize plane physics controller with required arguments
+  // offload physics and animation logic to custom hook
   useVehiclePlaneCreator(chassisRef, vehicleInput, params);
 
-  // handle respawn logic and gear animations
-  useFrame((_, delta) => {
-    // exit early if chassis is missing
-    if (!chassisRef.current) return;
-
-    // fetch current position
-    const position = chassisRef.current.translation();
-
-    // check if vehicle has fallen below bounds
-    if (position.y < vehicleRespawnLimit) {
-      // trigger extracted respawn function
-      respawnVehicle({
-        vehicleType: "plane",
-        vehicleBody: chassisRef.current,
-      });
-    }
-
-    // determine if plane is high enough off the ground to trigger gear retraction
-    const isHighEnough =
-      position.y > vehiclePlaneConstants.animations.gearRetractHeight;
-
-    // assign target fold angle based on altitude
-    const targetAngle = isHighEnough
-      ? vehiclePlaneConstants.rotations.quarterTurn
-      : 0;
-
-    // smoothly fold front gear backwards into belly
-    if (frontGearRef.current) {
-      frontGearRef.current.rotation.x = THREE.MathUtils.lerp(
-        frontGearRef.current.rotation.x,
-        -targetAngle,
-        delta * vehiclePlaneConstants.animations.gearRetractSpeed,
-      );
-    }
-
-    // smoothly fold left rear gear forwards into belly
-    if (leftGearRef.current) {
-      leftGearRef.current.rotation.x = THREE.MathUtils.lerp(
-        leftGearRef.current.rotation.x,
-        targetAngle,
-        delta * vehiclePlaneConstants.animations.gearRetractSpeed,
-      );
-    }
-
-    // smoothly fold right rear gear forwards into belly
-    if (rightGearRef.current) {
-      rightGearRef.current.rotation.x = THREE.MathUtils.lerp(
-        rightGearRef.current.rotation.x,
-        targetAngle,
-        delta * vehiclePlaneConstants.animations.gearRetractSpeed,
-      );
-    }
-  });
+  // load the separated models
+  const airframeGLTF = useGLTF(
+    modelsSeperatedBank.lightPlane01airframe,
+  ) as unknown as typeAirframeGLTF;
+  const cockpitGLTF = useGLTF(
+    modelsSeperatedBank.lightPlane01cockpit,
+  ) as unknown as typeCockpitGLTF;
 
   return (
     <group>
       <RigidBody
         ref={chassisRef}
         colliders={false}
-        friction={0}
+        friction={vehiclePlaneConstants.physics.friction}
         position={vehicleRespawnPos.plane}
+        rotation={[
+          vehicleRespawnRot.plane.x,
+          vehicleRespawnRot.plane.y,
+          vehicleRespawnRot.plane.z,
+        ]}
         canSleep={false}
       >
-        {/* manual collider for main fuselage */}
+        {/* dynamic plane collider */}
         <CuboidCollider
-          args={vehiclePlaneConstants.colliders.fuselageArgs}
-          position={vehiclePlaneConstants.colliders.fuselagePos}
+          args={[
+            params.planeWidth / 2,
+            params.planeHeight / 2,
+            params.planeLength / 2,
+          ]}
+          position={[params.planePosX, params.planePosY, params.planePosZ]}
+          mass={params.planeMass}
         />
 
-        {/* manual collider for wings */}
-        <CuboidCollider
-          args={vehiclePlaneConstants.colliders.wingsArgs}
-          position={vehiclePlaneConstants.colliders.wingsPos}
-        />
-
-        {/* manual collider encompassing all landing gear wheels to prevent ground clipping */}
-        <CuboidCollider
-          args={vehiclePlaneConstants.colliders.wheelsArgs}
-          position={vehiclePlaneConstants.colliders.wheelsPos}
-        />
-
-        {/* group to hold visual meshes and camera target ref */}
+        {/* visual elements perfectly wrapped in the forwarded ref group */}
         <group ref={ref}>
-          {/* create main fuselage using a stretched capsule */}
-          <mesh rotation={[vehiclePlaneConstants.rotations.quarterTurn, 0, 0]}>
-            <capsuleGeometry
-              args={vehiclePlaneConstants.visuals.fuselageArgs}
-            />
-            <meshStandardMaterial color={"green"} />
-          </mesh>
-
-          {/* create dark cockpit window at the front */}
-          <mesh position={vehiclePlaneConstants.visuals.cockpitPos}>
-            <sphereGeometry args={vehiclePlaneConstants.visuals.cockpitArgs} />
-            <meshStandardMaterial color={"black"} />
-          </mesh>
-
-          {/* create single low wing spanning across both sides */}
-          <mesh position={vehiclePlaneConstants.visuals.wingPos}>
-            <boxGeometry args={vehiclePlaneConstants.visuals.wingArgs} />
-            <meshStandardMaterial color={"gray"} />
-          </mesh>
-
-          {/* create signature top mounted turbine engine */}
-          <mesh
-            position={vehiclePlaneConstants.visuals.turbinePos}
-            rotation={[vehiclePlaneConstants.rotations.quarterTurn, 0, 0]}
-          >
-            <cylinderGeometry
-              args={vehiclePlaneConstants.visuals.turbineArgs}
-            />
-            <meshStandardMaterial color={"darkslategray"} />
-          </mesh>
-
-          {/* create left v tail stabilizer angled outward */}
-          <mesh
-            position={vehiclePlaneConstants.visuals.leftTailPos}
-            rotation={[0, 0, vehiclePlaneConstants.rotations.eighthTurn]}
-          >
-            <boxGeometry args={vehiclePlaneConstants.visuals.tailArgs} />
-            <meshStandardMaterial color={"gray"} />
-          </mesh>
-
-          {/* create right v tail stabilizer angled outward */}
-          <mesh
-            position={vehiclePlaneConstants.visuals.rightTailPos}
-            rotation={[0, 0, -vehiclePlaneConstants.rotations.eighthTurn]}
-          >
-            <boxGeometry args={vehiclePlaneConstants.visuals.tailArgs} />
-            <meshStandardMaterial color={"gray"} />
-          </mesh>
-
-          {/* create front landing gear strut and wheel */}
-          <group
-            ref={frontGearRef}
-            position={vehiclePlaneConstants.visuals.frontGearPos}
-          >
-            <mesh position={vehiclePlaneConstants.visuals.strutPos}>
-              <cylinderGeometry
-                args={vehiclePlaneConstants.visuals.strutArgs}
-              />
-              <meshStandardMaterial color={"gray"} />
-            </mesh>
-            <mesh
-              position={vehiclePlaneConstants.visuals.frontWheelPos}
-              rotation={[0, 0, vehiclePlaneConstants.rotations.quarterTurn]}
-            >
-              <cylinderGeometry
-                args={vehiclePlaneConstants.visuals.frontWheelArgs}
-              />
-              <meshStandardMaterial color={"black"} />
-            </mesh>
+          {/* core airframe hierarchy mapped directly from blender export */}
+          <group name="Scene">
+            <group name="origin">
+              <mesh
+                name="planeBody"
+                castShadow
+                receiveShadow
+                geometry={airframeGLTF.nodes.planeBody.geometry}
+                material={airframeGLTF.materials["black.001"]}
+              >
+                <mesh
+                  name="planeStripes"
+                  castShadow
+                  receiveShadow
+                  geometry={airframeGLTF.nodes.planeStripes.geometry}
+                  material={airframeGLTF.materials["tron.002"]}
+                />
+                <mesh
+                  name="planeThrusters"
+                  castShadow
+                  receiveShadow
+                  geometry={airframeGLTF.nodes.planeThrusters.geometry}
+                  material={airframeGLTF.materials["tron.003"]}
+                />
+              </mesh>
+            </group>
           </group>
 
-          {/* create left rear landing gear */}
+          {/* cockpit attached with dialable xyz anchor */}
           <group
-            ref={leftGearRef}
-            position={vehiclePlaneConstants.visuals.leftRearGearPos}
+            position={[
+              params.cockpitPosX,
+              params.cockpitPosY,
+              params.cockpitPosZ,
+            ]}
           >
-            <mesh position={vehiclePlaneConstants.visuals.strutPos}>
-              <cylinderGeometry
-                args={vehiclePlaneConstants.visuals.strutArgs}
-              />
-              <meshStandardMaterial color={"gray"} />
-            </mesh>
             <mesh
-              position={vehiclePlaneConstants.visuals.rearWheelPos}
-              rotation={[0, 0, vehiclePlaneConstants.rotations.quarterTurn]}
-            >
-              <cylinderGeometry
-                args={vehiclePlaneConstants.visuals.rearWheelArgs}
-              />
-              <meshStandardMaterial color={"black"} />
-            </mesh>
-          </group>
-
-          {/* create right rear landing gear */}
-          <group
-            ref={rightGearRef}
-            position={vehiclePlaneConstants.visuals.rightRearGearPos}
-          >
-            <mesh position={vehiclePlaneConstants.visuals.strutPos}>
-              <cylinderGeometry
-                args={vehiclePlaneConstants.visuals.strutArgs}
-              />
-              <meshStandardMaterial color={"gray"} />
-            </mesh>
-            <mesh
-              position={vehiclePlaneConstants.visuals.rearWheelPos}
-              rotation={[0, 0, vehiclePlaneConstants.rotations.quarterTurn]}
-            >
-              <cylinderGeometry
-                args={vehiclePlaneConstants.visuals.rearWheelArgs}
-              />
-              <meshStandardMaterial color={"black"} />
-            </mesh>
+              name="planeCockpit"
+              castShadow
+              receiveShadow
+              geometry={cockpitGLTF.nodes.planeCockpit.geometry}
+              material={cockpitGLTF.materials["Material.001"]}
+            />
           </group>
         </group>
       </RigidBody>
@@ -241,7 +143,11 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
   );
 });
 
-// assign display name for react devtools
+// assign display name for react devtools compatibility
 VehiclePlane.displayName = "VehiclePlane";
 
 export default VehiclePlane;
+
+// preload assets to prevent frame drops on mount
+useGLTF.preload(modelsSeperatedBank.lightPlane01airframe);
+useGLTF.preload(modelsSeperatedBank.lightPlane01cockpit);

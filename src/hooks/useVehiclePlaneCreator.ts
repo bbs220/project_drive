@@ -31,6 +31,7 @@ export type typePlaneTuning = {
   yawTorque: number;
   liftMultiplier: number;
   maxSpeed: number;
+  airborneThreshold: number;
 };
 
 // define vehicle controller hook
@@ -107,8 +108,10 @@ export const useVehiclePlaneCreator = (
       vehicleRespawnLimit,
     );
 
-    // determine if plane is airborne
-    const isAirborne = currentPosition.y > 1.5;
+    // determine if plane is high enough off the ground to be considered flying
+    // fallback to 2.5 if tweakpane hasn't cached yet
+    const safeThreshold = tuning.airborneThreshold || 2.5;
+    const isAirborne = currentPosition.y > safeThreshold;
 
     // fetch current quaternion rotation from rapier
     const currentRotation = chassis.rotation();
