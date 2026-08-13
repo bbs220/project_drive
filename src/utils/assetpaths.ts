@@ -13,3 +13,9 @@ export const modelsBank = {
   runner04: "/models/runner04.glb",
   willow01: "/models/tronWillow01.glb",
 };
+
+export const modelsSeperatedBank = {
+  helicopter01cabin: "/models/lightHelicopter01cabin.glb",
+  helicopter01topRotor: "/models/lightHelicopter01topRotor.glb",
+  helicopter01tailRotor: "/models/lightHelicopter01tailRotor.glb",
+};

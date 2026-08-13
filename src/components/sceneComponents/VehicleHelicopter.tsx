@@ -8,14 +8,53 @@ import * as THREE from "three";
 import { useVehicleHelicopterCreator } from "../../hooks/useVehicleHelicopterCreator";
 import {
   vehicleHelicopterConstants,
-  vehicleRespawnLimit,
   vehicleRespawnPos,
+  vehicleRespawnRot,
 } from "../../constants/otherConstants";
-import { useFrame } from "@react-three/fiber";
-import respawnVehicle from "../../utils/respawnVehicle";
-import { RoundedBox } from "@react-three/drei";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useTweakpane } from "../../hooks/useTweakpane";
+import { useGLTF } from "@react-three/drei";
+import { type GLTF } from "three-stdlib";
+import { modelsSeperatedBank } from "../../utils/assetpaths";
+
+// define strict types for the cabin geometry
+type typeCabinGLTF = GLTF & {
+  nodes: {
+    heliBody: THREE.Mesh;
+    heilTailWingLeft: THREE.Mesh;
+    heliBarrelSupport: THREE.Mesh;
+    heliBarrelSupportMini: THREE.Mesh;
+    heliBarrel: THREE.Mesh;
+    heliTailWingRight: THREE.Mesh;
+  };
+  materials: {
+    Chopper_material: THREE.MeshPhysicalMaterial;
+  };
+};
+
+// define strict types for the top rotor geometry
+type typeTopRotorGLTF = GLTF & {
+  nodes: {
+    heliTopRotorCenter: THREE.Mesh;
+    heliTopRotor: THREE.Mesh;
+    heliTopRotorDisc: THREE.Mesh;
+  };
+  materials: {
+    ["Chopper_material.002"]: THREE.MeshPhysicalMaterial;
+    ["rotor_blades_material.001"]: THREE.MeshPhysicalMaterial;
+    ["chopper_rotors.001"]: THREE.MeshPhysicalMaterial;
+  };
+};
+
+// define strict types for the tail rotor geometry
+type typeTailRotorGLTF = GLTF & {
+  nodes: {
+    heliTailRotor: THREE.Mesh;
+  };
+  materials: {
+    ["rear_rotors.002"]: THREE.MeshPhysicalMaterial;
+  };
+};
 
 // main vehicle component updated to match group typing
 const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
@@ -31,7 +70,7 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
 
   // initialize tweakpane hook using extracted constants
   const params = useTweakpane(
-    { title: "🚁 Helicopter Tuning", expanded: false },
+    { title: "helicopter tuning", expanded: false },
     vehicleHelicopterConstants.tuning,
   );
 
@@ -44,20 +83,16 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
     params,
   );
 
-  // handle respawn logic
-  useFrame(() => {
-    // exit early if chassis is missing
-    if (!chassisRef.current) return;
-
-    // check if vehicle has fallen below bounds
-    if (chassisRef.current.translation().y < vehicleRespawnLimit) {
-      // trigger extracted respawn function
-      respawnVehicle({
-        vehicleType: "helicopter",
-        vehicleBody: chassisRef.current,
-      });
-    }
-  });
+  // load the separated models
+  const cabinGLTF = useGLTF(
+    modelsSeperatedBank.helicopter01cabin,
+  ) as unknown as typeCabinGLTF;
+  const topRotorGLTF = useGLTF(
+    modelsSeperatedBank.helicopter01topRotor,
+  ) as unknown as typeTopRotorGLTF;
+  const tailRotorGLTF = useGLTF(
+    modelsSeperatedBank.helicopter01tailRotor,
+  ) as unknown as typeTailRotorGLTF;
 
   return (
     <group>
@@ -66,6 +101,11 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
         colliders={false}
         friction={vehicleHelicopterConstants.physics.friction}
         position={vehicleRespawnPos.helicopter}
+        rotation={[
+          vehicleRespawnRot.helicopter.x,
+          vehicleRespawnRot.helicopter.y,
+          vehicleRespawnRot.helicopter.z,
+        ]}
         canSleep={false}
       >
         <CuboidCollider
@@ -82,34 +122,61 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
           position={vehicleHelicopterConstants.colliders.tailPos}
           mass={params.tailMass}
         />
-        <CuboidCollider
-          args={vehicleHelicopterConstants.colliders.skidArgs}
-          position={vehicleHelicopterConstants.colliders.skidPos}
-        />
 
         {/* visual elements perfectly wrapped in the forwarded ref group */}
         <group ref={ref}>
-          <RoundedBox
-            args={[params.cabinWidth, params.cabinHeight, params.cabinLength]}
-            radius={vehicleHelicopterConstants.visuals.cabinRadius}
-            smoothness={vehicleHelicopterConstants.visuals.cabinSmoothness}
-          >
-            <meshStandardMaterial color={"red"} />
-          </RoundedBox>
-          <mesh position={vehicleHelicopterConstants.colliders.tailPos}>
-            <boxGeometry
-              args={vehicleHelicopterConstants.visuals.tailBoxArgs}
-            />
-            <meshStandardMaterial color={"darkred"} />
-          </mesh>
-          <mesh position={vehicleHelicopterConstants.colliders.leftSkidPos}>
-            <boxGeometry args={vehicleHelicopterConstants.visuals.skidArgs} />
-            <meshStandardMaterial color={"gray"} />
-          </mesh>
-          <mesh position={vehicleHelicopterConstants.colliders.rightSkidPos}>
-            <boxGeometry args={vehicleHelicopterConstants.visuals.skidArgs} />
-            <meshStandardMaterial color={"gray"} />
-          </mesh>
+          {/* core cabin hierarchy mapped directly from blender export */}
+          <group name="Scene">
+            <group name="origin">
+              <mesh
+                name="heliBody"
+                castShadow
+                receiveShadow
+                geometry={cabinGLTF.nodes.heliBody.geometry}
+                material={cabinGLTF.materials.Chopper_material}
+              >
+                <mesh
+                  name="heilTailWingLeft"
+                  castShadow
+                  receiveShadow
+                  geometry={cabinGLTF.nodes.heilTailWingLeft.geometry}
+                  material={cabinGLTF.materials.Chopper_material}
+                />
+                <mesh
+                  name="heliBarrelSupport"
+                  castShadow
+                  receiveShadow
+                  geometry={cabinGLTF.nodes.heliBarrelSupport.geometry}
+                  material={cabinGLTF.materials.Chopper_material}
+                >
+                  <mesh
+                    name="heliBarrelSupportMini"
+                    castShadow
+                    receiveShadow
+                    geometry={cabinGLTF.nodes.heliBarrelSupportMini.geometry}
+                    material={cabinGLTF.materials.Chopper_material}
+                  >
+                    <mesh
+                      name="heliBarrel"
+                      castShadow
+                      receiveShadow
+                      geometry={cabinGLTF.nodes.heliBarrel.geometry}
+                      material={cabinGLTF.materials.Chopper_material}
+                    />
+                  </mesh>
+                </mesh>
+                <mesh
+                  name="heliTailWingRight"
+                  castShadow
+                  receiveShadow
+                  geometry={cabinGLTF.nodes.heliTailWingRight.geometry}
+                  material={cabinGLTF.materials.Chopper_material}
+                />
+              </mesh>
+            </group>
+          </group>
+
+          {/* main top rotor animated via physics hook */}
           <group
             ref={mainRotorRef}
             position={[
@@ -119,67 +186,42 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
               vehicleHelicopterConstants.physics.zeroVector,
             ]}
           >
-            <mesh position={vehicleHelicopterConstants.visuals.rotorMastPos}>
-              <cylinderGeometry
-                args={vehicleHelicopterConstants.visuals.rotorMastArgs}
-              />
-              <meshStandardMaterial color={"black"} />
-            </mesh>
-            <mesh position={vehicleHelicopterConstants.visuals.bladePos}>
-              <boxGeometry
-                args={vehicleHelicopterConstants.visuals.bladeArgs}
-              />
-              <meshStandardMaterial color={"black"} />
-            </mesh>
             <mesh
-              position={vehicleHelicopterConstants.visuals.bladePos}
-              rotation={[
-                vehicleHelicopterConstants.physics.zeroVector,
-                vehicleHelicopterConstants.rotations.quarterTurn,
-                vehicleHelicopterConstants.physics.zeroVector,
-              ]}
+              name="heliTopRotorCenter"
+              castShadow
+              receiveShadow
+              geometry={topRotorGLTF.nodes.heliTopRotorCenter.geometry}
+              material={topRotorGLTF.materials["Chopper_material.002"]}
             >
-              <boxGeometry
-                args={vehicleHelicopterConstants.visuals.bladeArgs}
+              <mesh
+                name="heliTopRotor"
+                castShadow
+                receiveShadow
+                geometry={topRotorGLTF.nodes.heliTopRotor.geometry}
+                material={topRotorGLTF.materials["rotor_blades_material.001"]}
               />
-              <meshStandardMaterial color={"black"} />
+              <mesh
+                name="heliTopRotorDisc"
+                castShadow
+                receiveShadow
+                geometry={topRotorGLTF.nodes.heliTopRotorDisc.geometry}
+                material={topRotorGLTF.materials["chopper_rotors.001"]}
+              />
             </mesh>
           </group>
+
+          {/* tail rotor animated via physics hook */}
           <group
             ref={tailRotorRef}
             position={vehicleHelicopterConstants.visuals.tailRotorGroupPos}
           >
             <mesh
-              rotation={[
-                vehicleHelicopterConstants.physics.zeroVector,
-                vehicleHelicopterConstants.physics.zeroVector,
-                vehicleHelicopterConstants.rotations.quarterTurn,
-              ]}
-            >
-              <cylinderGeometry
-                args={vehicleHelicopterConstants.visuals.tailRotorMastArgs}
-              />
-              <meshStandardMaterial color={"black"} />
-            </mesh>
-            <mesh position={vehicleHelicopterConstants.visuals.tailBladePos}>
-              <boxGeometry
-                args={vehicleHelicopterConstants.visuals.tailBladeArgs}
-              />
-              <meshStandardMaterial color={"black"} />
-            </mesh>
-            <mesh
-              position={vehicleHelicopterConstants.visuals.tailBladePos}
-              rotation={[
-                vehicleHelicopterConstants.rotations.quarterTurn,
-                vehicleHelicopterConstants.physics.zeroVector,
-                vehicleHelicopterConstants.physics.zeroVector,
-              ]}
-            >
-              <boxGeometry
-                args={vehicleHelicopterConstants.visuals.tailBladeArgs}
-              />
-              <meshStandardMaterial color={"black"} />
-            </mesh>
+              name="heliTailRotor"
+              castShadow
+              receiveShadow
+              geometry={tailRotorGLTF.nodes.heliTailRotor.geometry}
+              material={tailRotorGLTF.materials["rear_rotors.002"]}
+            />
           </group>
         </group>
       </RigidBody>
@@ -191,3 +233,8 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
 VehicleHelicopter.displayName = "VehicleHelicopter";
 
 export default VehicleHelicopter;
+
+// preload assets to prevent frame drops on mount
+useGLTF.preload(modelsSeperatedBank.helicopter01cabin);
+useGLTF.preload(modelsSeperatedBank.helicopter01topRotor);
+useGLTF.preload(modelsSeperatedBank.helicopter01tailRotor);
