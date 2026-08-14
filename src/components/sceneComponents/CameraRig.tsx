@@ -3,6 +3,7 @@ import { OrbitControls } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
+import { useVehicleStore } from "../../stores/useVehicleStore"; // Add the global store
 
 // define props with optional debug flag
 type typeCameraRigProps = {
@@ -13,11 +14,13 @@ type typeCameraRigProps = {
 const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
   const { camera, gl } = useThree();
 
-  // live tuning params to perfect the camera feel for different vehicles
+  // live tuning params separated by vehicle scale requirements
   const params = useTweakpane(
     { title: "🎥 Camera Rig", expanded: false },
     {
-      distance: { value: 18, min: 5, max: 50, label: "chase distance" },
+      carDistance: { value: 8, min: 2, max: 20, label: "car dist" },
+      heliDistance: { value: 16, min: 5, max: 40, label: "heli dist" },
+      planeDistance: { value: 24, min: 10, max: 60, label: "plane dist" },
       heightOffset: { value: 0, min: 0, max: 10, label: "target height" },
       forwardOffset: { value: 0, min: -10, max: 10, label: "target forward" },
       sensitivity: {
@@ -31,9 +34,8 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
   );
 
   // spherical coordinates manage math for orbiting perfectly around a center point
-  const spherical = useRef(
-    new THREE.Spherical(params.distance as number, Math.PI / 3, 0),
-  );
+  // initialized to the standard car distance (8)
+  const spherical = useRef(new THREE.Spherical(8, Math.PI / 3, 0));
 
   // vectors used to smooth out the camera movement over time
   const lookAtTarget = useRef(new THREE.Vector3());
@@ -89,8 +91,23 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
     // exit early if debug mode is active or target is missing
     if (debugMode || !targetRef.current) return;
 
-    // sync live tweakpane distance to the math sphere
-    spherical.current.radius = params.distance as number;
+    // fetch the currently active vehicle from global state
+    const { activeControl } = useVehicleStore.getState();
+
+    // determine the correct locked distance based on the vehicle type
+    let targetRadius = params.carDistance as number;
+    if (activeControl === "helicopter") {
+      targetRadius = params.heliDistance as number;
+    } else if (activeControl === "plane") {
+      targetRadius = params.planeDistance as number;
+    }
+
+    // smoothly lerp the spherical radius so the camera dynamically pushes in/out when swapping vehicles
+    spherical.current.radius = THREE.MathUtils.lerp(
+      spherical.current.radius,
+      targetRadius,
+      (params.smoothness as number) * 0.25, // slightly slower lerp specifically for radius changes to feel cinematic
+    );
 
     // set the exact local coordinates we want to focus on
     dummyTarget.set(
