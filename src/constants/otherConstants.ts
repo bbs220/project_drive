@@ -59,7 +59,7 @@ export const vehicleCarConstants = {
       label: "side friction",
     },
     // driving mechanics
-    engineForce: { value: 5, min: 1, max: 500, label: "engine force" },
+    engineForce: { value: 40, min: 1, max: 500, label: "engine force" },
     maxSpeed: { value: 88, min: 10, max: 200, label: "max speed" },
     boostMultiplier: { value: 2.5, min: 1, max: 5, label: "boost multiplier" },
     brakeForce: { value: 2, min: 1, max: 500, label: "brake force" },
@@ -77,10 +77,10 @@ export const vehiclePlaneConstants = {
   tuning: {
     // flight mechanics
     thrustPower: { value: 300, min: 50, max: 1000, label: "thrust power" },
-    brakeForce: { value: 5, min: 1, max: 50, label: "brake force" },
-    pitchTorque: { value: 10, min: 1, max: 100, label: "pitch torque" },
-    rollTorque: { value: 10, min: 1, max: 100, label: "roll torque" },
-    yawTorque: { value: 10, min: 1, max: 100, label: "yaw torque" },
+    brakeForce: { value: 1, min: 1, max: 50, label: "brake force" },
+    pitchTorque: { value: 10, min: 1, max: 1000, label: "pitch torque" },
+    rollTorque: { value: 10, min: 1, max: 1000, label: "roll torque" },
+    yawTorque: { value: 10, min: 1, max: 1000, label: "yaw torque" },
     liftMultiplier: { value: 0.1, min: 0.01, max: 1, label: "lift multiplier" },
     maxSpeed: { value: 200, min: 50, max: 500, label: "max speed" },
     airborneThreshold: {
@@ -90,7 +90,7 @@ export const vehiclePlaneConstants = {
       label: "airborne height",
     },
     // plane colliders
-    planeMass: { value: 100, min: 50, max: 500, label: "plane mass" },
+    planeMass: { value: 50, min: 1, max: 500, label: "plane mass" },
     planeWidth: { value: 8.5, min: 0.1, max: 20, label: "plane width" },
     planeHeight: { value: 3.5, min: 0.1, max: 20, label: "plane height" },
     planeLength: { value: 20, min: 0.1, max: 20, label: "plane length" },

@@ -65,7 +65,7 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
     <RigidBody
       type="fixed"
       colliders="cuboid"
-      friction={1.5}
+      friction={2}
       position={[chunkX * groundDim.width, -0.5, chunkZ * groundDim.depth]}
     >
       <mesh receiveShadow>
