@@ -164,7 +164,7 @@ export const useVehiclePlaneCreator = (
     forceVector.copy(localY).multiplyScalar(dynamicLift);
     chassis.applyImpulse(asVec(forceVector), true);
 
-    const takeoffSpeedThreshold = maxSpeedVal * 0.25;
+    const takeoffSpeedThreshold = maxSpeedVal * 0.15;
 
     if (!isAirborne && forwardSpeed > takeoffSpeedThreshold && backward) {
       chassis.applyImpulse({ x: 0, y: gravityImpulse * 0.8, z: 0 }, true);

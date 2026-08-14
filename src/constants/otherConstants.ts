@@ -78,9 +78,9 @@ export const vehiclePlaneConstants = {
     // flight mechanics
     thrustPower: { value: 300, min: 50, max: 1000, label: "thrust power" },
     brakeForce: { value: 1, min: 1, max: 50, label: "brake force" },
-    pitchTorque: { value: 10, min: 1, max: 1000, label: "pitch torque" },
-    rollTorque: { value: 10, min: 1, max: 1000, label: "roll torque" },
-    yawTorque: { value: 10, min: 1, max: 1000, label: "yaw torque" },
+    pitchTorque: { value: 150, min: 1, max: 1000, label: "pitch torque" },
+    rollTorque: { value: 100, min: 1, max: 1000, label: "roll torque" },
+    yawTorque: { value: 50, min: 1, max: 1000, label: "yaw torque" },
     liftMultiplier: { value: 0.1, min: 0.01, max: 1, label: "lift multiplier" },
     maxSpeed: { value: 200, min: 50, max: 500, label: "max speed" },
     airborneThreshold: {
