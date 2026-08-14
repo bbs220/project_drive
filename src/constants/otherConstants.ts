@@ -24,12 +24,17 @@ export const vehicleCarConstants = {
   tuning: {
     // chassis colliders & spatial anchors
     chassisWidth: { value: 2.8, min: 0.5, max: 10, label: "width" },
-    chassisHeight: { value: 0.8, min: 0.2, max: 10, label: "height" },
+    chassisHeight: { value: 0.6, min: 0.2, max: 10, label: "height" },
     chassisLength: { value: 4.8, min: 2, max: 10, label: "length" },
     mass: { value: 200, min: 100, max: 2000, label: "mass" },
     chassisPosX: { value: 0, min: -10, max: 10, label: "chassis pos x" },
     chassisPosY: { value: 0.4, min: -10, max: 10, label: "chassis pos y" },
     chassisPosZ: { value: 0, min: -10, max: 10, label: "chassis pos z" },
+    // wheel spatial anchors
+    wheelPosX: { value: 1.6, min: 0.1, max: 3, label: "wheel pos x" },
+    wheelPosY: { value: 0.45, min: -2, max: 2, label: "wheel pos y" },
+    frontWheelPosZ: { value: 2.03, min: 0.1, max: 5, label: "front wheel z" },
+    rearWheelPosZ: { value: -1.95, min: -5, max: -0.1, label: "rear wheel z" },
     // wheel and suspension tuning
     wheelRadius: { value: 0.55, min: 0.1, max: 1, label: "wheel radius" },
     wheelWidth: { value: 0.7, min: 0.1, max: 1, label: "wheel width" },
@@ -60,6 +65,8 @@ export const vehicleCarConstants = {
     brakeForce: { value: 2, min: 1, max: 500, label: "brake force" },
     steeringAngle: { value: 0.5, min: 0.1, max: 1, label: "steering angle" },
     flipImpulse: { value: 0.5, min: 0.1, max: 100, label: "flip impulse" },
+    // debug wireframes toggle
+    showWireframes: { value: false, label: "show debug wheels" },
   },
   physics: {
     friction: 0.5,

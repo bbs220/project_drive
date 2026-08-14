@@ -97,7 +97,7 @@ const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
       crossSize: { value: 0.08, min: 0.01, max: 0.5 },
       crossOpacity: { value: 0.2, min: 0.0, max: 1.0 },
       gridThickness: { value: 0.1, min: 0.1, max: 5.0, step: 0.1 },
-      lineColor: { value: "#ffffff" },
+      lineColor: { value: "#666666" },
       crossColor: { value: "#00f3ff" },
       bgColor: { value: "#050505" },
     },
