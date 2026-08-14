@@ -31,8 +31,8 @@ export const vehicleCarConstants = {
     chassisPosY: { value: 0.4, min: -10, max: 10, label: "chassis pos y" },
     chassisPosZ: { value: 0, min: -10, max: 10, label: "chassis pos z" },
     // wheel and suspension tuning
-    wheelRadius: { value: 0.35, min: 0.1, max: 1, label: "wheel radius" },
-    wheelWidth: { value: 0.25, min: 0.1, max: 1, label: "wheel width" },
+    wheelRadius: { value: 0.55, min: 0.1, max: 1, label: "wheel radius" },
+    wheelWidth: { value: 0.7, min: 0.1, max: 1, label: "wheel width" },
     suspensionRestLength: {
       value: 0.125,
       min: 0.01,
