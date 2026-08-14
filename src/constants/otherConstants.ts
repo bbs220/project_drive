@@ -23,13 +23,13 @@ export const vehicleRespawnRot = {
 export const vehicleCarConstants = {
   tuning: {
     // chassis colliders & spatial anchors
-    chassisWidth: { value: 1.6, min: 0.5, max: 3, label: "width" },
-    chassisHeight: { value: 0.8, min: 0.2, max: 2, label: "height" },
-    chassisLength: { value: 3, min: 2, max: 6, label: "length" },
+    chassisWidth: { value: 2.8, min: 0.5, max: 10, label: "width" },
+    chassisHeight: { value: 0.8, min: 0.2, max: 10, label: "height" },
+    chassisLength: { value: 4.8, min: 2, max: 10, label: "length" },
     mass: { value: 200, min: 100, max: 2000, label: "mass" },
-    chassisPosX: { value: 0, min: -5, max: 5, label: "chassis pos x" },
-    chassisPosY: { value: 0.4, min: -5, max: 5, label: "chassis pos y" },
-    chassisPosZ: { value: 0, min: -5, max: 5, label: "chassis pos z" },
+    chassisPosX: { value: 0, min: -10, max: 10, label: "chassis pos x" },
+    chassisPosY: { value: 0.4, min: -10, max: 10, label: "chassis pos y" },
+    chassisPosZ: { value: 0, min: -10, max: 10, label: "chassis pos z" },
     // wheel and suspension tuning
     wheelRadius: { value: 0.35, min: 0.1, max: 1, label: "wheel radius" },
     wheelWidth: { value: 0.25, min: 0.1, max: 1, label: "wheel width" },
