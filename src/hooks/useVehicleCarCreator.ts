@@ -4,7 +4,7 @@ import {
   useAfterPhysicsStep,
   useRapier,
 } from "@react-three/rapier";
-import { type RefObject, useEffect, useRef } from "react";
+import { type RefObject, useEffect, useRef, useMemo } from "react";
 import * as THREE from "three";
 import type { typeAllVehicleControls } from "./useAllVehicleInput";
 import { useVehicleStore } from "../stores/useVehicleStore";
@@ -17,7 +17,7 @@ const up = new THREE.Vector3(0, 1, 0);
 const _wheelSteeringQuat = new THREE.Quaternion();
 const _wheelRotationQuat = new THREE.Quaternion();
 
-// define wheel info
+// define wheel info structure
 export type typeWheelInfo = {
   axleCs: THREE.Vector3;
   suspensionRestLength: number;
@@ -29,21 +29,49 @@ export type typeWheelInfo = {
   radius: number;
 };
 
-// define controller tuning parameters
+// define Tweakpane parameter descriptor type structure
+type TweakpaneParam<T> = {
+  value: T;
+  min?: number;
+  max?: number;
+  label?: string;
+};
+
+// define controller tuning parameters allowing flat numbers or Tweakpane objects
 export type typeCarTuning = {
-  engineForce: number;
-  boostMultiplier: number;
-  brakeForce: number;
-  steeringAngle: number;
-  flipImpulse: number;
-  maxSpeed: number;
+  engineForce: number | TweakpaneParam<number>;
+  boostMultiplier: number | TweakpaneParam<number>;
+  brakeForce: number | TweakpaneParam<number>;
+  steeringAngle: number | TweakpaneParam<number>;
+  flipImpulse: number | TweakpaneParam<number>;
+  maxSpeed: number | TweakpaneParam<number>;
+  wheelPosX: number | TweakpaneParam<number>;
+  wheelPosY: number | TweakpaneParam<number>;
+  frontWheelPosZ: number | TweakpaneParam<number>;
+  rearWheelPosZ: number | TweakpaneParam<number>;
+  wheelRadius: number | TweakpaneParam<number>;
+  suspensionRestLength: number | TweakpaneParam<number>;
+  suspensionStiffness: number | TweakpaneParam<number>;
+  maxSuspensionTravel: number | TweakpaneParam<number>;
+  frictionSlip: number | TweakpaneParam<number>;
+  sideFrictionStiffness: number | TweakpaneParam<number>;
+};
+
+// helper to safely extract numeric value whether passed raw or as a Tweakpane object
+const getValue = (
+  param: number | TweakpaneParam<number> | undefined,
+  fallback: number = 0,
+): number => {
+  if (param === undefined) return fallback;
+  return typeof param === "object" && param !== null && "value" in param
+    ? param.value
+    : (param as number);
 };
 
 // define vehicle controller hook
 export const useVehicleCarCreator = (
   chassisRef: RefObject<RapierRigidBody | null>,
   wheelsRef: RefObject<THREE.Object3D[]>,
-  wheelsInfo: typeWheelInfo[],
   controlsRef: RefObject<typeAllVehicleControls>,
   tuning: typeCarTuning,
 ) => {
@@ -57,6 +85,75 @@ export const useVehicleCarCreator = (
 
   // initialize ref to store manually calculated wheel rotations
   const manualWheelRotations = useRef([0, 0, 0, 0]);
+
+  // dynamically generate wheel positions and physics info
+  const wheelsInfo = useMemo<typeWheelInfo[]>(() => {
+    const x = getValue(tuning.wheelPosX, 0.8);
+    const y = getValue(tuning.wheelPosY, 0.2);
+    const frontZ = getValue(tuning.frontWheelPosZ, 1.2);
+    const rearZ = getValue(tuning.rearWheelPosZ, -1.2);
+    const radius = getValue(tuning.wheelRadius, 0.35);
+    const suspensionRestLength = getValue(tuning.suspensionRestLength, 0.125);
+    const suspensionStiffness = getValue(tuning.suspensionStiffness, 24);
+    const maxSuspensionTravel = getValue(tuning.maxSuspensionTravel, 1);
+    const frictionSlip = getValue(tuning.frictionSlip, 1.5);
+    const sideFrictionStiffness = getValue(tuning.sideFrictionStiffness, 3);
+    const axleCs = new THREE.Vector3(-1, 0, 0);
+
+    return [
+      {
+        position: new THREE.Vector3(-x, y, frontZ),
+        axleCs,
+        radius,
+        suspensionRestLength,
+        suspensionStiffness,
+        maxSuspensionTravel,
+        frictionSlip,
+        sideFrictionStiffness,
+      }, // front left
+      {
+        position: new THREE.Vector3(x, y, frontZ),
+        axleCs,
+        radius,
+        suspensionRestLength,
+        suspensionStiffness,
+        maxSuspensionTravel,
+        frictionSlip,
+        sideFrictionStiffness,
+      }, // front right
+      {
+        position: new THREE.Vector3(-x, y, rearZ),
+        axleCs,
+        radius,
+        suspensionRestLength,
+        suspensionStiffness,
+        maxSuspensionTravel,
+        frictionSlip,
+        sideFrictionStiffness,
+      }, // rear left
+      {
+        position: new THREE.Vector3(x, y, rearZ),
+        axleCs,
+        radius,
+        suspensionRestLength,
+        suspensionStiffness,
+        maxSuspensionTravel,
+        frictionSlip,
+        sideFrictionStiffness,
+      }, // rear right
+    ];
+  }, [
+    tuning.wheelPosX,
+    tuning.wheelPosY,
+    tuning.frontWheelPosZ,
+    tuning.rearWheelPosZ,
+    tuning.wheelRadius,
+    tuning.suspensionRestLength,
+    tuning.suspensionStiffness,
+    tuning.maxSuspensionTravel,
+    tuning.frictionSlip,
+    tuning.sideFrictionStiffness,
+  ]);
 
   // handle vehicle mount and unmount
   useEffect(() => {
@@ -72,7 +169,7 @@ export const useVehicleCarCreator = (
     // define downward suspension direction
     const suspensionDirection = new THREE.Vector3(0, -1, 0);
 
-    // iterate through wheels and apply config
+    // iterate through locally calculated wheels array and apply config
     for (const [index, wheel] of wheelsInfo.entries()) {
       vehicle.addWheel(
         wheel.position,
@@ -95,7 +192,7 @@ export const useVehicleCarCreator = (
       vehicleCarCreator.current = null;
       world.removeVehicleController(vehicle);
     };
-  }, [chassisRef, wheelsInfo, wheelsRef, world]);
+  }, [chassisRef, wheelsInfo, wheelsRef, world]); // remounts physics wheels dynamically if tweakpane updates
 
   // handle physics step updates
   useAfterPhysicsStep((world) => {
@@ -108,6 +205,14 @@ export const useVehicleCarCreator = (
 
     const controller = vehicleCarCreator.current;
     const chassis = chassisRef.current;
+
+    // extract current dynamic values safely
+    const flipImpulseVal = getValue(tuning.flipImpulse, 0.5);
+    const engineForceVal = getValue(tuning.engineForce, 5);
+    const boostMultiplierVal = getValue(tuning.boostMultiplier, 2.5);
+    const maxSpeedVal = getValue(tuning.maxSpeed, 88);
+    const steeringAngleVal = getValue(tuning.steeringAngle, 0.5);
+    const brakeForceVal = getValue(tuning.brakeForce, 2);
 
     // check global store to see if player is actively controlling the car
     const { activeControl } = useVehicleStore.getState();
@@ -169,9 +274,9 @@ export const useVehicleCarCreator = (
       if (rollInput !== 0 || pitchInput !== 0) {
         // create a torque vector based on tuning input
         const localTorque = new THREE.Vector3(
-          pitchInput * tuning.flipImpulse,
+          pitchInput * flipImpulseVal,
           0,
-          rollInput * tuning.flipImpulse,
+          rollInput * flipImpulseVal,
         );
 
         // convert local torque to world space so it rolls intuitively
@@ -192,17 +297,17 @@ export const useVehicleCarCreator = (
       );
 
       // calculate boost multiplier using live tuning value
-      const boostMultiplier = controls.boost ? tuning.boostMultiplier : 1;
+      const boostMultiplier = controls.boost ? boostMultiplierVal : 1;
 
       // calculate applied engine force with boost only on forward acceleration
       let currentEngineForce = controls.forward
-        ? tuning.engineForce * boostMultiplier
+        ? engineForceVal * boostMultiplier
         : controls.backward
-          ? -tuning.engineForce
+          ? -engineForceVal
           : 0;
 
       // fallback speed
-      const safeMaxSpeed = tuning.maxSpeed || 50;
+      const safeMaxSpeed = maxSpeedVal || 50;
 
       // engine governor overrides throttle if vehicle exceeds maximum procedural safe speed
       if (currentSpeed >= safeMaxSpeed && controls.forward) {
@@ -211,13 +316,13 @@ export const useVehicleCarCreator = (
 
       // calculate applied steering angle
       const currentSteering = controls.left
-        ? tuning.steeringAngle
+        ? steeringAngleVal
         : controls.right
-          ? -tuning.steeringAngle
+          ? -steeringAngleVal
           : 0;
 
       // calculate applied brake force
-      const currentBrake = controls.brake ? tuning.brakeForce : 0;
+      const currentBrake = controls.brake ? brakeForceVal : 0;
 
       // apply engine force to rear wheels
       controller.setWheelEngineForce(2, currentEngineForce);
@@ -262,8 +367,8 @@ export const useVehicleCarCreator = (
     // iterate through wheels to sync visual meshes
     for (const [index, wheel] of wheels.entries()) {
       const wheelAxleCs = controller.wheelAxleCs(index)!;
-      const connection =
-        controller.wheelChassisConnectionPointCs(index)?.y || 0;
+      // Get the full 3D connection point from the physics engine
+      const connection = controller.wheelChassisConnectionPointCs(index)!;
       const suspension = controller.wheelSuspensionLength(index) || 0;
       const steering = controller.wheelSteering(index) || 0;
 
@@ -276,8 +381,8 @@ export const useVehicleCarCreator = (
       // extract final rotation value
       const rotationRad = manualWheelRotations.current[index];
 
-      // sync vertical position
-      wheel.position.y = connection - suspension;
+      // sync X, Y, and Z positions directly from engine calculations
+      wheel.position.set(connection.x, connection.y - suspension, connection.z);
 
       // convert raw rapier object to three vector safely
       const axleVector = new THREE.Vector3(
@@ -300,5 +405,6 @@ export const useVehicleCarCreator = (
 
   return {
     vehicleCarCreator,
+    wheelsInfo,
   };
 };

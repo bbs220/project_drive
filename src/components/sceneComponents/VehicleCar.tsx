@@ -1,4 +1,3 @@
-import { useFrame } from "@react-three/fiber";
 import {
   CuboidCollider,
   RigidBody,
@@ -7,17 +6,12 @@ import {
 import { forwardRef, useMemo, useRef } from "react";
 import * as THREE from "three";
 import {
-  vehicleRespawnLimit,
   vehicleCarConstants,
   vehicleRespawnPos,
 } from "../../constants/otherConstants";
 import { useTweakpane } from "../../hooks/useTweakpane";
-import {
-  useVehicleCarCreator,
-  type typeWheelInfo,
-} from "../../hooks/useVehicleCarCreator";
+import { useVehicleCarCreator } from "../../hooks/useVehicleCarCreator";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
-import respawnVehicle from "../../utils/respawnVehicle";
 
 // wrap component in forward ref to expose visual group to parent
 const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
@@ -30,73 +24,44 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
   // get current vehicle inputs
   const controlsRef = useAllVehicleInput();
 
-  // initialize tweakpane hook using extracted constants
+  // initialize tweakpane hook using ONLY the tuning object so it doesn't crash
   const params = useTweakpane(
     { title: "🚗 Car Tuning", expanded: false },
-    vehicleCarConstants,
+    vehicleCarConstants.tuning,
   );
 
-  // recalculate wheels dynamically when tweakpane values change
-  const wheelsInfo = useMemo<typeWheelInfo[]>(() => {
-    // helper to create standard wheel config
-    const createWheelInfo = (x: number, z: number): typeWheelInfo => ({
-      axleCs: new THREE.Vector3(-1, 0, 0),
-      suspensionRestLength: params.suspensionRestLength,
-      suspensionStiffness: params.suspensionStiffness,
-      maxSuspensionTravel: params.maxSuspensionTravel,
-      frictionSlip: params.frictionSlip,
-      sideFrictionStiffness: params.sideFrictionStiffness,
-      position: new THREE.Vector3(x, -params.chassisHeight / 2, z),
-      radius: params.wheelRadius,
-    });
+  // initialize the vehicle controller hook with the flat params
+  const { wheelsInfo } = useVehicleCarCreator(
+    chassisRef,
+    wheelsRef,
+    controlsRef,
+    params as any, // bypass strict typescript warnings
+  );
 
-    // return array of wheels
-    return [
-      createWheelInfo(-params.chassisWidth / 2, params.chassisLength / 2),
-      createWheelInfo(params.chassisWidth / 2, params.chassisLength / 2),
-      createWheelInfo(-params.chassisWidth / 2, -params.chassisLength / 2),
-      createWheelInfo(params.chassisWidth / 2, -params.chassisLength / 2),
-    ];
-  }, [
-    params.chassisWidth,
-    params.chassisLength,
-    params.chassisHeight,
-    params.suspensionRestLength,
-    params.suspensionStiffness,
-    params.maxSuspensionTravel,
-    params.frictionSlip,
-    params.sideFrictionStiffness,
-    params.wheelRadius,
-  ]);
+  // Helper to safely extract values from Tweakpane objects without bloating JSX
+  const getVal = (param: any, fallback: number) =>
+    param?.value ?? param ?? fallback;
 
-  // initialize the vehicle controller hook with tuning params
-  useVehicleCarCreator(chassisRef, wheelsRef, wheelsInfo, controlsRef, params);
-
-  // precompute wheel geometry
+  // precompute wheel geometry using safe fallbacks
   const wheelGeo = useMemo(() => {
-    const geo = new THREE.CylinderGeometry(
-      params.wheelRadius,
-      params.wheelRadius,
-      params.wheelWidth,
-    );
+    const radius = getVal(params.wheelRadius, 0.35);
+    const width = getVal(params.wheelWidth, 0.25);
+    const geo = new THREE.CylinderGeometry(radius, radius, width);
     geo.rotateZ(Math.PI / 2);
     return geo;
   }, [params.wheelRadius, params.wheelWidth]);
 
-  // handle respawn logic
-  useFrame(() => {
-    // exit early if chassis is missing
-    if (!chassisRef.current) return;
+  // pre-extract chassis variables from params
+  const cWidth = getVal(params.chassisWidth, 1.6);
+  const cHeight = getVal(params.chassisHeight, 0.8);
+  const cLength = getVal(params.chassisLength, 3);
+  const cPosX = getVal(params.chassisPosX, 0);
+  const cPosY = getVal(params.chassisPosY, 0.4);
+  const cPosZ = getVal(params.chassisPosZ, 0);
+  const mass = getVal(params.mass, 200);
 
-    // check if vehicle has fallen below bounds
-    if (chassisRef.current.translation().y < vehicleRespawnLimit) {
-      // trigger extracted respawn function
-      respawnVehicle({
-        vehicleType: "car",
-        vehicleBody: chassisRef.current,
-      });
-    }
-  });
+  // Read physics directly from the constant (it is not tied to Tweakpane)
+  const friction = vehicleCarConstants.physics.friction;
 
   return (
     <group>
@@ -104,36 +69,27 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
       <RigidBody
         ref={chassisRef}
         colliders={false}
-        friction={0}
+        friction={friction}
         position={vehicleRespawnPos.car}
         rotation={[0, Math.PI, 0]}
-        mass={params.mass}
+        mass={mass}
         canSleep={false}
       >
-        {/* explicit chassis collider to exclude wheels */}
+        {/* explicit chassis collider with dynamic positional offsets */}
         <CuboidCollider
-          args={[
-            params.chassisWidth / 2,
-            params.chassisHeight / 2,
-            params.chassisLength / 2,
-          ]}
+          args={[cWidth / 2, cHeight / 2, cLength / 2]}
+          position={[cPosX, cPosY, cPosZ]}
         />
 
         {/* wrap visual elements in a group to forward the ref uniformly */}
         <group ref={ref}>
-          {/* chassis visual mesh */}
-          <mesh>
-            <boxGeometry
-              args={[
-                params.chassisWidth,
-                params.chassisHeight,
-                params.chassisLength,
-              ]}
-            />
+          {/* chassis visual mesh matched exactly to the collider */}
+          <mesh position={[cPosX, cPosY, cPosZ]}>
+            <boxGeometry args={[cWidth, cHeight, cLength]} />
             <meshStandardMaterial color="blue" />
           </mesh>
 
-          {/* render visual wheels as children of chassis */}
+          {/* render visual wheels as children of chassis using hook's output */}
           {wheelsInfo.map((info, index) => (
             <group
               key={index}
@@ -154,7 +110,6 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
   );
 });
 
-// assign display name for react devtools compatibility
 VehicleCar.displayName = "VehicleCar";
 
 export default VehicleCar;
