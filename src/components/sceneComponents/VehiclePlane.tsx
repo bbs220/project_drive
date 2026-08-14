@@ -1,4 +1,5 @@
 import {
+  CoefficientCombineRule,
   CuboidCollider,
   RapierRigidBody,
   RigidBody,
@@ -49,14 +50,14 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
   // initialize vehicle controls
   const vehicleInput = useAllVehicleInput();
 
-  // initialize tweakpane hook using extracted constants
+  // initialize tweakpane hook using extracted constants (strictly targeting the tuning wrapper)
   const params = useTweakpane(
     { title: "✈️ Plane Tuning", expanded: false },
     vehiclePlaneConstants.tuning,
   );
 
   // offload physics and animation logic to custom hook
-  useVehiclePlaneCreator(chassisRef, vehicleInput, params);
+  useVehiclePlaneCreator(chassisRef, vehicleInput, params as any);
 
   // load the separated models
   const airframeGLTF = useGLTF(
@@ -65,6 +66,24 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
   const cockpitGLTF = useGLTF(
     modelsSeperatedBank.lightPlane01cockpit,
   ) as unknown as typeCockpitGLTF;
+
+  // Helper to safely extract values from Tweakpane objects
+  const getVal = (param: any, fallback: number) =>
+    param?.value ?? param ?? fallback;
+
+  // Extract dimensions for the plane
+  const pWidth = getVal(params.planeWidth, 8.5);
+  const pHeight = getVal(params.planeHeight, 3.5);
+  const pLength = getVal(params.planeLength, 20);
+  const pPosX = getVal(params.planePosX, 0);
+  const pPosY = getVal(params.planePosY, 0);
+  const pPosZ = getVal(params.planePosZ, 2.7);
+  const mass = getVal(params.planeMass, 100);
+
+  // Extract cockpit visual offset
+  const cPosX = getVal(params.cockpitPosX, 0);
+  const cPosY = getVal(params.cockpitPosY, 0.68);
+  const cPosZ = getVal(params.cockpitPosZ, -2.8);
 
   return (
     <group>
@@ -80,15 +99,27 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
         ]}
         canSleep={false}
       >
-        {/* dynamic plane collider */}
+        {/* Main Hull Collider */}
         <CuboidCollider
-          args={[
-            params.planeWidth / 2,
-            params.planeHeight / 2,
-            params.planeLength / 2,
-          ]}
-          position={[params.planePosX, params.planePosY, params.planePosZ]}
-          mass={params.planeMass}
+          args={[pWidth / 2, pHeight / 2, pLength / 2]}
+          position={[pPosX, pPosY, pPosZ]}
+          mass={mass}
+        />
+
+        {/* INVISIBLE LANDING GEAR SKIDS (Friction = 0 to prevent drag) */}
+        {/* Left Sled */}
+        <CuboidCollider
+          args={[0.2, 0.4, pLength / 2 - 1]} // long thin box
+          position={[-pWidth / 2 + 1, pPosY - pHeight / 2 - 0.2, pPosZ]}
+          friction={0}
+          frictionCombineRule={CoefficientCombineRule.Min}
+        />
+        {/* Right Sled */}
+        <CuboidCollider
+          args={[0.2, 0.4, pLength / 2 - 1]} // long thin box
+          position={[pWidth / 2 - 1, pPosY - pHeight / 2 - 0.2, pPosZ]}
+          friction={0}
+          frictionCombineRule={CoefficientCombineRule.Min}
         />
 
         {/* visual elements perfectly wrapped in the forwarded ref group */}
@@ -122,13 +153,7 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
           </group>
 
           {/* cockpit attached with dialable xyz anchor */}
-          <group
-            position={[
-              params.cockpitPosX,
-              params.cockpitPosY,
-              params.cockpitPosZ,
-            ]}
-          >
+          <group position={[cPosX, cPosY, cPosZ]}>
             <mesh
               name="planeCockpit"
               castShadow

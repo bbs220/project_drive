@@ -15,43 +15,51 @@ const localY = new THREE.Vector3();
 const localZ = new THREE.Vector3();
 const forceVector = new THREE.Vector3();
 const dampingTorque = new THREE.Vector3();
-
-// add this new vector to hold our velocity
 const currentVelVector = new THREE.Vector3();
 
-// helper to safely pass library vectors to rapier without triggering rust memory aliasing
 const asVec = (vec: THREE.Vector3) => ({ x: vec.x, y: vec.y, z: vec.z });
 
-// define plane tuning parameters
-export type typePlaneTuning = {
-  thrustPower: number;
-  brakeForce: number;
-  pitchTorque: number;
-  rollTorque: number;
-  yawTorque: number;
-  liftMultiplier: number;
-  maxSpeed: number;
-  airborneThreshold: number;
+// strict types
+type TweakpaneParam<T> = {
+  value: T;
+  min?: number;
+  max?: number;
+  label?: string;
 };
 
-// define vehicle controller hook
+export type typePlaneTuning = {
+  thrustPower: number | TweakpaneParam<number>;
+  brakeForce: number | TweakpaneParam<number>;
+  pitchTorque: number | TweakpaneParam<number>;
+  rollTorque: number | TweakpaneParam<number>;
+  yawTorque: number | TweakpaneParam<number>;
+  liftMultiplier: number | TweakpaneParam<number>;
+  maxSpeed: number | TweakpaneParam<number>;
+  airborneThreshold: number | TweakpaneParam<number>;
+};
+
+// safe extractor
+const getVal = (
+  param: number | TweakpaneParam<number> | undefined,
+  fallback: number,
+): number => {
+  if (param === undefined) return fallback;
+  return typeof param === "object" && param !== null && "value" in param
+    ? param.value
+    : (param as number);
+};
+
 export const useVehiclePlaneCreator = (
   chassisRef: RefObject<RapierRigidBody | null>,
   controlsRef: RefObject<typeAllVehicleControls>,
   tuning: typePlaneTuning,
 ) => {
-  // initialize refs for smooth telemetry interpolation
   const throttleRef = useRef(0);
 
-  // handle physics step updates
   useAfterPhysicsStep((world) => {
-    // exit early if refs are missing
     if (!chassisRef.current || !controlsRef.current) return;
 
-    // check global store to see if player is actively controlling the plane
     const { activeControl } = useVehicleStore.getState();
-
-    // intercept controls and ignore inputs if player is in another vehicle
     const controls =
       activeControl === "plane"
         ? controlsRef.current
@@ -67,56 +75,39 @@ export const useVehiclePlaneCreator = (
             respawn: false,
           };
 
-    // assign refs to local variables
     const chassis = chassisRef.current;
 
-    // manual respawn trigger
     if (controls.respawn) {
-      respawnVehicle({
-        vehicleType: "plane",
-        vehicleBody: chassis,
-      });
-
-      // zero out engine throttle on respawn
+      respawnVehicle({ vehicleType: "plane", vehicleBody: chassis });
       throttleRef.current = 0;
-
-      // exit the physics step early
       return;
     }
 
     const { boost, brake, forward, backward, left, right, yawLeft, yawRight } =
       controls;
-
-    // extract time step for smooth physics
     const delta = world.timestep;
 
-    // fetch current position translation from rapier
+    const thrustPowerVal = getVal(tuning.thrustPower, 300);
+    const brakeForceVal = getVal(tuning.brakeForce, 5);
+    const pitchTorqueVal = getVal(tuning.pitchTorque, 10);
+    const rollTorqueVal = getVal(tuning.rollTorque, 10);
+    const yawTorqueVal = getVal(tuning.yawTorque, 10);
+    const liftMultiplierVal = getVal(tuning.liftMultiplier, 0.1);
+    const maxSpeedVal = getVal(tuning.maxSpeed, 200);
+    const airborneThresholdVal = getVal(tuning.airborneThreshold, 2.5);
+
     const currentPosition = chassis.translation();
-
-    // fetch current linear velocity from rapier
     const currentLinVel = chassis.linvel();
-
-    // convert rapier plain object to a library vector
     currentVelVector.set(currentLinVel.x, currentLinVel.y, currentLinVel.z);
-
-    // fetch mass of the chassis
     const chassisMass = chassis.mass();
 
-    // calculate altitude by flooring the y axis value
     const altitude = Math.max(
       Math.floor(currentPosition.y),
       vehicleRespawnLimit,
     );
+    const isAirborne = currentPosition.y > airborneThresholdVal;
 
-    // determine if plane is high enough off the ground to be considered flying
-    // fallback to 2.5 if tweakpane hasn't cached yet
-    const safeThreshold = tuning.airborneThreshold || 2.5;
-    const isAirborne = currentPosition.y > safeThreshold;
-
-    // fetch current quaternion rotation from rapier
     const currentRotation = chassis.rotation();
-
-    // apply rapier rotation to library quaternion
     quaternion.set(
       currentRotation.x,
       currentRotation.y,
@@ -124,114 +115,117 @@ export const useVehiclePlaneCreator = (
       currentRotation.w,
     );
 
-    // convert quaternion to euler angles
-    euler.setFromQuaternion(quaternion);
+    // convert to euler with yxz order to prevent gimbal lock
+    euler.setFromQuaternion(quaternion, "YXZ");
 
-    // extract local axes for world space force application
     localX.set(1, 0, 0).applyQuaternion(quaternion);
     localY.set(0, 1, 0).applyQuaternion(quaternion);
     localZ.set(0, 0, 1).applyQuaternion(quaternion);
 
-    // smoothly interpolate throttle towards max when boosting
-    if (boost) {
+    // throttle logic
+    if (boost)
       throttleRef.current = THREE.MathUtils.lerp(throttleRef.current, 1, delta);
-    }
-
-    // smoothly interpolate throttle towards zero when braking
-    if (brake) {
+    if (brake)
       throttleRef.current = THREE.MathUtils.lerp(throttleRef.current, 0, delta);
-    }
 
-    // apply ground brakes by forcefully dampening horizontal velocity using tweakpane value
-    const safeBrakeForce = tuning.brakeForce || 5;
+    // apply ground brakes
     if (brake && !isAirborne) {
       chassis.setLinvel(
         {
-          x: THREE.MathUtils.lerp(currentLinVel.x, 0, delta * safeBrakeForce),
+          x: THREE.MathUtils.lerp(currentLinVel.x, 0, delta * brakeForceVal),
           y: currentLinVel.y,
-          z: THREE.MathUtils.lerp(currentLinVel.z, 0, delta * safeBrakeForce),
+          z: THREE.MathUtils.lerp(currentLinVel.z, 0, delta * brakeForceVal),
         },
         true,
       );
     }
 
-    // calculate true dimensional speed early for engine governor
-    const speedMps = currentVelVector.length();
+    // strict local forward speed calculation
+    const forwardSpeed = Math.max(0, -currentVelVector.dot(localZ));
 
-    // calculate forward thrust
-    let currentThrust = tuning.thrustPower * throttleRef.current * delta;
+    let currentThrust = thrustPowerVal * throttleRef.current * delta;
 
-    // fallback speed limit
-    const safeMaxSpeed = tuning.maxSpeed || 200;
-
-    // engine governor overrides thrust if plane exceeds maximum procedural safe speed
-    if (speedMps >= safeMaxSpeed) {
+    if (forwardSpeed >= maxSpeedVal) {
       currentThrust = 0;
     }
 
-    // apply thrust along local forward axis
+    // apply thrust purely along local forward z axis with zero perpendicular bleed
     forceVector.copy(localZ).multiplyScalar(-currentThrust);
     chassis.applyImpulse(asVec(forceVector), true);
 
-    // convert to knots for authentic aviation telemetry
-    const speedKnots = speedMps * 1.94384;
-
-    // isolate forward velocity by taking the dot product against local forward axis
-    const forwardSpeed = Math.max(0, -currentVelVector.dot(localZ));
-
-    // calculate exact impulse required to counteract standard gravity
+    const speedKnots = forwardSpeed * 1.94384;
     const gravityImpulse = chassisMass * 9.81 * delta;
 
-    // calculate dynamic lift scaling with forward speed
     const dynamicLift = Math.min(
-      forwardSpeed * tuning.liftMultiplier * delta,
-      gravityImpulse,
+      forwardSpeed * liftMultiplierVal * delta,
+      gravityImpulse * 2.5,
     );
 
-    // apply lift force along local up vector
     forceVector.copy(localY).multiplyScalar(dynamicLift);
     chassis.applyImpulse(asVec(forceVector), true);
 
-    // apply pitch torque along local right vector using primary movement keys
-    if (forward) {
-      forceVector.copy(localX).multiplyScalar(-tuning.pitchTorque);
-      chassis.applyTorqueImpulse(asVec(forceVector), true);
-    }
-    if (backward) {
-      forceVector.copy(localX).multiplyScalar(tuning.pitchTorque);
-      chassis.applyTorqueImpulse(asVec(forceVector), true);
+    const takeoffSpeedThreshold = maxSpeedVal * 0.25;
+
+    if (!isAirborne && forwardSpeed > takeoffSpeedThreshold && backward) {
+      chassis.applyImpulse({ x: 0, y: gravityImpulse * 0.8, z: 0 }, true);
     }
 
-    // apply roll torque along local forward vector using primary steering keys
-    if (left) {
-      forceVector.copy(localZ).multiplyScalar(tuning.rollTorque);
+    // safety limit checking for thirty degrees max orientation boundary
+    const maxAllowedAngle = Math.PI / 6;
+    const hasExceededBounds =
+      Math.abs(euler.x) > maxAllowedAngle ||
+      Math.abs(euler.z) > maxAllowedAngle;
+
+    if (hasExceededBounds) {
+      // kill user controls and apply stabilizing recovery torque to bring plane down to stable orientation
+      const recoveryPitch = -euler.x * pitchTorqueVal * 2;
+      const recoveryRoll = -euler.z * rollTorqueVal * 2;
+
+      forceVector.copy(localX).multiplyScalar(recoveryPitch);
       chassis.applyTorqueImpulse(asVec(forceVector), true);
-    }
-    if (right) {
-      forceVector.copy(localZ).multiplyScalar(-tuning.rollTorque);
+
+      forceVector.copy(localZ).multiplyScalar(recoveryRoll);
       chassis.applyTorqueImpulse(asVec(forceVector), true);
+    } else {
+      // standard control processing only when inside safe angle limits
+      const canProcessFlightControls =
+        isAirborne || forwardSpeed > takeoffSpeedThreshold;
+
+      if (canProcessFlightControls) {
+        if (forward && euler.x > -maxAllowedAngle) {
+          forceVector.copy(localX).multiplyScalar(-pitchTorqueVal);
+          chassis.applyTorqueImpulse(asVec(forceVector), true);
+        }
+        if (backward && euler.x < maxAllowedAngle) {
+          forceVector.copy(localX).multiplyScalar(pitchTorqueVal);
+          chassis.applyTorqueImpulse(asVec(forceVector), true);
+        }
+        if (left) {
+          forceVector.copy(localZ).multiplyScalar(rollTorqueVal);
+          chassis.applyTorqueImpulse(asVec(forceVector), true);
+        }
+        if (right) {
+          forceVector.copy(localZ).multiplyScalar(-rollTorqueVal);
+          chassis.applyTorqueImpulse(asVec(forceVector), true);
+        }
+      }
+
+      if (yawLeft) {
+        forceVector.copy(localY).multiplyScalar(yawTorqueVal);
+        chassis.applyTorqueImpulse(asVec(forceVector), true);
+      }
+      if (yawRight) {
+        forceVector.copy(localY).multiplyScalar(-yawTorqueVal);
+        chassis.applyTorqueImpulse(asVec(forceVector), true);
+      }
     }
 
-    // apply yaw torque along local up vector
-    if (yawLeft) {
-      forceVector.copy(localY).multiplyScalar(tuning.yawTorque);
-      chassis.applyTorqueImpulse(asVec(forceVector), true);
-    }
-    if (yawRight) {
-      forceVector.copy(localY).multiplyScalar(-tuning.yawTorque);
-      chassis.applyTorqueImpulse(asVec(forceVector), true);
-    }
-
-    // fetch current angular velocity from rapier
     const currentAngVel = chassis.angvel();
-
-    // apply angular damping to stabilize flight
     dampingTorque
       .set(-currentAngVel.x, -currentAngVel.y, -currentAngVel.z)
-      .multiplyScalar(tuning.pitchTorque);
+      .multiplyScalar(pitchTorqueVal);
     chassis.applyTorqueImpulse(asVec(dampingTorque), true);
 
-    // push calculated telemetry directly to zustand store without triggering a hook re render
     useVehicleStore.getState().setPlaneTelemetry({
       altitude: altitude,
       airspeed: Math.floor(speedKnots),
