@@ -1,22 +1,14 @@
-import {
-  CoefficientCombineRule,
-  CuboidCollider,
-  RapierRigidBody,
-  RigidBody,
-} from "@react-three/rapier";
-import { forwardRef, useRef } from "react";
+import { forwardRef } from "react";
 import * as THREE from "three";
-import { useVehiclePlaneCreator } from "../../hooks/useVehiclePlaneCreator";
-import {
-  vehiclePlaneConstants,
-  vehicleRespawnPos,
-  vehicleRespawnRot,
-} from "../../constants/otherConstants";
-import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { useGLTF } from "@react-three/drei";
 import { type GLTF } from "three-stdlib";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
+import {
+  vehiclePlaneConstants,
+  vehicleRespawnPos,
+} from "../../constants/otherConstants";
+import { getVal } from "../../utils/getVal";
 
 // define strict types for the airframe geometry
 type typeAirframeGLTF = GLTF & {
@@ -42,22 +34,13 @@ type typeCockpitGLTF = GLTF & {
   };
 };
 
-// main vehicle component updated to match group typing
+// main vehicle component purely for visual rendering
 const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
-  // ref for the main chassis rigid body
-  const chassisRef = useRef<RapierRigidBody>(null);
-
-  // initialize vehicle controls
-  const vehicleInput = useAllVehicleInput();
-
-  // initialize tweakpane hook using extracted constants (strictly targeting the tuning wrapper)
+  // initialize tweakpane hook and store reactive parameters
   const params = useTweakpane(
     { title: "✈️ Plane Tuning", expanded: false },
     vehiclePlaneConstants.tuning,
   );
-
-  // offload physics and animation logic to custom hook
-  useVehiclePlaneCreator(chassisRef, vehicleInput, params as any);
 
   // load the separated models
   const airframeGLTF = useGLTF(
@@ -67,61 +50,19 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
     modelsSeperatedBank.lightPlane01cockpit,
   ) as unknown as typeCockpitGLTF;
 
-  // Helper to safely extract values from Tweakpane objects
-  const getVal = (param: any, fallback: number) =>
-    param?.value ?? param ?? fallback;
-
-  // Extract dimensions for the plane
-  const pWidth = getVal(params.planeWidth, 8.5);
-  const pHeight = getVal(params.planeHeight, 3.5);
-  const pLength = getVal(params.planeLength, 20);
+  // extract visual offsets
   const pPosX = getVal(params.planePosX, 0);
   const pPosY = getVal(params.planePosY, 0);
   const pPosZ = getVal(params.planePosZ, 2.7);
-  const mass = getVal(params.planeMass, 100);
 
-  // Extract cockpit visual offset
   const cPosX = getVal(params.cockpitPosX, 0);
   const cPosY = getVal(params.cockpitPosY, 0.68);
   const cPosZ = getVal(params.cockpitPosZ, -2.8);
 
   return (
-    <group>
-      <RigidBody
-        ref={chassisRef}
-        colliders={false}
-        friction={vehiclePlaneConstants.physics.friction}
-        position={vehicleRespawnPos.plane}
-        rotation={[
-          vehicleRespawnRot.plane.x,
-          vehicleRespawnRot.plane.y,
-          vehicleRespawnRot.plane.z,
-        ]}
-        canSleep={false}
-      >
-        {/* Main Hull Collider */}
-        <CuboidCollider
-          args={[pWidth / 2, pHeight / 2, pLength / 2]}
-          position={[pPosX, pPosY, pPosZ]}
-          mass={mass}
-        />
-
-        {/* INVISIBLE LANDING GEAR SKIDS (Friction = 0 to prevent drag) */}
-        {/* Left Sled */}
-        <CuboidCollider
-          args={[0.2, 0.4, pLength / 2 - 1]} // long thin box
-          position={[-pWidth / 2 + 1, pPosY - pHeight / 2 - 0.2, pPosZ]}
-          friction={0}
-          frictionCombineRule={CoefficientCombineRule.Min}
-        />
-        {/* Right Sled */}
-        <CuboidCollider
-          args={[0.2, 0.4, pLength / 2 - 1]} // long thin box
-          position={[pWidth / 2 - 1, pPosY - pHeight / 2 - 0.2, pPosZ]}
-          friction={0}
-          frictionCombineRule={CoefficientCombineRule.Min}
-        />
-
+    <group position={vehicleRespawnPos.plane}>
+      {/* offset group for tweakpane tuning */}
+      <group position={[pPosX, pPosY, pPosZ]}>
         {/* visual elements perfectly wrapped in the forwarded ref group */}
         <group ref={ref}>
           {/* core airframe hierarchy mapped directly from blender export */}
@@ -152,7 +93,7 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
             </group>
           </group>
 
-          {/* cockpit attached with dialable xyz anchor */}
+          {/* cockpit attached with dialable anchor */}
           <group position={[cPosX, cPosY, cPosZ]}>
             <mesh
               name="planeCockpit"
@@ -163,7 +104,7 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
             />
           </group>
         </group>
-      </RigidBody>
+      </group>
     </group>
   );
 });
