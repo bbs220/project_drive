@@ -141,7 +141,7 @@ export const vehicleHelicopterConstants = {
     skidLength: { value: 2, min: 0.1, max: 10, label: "skid length" },
     skidHeight: { value: -2.4, min: -5, max: 5, label: "skid height" },
     tailRadius: { value: 0.6, min: 0.1, max: 5, label: "tail radius" },
-    tailMass: { value: 20, min: 1, max: 100, label: "tail mass" },
+    tailMass: { value: 2, min: 1, max: 100, label: "tail mass" },
     tailPosZ: { value: 7.4, min: 0, max: 20, label: "tail pos z" },
     tailPosY: { value: 0.7, min: -5, max: 10, label: "tail pos y" },
   },

@@ -3,13 +3,19 @@ import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { useGLTF } from "@react-three/drei";
 import { type GLTF } from "three-stdlib";
-import { RigidBody, BallCollider } from "@react-three/rapier";
+import {
+  RigidBody,
+  BallCollider,
+  type RapierRigidBody,
+} from "@react-three/rapier";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
   vehicleHelicopterConstants,
   vehicleRespawnValues,
 } from "../../constants/otherConstants";
 import { unwrapParam } from "../../utils/unwrapParam";
+import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
+import { useVehicleHelicopterCreator } from "../../hooks/useVehicleHelicopterCreator";
 
 // define strict types for the cabin geometry
 type typeCabinGLTF = GLTF & {
@@ -46,14 +52,29 @@ type typeTailRotorGLTF = GLTF & {
 
 // main vehicle component updated with custom six point spherical physics
 const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
-  // refs for targeting rotor assemblies for purely visual animations later if needed
+  // strict reference to the physics body so the hook can manipulate it
+  const chassisRef = useRef<RapierRigidBody>(null);
+
+  // refs for targeting rotor assemblies for purely visual animations
   const mainRotorRef = useRef<THREE.Group>(null);
   const tailRotorRef = useRef<THREE.Group>(null);
+
+  // initialize global input listener to capture flight controls and structural keys
+  const controls = useAllVehicleInput();
 
   // initialize tweakpane hook and store reactive parameters
   const params = useTweakpane(
     { title: "🚁 Helicopter Tuning", expanded: false },
     vehicleHelicopterConstants.tuning,
+  );
+
+  // attach the helicopter physics hook to handle respawning and visual resets
+  useVehicleHelicopterCreator(
+    chassisRef,
+    mainRotorRef,
+    tailRotorRef,
+    controls,
+    params,
   );
 
   // load the separated models
@@ -100,7 +121,7 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
       position={vehicleRespawnValues.helicopter.position}
       rotation={vehicleRespawnValues.helicopter.rotation}
     >
-      <RigidBody colliders={false} canSleep={false}>
+      <RigidBody ref={chassisRef} colliders={false} canSleep={false}>
         {/* big center ball for majority of the mass */}
         <BallCollider
           args={[centerRadius]}
