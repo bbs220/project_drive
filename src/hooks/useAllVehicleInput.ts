@@ -11,6 +11,7 @@ export type typeAllVehicleControls = {
   yawLeft: boolean; // q - only on aerial vehicles
   yawRight: boolean; // e - only on aerial vehicles
   respawn: boolean; // r - works across all vehicles
+  mount: boolean; // f - for player to mount or unmount vehicles
 };
 
 // export default hook
@@ -26,6 +27,7 @@ export const useAllVehicleInput = () => {
     yawLeft: false,
     yawRight: false,
     respawn: false,
+    mount: false,
   });
 
   // handle key press events
@@ -61,8 +63,12 @@ export const useAllVehicleInput = () => {
         case "KeyE":
           vehicleInputControls.current.yawRight = true;
           break;
+        // respawn and mounting
         case "KeyR":
           vehicleInputControls.current.respawn = true;
+          break;
+        case "KeyF":
+          vehicleInputControls.current.mount = true;
           break;
       }
     };
@@ -98,8 +104,12 @@ export const useAllVehicleInput = () => {
         case "KeyE":
           vehicleInputControls.current.yawRight = false;
           break;
+        // respawn and mounting
         case "KeyR":
           vehicleInputControls.current.respawn = false;
+          break;
+        case "KeyF":
+          vehicleInputControls.current.mount = false;
           break;
       }
     };

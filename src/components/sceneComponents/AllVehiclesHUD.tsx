@@ -1,151 +1,46 @@
+import { Fragment } from "react";
 import { respawnLimit } from "../../constants/otherConstants";
 import { useVehicleStore } from "../../stores/useVehicleStore";
 
-// display minimal car controls
-const CarControlsDisplay = () => {
-  return (
-    // container with glowing border only and no box shadow
-    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap rounded-md border border-tron-cyan bg-tron-bg/80 px-8 py-2.5 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
-      <div className="flex items-center gap-4">
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            WASD
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">drive</span>
-        </span>
-        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            SPACE
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">brake</span>
-        </span>
-        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            SHIFT
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">boost</span>
-        </span>
-        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            AD
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">
-            steer/roll
-          </span>
-        </span>
-        {/* respawn control */}
-        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            R
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">
-            respawn
-          </span>
-        </span>
-      </div>
-    </div>
-  );
+// define strict type for our generic control items
+type typeControlItem = {
+  keys: string;
+  action: string;
 };
 
-// display minimal helicopter controls
-const HelicopterControlsDisplay = () => {
-  return (
-    // container with glowing border only and no box shadow
-    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap rounded-md border border-tron-cyan bg-tron-bg/80 px-8 py-2.5 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
-      <div className="flex items-center gap-4">
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            SHIFT/SPACE
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">
-            ascend/descend
-          </span>
-        </span>
-        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            WS
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">pitch</span>
-        </span>
-        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            AD
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">roll</span>
-        </span>
-        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            QE
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">yaw</span>
-        </span>
-        {/* respawn control */}
-        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            R
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">
-            respawn
-          </span>
-        </span>
-      </div>
-    </div>
-  );
-};
+// generic highly reusable component for bottom screen controls
+const SharedControlsDisplay = ({
+  controls,
+}: {
+  controls: typeControlItem[];
+}) => {
+  // automatically append the universal mount and respawn keys
+  const allControls = [
+    ...controls,
+    { keys: "F", action: "mount/unmount" },
+    { keys: "R", action: "respawn" },
+  ];
 
-// display minimal plane controls
-const PlaneControlsDisplay = () => {
   return (
     // container with glowing border only and no box shadow
     <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap rounded-md border border-tron-cyan bg-tron-bg/80 px-8 py-2.5 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
       <div className="flex items-center gap-4">
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            SHIFT/SPACE
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">
-            take off/airbrake
-          </span>
-        </span>
-        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            WS
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">pitch</span>
-        </span>
-        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            AD
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">roll</span>
-        </span>
-        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            QE
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">yaw</span>
-        </span>
-        {/* respawn control */}
-        <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
-        <span className="flex items-center gap-2">
-          <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
-            R
-          </strong>
-          <span className="tracking-wider text-gray-200 uppercase">
-            respawn
-          </span>
-        </span>
+        {allControls.map((ctrl, index) => (
+          <Fragment key={ctrl.keys}>
+            <span className="flex items-center gap-2">
+              <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+                {ctrl.keys}
+              </strong>
+              <span className="tracking-wider text-gray-200 uppercase">
+                {ctrl.action}
+              </span>
+            </span>
+            {/* render the divider dot on everything except the final item */}
+            {index < allControls.length - 1 && (
+              <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+            )}
+          </Fragment>
+        ))}
       </div>
     </div>
   );
@@ -384,11 +279,32 @@ const AllVehiclesHUD = () => {
   return (
     // full screen non interactive overlay
     <div className="pointer-events-none absolute inset-0 z-10">
+      {/* only render player display if character is on foot */}
+      {activeControl === "on_foot" && (
+        <>
+          {/* dynamic player controls */}
+          <SharedControlsDisplay
+            controls={[
+              { keys: "WASD", action: "move" },
+              { keys: "SHIFT", action: "sprint" },
+              { keys: "SPACE", action: "jump" },
+            ]}
+          />
+        </>
+      )}
+
       {/* only render car display if player is actively driving */}
       {activeControl === "car" && (
         <>
           {/* dynamic car controls */}
-          <CarControlsDisplay />
+          <SharedControlsDisplay
+            controls={[
+              { keys: "WASD", action: "drive" },
+              { keys: "SPACE", action: "brake" },
+              { keys: "SHIFT", action: "boost" },
+              { keys: "AD", action: "steer/roll" },
+            ]}
+          />
 
           {/* inline speedometer */}
           <div className="absolute bottom-6 right-8 flex items-baseline">
@@ -409,7 +325,14 @@ const AllVehiclesHUD = () => {
       {activeControl === "helicopter" && (
         <>
           {/* dynamic helicopter controls */}
-          <HelicopterControlsDisplay />
+          <SharedControlsDisplay
+            controls={[
+              { keys: "SHIFT/SPACE", action: "ascend/descend" },
+              { keys: "WS", action: "pitch" },
+              { keys: "AD", action: "roll" },
+              { keys: "QE", action: "yaw" },
+            ]}
+          />
 
           {/* advanced aviation instruments container anchored to bottom left */}
           <div className="absolute bottom-6 left-8 flex items-end gap-6">
@@ -440,7 +363,14 @@ const AllVehiclesHUD = () => {
       {activeControl === "plane" && (
         <>
           {/* dynamic plane controls */}
-          <PlaneControlsDisplay />
+          <SharedControlsDisplay
+            controls={[
+              { keys: "SHIFT/SPACE", action: "take off/airbrake" },
+              { keys: "WS", action: "pitch" },
+              { keys: "AD", action: "roll" },
+              { keys: "QE", action: "yaw" },
+            ]}
+          />
 
           {/* advanced aviation instruments container anchored to bottom left */}
           <div className="absolute bottom-6 left-8 flex items-end gap-6">
