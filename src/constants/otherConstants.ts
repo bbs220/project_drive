@@ -102,21 +102,29 @@ export const vehiclePlaneConstants = {
 
 export const vehicleHelicopterConstants = {
   tuning: {
-    // cabin colliders representing the whole body including tail
-    cabinWidth: { value: 3.5, min: 0.1, max: 20, label: "cabin width" },
-    cabinHeight: { value: 5.5, min: 0.1, max: 20, label: "cabin height" },
-    cabinLength: { value: 14, min: 0.1, max: 20, label: "cabin length" },
+    // visuals
     cabinPosX: { value: 0, min: -20, max: 20, label: "cabin pos x" },
     cabinPosY: { value: 0, min: -20, max: 20, label: "cabin pos y" },
     cabinPosZ: { value: 1, min: -20, max: 20, label: "cabin pos z" },
-    // rotor visual anchors
     mainRotorPosX: { value: 0, min: -20, max: 20, label: "main rotor x" },
     mainRotorPosY: { value: 2.25, min: -20, max: 20, label: "main rotor y" },
     mainRotorPosZ: { value: -0.9, min: -20, max: 20, label: "main rotor z" },
     tailRotorPosX: { value: 0, min: -20, max: 20, label: "tail rotor x" },
     tailRotorPosY: { value: 0.1, min: -20, max: 20, label: "tail rotor y" },
     tailRotorPosZ: { value: 6.46, min: -20, max: 20, label: "tail rotor z" },
+
+    // physics colliders utilizing custom six point layout
+    centerRadius: { value: 2, min: 0.1, max: 5, label: "center radius" },
+    centerMass: { value: 150, min: 10, max: 1000, label: "center mass" },
+    skidRadius: { value: 0.8, min: 0.1, max: 5, label: "skid radius" },
+    skidMass: { value: 15, min: 1, max: 100, label: "skid mass" },
+    skidWidth: { value: 2, min: 0.1, max: 10, label: "skid width" },
+    skidLength: { value: 2, min: 0.1, max: 10, label: "skid length" },
+    skidHeight: { value: -2.4, min: -5, max: 5, label: "skid height" },
+    tailRadius: { value: 0.6, min: 0.1, max: 5, label: "tail radius" },
+    tailMass: { value: 20, min: 1, max: 100, label: "tail mass" },
+    tailPosZ: { value: 7.4, min: 0, max: 20, label: "tail pos z" },
+    tailPosY: { value: 0.7, min: -5, max: 10, label: "tail pos y" },
   },
-  rotations: {},
   physics: {},
 };
