@@ -1,23 +1,58 @@
-import { useAfterPhysicsStep } from "@react-three/rapier";
-import { type RefObject } from "react";
+import { useAfterPhysicsStep, useRapier } from "@react-three/rapier";
+import { useEffect, useRef, type RefObject } from "react";
+import * as THREE from "three";
+import { useThree } from "@react-three/fiber";
 import type { RapierRigidBody } from "@react-three/rapier";
 import type { typeAllVehicleControls } from "./useAllVehicleInput";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import respawnVehicle from "../utils/respawnVehicle";
+import { unwrapParam } from "../utils/unwrapParam";
+import type { KinematicCharacterController } from "@dimforge/rapier3d-compat";
+
+type typePlayerTuning = {
+  walkSpeed: number;
+  sprintSpeed: number;
+  jumpForce: number;
+  gravityMultiplier: number;
+};
+
+// initialize vectors outside the loop to prevent aggressive memory leaks and stutters
+const moveDir = new THREE.Vector3();
+const cameraFront = new THREE.Vector3();
+const cameraRight = new THREE.Vector3();
+const desiredMovement = new THREE.Vector3();
+const currentPosition = new THREE.Vector3();
 
 export const usePlayerCreator = (
   playerRef: RefObject<RapierRigidBody | null>,
   controlsRef: RefObject<typeAllVehicleControls>,
+  tuning: typePlayerTuning,
 ) => {
-  // execute logic immediately after the physics engine calculates collisions
-  useAfterPhysicsStep(() => {
-    // exit early if references are missing
-    if (!playerRef.current || !controlsRef.current) return;
+  const { world } = useRapier();
+  const { camera } = useThree();
 
-    // fetch active control state from the global store
+  const controllerRef = useRef<KinematicCharacterController>(null);
+  const verticalVelocity = useRef(0);
+
+  useEffect(() => {
+    const controller = world.createCharacterController(0.1);
+    controller.setApplyImpulsesToDynamicBodies(true);
+    controller.snapToGroundDistance();
+    controller.setMaxSlopeClimbAngle(45 * (Math.PI / 180));
+
+    controllerRef.current = controller;
+
+    return () => {
+      world.removeCharacterController(controller);
+    };
+  }, [world]);
+
+  useAfterPhysicsStep(() => {
+    if (!playerRef.current || !controlsRef.current || !controllerRef.current)
+      return;
+
     const { activeControl } = useVehicleStore.getState();
 
-    // strictly gate inputs to only process when the player is actually walking
     const controls =
       activeControl === "on_foot"
         ? controlsRef.current
@@ -35,17 +70,71 @@ export const usePlayerCreator = (
           };
 
     const playerBody = playerRef.current;
+    const controller = controllerRef.current;
 
-    // manual respawn trigger resets character to standard spawn point
     if (controls.respawn) {
-      // execute centralized respawn logic mapped to the player
       respawnVehicle({
         vehicleType: "on_foot",
         vehicleBody: playerBody,
       });
-
-      // exit the physics step early to prevent applying forces to a teleporting body
+      verticalVelocity.current = 0;
       return;
     }
+
+    // --- KINEMATIC MOVEMENT MATH ---
+    const delta = world.timestep;
+
+    // dynamically unwrap tweakpane parameters
+    const walkSpeed = unwrapParam(tuning.walkSpeed, 4);
+    const sprintSpeed = unwrapParam(tuning.sprintSpeed, 8);
+    const jumpForce = unwrapParam(tuning.jumpForce, 5);
+    const gravityMult = unwrapParam(tuning.gravityMultiplier, 2);
+
+    const speed = controls.boost ? sprintSpeed : walkSpeed;
+    const gravity = -9.81 * gravityMult;
+
+    camera.getWorldDirection(cameraFront);
+    cameraFront.y = 0;
+    cameraFront.normalize();
+
+    cameraRight
+      .crossVectors(cameraFront, new THREE.Vector3(0, 1, 0))
+      .normalize();
+
+    moveDir.set(0, 0, 0);
+    if (controls.forward) moveDir.add(cameraFront);
+    if (controls.backward) moveDir.sub(cameraFront);
+    if (controls.left) moveDir.sub(cameraRight);
+    if (controls.right) moveDir.add(cameraRight);
+
+    if (moveDir.lengthSq() > 0) {
+      moveDir.normalize().multiplyScalar(speed * delta);
+    }
+
+    const isGrounded = controller.computedGrounded();
+
+    if (isGrounded) {
+      verticalVelocity.current = -0.1;
+
+      if (controls.brake) {
+        verticalVelocity.current = jumpForce;
+      }
+    } else {
+      verticalVelocity.current += gravity * delta;
+    }
+
+    desiredMovement.copy(moveDir);
+    desiredMovement.y = verticalVelocity.current * delta;
+
+    if (playerBody.numColliders() === 0) return;
+    const collider = playerBody.collider(0);
+
+    controller.computeColliderMovement(collider, desiredMovement);
+
+    const computedMovement = controller.computedMovement();
+    currentPosition.copy(playerBody.translation() as THREE.Vector3);
+    currentPosition.add(computedMovement as THREE.Vector3);
+
+    playerBody.setNextKinematicTranslation(currentPosition);
   });
 };

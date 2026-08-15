@@ -23,7 +23,7 @@ export const vehicleRespawnValues = {
 
 export const playerRespawnValues = {
   position: [0, 5, 10] as [number, number, number],
-  rotation: [0, 0, 0] as [number, number, number],
+  rotation: [0, Math.PI, 0] as [number, number, number],
 };
 
 export const playerConstants = {
@@ -37,9 +37,14 @@ export const playerConstants = {
     },
     capsuleRadius: { value: 0.2, min: 0.1, max: 1, label: "capsule radius" },
     playerMass: { value: 30, min: 10, max: 200, label: "player mass" },
+
+    // movement physics
+    walkSpeed: { value: 4, min: 1, max: 20, label: "walk speed" },
+    sprintSpeed: { value: 8, min: 2, max: 40, label: "sprint speed" },
+    jumpForce: { value: 5, min: 1, max: 20, label: "jump force" },
+    gravityMultiplier: { value: 2, min: 0.5, max: 5, label: "gravity mult" },
   },
 };
-
 export const vehicleCarConstants = {
   tuning: {
     // chassis colliders & spatial anchors

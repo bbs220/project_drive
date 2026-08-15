@@ -22,14 +22,14 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   // initialize global input listener to capture wasd and structural keys
   const controls = useAllVehicleInput();
 
-  // attach the player physics hook to handle respawning and eventual movement
-  usePlayerCreator(playerBodyRef, controls);
-
   // initialize tweakpane hook and store reactive parameters
   const params = useTweakpane(
     { title: "🚶 Player Tuning", expanded: false },
     playerConstants.tuning,
   );
+
+  // attach the player physics hook and pass in the params
+  usePlayerCreator(playerBodyRef, controls, params);
 
   // extract physical dimensions using type safe utility
   const capsuleHalfHeight = unwrapParam(params.capsuleHalfHeight, 0.7);
@@ -41,6 +41,7 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
       {/* physics body with locked rotations and isolated respawn coordinates */}
       <RigidBody
         ref={playerBodyRef}
+        type="kinematicPosition"
         colliders={false}
         mass={playerMass}
         canSleep={false}
@@ -60,6 +61,12 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
           <mesh>
             <capsuleGeometry args={[capsuleRadius, capsuleHalfHeight * 2]} />
             <meshStandardMaterial color="hotpink" />
+          </mesh>
+
+          {/* neon cyan visor/nose to clearly indicate the forward facing direction */}
+          <mesh position={[0, capsuleHalfHeight * 0.5, capsuleRadius + 0.1]}>
+            <boxGeometry args={[0.4, 0.15, 0.3]} />
+            <meshStandardMaterial color="cyan" />
           </mesh>
         </group>
       </RigidBody>
