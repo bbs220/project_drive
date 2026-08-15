@@ -75,36 +75,15 @@ export const vehicleCarConstants = {
 
 export const vehiclePlaneConstants = {
   tuning: {
-    // flight mechanics
-    thrustPower: { value: 300, min: 50, max: 1000, label: "thrust power" },
-    brakeForce: { value: 1, min: 1, max: 50, label: "brake force" },
-    pitchTorque: { value: 150, min: 1, max: 1000, label: "pitch torque" },
-    rollTorque: { value: 100, min: 1, max: 1000, label: "roll torque" },
-    yawTorque: { value: 50, min: 1, max: 1000, label: "yaw torque" },
-    liftMultiplier: { value: 0.1, min: 0.01, max: 1, label: "lift multiplier" },
-    maxSpeed: { value: 200, min: 50, max: 500, label: "max speed" },
-    airborneThreshold: {
-      value: 2.5,
-      min: 1,
-      max: 10,
-      label: "airborne height",
-    },
-    // plane colliders
-    planeMass: { value: 50, min: 1, max: 500, label: "plane mass" },
-    planeWidth: { value: 8.5, min: 0.1, max: 20, label: "plane width" },
-    planeHeight: { value: 3.5, min: 0.1, max: 20, label: "plane height" },
-    planeLength: { value: 20, min: 0.1, max: 20, label: "plane length" },
+    // visuals
     planePosX: { value: 0, min: -20, max: 20, label: "plane pos x" },
     planePosY: { value: 0, min: -20, max: 20, label: "plane pos y" },
     planePosZ: { value: 2.7, min: -20, max: 20, label: "plane pos z" },
-    // visual anchors
     cockpitPosX: { value: 0, min: -20, max: 20, label: "cockpit pos x" },
     cockpitPosY: { value: 0.68, min: -20, max: 20, label: "cockpit pos y" },
     cockpitPosZ: { value: -2.8, min: -20, max: 20, label: "cockpit pos z" },
   },
-  physics: {
-    friction: 1.5,
-  },
+  physics: {},
 };
 
 export const vehicleHelicopterConstants = {
