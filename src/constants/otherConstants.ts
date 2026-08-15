@@ -83,6 +83,19 @@ export const vehiclePlaneConstants = {
     cockpitPosX: { value: 0, min: -20, max: 20, label: "cockpit pos x" },
     cockpitPosY: { value: 0.68, min: -20, max: 20, label: "cockpit pos y" },
     cockpitPosZ: { value: -2.8, min: -20, max: 20, label: "cockpit pos z" },
+
+    // physics colliders utilizing custom four point layout
+    bearingRadius: { value: 1.75, min: 0.1, max: 5, label: "bearing radius" },
+    bearingMass: { value: 25, min: 1, max: 200, label: "bearing mass" },
+    wingOffset: { value: 10, min: 0.1, max: 20, label: "wing offset x" },
+    noseOffsetZ: { value: -4, min: -20, max: 0, label: "nose offset z" },
+    tailOffsetZ: { value: 14, min: 0, max: 20, label: "tail offset z" },
+    bearingOffsetY: {
+      value: -0.65,
+      min: -10,
+      max: 10,
+      label: "bearing offset y",
+    },
   },
   physics: {},
 };

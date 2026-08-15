@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { useGLTF } from "@react-three/drei";
 import { type GLTF } from "three-stdlib";
+import { RigidBody, BallCollider } from "@react-three/rapier";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
   vehiclePlaneConstants,
@@ -34,7 +35,7 @@ type typeCockpitGLTF = GLTF & {
   };
 };
 
-// main vehicle component purely for visual rendering
+// main vehicle component with four point sketchbook physics
 const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
   // initialize tweakpane hook and store reactive parameters
   const params = useTweakpane(
@@ -59,55 +60,90 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
   const cPosY = getVal(params.cockpitPosY, 0.68);
   const cPosZ = getVal(params.cockpitPosZ, -2.8);
 
+  // extract asymmetric physics parameters
+  const bRadius = getVal(params.bearingRadius, 1.75);
+  const bMass = getVal(params.bearingMass, 25);
+  const wingOffset = getVal(params.wingOffset, 10);
+  const noseOffsetZ = getVal(params.noseOffsetZ, -10);
+  const tailOffsetZ = getVal(params.tailOffsetZ, 10);
+  const bOffsetY = getVal(params.bearingOffsetY, -0.65);
+
   return (
     <group
       position={vehicleRespawnValues.plane.position}
       rotation={vehicleRespawnValues.plane.rotation}
     >
-      {/* offset group for tweakpane tuning */}
-      <group position={[pPosX, pPosY, pPosZ]}>
-        {/* visual elements perfectly wrapped in the forwarded ref group */}
-        <group ref={ref}>
-          {/* core airframe hierarchy mapped directly from blender export */}
-          <group name="Scene">
-            <group name="origin">
+      <RigidBody colliders={false} canSleep={false}>
+        {/* left wing bearing */}
+        <BallCollider
+          args={[bRadius]}
+          position={[wingOffset, bOffsetY, 0]}
+          mass={bMass}
+        />
+        {/* right wing bearing */}
+        <BallCollider
+          args={[bRadius]}
+          position={[-wingOffset, bOffsetY, 0]}
+          mass={bMass}
+        />
+        {/* nose bearing pulling custom z offset */}
+        <BallCollider
+          args={[bRadius]}
+          position={[0, bOffsetY, noseOffsetZ]}
+          mass={bMass}
+        />
+        {/* tail bearing pulling custom z offset */}
+        <BallCollider
+          args={[bRadius]}
+          position={[0, bOffsetY, tailOffsetZ]}
+          mass={bMass}
+        />
+
+        {/* offset group for tweakpane tuning */}
+        <group position={[pPosX, pPosY, pPosZ]}>
+          {/* visual elements perfectly wrapped in the forwarded ref group */}
+          <group ref={ref}>
+            {/* core airframe hierarchy mapped directly from blender export */}
+            <group name="Scene">
+              <group name="origin">
+                <mesh
+                  name="planeBody"
+                  castShadow
+                  receiveShadow
+                  geometry={airframeGLTF.nodes.planeBody.geometry}
+                  material={airframeGLTF.materials["black.001"]}
+                >
+                  <mesh
+                    name="planeStripes"
+                    castShadow
+                    receiveShadow
+                    geometry={airframeGLTF.nodes.planeStripes.geometry}
+                    material={airframeGLTF.materials["tron.002"]}
+                  />
+                  <mesh
+                    name="planeThrusters"
+                    castShadow
+                    receiveShadow
+                    geometry={airframeGLTF.nodes.planeThrusters.geometry}
+                    material={airframeGLTF.materials["tron.003"]}
+                  />
+                </mesh>
+              </group>
+            </group>
+
+            {/* cockpit attached with dialable anchor */}
+            <group position={[cPosX, cPosY, cPosZ]}>
               <mesh
-                name="planeBody"
+                name="planeCockpit"
                 castShadow
                 receiveShadow
-                geometry={airframeGLTF.nodes.planeBody.geometry}
-                material={airframeGLTF.materials["black.001"]}
-              >
-                <mesh
-                  name="planeStripes"
-                  castShadow
-                  receiveShadow
-                  geometry={airframeGLTF.nodes.planeStripes.geometry}
-                  material={airframeGLTF.materials["tron.002"]}
-                />
-                <mesh
-                  name="planeThrusters"
-                  castShadow
-                  receiveShadow
-                  geometry={airframeGLTF.nodes.planeThrusters.geometry}
-                  material={airframeGLTF.materials["tron.003"]}
-                />
-              </mesh>
+                geometry={cockpitGLTF.nodes.planeCockpit.geometry}
+                material={cockpitGLTF.materials["Material.001"]}
+              />
             </group>
           </group>
-
-          {/* cockpit attached with dialable anchor */}
-          <group position={[cPosX, cPosY, cPosZ]}>
-            <mesh
-              name="planeCockpit"
-              castShadow
-              receiveShadow
-              geometry={cockpitGLTF.nodes.planeCockpit.geometry}
-              material={cockpitGLTF.materials["Material.001"]}
-            />
-          </group>
         </group>
-      </group>
+      </RigidBody>
     </group>
   );
 });

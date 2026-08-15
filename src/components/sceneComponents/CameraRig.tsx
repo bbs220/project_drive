@@ -29,7 +29,7 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
         max: 0.01,
         label: "mouse speed",
       },
-      smoothness: { value: 0.2, min: 0.01, max: 1.0, label: "lerp speed" },
+      smoothness: { value: 0.8, min: 0.01, max: 1.0, label: "lerp speed" },
     },
   );
 
