@@ -23,8 +23,12 @@ const cameraRight = new THREE.Vector3();
 const desiredMovement = new THREE.Vector3();
 const currentPosition = new THREE.Vector3();
 
+// initialize quaternion for smooth rotational blending
+const targetQuaternion = new THREE.Quaternion();
+
 export const usePlayerCreator = (
   playerRef: RefObject<RapierRigidBody | null>,
+  visualRef: RefObject<THREE.Group | null>,
   controlsRef: RefObject<typeAllVehicleControls>,
   tuning: typePlayerTuning,
 ) => {
@@ -81,7 +85,7 @@ export const usePlayerCreator = (
       return;
     }
 
-    // --- KINEMATIC MOVEMENT MATH ---
+    // kinematic movement math
     const delta = world.timestep;
 
     // dynamically unwrap tweakpane parameters
@@ -102,13 +106,31 @@ export const usePlayerCreator = (
       .normalize();
 
     moveDir.set(0, 0, 0);
+
+    // standard signs: W adds the forward vector, S subtracts it
     if (controls.forward) moveDir.add(cameraFront);
     if (controls.backward) moveDir.sub(cameraFront);
+
+    // standard signs: D adds the right vector, A subtracts it
     if (controls.left) moveDir.sub(cameraRight);
     if (controls.right) moveDir.add(cameraRight);
 
-    if (moveDir.lengthSq() > 0) {
-      moveDir.normalize().multiplyScalar(speed * delta);
+    // if we are actively pressing movement keys, calculate which way the mesh should face
+    if (moveDir.lengthSq() > 0 && visualRef.current) {
+      // normalize the diagonal vector so we don't move too fast
+      moveDir.normalize();
+
+      // add math.pi (180 degrees) to perfectly flip the visual mesh forward
+      const angle = Math.atan2(moveDir.x, moveDir.z) + Math.PI;
+
+      // convert that angle into a quaternion on the y axis
+      targetQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle);
+
+      // smoothly slerp (spherical linear interpolation) the visual mesh towards the target angle
+      visualRef.current.quaternion.slerp(targetQuaternion, 0.15);
+
+      // finally apply the speed to the normalized vector
+      moveDir.multiplyScalar(speed * delta);
     }
 
     const isGrounded = controller.computedGrounded();

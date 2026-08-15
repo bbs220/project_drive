@@ -19,6 +19,9 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   // strict reference to the physics body so the hook can manipulate it
   const playerBodyRef = useRef<RapierRigidBody>(null);
 
+  // dedicated reference purely for spinning the visual mesh independent of physics
+  const visualRef = useRef<THREE.Group>(null);
+
   // initialize global input listener to capture wasd and structural keys
   const controls = useAllVehicleInput();
 
@@ -28,8 +31,8 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
     playerConstants.tuning,
   );
 
-  // attach the player physics hook and pass in the params
-  usePlayerCreator(playerBodyRef, controls, params);
+  // attach the player physics hook and pass in the params and visual ref
+  usePlayerCreator(playerBodyRef, visualRef, controls, params);
 
   // extract physical dimensions using type safe utility
   const capsuleHalfHeight = unwrapParam(params.capsuleHalfHeight, 0.7);
@@ -55,19 +58,22 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
           friction={0}
         />
 
-        {/* visual elements perfectly wrapped in the forwarded ref group */}
+        {/* the outer group handles the camera targeting so the camera doesn't spin wildly */}
         <group ref={ref}>
-          {/* placeholder mesh matching dynamic tweakpane capsule dimensions */}
-          <mesh>
-            <capsuleGeometry args={[capsuleRadius, capsuleHalfHeight * 2]} />
-            <meshStandardMaterial color="hotpink" />
-          </mesh>
+          {/* the inner group handles the smooth visual rotation from the physics hook */}
+          <group ref={visualRef}>
+            {/* placeholder mesh matching dynamic tweakpane capsule dimensions */}
+            <mesh>
+              <capsuleGeometry args={[capsuleRadius, capsuleHalfHeight * 2]} />
+              <meshStandardMaterial color="hotpink" />
+            </mesh>
 
-          {/* neon cyan visor/nose to clearly indicate the forward facing direction */}
-          <mesh position={[0, capsuleHalfHeight * 0.5, capsuleRadius + 0.1]}>
-            <boxGeometry args={[0.4, 0.15, 0.3]} />
-            <meshStandardMaterial color="cyan" />
-          </mesh>
+            {/* neon cyan visor/nose to clearly indicate the forward facing direction */}
+            <mesh position={[0, capsuleHalfHeight * 0.5, capsuleRadius + 0.1]}>
+              <boxGeometry args={[0.4, 0.15, 0.3]} />
+              <meshStandardMaterial color="cyan" />
+            </mesh>
+          </group>
         </group>
       </RigidBody>
     </group>
