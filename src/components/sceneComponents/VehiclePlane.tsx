@@ -1,15 +1,21 @@
-import { forwardRef } from "react";
+import { forwardRef, useRef } from "react";
 import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { useGLTF } from "@react-three/drei";
 import { type GLTF } from "three-stdlib";
-import { RigidBody, BallCollider } from "@react-three/rapier";
+import {
+  RigidBody,
+  BallCollider,
+  type RapierRigidBody,
+} from "@react-three/rapier";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
   vehiclePlaneConstants,
   vehicleRespawnValues,
 } from "../../constants/otherConstants";
 import { unwrapParam } from "../../utils/unwrapParam";
+import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
+import { useVehiclePlaneCreator } from "../../hooks/useVehiclePlaneCreator";
 
 // define strict types for the airframe geometry
 type typeAirframeGLTF = GLTF & {
@@ -37,11 +43,19 @@ type typeCockpitGLTF = GLTF & {
 
 // main vehicle component with four point sketchbook physics
 const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
+  // strict reference to the physics body so the hook can manipulate it
+  const chassisRef = useRef<RapierRigidBody>(null);
+
+  // initialize global input listener to capture flight controls and structural keys
+  const controls = useAllVehicleInput();
+
   // initialize tweakpane hook and store reactive parameters
   const params = useTweakpane(
     { title: "✈️ Plane Tuning", expanded: false },
     vehiclePlaneConstants.tuning,
   );
+  // attach the plane physics hook to handle respawning
+  useVehiclePlaneCreator(chassisRef, controls, params);
 
   // load the separated models
   const airframeGLTF = useGLTF(
@@ -73,7 +87,7 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
       position={vehicleRespawnValues.plane.position}
       rotation={vehicleRespawnValues.plane.rotation}
     >
-      <RigidBody colliders={false} canSleep={false}>
+      <RigidBody ref={chassisRef} colliders={false} canSleep={false}>
         {/* left wing bearing */}
         <BallCollider
           args={[bRadius]}
