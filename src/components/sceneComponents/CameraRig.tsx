@@ -18,7 +18,7 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
   const params = useTweakpane(
     { title: "🎥 Camera Rig", expanded: false },
     {
-      playerDistance: { value: 4, min: 1, max: 15, label: "player dist" },
+      playerDistance: { value: 3, min: 1, max: 15, label: "player dist" },
       carDistance: { value: 8, min: 2, max: 20, label: "car dist" },
       heliDistance: { value: 16, min: 5, max: 40, label: "heli dist" },
       planeDistance: { value: 24, min: 10, max: 60, label: "plane dist" },

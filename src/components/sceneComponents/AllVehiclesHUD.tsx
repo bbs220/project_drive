@@ -14,18 +14,18 @@ const SharedControlsDisplay = ({
 }: {
   controls: typeControlItem[];
 }) => {
-  // automatically append the universal mount and respawn keys
-  const allControls = [
-    ...controls,
+  // isolate universal controls to stack them on a secondary row
+  const universalControls = [
     { keys: "F", action: "mount/unmount" },
     { keys: "R", action: "respawn" },
   ];
 
   return (
-    // container with glowing border only and no box shadow
-    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap rounded-md border border-tron-cyan bg-tron-bg/80 px-8 py-2.5 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
+    // container automatically flexes to the narrower content width with flex col
+    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1.5 whitespace-nowrap rounded-md border border-tron-cyan bg-tron-bg/80 px-8 py-2 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
+      {/* primary row specific vehicle and character controls */}
       <div className="flex items-center gap-4">
-        {allControls.map((ctrl, index) => (
+        {controls.map((ctrl, index) => (
           <Fragment key={ctrl.keys}>
             <span className="flex items-center gap-2">
               <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
@@ -36,7 +36,27 @@ const SharedControlsDisplay = ({
               </span>
             </span>
             {/* render the divider dot on everything except the final item */}
-            {index < allControls.length - 1 && (
+            {index < controls.length - 1 && (
+              <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+            )}
+          </Fragment>
+        ))}
+      </div>
+
+      {/* secondary row universal system controls slightly dimmed for visual hierarchy */}
+      <div className="flex items-center gap-4 opacity-75">
+        {universalControls.map((ctrl, index) => (
+          <Fragment key={ctrl.keys}>
+            <span className="flex items-center gap-2">
+              <strong className="font-telemetry text-sm text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]">
+                {ctrl.keys}
+              </strong>
+              <span className="tracking-wider text-gray-200 uppercase">
+                {ctrl.action}
+              </span>
+            </span>
+            {/* render the divider dot on everything except the final item */}
+            {index < universalControls.length - 1 && (
               <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
             )}
           </Fragment>
