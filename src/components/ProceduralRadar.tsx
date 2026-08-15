@@ -12,6 +12,7 @@ const ProceduralRadar = () => {
   const params = useTweakpane(
     { title: "🏙️ City Generator", expanded: false },
     {
+      showRadar: { value: false, label: "show radar" },
       urbanFrequency: {
         value: generatorState.urbanFrequency,
         min: 0.0001,
@@ -67,6 +68,9 @@ const ProceduralRadar = () => {
     // tell the 3d scene to rebuild the meshes across the zustand bridge
     regenerateCity();
 
+    // bail out early to save massive amounts of cpu power if the radar is hidden
+    if (!params.showRadar) return;
+
     // draw the 2d canvas radar
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -115,11 +119,12 @@ const ProceduralRadar = () => {
     ctx.putImageData(imgData, 0, 0);
   }, [params, regenerateCity]);
 
-  return (
-    <div className="pointer-events-none border-2 border-gray-600 rounded-md overflow-hidden absolute right-64 top-2 z-20 -translate-x-1/2 ">
+  // perfectly format conditional rendering to keep dom clean when radar is disabled
+  return params.showRadar ? (
+    <div className="pointer-events-none absolute right-64 top-2 z-20 -translate-x-1/2 overflow-hidden rounded-md border-2 border-gray-600 ">
       <canvas ref={canvasRef} className="h-48 w-48" />
     </div>
-  );
+  ) : null;
 };
 
 export default ProceduralRadar;
