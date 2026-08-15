@@ -3,7 +3,7 @@ import { OrbitControls } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
-import { useVehicleStore } from "../../stores/useVehicleStore"; // Add the global store
+import { useVehicleStore } from "../../stores/useVehicleStore";
 
 // define props with optional debug flag
 type typeCameraRigProps = {
@@ -18,6 +18,7 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
   const params = useTweakpane(
     { title: "🎥 Camera Rig", expanded: false },
     {
+      playerDistance: { value: 4, min: 1, max: 15, label: "player dist" },
       carDistance: { value: 8, min: 2, max: 20, label: "car dist" },
       heliDistance: { value: 16, min: 5, max: 40, label: "heli dist" },
       planeDistance: { value: 24, min: 10, max: 60, label: "plane dist" },
@@ -34,7 +35,7 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
   );
 
   // spherical coordinates manage math for orbiting perfectly around a center point
-  // initialized to the standard car distance (8)
+  // initialized to the standard car distance
   const spherical = useRef(new THREE.Spherical(8, Math.PI / 3, 0));
 
   // vectors used to smooth out the camera movement over time
@@ -96,17 +97,19 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
 
     // determine the correct locked distance based on the vehicle type
     let targetRadius = params.carDistance as number;
-    if (activeControl === "helicopter") {
+    if (activeControl === "on_foot") {
+      targetRadius = params.playerDistance as number;
+    } else if (activeControl === "helicopter") {
       targetRadius = params.heliDistance as number;
     } else if (activeControl === "plane") {
       targetRadius = params.planeDistance as number;
     }
 
-    // smoothly lerp the spherical radius so the camera dynamically pushes in/out when swapping vehicles
+    // smoothly lerp the spherical radius so the camera dynamically pushes in and out when swapping vehicles
     spherical.current.radius = THREE.MathUtils.lerp(
       spherical.current.radius,
       targetRadius,
-      (params.smoothness as number) * 0.25, // slightly slower lerp specifically for radius changes to feel cinematic
+      (params.smoothness as number) * 0.25,
     );
 
     // set the exact local coordinates we want to focus on

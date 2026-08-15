@@ -1,4 +1,4 @@
-import { vehicleRespawnLimit } from "../../constants/otherConstants";
+import { respawnLimit } from "../../constants/otherConstants";
 import { useVehicleStore } from "../../stores/useVehicleStore";
 
 // display minimal car controls
@@ -287,7 +287,7 @@ const AltimeterTape = ({ altitude }: { altitude: number }) => {
         {[2, 1, 0, -1, -2].map((offset) => {
           const val = baseAlt + offset;
           // allow dropping to negative bounds
-          const isVisible = val >= vehicleRespawnLimit;
+          const isVisible = val >= respawnLimit;
 
           return (
             <div

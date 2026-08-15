@@ -19,24 +19,28 @@ import ProceduralRadar from "../ProceduralRadar";
 import BackgroundLight from "./BackgroundLight";
 import PostprocessingEffects from "./PostprocessingEffects";
 import ChunkManager from "./ChunkManager";
+import Player from "./Player";
 
 const DriveScene = () => {
-  // initialize refs for all instantiated vehicles
+  // initialize refs for all instantiated vehicles and player
   const carRef = useRef<THREE.Group>(null);
   const heliRef = useRef<THREE.Group>(null);
   const planeRef = useRef<THREE.Group>(null);
+  const playerRef = useRef<THREE.Group>(null);
 
   // fetch active vehicle and setter from global store
   const activeControl = useVehicleStore((state) => state.activeControl);
   const setActiveControl = useVehicleStore((state) => state.setActiveControl);
 
-  // determine active reference based on state
+  // determine active reference based on state mapping
   const activeTargetRef =
     activeControl === "helicopter"
       ? heliRef
       : activeControl === "plane"
         ? planeRef
-        : carRef;
+        : activeControl === "on_foot"
+          ? playerRef
+          : carRef;
 
   // configure debug tools with dynamic dropdown options
   const { cameraDebug, activeVehicle } = useTweakpane(
@@ -47,9 +51,10 @@ const DriveScene = () => {
         value: activeControl as ControlState,
         label: "current vehicle",
         options: {
+          on_foot: "on_foot",
           car: "car",
-          plane: "plane",
           helicopter: "helicopter",
+          plane: "plane",
         },
       },
     },
@@ -69,8 +74,8 @@ const DriveScene = () => {
       />
       <Stats showPanel={sceneConstants.isDev ? 0 : 4} />
       <BackgroundLight />
-      <fog attach="fog" args={["violet", 150, 400]} />
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
+      <Player ref={playerRef} />
       <VehicleCar ref={carRef} />
       <VehicleHelicopter ref={heliRef} />
       <VehiclePlane ref={planeRef} />

@@ -53,7 +53,7 @@ type VehicleState = {
 // create and export global store
 export const useVehicleStore = create<VehicleState>((set) => ({
   // default to car for current testing phase
-  activeControl: "car",
+  activeControl: "on_foot",
 
   // setter for active control
   setActiveControl: (control) => set({ activeControl: control }),

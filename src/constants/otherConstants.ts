@@ -3,7 +3,7 @@ export const sceneConstants = {
   fov: 60,
 };
 
-export const vehicleRespawnLimit = -50;
+export const respawnLimit = -50;
 
 // unified spawn object using math pi for precise euler rotations
 export const vehicleRespawnValues = {
@@ -18,6 +18,25 @@ export const vehicleRespawnValues = {
   helicopter: {
     position: [-20, 5, 0] as [number, number, number],
     rotation: [0, 0, 0] as [number, number, number],
+  },
+};
+
+export const playerRespawnValues = {
+  position: [0, 5, 10] as [number, number, number],
+  rotation: [0, 0, 0] as [number, number, number],
+};
+
+export const playerConstants = {
+  tuning: {
+    // physical capsule dimensions and weight
+    capsuleHalfHeight: {
+      value: 0.3,
+      min: 0.1,
+      max: 2,
+      label: "capsule half height",
+    },
+    capsuleRadius: { value: 0.2, min: 0.1, max: 1, label: "capsule radius" },
+    playerMass: { value: 30, min: 10, max: 200, label: "player mass" },
   },
 };
 
