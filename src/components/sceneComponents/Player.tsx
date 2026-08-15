@@ -1,15 +1,30 @@
-import { forwardRef } from "react";
+import { forwardRef, useRef } from "react";
 import * as THREE from "three";
-import { RigidBody, CapsuleCollider } from "@react-three/rapier";
+import {
+  RigidBody,
+  CapsuleCollider,
+  type RapierRigidBody,
+} from "@react-three/rapier";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { unwrapParam } from "../../utils/unwrapParam";
 import {
   playerConstants,
   playerRespawnValues,
 } from "../../constants/otherConstants";
+import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
+import { usePlayerCreator } from "../../hooks/usePlayerCreator";
 
 // main player component for walking around the world
 const Player = forwardRef<THREE.Group>((_props, ref) => {
+  // strict reference to the physics body so the hook can manipulate it
+  const playerBodyRef = useRef<RapierRigidBody>(null);
+
+  // initialize global input listener to capture wasd and structural keys
+  const controls = useAllVehicleInput();
+
+  // attach the player physics hook to handle respawning and eventual movement
+  usePlayerCreator(playerBodyRef, controls);
+
   // initialize tweakpane hook and store reactive parameters
   const params = useTweakpane(
     { title: "🚶 Player Tuning", expanded: false },
@@ -25,6 +40,7 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
     <group>
       {/* physics body with locked rotations and isolated respawn coordinates */}
       <RigidBody
+        ref={playerBodyRef}
         colliders={false}
         mass={playerMass}
         canSleep={false}
