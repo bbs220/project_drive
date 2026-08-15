@@ -9,7 +9,7 @@ import {
   vehicleHelicopterConstants,
   vehicleRespawnValues,
 } from "../../constants/otherConstants";
-import { getVal } from "../../utils/getVal";
+import { unwrapParam } from "../../utils/unwrapParam";
 
 // define strict types for the cabin geometry
 type typeCabinGLTF = GLTF & {
@@ -68,32 +68,32 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
   ) as unknown as typeTailRotorGLTF;
 
   // extract visual offsets using type safe utility
-  const cPosX = getVal(params.cabinPosX, 0);
-  const cPosY = getVal(params.cabinPosY, 0);
-  const cPosZ = getVal(params.cabinPosZ, 1);
+  const cPosX = unwrapParam(params.cabinPosX, 0);
+  const cPosY = unwrapParam(params.cabinPosY, 0);
+  const cPosZ = unwrapParam(params.cabinPosZ, 1);
 
-  const mrPosX = getVal(params.mainRotorPosX, 0);
-  const mrPosY = getVal(params.mainRotorPosY, 2.25);
-  const mrPosZ = getVal(params.mainRotorPosZ, -0.9);
+  const mrPosX = unwrapParam(params.mainRotorPosX, 0);
+  const mrPosY = unwrapParam(params.mainRotorPosY, 2.25);
+  const mrPosZ = unwrapParam(params.mainRotorPosZ, -0.9);
 
-  const trPosX = getVal(params.tailRotorPosX, 0);
-  const trPosY = getVal(params.tailRotorPosY, 0.1);
-  const trPosZ = getVal(params.tailRotorPosZ, 6.46);
+  const trPosX = unwrapParam(params.tailRotorPosX, 0);
+  const trPosY = unwrapParam(params.tailRotorPosY, 0.1);
+  const trPosZ = unwrapParam(params.tailRotorPosZ, 6.46);
 
   // extract six point physics parameters
-  const centerRadius = getVal(params.centerRadius, 1.5);
-  const centerMass = getVal(params.centerMass, 150);
+  const centerRadius = unwrapParam(params.centerRadius, 1.5);
+  const centerMass = unwrapParam(params.centerMass, 150);
 
-  const skidRadius = getVal(params.skidRadius, 0.4);
-  const skidMass = getVal(params.skidMass, 15);
-  const skidWidth = getVal(params.skidWidth, 1.2);
-  const skidLength = getVal(params.skidLength, 2.0);
-  const skidHeight = getVal(params.skidHeight, -1.2);
+  const skidRadius = unwrapParam(params.skidRadius, 0.4);
+  const skidMass = unwrapParam(params.skidMass, 15);
+  const skidWidth = unwrapParam(params.skidWidth, 1.2);
+  const skidLength = unwrapParam(params.skidLength, 2.0);
+  const skidHeight = unwrapParam(params.skidHeight, -1.2);
 
-  const tailRadius = getVal(params.tailRadius, 0.6);
-  const tailMass = getVal(params.tailMass, 20);
-  const tailPosZ = getVal(params.tailPosZ, 6.0);
-  const tailPosY = getVal(params.tailPosY, 0.5);
+  const tailRadius = unwrapParam(params.tailRadius, 0.6);
+  const tailMass = unwrapParam(params.tailMass, 20);
+  const tailPosZ = unwrapParam(params.tailPosZ, 6.0);
+  const tailPosY = unwrapParam(params.tailPosY, 0.5);
 
   return (
     <group

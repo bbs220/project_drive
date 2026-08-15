@@ -9,7 +9,7 @@ import {
   vehiclePlaneConstants,
   vehicleRespawnValues,
 } from "../../constants/otherConstants";
-import { getVal } from "../../utils/getVal";
+import { unwrapParam } from "../../utils/unwrapParam";
 
 // define strict types for the airframe geometry
 type typeAirframeGLTF = GLTF & {
@@ -52,21 +52,21 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
   ) as unknown as typeCockpitGLTF;
 
   // extract visual offsets
-  const pPosX = getVal(params.planePosX, 0);
-  const pPosY = getVal(params.planePosY, 0);
-  const pPosZ = getVal(params.planePosZ, 2.7);
+  const pPosX = unwrapParam(params.planePosX, 0);
+  const pPosY = unwrapParam(params.planePosY, 0);
+  const pPosZ = unwrapParam(params.planePosZ, 2.7);
 
-  const cPosX = getVal(params.cockpitPosX, 0);
-  const cPosY = getVal(params.cockpitPosY, 0.68);
-  const cPosZ = getVal(params.cockpitPosZ, -2.8);
+  const cPosX = unwrapParam(params.cockpitPosX, 0);
+  const cPosY = unwrapParam(params.cockpitPosY, 0.68);
+  const cPosZ = unwrapParam(params.cockpitPosZ, -2.8);
 
   // extract asymmetric physics parameters
-  const bRadius = getVal(params.bearingRadius, 1.75);
-  const bMass = getVal(params.bearingMass, 25);
-  const wingOffset = getVal(params.wingOffset, 10);
-  const noseOffsetZ = getVal(params.noseOffsetZ, -10);
-  const tailOffsetZ = getVal(params.tailOffsetZ, 10);
-  const bOffsetY = getVal(params.bearingOffsetY, -0.65);
+  const bRadius = unwrapParam(params.bearingRadius, 1.75);
+  const bMass = unwrapParam(params.bearingMass, 25);
+  const wingOffset = unwrapParam(params.wingOffset, 10);
+  const noseOffsetZ = unwrapParam(params.noseOffsetZ, -10);
+  const tailOffsetZ = unwrapParam(params.tailOffsetZ, 10);
+  const bOffsetY = unwrapParam(params.bearingOffsetY, -0.65);
 
   return (
     <group

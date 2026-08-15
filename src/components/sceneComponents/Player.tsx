@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 import * as THREE from "three";
 import { RigidBody, CapsuleCollider } from "@react-three/rapier";
 import { useTweakpane } from "../../hooks/useTweakpane";
-import { getVal } from "../../utils/getVal";
+import { unwrapParam } from "../../utils/unwrapParam";
 import {
   playerConstants,
   playerRespawnValues,
@@ -17,9 +17,9 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   );
 
   // extract physical dimensions using type safe utility
-  const capsuleHalfHeight = getVal(params.capsuleHalfHeight, 0.7);
-  const capsuleRadius = getVal(params.capsuleRadius, 0.3);
-  const playerMass = getVal(params.playerMass, 70);
+  const capsuleHalfHeight = unwrapParam(params.capsuleHalfHeight, 0.7);
+  const capsuleRadius = unwrapParam(params.capsuleRadius, 0.3);
+  const playerMass = unwrapParam(params.playerMass, 70);
 
   return (
     <group>

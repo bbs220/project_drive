@@ -9,6 +9,7 @@ import * as THREE from "three";
 import type { typeAllVehicleControls } from "./useAllVehicleInput";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import respawnVehicle from "../utils/respawnVehicle";
+import { unwrapParam } from "../utils/unwrapParam";
 
 // define up vector
 const up = new THREE.Vector3(0, 1, 0);
@@ -57,17 +58,6 @@ export type typeCarTuning = {
   sideFrictionStiffness: number | TweakpaneParam<number>;
 };
 
-// helper to safely extract numeric value whether passed raw or as a Tweakpane object
-const getValue = (
-  param: number | TweakpaneParam<number> | undefined,
-  fallback: number = 0,
-): number => {
-  if (param === undefined) return fallback;
-  return typeof param === "object" && param !== null && "value" in param
-    ? param.value
-    : (param as number);
-};
-
 // define vehicle controller hook
 export const useVehicleCarCreator = (
   chassisRef: RefObject<RapierRigidBody | null>,
@@ -88,16 +78,19 @@ export const useVehicleCarCreator = (
 
   // dynamically generate wheel positions and physics info
   const wheelsInfo = useMemo<typeWheelInfo[]>(() => {
-    const x = getValue(tuning.wheelPosX, 0.8);
-    const y = getValue(tuning.wheelPosY, 0.2);
-    const frontZ = getValue(tuning.frontWheelPosZ, 1.2);
-    const rearZ = getValue(tuning.rearWheelPosZ, -1.2);
-    const radius = getValue(tuning.wheelRadius, 0.35);
-    const suspensionRestLength = getValue(tuning.suspensionRestLength, 0.125);
-    const suspensionStiffness = getValue(tuning.suspensionStiffness, 24);
-    const maxSuspensionTravel = getValue(tuning.maxSuspensionTravel, 1);
-    const frictionSlip = getValue(tuning.frictionSlip, 1.5);
-    const sideFrictionStiffness = getValue(tuning.sideFrictionStiffness, 3);
+    const x = unwrapParam(tuning.wheelPosX, 0.8);
+    const y = unwrapParam(tuning.wheelPosY, 0.2);
+    const frontZ = unwrapParam(tuning.frontWheelPosZ, 1.2);
+    const rearZ = unwrapParam(tuning.rearWheelPosZ, -1.2);
+    const radius = unwrapParam(tuning.wheelRadius, 0.35);
+    const suspensionRestLength = unwrapParam(
+      tuning.suspensionRestLength,
+      0.125,
+    );
+    const suspensionStiffness = unwrapParam(tuning.suspensionStiffness, 24);
+    const maxSuspensionTravel = unwrapParam(tuning.maxSuspensionTravel, 1);
+    const frictionSlip = unwrapParam(tuning.frictionSlip, 1.5);
+    const sideFrictionStiffness = unwrapParam(tuning.sideFrictionStiffness, 3);
     const axleCs = new THREE.Vector3(-1, 0, 0);
 
     return [
@@ -207,12 +200,12 @@ export const useVehicleCarCreator = (
     const chassis = chassisRef.current;
 
     // extract current dynamic values safely
-    const flipImpulseVal = getValue(tuning.flipImpulse, 0.5);
-    const engineForceVal = getValue(tuning.engineForce, 5);
-    const boostMultiplierVal = getValue(tuning.boostMultiplier, 2.5);
-    const maxSpeedVal = getValue(tuning.maxSpeed, 88);
-    const steeringAngleVal = getValue(tuning.steeringAngle, 0.5);
-    const brakeForceVal = getValue(tuning.brakeForce, 2);
+    const flipImpulseVal = unwrapParam(tuning.flipImpulse, 0.5);
+    const engineForceVal = unwrapParam(tuning.engineForce, 5);
+    const boostMultiplierVal = unwrapParam(tuning.boostMultiplier, 2.5);
+    const maxSpeedVal = unwrapParam(tuning.maxSpeed, 88);
+    const steeringAngleVal = unwrapParam(tuning.steeringAngle, 0.5);
+    const brakeForceVal = unwrapParam(tuning.brakeForce, 2);
 
     // check global store to see if player is actively controlling the car
     const { activeControl } = useVehicleStore.getState();

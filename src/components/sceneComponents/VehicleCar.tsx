@@ -15,7 +15,7 @@ import { useTweakpane } from "../../hooks/useTweakpane";
 import { useVehicleCarCreator } from "../../hooks/useVehicleCarCreator";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
-import { getVal } from "../../utils/getVal";
+import { unwrapParam } from "../../utils/unwrapParam";
 
 // --- GLTF TYPES ---
 type typeChassisGLTF = GLTF & {
@@ -119,24 +119,24 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
 
   // precompute dynamic wheel geometry for wireframe overlay
   const wheelGeo = useMemo(() => {
-    const radius = getVal(tuningParams.wheelRadius, 0.35);
-    const width = getVal(tuningParams.wheelWidth, 0.25);
+    const radius = unwrapParam(tuningParams.wheelRadius, 0.35);
+    const width = unwrapParam(tuningParams.wheelWidth, 0.25);
     const geo = new THREE.CylinderGeometry(radius, radius, width, 32);
     geo.rotateZ(Math.PI / 2); // rotate cylinder to roll forward
     return geo;
   }, [tuningParams.wheelRadius, tuningParams.wheelWidth]);
 
   // Pre-extract chassis variables
-  const cWidth = getVal(tuningParams.chassisWidth, 1.6);
-  const cHeight = getVal(tuningParams.chassisHeight, 0.8);
-  const cLength = getVal(tuningParams.chassisLength, 3);
-  const cPosX = getVal(tuningParams.chassisPosX, 0);
-  const cPosY = getVal(tuningParams.chassisPosY, 0.4);
-  const cPosZ = getVal(tuningParams.chassisPosZ, 0);
-  const mass = getVal(tuningParams.mass, 200);
+  const cWidth = unwrapParam(tuningParams.chassisWidth, 1.6);
+  const cHeight = unwrapParam(tuningParams.chassisHeight, 0.8);
+  const cLength = unwrapParam(tuningParams.chassisLength, 3);
+  const cPosX = unwrapParam(tuningParams.chassisPosX, 0);
+  const cPosY = unwrapParam(tuningParams.chassisPosY, 0.4);
+  const cPosZ = unwrapParam(tuningParams.chassisPosZ, 0);
+  const mass = unwrapParam(tuningParams.mass, 200);
 
   // Extract the debug wireframe toggle
-  const showWireframes = getVal(tuningParams.showWireframes, false);
+  const showWireframes = unwrapParam(tuningParams.showWireframes, false);
 
   return (
     <group>

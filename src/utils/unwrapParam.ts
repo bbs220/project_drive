@@ -7,7 +7,7 @@ export type typeTweakpaneParam<T> = {
 };
 
 // safely extract values from tweakpane objects or return fallback if undefined
-export const getVal = <T>(
+export const unwrapParam = <T>(
   param: T | typeTweakpaneParam<T> | undefined,
   fallback: T,
 ): T => {
