@@ -9,12 +9,13 @@ import { useGLTF, Html } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
 import {
   vehicleCarConstants,
-  vehicleRespawnPos,
+  vehicleRespawnValues,
 } from "../../constants/otherConstants";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { useVehicleCarCreator } from "../../hooks/useVehicleCarCreator";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
+import { getVal } from "../../utils/getVal";
 
 // --- GLTF TYPES ---
 type typeChassisGLTF = GLTF & {
@@ -102,7 +103,7 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
     chassisRef,
     wheelsRef,
     controlsRef,
-    tuningParams as any,
+    tuningParams,
   );
 
   // load models
@@ -115,10 +116,6 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
   const rearTyreGLTF = useGLTF(
     modelsSeperatedBank.runner01leftRearTyre,
   ) as unknown as typeRearTyreGLTF;
-
-  // Helper to safely extract values from Tweakpane objects
-  const getVal = (param: any, fallback: any) =>
-    param?.value ?? param ?? fallback;
 
   // precompute dynamic wheel geometry for wireframe overlay
   const wheelGeo = useMemo(() => {
@@ -147,8 +144,8 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
         ref={chassisRef}
         colliders={false}
         friction={friction}
-        position={vehicleRespawnPos.car}
-        rotation={[0, Math.PI, 0]}
+        position={vehicleRespawnValues.car.position}
+        rotation={vehicleRespawnValues.car.rotation}
         mass={mass}
         canSleep={false}
       >

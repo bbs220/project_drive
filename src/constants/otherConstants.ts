@@ -5,19 +5,20 @@ export const sceneConstants = {
 
 export const vehicleRespawnLimit = -50;
 
-export const vehicleRespawnPos = {
-  car: [0, 5, 0] as [number, number, number],
-  plane: [20, 5, 0] as [number, number, number],
-  helicopter: [-20, 5, 0] as [number, number, number],
-};
-
-export const vehicleRespawnRot = {
-  // 180 degrees on the y axis to flip the car forward
-  car: { x: 0, y: 1, z: 0, w: 0 },
-  // default identity quaternion (0 degrees)
-  plane: { x: 0, y: 0, z: 0, w: 1 },
-  // default identity quaternion (0 degrees)
-  helicopter: { x: 0, y: 0, z: 0, w: 1 },
+// unified spawn object using math pi for precise euler rotations
+export const vehicleRespawnValues = {
+  car: {
+    position: [0, 5, 0] as [number, number, number],
+    rotation: [0, Math.PI, 0] as [number, number, number],
+  },
+  plane: {
+    position: [20, 5, 0] as [number, number, number],
+    rotation: [0, 0, 0] as [number, number, number],
+  },
+  helicopter: {
+    position: [-20, 5, 0] as [number, number, number],
+    rotation: [0, 0, 0] as [number, number, number],
+  },
 };
 
 export const vehicleCarConstants = {
@@ -88,29 +89,7 @@ export const vehiclePlaneConstants = {
 
 export const vehicleHelicopterConstants = {
   tuning: {
-    // flight mechanics
-    liftForce: { value: 200, min: 50, max: 1000, label: "lift force" },
-    descendForce: { value: 250, min: 50, max: 1000, label: "descend force" },
-    hoverMultiplier: {
-      value: 9.81,
-      min: 0,
-      max: 50,
-      label: "hover multiplier",
-    },
-    pitchTorque: { value: 10, min: 1, max: 100, label: "pitch torque" },
-    rollTorque: { value: 10, min: 1, max: 100, label: "roll torque" },
-    yawTorque: { value: 10, min: 1, max: 100, label: "yaw torque" },
-    rotorSpeed: { value: 50, min: 1, max: 100, label: "rotor speed" },
-    altitudeLimit: { value: 12, min: 10, max: 100, label: "altitude limit" },
-    maxSpeed: { value: 82, min: 20, max: 200, label: "max speed" },
-    airborneThreshold: {
-      value: 3.5,
-      min: 1,
-      max: 10,
-      label: "airborne height",
-    },
     // cabin colliders representing the whole body including tail
-    cabinMass: { value: 100, min: 50, max: 500, label: "cabin mass" },
     cabinWidth: { value: 3.5, min: 0.1, max: 20, label: "cabin width" },
     cabinHeight: { value: 5.5, min: 0.1, max: 20, label: "cabin height" },
     cabinLength: { value: 14, min: 0.1, max: 20, label: "cabin length" },
@@ -125,11 +104,6 @@ export const vehicleHelicopterConstants = {
     tailRotorPosY: { value: 0.1, min: -20, max: 20, label: "tail rotor y" },
     tailRotorPosZ: { value: 6.46, min: -20, max: 20, label: "tail rotor z" },
   },
-  rotations: {
-    quarterTurn: Math.PI / 2,
-  },
-  physics: {
-    friction: 1.5,
-    zeroVector: 0,
-  },
+  rotations: {},
+  physics: {},
 };

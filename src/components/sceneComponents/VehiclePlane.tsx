@@ -6,7 +6,7 @@ import { type GLTF } from "three-stdlib";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
   vehiclePlaneConstants,
-  vehicleRespawnPos,
+  vehicleRespawnValues,
 } from "../../constants/otherConstants";
 import { getVal } from "../../utils/getVal";
 
@@ -60,7 +60,10 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
   const cPosZ = getVal(params.cockpitPosZ, -2.8);
 
   return (
-    <group position={vehicleRespawnPos.plane}>
+    <group
+      position={vehicleRespawnValues.plane.position}
+      rotation={vehicleRespawnValues.plane.rotation}
+    >
       {/* offset group for tweakpane tuning */}
       <group position={[pPosX, pPosY, pPosZ]}>
         {/* visual elements perfectly wrapped in the forwarded ref group */}

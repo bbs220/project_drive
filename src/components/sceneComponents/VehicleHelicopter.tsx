@@ -1,21 +1,14 @@
-import {
-  CuboidCollider,
-  RapierRigidBody,
-  RigidBody,
-} from "@react-three/rapier";
 import { forwardRef, useRef } from "react";
 import * as THREE from "three";
-import { useVehicleHelicopterCreator } from "../../hooks/useVehicleHelicopterCreator";
-import {
-  vehicleHelicopterConstants,
-  vehicleRespawnPos,
-  vehicleRespawnRot,
-} from "../../constants/otherConstants";
-import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { useGLTF } from "@react-three/drei";
 import { type GLTF } from "three-stdlib";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
+import {
+  vehicleHelicopterConstants,
+  vehicleRespawnValues,
+} from "../../constants/otherConstants";
+import { getVal } from "../../utils/getVal";
 
 // define strict types for the cabin geometry
 type typeCabinGLTF = GLTF & {
@@ -50,31 +43,16 @@ type typeTailRotorGLTF = GLTF & {
   materials: { ["rear_rotors.002"]: THREE.MeshPhysicalMaterial };
 };
 
-// main vehicle component updated to match group typing
+// main vehicle component purely for visual rendering
 const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
-  // ref for the main chassis rigid body
-  const chassisRef = useRef<RapierRigidBody>(null);
-
-  // refs for targeting rotor assemblies
+  // refs for targeting rotor assemblies for purely visual animations later if needed
   const mainRotorRef = useRef<THREE.Group>(null);
   const tailRotorRef = useRef<THREE.Group>(null);
 
-  // initialize vehicle controls
-  const vehicleInput = useAllVehicleInput();
-
-  // initialize tweakpane hook using extracted constants
+  // initialize tweakpane hook and store reactive parameters
   const params = useTweakpane(
     { title: "🚁 Helicopter Tuning", expanded: false },
     vehicleHelicopterConstants.tuning,
-  );
-
-  // offload physics and animation logic to custom hook
-  useVehicleHelicopterCreator(
-    chassisRef,
-    mainRotorRef,
-    tailRotorRef,
-    vehicleInput,
-    params,
   );
 
   // load the separated models
@@ -88,31 +66,26 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
     modelsSeperatedBank.helicopter01tailRotor,
   ) as unknown as typeTailRotorGLTF;
 
-  return (
-    <group>
-      <RigidBody
-        ref={chassisRef}
-        colliders={false}
-        friction={vehicleHelicopterConstants.physics.friction}
-        position={vehicleRespawnPos.helicopter}
-        rotation={[
-          vehicleRespawnRot.helicopter.x,
-          vehicleRespawnRot.helicopter.y,
-          vehicleRespawnRot.helicopter.z,
-        ]}
-        canSleep={false}
-      >
-        {/* dynamic cabin collider */}
-        <CuboidCollider
-          args={[
-            params.cabinWidth / 2,
-            params.cabinHeight / 2,
-            params.cabinLength / 2,
-          ]}
-          position={[params.cabinPosX, params.cabinPosY, params.cabinPosZ]}
-          mass={params.cabinMass}
-        />
+  // extract visual offsets using type safe utility
+  const cPosX = getVal(params.cabinPosX, 0);
+  const cPosY = getVal(params.cabinPosY, 0);
+  const cPosZ = getVal(params.cabinPosZ, 1);
 
+  const mrPosX = getVal(params.mainRotorPosX, 0);
+  const mrPosY = getVal(params.mainRotorPosY, 2.25);
+  const mrPosZ = getVal(params.mainRotorPosZ, -0.9);
+
+  const trPosX = getVal(params.tailRotorPosX, 0);
+  const trPosY = getVal(params.tailRotorPosY, 0.1);
+  const trPosZ = getVal(params.tailRotorPosZ, 6.46);
+
+  return (
+    <group
+      position={vehicleRespawnValues.helicopter.position}
+      rotation={vehicleRespawnValues.helicopter.rotation}
+    >
+      {/* offset group for tweakpane tuning */}
+      <group position={[cPosX, cPosY, cPosZ]}>
         {/* visual elements perfectly wrapped in the forwarded ref group */}
         <group ref={ref}>
           {/* core cabin hierarchy mapped directly from blender export */}
@@ -166,15 +139,8 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
             </group>
           </group>
 
-          {/* main top rotor animated via physics hook and dialable y axis anchor */}
-          <group
-            ref={mainRotorRef}
-            position={[
-              params.mainRotorPosX,
-              params.mainRotorPosY,
-              params.mainRotorPosZ,
-            ]}
-          >
+          {/* main top rotor attached with dialable anchor */}
+          <group ref={mainRotorRef} position={[mrPosX, mrPosY, mrPosZ]}>
             <mesh
               name="heliTopRotorCenter"
               castShadow
@@ -199,15 +165,8 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
             </mesh>
           </group>
 
-          {/* tail rotor animated via physics hook and dialable xyz anchor */}
-          <group
-            ref={tailRotorRef}
-            position={[
-              params.tailRotorPosX,
-              params.tailRotorPosY,
-              params.tailRotorPosZ,
-            ]}
-          >
+          {/* tail rotor attached with dialable anchor */}
+          <group ref={tailRotorRef} position={[trPosX, trPosY, trPosZ]}>
             <mesh
               name="heliTailRotor"
               castShadow
@@ -217,7 +176,7 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
             />
           </group>
         </group>
-      </RigidBody>
+      </group>
     </group>
   );
 });
