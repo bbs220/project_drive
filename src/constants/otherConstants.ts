@@ -45,6 +45,7 @@ export const playerConstants = {
     gravityMultiplier: { value: 2, min: 0.5, max: 5, label: "gravity mult" },
   },
 };
+
 export const vehicleCarConstants = {
   tuning: {
     // chassis colliders & spatial anchors

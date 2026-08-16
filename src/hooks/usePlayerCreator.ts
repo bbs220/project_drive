@@ -67,29 +67,44 @@ export const usePlayerCreator = (
     const playerBody = playerRef.current;
     const controller = controllerRef.current;
 
-    // mounted we are driving a vehicle
+    // phase 1 mounted we are driving a vehicle
     if (active.control !== CONTROL_STATE.ON_FOOT) {
       wasMounted.current = true;
 
       // ensure visual mesh stays visible so we can see the player in the driver seat
       if (visualRef.current) visualRef.current.visible = true;
 
-      // fetch the live data from whatever vehicle we are currently in
       const activeVehicleData = telemetry[active.entity];
 
-      // safely check if the active vehicle has a seat position broadcasted
-      if (activeVehicleData && "seatPosition" in activeVehicleData) {
-        // apply coordinates directly from the array to avoid block scoping issues
+      if (
+        activeVehicleData &&
+        "seatPosition" in activeVehicleData &&
+        "seatRotation" in activeVehicleData
+      ) {
+        // apply position to the physics body
         currentPosition.set(
           activeVehicleData.seatPosition[0],
           activeVehicleData.seatPosition[1],
           activeVehicleData.seatPosition[2],
         );
-
-        // snap the player physical kinematic body directly into the vehicle socket
         playerBody.setNextKinematicTranslation(currentPosition);
 
-        // optional sync player telemetry to the seat so the store always knows where we are
+        // apply dynamic world rotation only to the physics body
+        targetQuaternion.set(
+          activeVehicleData.seatRotation[0],
+          activeVehicleData.seatRotation[1],
+          activeVehicleData.seatRotation[2],
+          activeVehicleData.seatRotation[3],
+        );
+        playerBody.setNextKinematicRotation(targetQuaternion);
+
+        // hardcode the visual mesh local rotation to prevent double spinning
+        if (visualRef.current) {
+          // if the player is facing backwards in the seat change math pi to 0
+          visualRef.current.rotation.set(0, 0, 0);
+        }
+
+        // sync player telemetry to the seat so the store always knows where we are
         useVehicleStore.getState().updateTelemetry(ENTITY_ID.PLAYER_1, {
           position: [currentPosition.x, currentPosition.y, currentPosition.z],
         });
@@ -99,7 +114,7 @@ export const usePlayerCreator = (
       return;
     }
 
-    // unmount resolution we just exited a vehicle
+    // phase 2 unmount resolution we just exited a vehicle
     if (wasMounted.current) {
       wasMounted.current = false;
 
@@ -110,11 +125,14 @@ export const usePlayerCreator = (
       currentPosition.set(exitPos[0], exitPos[1], exitPos[2]);
       playerBody.setNextKinematicTranslation(currentPosition);
 
+      // force reset the physics body rotation so visual walk math aligns with the world again
+      playerBody.setNextKinematicRotation({ x: 0, y: 0, z: 0, w: 1 });
+
       // exit early this frame to let rapier cleanly resolve the teleport
       return;
     }
 
-    // on foot standard walking physics
+    // phase 3 on foot standard walking physics
     // assign controls directly since we verified we are on foot in phase 1
     const controls = controlsRef.current;
 
@@ -163,7 +181,7 @@ export const usePlayerCreator = (
       moveDir.normalize();
 
       // add math pi 180 degrees to perfectly flip the visual mesh forward
-      const angle = Math.atan2(moveDir.x, moveDir.z) + Math.PI;
+      const angle = Math.atan2(moveDir.x, moveDir.z);
 
       // convert that angle into a quaternion on the y axis
       targetQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle);
@@ -200,6 +218,9 @@ export const usePlayerCreator = (
     currentPosition.add(computedMovement as THREE.Vector3);
 
     playerBody.setNextKinematicTranslation(currentPosition);
+
+    // aggressively lock the physics capsule rotation to zero every frame so local space matches world space
+    playerBody.setNextKinematicRotation({ x: 0, y: 0, z: 0, w: 1 });
 
     // push the live coordinates to the global store without causing a re render
     useVehicleStore.getState().updateTelemetry(ENTITY_ID.PLAYER_1, {
