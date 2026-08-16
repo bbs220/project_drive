@@ -1,24 +1,45 @@
 import { create } from "zustand";
 
-// define possible control states
-export type ControlState = "car" | "plane" | "helicopter" | "on_foot";
+// class Dictionary (What kind of vehicle is it?)
+export const CONTROL_STATE = {
+  ON_FOOT: "on_foot",
+  CAR: "car",
+  PLANE: "plane",
+  HELICOPTER: "helicopter",
+} as const;
 
-// define telemetry specific to cars
-type CarTelemetry = {
-  speed: number;
+export type TypeControlState =
+  (typeof CONTROL_STATE)[keyof typeof CONTROL_STATE];
+
+// instance Dictionary (Exactly WHICH vehicle is it?)
+export const ENTITY_ID = {
+  PLAYER_1: "player_01",
+  CAR_1: "car_01",
+  PLANE_1: "plane_01",
+  HELI_1: "heli_01",
+} as const;
+
+export type TypeEntityId = (typeof ENTITY_ID)[keyof typeof ENTITY_ID];
+
+// define the exact shapes of telemetry
+export type PlayerTelemetry = {
+  position: [number, number, number];
 };
 
-// define telemetry specific to fixed wing planes
+export type CarTelemetry = {
+  speed: number;
+  position: [number, number, number];
+};
+
 export type PlaneTelemetry = {
   airspeed: number;
   altitude: number;
-  throttle: number;
   pitch: number;
   roll: number;
   yaw: number;
+  position: [number, number, number];
 };
 
-// define telemetry specific to helicopters
 export type HelicopterTelemetry = {
   airspeed: number;
   rotorRpm: number;
@@ -27,76 +48,81 @@ export type HelicopterTelemetry = {
   pitch: number;
   roll: number;
   yaw: number;
+  position: [number, number, number];
+};
+
+// map entities directly to their specific telemetry type
+export type TelemetryMap = {
+  [ENTITY_ID.PLAYER_1]: PlayerTelemetry;
+  [ENTITY_ID.CAR_1]: CarTelemetry;
+  [ENTITY_ID.PLANE_1]: PlaneTelemetry;
+  [ENTITY_ID.HELI_1]: HelicopterTelemetry;
 };
 
 // define strict global state
 type VehicleState = {
-  // track active control
-  activeControl: ControlState;
+  // active state combines WHAT we are driving and WHICH ONE we are driving
+  active: {
+    control: TypeControlState;
+    entity: TypeEntityId;
+  };
 
-  // action to swap active control
-  setActiveControl: (control: ControlState) => void;
+  // setter updated to require both parameters
+  setActive: (control: TypeControlState, entity: TypeEntityId) => void;
 
-  // strict car telemetry state and setter
-  carTelemetry: CarTelemetry;
-  setCarTelemetry: (data: Partial<CarTelemetry>) => void;
+  // telemetry is completely separated from the active state, acting as pure world data
+  telemetry: TelemetryMap;
 
-  // strict plane telemetry state and setter
-  planeTelemetry: PlaneTelemetry;
-  setPlaneTelemetry: (data: Partial<PlaneTelemetry>) => void;
-
-  // strict helicopter telemetry state and setter
-  helicopterTelemetry: HelicopterTelemetry;
-  setHelicopterTelemetry: (data: Partial<HelicopterTelemetry>) => void;
+  // single, perfectly typed update function
+  updateTelemetry: <K extends TypeEntityId>(
+    entity: K,
+    data: Partial<TelemetryMap[K]>,
+  ) => void;
 };
 
 // create and export global store
 export const useVehicleStore = create<VehicleState>((set) => ({
-  // default to car for current testing phase
-  activeControl: "on_foot",
-
-  // setter for active control
-  setActiveControl: (control) => set({ activeControl: control }),
-
-  // initialize car telemetry
-  carTelemetry: { speed: 0 },
-
-  // setter for car telemetry safely merges new data
-  setCarTelemetry: (data) =>
-    set((state) => ({
-      carTelemetry: { ...state.carTelemetry, ...data },
-    })),
-
-  // initialize plane telemetry
-  planeTelemetry: {
-    airspeed: 0,
-    altitude: 0,
-    throttle: 0,
-    pitch: 0,
-    roll: 0,
-    yaw: 0,
+  // start the game on foot as Player 1
+  active: {
+    control: CONTROL_STATE.ON_FOOT,
+    entity: ENTITY_ID.PLAYER_1,
   },
 
-  // setter for plane telemetry safely merges new data
-  setPlaneTelemetry: (data) =>
-    set((state) => ({
-      planeTelemetry: { ...state.planeTelemetry, ...data },
-    })),
+  setActive: (control, entity) => set({ active: { control, entity } }),
 
-  // initialize helicopter telemetry
-  helicopterTelemetry: {
-    airspeed: 0,
-    rotorRpm: 0,
-    altitude: 0,
-    collective: 0,
-    pitch: 0,
-    roll: 0,
-    yaw: 0,
+  // initialize the world data dictionary
+  telemetry: {
+    [ENTITY_ID.PLAYER_1]: { position: [0, 0, 0] },
+    [ENTITY_ID.CAR_1]: { speed: 0, position: [0, 0, 0] },
+    [ENTITY_ID.PLANE_1]: {
+      airspeed: 0,
+      altitude: 0,
+      pitch: 0,
+      roll: 0,
+      yaw: 0,
+      position: [0, 0, 0],
+    },
+    [ENTITY_ID.HELI_1]: {
+      airspeed: 0,
+      rotorRpm: 0,
+      altitude: 0,
+      collective: 0,
+      pitch: 0,
+      roll: 0,
+      yaw: 0,
+      position: [0, 0, 0],
+    },
   },
 
-  // setter for helicopter telemetry safely merges new data
-  setHelicopterTelemetry: (data) =>
+  // update specific entity data without touching anything else
+  updateTelemetry: (entity, data) =>
     set((state) => ({
-      helicopterTelemetry: { ...state.helicopterTelemetry, ...data },
+      telemetry: {
+        ...state.telemetry,
+        [entity]: {
+          ...state.telemetry[entity],
+          ...data,
+        },
+      },
     })),
 }));
