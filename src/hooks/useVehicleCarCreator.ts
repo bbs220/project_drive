@@ -7,7 +7,11 @@ import {
 import { type RefObject, useEffect, useRef, useMemo } from "react";
 import * as THREE from "three";
 import type { typeAllVehicleControls } from "./useAllVehicleInput";
-import { useVehicleStore } from "../stores/useVehicleStore";
+import {
+  useVehicleStore,
+  CONTROL_STATE,
+  ENTITY_ID,
+} from "../stores/useVehicleStore";
 import respawnVehicle from "../utils/respawnVehicle";
 import { unwrapParam } from "../utils/unwrapParam";
 
@@ -207,12 +211,12 @@ export const useVehicleCarCreator = (
     const steeringAngleVal = unwrapParam(tuning.steeringAngle, 0.5);
     const brakeForceVal = unwrapParam(tuning.brakeForce, 2);
 
-    // check global store to see if player is actively controlling the car
-    const { activeControl } = useVehicleStore.getState();
+    // fetch the active ECS object from the global store
+    const { active } = useVehicleStore.getState();
 
-    // intercept controls to apply parking brake and ignore inputs if player is in another vehicle
+    // strictly check against the new ECS dictionary instead of a string
     const controls =
-      activeControl === "car"
+      active.control === CONTROL_STATE.CAR
         ? controlsRef.current
         : {
             forward: false,
@@ -224,6 +228,7 @@ export const useVehicleCarCreator = (
             yawLeft: false,
             yawRight: false,
             respawn: false,
+            mount: false,
           };
 
     // manual respawn trigger
@@ -242,6 +247,9 @@ export const useVehicleCarCreator = (
     const rot = chassis.rotation();
     const chassisQuat = new THREE.Quaternion(rot.x, rot.y, rot.z, rot.w);
     const linvel = chassis.linvel();
+
+    // fetch current world translation
+    const pos = chassis.translation();
 
     // calculate local up vector to check if vehicle is flipped
     const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(chassisQuat);
@@ -352,9 +360,17 @@ export const useVehicleCarCreator = (
     // convert meters per second to kilometers per hour
     const speedKmh = Math.round(groundSpeedMs * 3.6);
 
-    // only update global state if car is actively being driven to save performance
-    if (activeControl === "car") {
-      useVehicleStore.getState().setCarTelemetry({ speed: speedKmh });
+    // update physics state variables if actively driving, BUT always broadcast position
+    if (active.control === CONTROL_STATE.CAR) {
+      useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
+        speed: speedKmh,
+        position: [pos.x, pos.y, pos.z],
+      });
+    } else {
+      // if empty, only broadcast the coordinates so the player knows where to walk to
+      useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
+        position: [pos.x, pos.y, pos.z],
+      });
     }
 
     // iterate through wheels to sync visual meshes

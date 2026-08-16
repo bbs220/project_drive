@@ -4,7 +4,11 @@ import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
 import type { RapierRigidBody } from "@react-three/rapier";
 import type { typeAllVehicleControls } from "./useAllVehicleInput";
-import { useVehicleStore } from "../stores/useVehicleStore";
+import {
+  useVehicleStore,
+  CONTROL_STATE,
+  ENTITY_ID,
+} from "../stores/useVehicleStore";
 import respawnVehicle from "../utils/respawnVehicle";
 import { unwrapParam } from "../utils/unwrapParam";
 import type { KinematicCharacterController } from "@dimforge/rapier3d-compat";
@@ -55,10 +59,12 @@ export const usePlayerCreator = (
     if (!playerRef.current || !controlsRef.current || !controllerRef.current)
       return;
 
-    const { activeControl } = useVehicleStore.getState();
+    // fetch the active ECS object from the global store
+    const { active } = useVehicleStore.getState();
 
+    // strictly check against the new ECS dictionary instead of a string
     const controls =
-      activeControl === "on_foot"
+      active.control === CONTROL_STATE.ON_FOOT
         ? controlsRef.current
         : {
             forward: false,
@@ -158,5 +164,10 @@ export const usePlayerCreator = (
     currentPosition.add(computedMovement as THREE.Vector3);
 
     playerBody.setNextKinematicTranslation(currentPosition);
+
+    // push the live coordinates to the global store without causing a re-render
+    useVehicleStore.getState().updateTelemetry(ENTITY_ID.PLAYER_1, {
+      position: [currentPosition.x, currentPosition.y, currentPosition.z],
+    });
   });
 };

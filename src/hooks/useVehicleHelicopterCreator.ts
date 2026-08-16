@@ -3,7 +3,11 @@ import { type RefObject, useRef } from "react";
 import * as THREE from "three";
 import type { RapierRigidBody } from "@react-three/rapier";
 import type { typeAllVehicleControls } from "./useAllVehicleInput";
-import { useVehicleStore } from "../stores/useVehicleStore";
+import {
+  useVehicleStore,
+  CONTROL_STATE,
+  ENTITY_ID,
+} from "../stores/useVehicleStore";
 import respawnVehicle from "../utils/respawnVehicle";
 
 export const useVehicleHelicopterCreator = (
@@ -17,19 +21,19 @@ export const useVehicleHelicopterCreator = (
   const rpmRef = useRef(0);
   const collectiveRef = useRef(0);
 
-  console.log(mainRotorRef, tailRotorRef, tuning);
+  console.groupCollapsed(mainRotorRef, tailRotorRef, tuning);
 
   // execute logic immediately after the physics engine calculates collisions
   useAfterPhysicsStep(() => {
     // exit early if references are missing
     if (!chassisRef.current || !controlsRef.current) return;
 
-    // fetch active control state from the global store
-    const { activeControl } = useVehicleStore.getState();
+    // fetch the active object from the global store
+    const { active } = useVehicleStore.getState();
 
-    // strictly gate inputs to only process when the player is actively flying
+    // strictly check against the new ECS dictionary instead of a string
     const controls =
-      activeControl === "helicopter"
+      active.control === CONTROL_STATE.HELICOPTER
         ? controlsRef.current
         : {
             forward: false,
@@ -61,5 +65,13 @@ export const useVehicleHelicopterCreator = (
       // exit the physics step early to prevent applying forces to a teleporting body
       return;
     }
+
+    // fetch current world translation from the physics engine
+    const pos = chassis.translation();
+
+    // push the live coordinates to the global store without causing a re-render
+    useVehicleStore.getState().updateTelemetry(ENTITY_ID.HELI_1, {
+      position: [pos.x, pos.y, pos.z],
+    });
   });
 };
