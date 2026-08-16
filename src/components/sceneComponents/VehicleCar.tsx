@@ -1,6 +1,6 @@
 import {
-  CuboidCollider,
   RigidBody,
+  RoundCuboidCollider,
   type RapierRigidBody,
 } from "@react-three/rapier";
 import { forwardRef, useMemo, useRef } from "react";
@@ -130,6 +130,7 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
   const cWidth = unwrapParam(tuningParams.chassisWidth, 1.6);
   const cHeight = unwrapParam(tuningParams.chassisHeight, 0.8);
   const cLength = unwrapParam(tuningParams.chassisLength, 3);
+  const cBorderRadius = unwrapParam(tuningParams.chassisBorderRadius, 0.1);
   const cPosX = unwrapParam(tuningParams.chassisPosX, 0);
   const cPosY = unwrapParam(tuningParams.chassisPosY, 0.4);
   const cPosZ = unwrapParam(tuningParams.chassisPosZ, 0);
@@ -149,8 +150,8 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
         mass={mass}
         canSleep={false}
       >
-        <CuboidCollider
-          args={[cWidth / 2, cHeight / 2, cLength / 2]}
+        <RoundCuboidCollider
+          args={[cWidth / 2, cHeight / 2, cLength / 2, cBorderRadius]}
           position={[cPosX, cPosY, cPosZ]}
         />
 

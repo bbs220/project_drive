@@ -50,8 +50,9 @@ export const vehicleCarConstants = {
   tuning: {
     // chassis colliders & spatial anchors
     chassisWidth: { value: 2.8, min: 0.5, max: 10, label: "width" },
-    chassisHeight: { value: 0.6, min: 0.2, max: 10, label: "height" },
+    chassisHeight: { value: 0.55, min: 0.2, max: 10, label: "height" },
     chassisLength: { value: 4.8, min: 2, max: 10, label: "length" },
+    chassisBorderRadius: { value: 0.1, min: 0.1, max: 1, label: "edge radius" },
     mass: { value: 200, min: 100, max: 2000, label: "mass" },
     chassisPosX: { value: 0, min: -10, max: 10, label: "chassis pos x" },
     chassisPosY: { value: 0.4, min: -10, max: 10, label: "chassis pos y" },
