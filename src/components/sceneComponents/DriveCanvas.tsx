@@ -90,10 +90,10 @@ const DriveScene = () => {
       <Stats showPanel={sceneConstants.isDev ? 0 : 4} />
       <BackgroundLight />
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
-      <Player ref={playerRef} />
       <VehicleCar ref={carRef} />
       <VehicleHelicopter ref={heliRef} />
       <VehiclePlane ref={planeRef} />
+      <Player ref={playerRef} />
       <ChunkManager targetRef={activeTargetRef} />
     </>
   );

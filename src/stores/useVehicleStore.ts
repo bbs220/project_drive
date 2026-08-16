@@ -30,6 +30,7 @@ export type CarTelemetry = {
   speed: number;
   position: [number, number, number];
   seatPosition: [number, number, number];
+  seatRotation: [number, number, number, number];
 };
 
 export type PlaneTelemetry = {
@@ -40,6 +41,7 @@ export type PlaneTelemetry = {
   yaw: number;
   position: [number, number, number];
   seatPosition: [number, number, number];
+  seatRotation: [number, number, number, number];
 };
 
 export type HelicopterTelemetry = {
@@ -52,6 +54,7 @@ export type HelicopterTelemetry = {
   yaw: number;
   position: [number, number, number];
   seatPosition: [number, number, number];
+  seatRotation: [number, number, number, number];
 };
 
 // map entities directly to their specific telemetry type
@@ -100,6 +103,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
       speed: 0,
       position: [0, 0, 0],
       seatPosition: [0, 0, 0],
+      seatRotation: [0, 0, 0, 1],
     },
     [ENTITY_ID.PLANE_1]: {
       airspeed: 0,
@@ -109,6 +113,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
       yaw: 0,
       position: [0, 0, 0],
       seatPosition: [0, 0, 0],
+      seatRotation: [0, 0, 0, 1],
     },
     [ENTITY_ID.HELI_1]: {
       airspeed: 0,
@@ -120,6 +125,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
       yaw: 0,
       position: [0, 0, 0],
       seatPosition: [0, 0, 0],
+      seatRotation: [0, 0, 0, 1],
     },
   },
 
