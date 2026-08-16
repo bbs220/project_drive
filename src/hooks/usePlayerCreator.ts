@@ -42,6 +42,9 @@ export const usePlayerCreator = (
   const controllerRef = useRef<KinematicCharacterController>(null);
   const verticalVelocity = useRef(0);
 
+  // locally track if we were in a vehicle last frame to handle safe dismount teleportation
+  const wasMounted = useRef(false);
+
   useEffect(() => {
     const controller = world.createCharacterController(0.1);
     controller.setApplyImpulsesToDynamicBodies(true);
@@ -59,28 +62,61 @@ export const usePlayerCreator = (
     if (!playerRef.current || !controlsRef.current || !controllerRef.current)
       return;
 
-    // fetch the active ECS object from the global store
-    const { active } = useVehicleStore.getState();
-
-    // strictly check against the new ECS dictionary instead of a string
-    const controls =
-      active.control === CONTROL_STATE.ON_FOOT
-        ? controlsRef.current
-        : {
-            forward: false,
-            backward: false,
-            left: false,
-            right: false,
-            brake: false,
-            boost: false,
-            yawLeft: false,
-            yawRight: false,
-            respawn: false,
-            mount: false,
-          };
-
+    // fetch the active ecs object and telemetry dictionary from the global store
+    const { active, telemetry } = useVehicleStore.getState();
     const playerBody = playerRef.current;
     const controller = controllerRef.current;
+
+    // mounted we are driving a vehicle
+    if (active.control !== CONTROL_STATE.ON_FOOT) {
+      wasMounted.current = true;
+
+      // ensure visual mesh stays visible so we can see the player in the driver seat
+      if (visualRef.current) visualRef.current.visible = true;
+
+      // fetch the live data from whatever vehicle we are currently in
+      const activeVehicleData = telemetry[active.entity];
+
+      // safely check if the active vehicle has a seat position broadcasted
+      if (activeVehicleData && "seatPosition" in activeVehicleData) {
+        // apply coordinates directly from the array to avoid block scoping issues
+        currentPosition.set(
+          activeVehicleData.seatPosition[0],
+          activeVehicleData.seatPosition[1],
+          activeVehicleData.seatPosition[2],
+        );
+
+        // snap the player physical kinematic body directly into the vehicle socket
+        playerBody.setNextKinematicTranslation(currentPosition);
+
+        // optional sync player telemetry to the seat so the store always knows where we are
+        useVehicleStore.getState().updateTelemetry(ENTITY_ID.PLAYER_1, {
+          position: [currentPosition.x, currentPosition.y, currentPosition.z],
+        });
+      }
+
+      // exit early so wasd does not apply walking math while driving
+      return;
+    }
+
+    // unmount resolution we just exited a vehicle
+    if (wasMounted.current) {
+      wasMounted.current = false;
+
+      // the mount system pre loaded the player telemetry with a safe exit coordinate
+      const exitPos = telemetry[ENTITY_ID.PLAYER_1].position;
+
+      // instantly snap the player to the street next to the car
+      currentPosition.set(exitPos[0], exitPos[1], exitPos[2]);
+      playerBody.setNextKinematicTranslation(currentPosition);
+
+      // exit early this frame to let rapier cleanly resolve the teleport
+      return;
+    }
+
+    // on foot standard walking physics
+    // assign controls directly since we verified we are on foot in phase 1
+    const controls = controlsRef.current;
 
     if (controls.respawn) {
       respawnVehicle({
@@ -113,26 +149,26 @@ export const usePlayerCreator = (
 
     moveDir.set(0, 0, 0);
 
-    // standard signs: W adds the forward vector, S subtracts it
+    // standard signs w adds the forward vector s subtracts it
     if (controls.forward) moveDir.add(cameraFront);
     if (controls.backward) moveDir.sub(cameraFront);
 
-    // standard signs: D adds the right vector, A subtracts it
+    // standard signs d adds the right vector a subtracts it
     if (controls.left) moveDir.sub(cameraRight);
     if (controls.right) moveDir.add(cameraRight);
 
-    // if we are actively pressing movement keys, calculate which way the mesh should face
+    // if we are actively pressing movement keys calculate which way the mesh should face
     if (moveDir.lengthSq() > 0 && visualRef.current) {
-      // normalize the diagonal vector so we don't move too fast
+      // normalize the diagonal vector so we do not move too fast
       moveDir.normalize();
 
-      // add math.pi (180 degrees) to perfectly flip the visual mesh forward
+      // add math pi 180 degrees to perfectly flip the visual mesh forward
       const angle = Math.atan2(moveDir.x, moveDir.z) + Math.PI;
 
       // convert that angle into a quaternion on the y axis
       targetQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle);
 
-      // smoothly slerp (spherical linear interpolation) the visual mesh towards the target angle
+      // smoothly slerp spherical linear interpolation the visual mesh towards the target angle
       visualRef.current.quaternion.slerp(targetQuaternion, 0.15);
 
       // finally apply the speed to the normalized vector
@@ -165,7 +201,7 @@ export const usePlayerCreator = (
 
     playerBody.setNextKinematicTranslation(currentPosition);
 
-    // push the live coordinates to the global store without causing a re-render
+    // push the live coordinates to the global store without causing a re render
     useVehicleStore.getState().updateTelemetry(ENTITY_ID.PLAYER_1, {
       position: [currentPosition.x, currentPosition.y, currentPosition.z],
     });

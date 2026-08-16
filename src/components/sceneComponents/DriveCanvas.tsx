@@ -23,6 +23,7 @@ import BackgroundLight from "./BackgroundLight";
 import PostprocessingEffects from "./PostprocessingEffects";
 import ChunkManager from "./ChunkManager";
 import Player from "./Player";
+import { useMountSystem } from "../../hooks/useMountSystem";
 
 const DriveScene = () => {
   // initialize refs for all instantiated vehicles and player
@@ -30,6 +31,8 @@ const DriveScene = () => {
   const heliRef = useRef<THREE.Group>(null);
   const planeRef = useRef<THREE.Group>(null);
   const playerRef = useRef<THREE.Group>(null);
+
+  useMountSystem();
 
   // fetch active object (containing control type and entity id) and setter
   const active = useVehicleStore((state) => state.active);

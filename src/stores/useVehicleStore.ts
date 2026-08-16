@@ -29,6 +29,7 @@ export type PlayerTelemetry = {
 export type CarTelemetry = {
   speed: number;
   position: [number, number, number];
+  seatPosition: [number, number, number];
 };
 
 export type PlaneTelemetry = {
@@ -38,6 +39,7 @@ export type PlaneTelemetry = {
   roll: number;
   yaw: number;
   position: [number, number, number];
+  seatPosition: [number, number, number];
 };
 
 export type HelicopterTelemetry = {
@@ -49,6 +51,7 @@ export type HelicopterTelemetry = {
   roll: number;
   yaw: number;
   position: [number, number, number];
+  seatPosition: [number, number, number];
 };
 
 // map entities directly to their specific telemetry type
@@ -93,7 +96,11 @@ export const useVehicleStore = create<VehicleState>((set) => ({
   // initialize the world data dictionary
   telemetry: {
     [ENTITY_ID.PLAYER_1]: { position: [0, 0, 0] },
-    [ENTITY_ID.CAR_1]: { speed: 0, position: [0, 0, 0] },
+    [ENTITY_ID.CAR_1]: {
+      speed: 0,
+      position: [0, 0, 0],
+      seatPosition: [0, 0, 0],
+    },
     [ENTITY_ID.PLANE_1]: {
       airspeed: 0,
       altitude: 0,
@@ -101,6 +108,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
       roll: 0,
       yaw: 0,
       position: [0, 0, 0],
+      seatPosition: [0, 0, 0],
     },
     [ENTITY_ID.HELI_1]: {
       airspeed: 0,
@@ -111,6 +119,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
       roll: 0,
       yaw: 0,
       position: [0, 0, 0],
+      seatPosition: [0, 0, 0],
     },
   },
 

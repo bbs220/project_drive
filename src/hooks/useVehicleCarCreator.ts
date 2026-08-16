@@ -360,16 +360,30 @@ export const useVehicleCarCreator = (
     // convert meters per second to kilometers per hour
     const speedKmh = Math.round(groundSpeedMs * 3.6);
 
-    // update physics state variables if actively driving, BUT always broadcast position
+    // define the local seat offset (tweak these to perfectly fit your pink mesh in the seat)
+    // currently set to left-hand drive (positive x), slightly up (y), slightly forward (z)
+    const localSeatOffset = new THREE.Vector3(0, 2, 0);
+
+    // apply the car's current physical rotation to the offset
+    localSeatOffset.applyQuaternion(chassisQuat);
+
+    // add the car's world position to get the true 3D coordinate of the seat
+    const worldSeat = new THREE.Vector3(pos.x, pos.y, pos.z).add(
+      localSeatOffset,
+    );
+
+    // update physics state variables if actively driving, BUT always broadcast position and seat
     if (active.control === CONTROL_STATE.CAR) {
       useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
         speed: speedKmh,
         position: [pos.x, pos.y, pos.z],
+        seatPosition: [worldSeat.x, worldSeat.y, worldSeat.z],
       });
     } else {
-      // if empty, only broadcast the coordinates so the player knows where to walk to
+      // if empty, only broadcast the coordinates so the player knows where to walk/sit
       useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
         position: [pos.x, pos.y, pos.z],
+        seatPosition: [worldSeat.x, worldSeat.y, worldSeat.z],
       });
     }
 
