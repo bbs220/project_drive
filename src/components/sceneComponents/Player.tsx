@@ -69,7 +69,9 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
             </mesh>
 
             {/* neon cyan visor/nose to clearly indicate the forward facing direction */}
-            <mesh position={[0, capsuleHalfHeight * 0.5, capsuleRadius + 0.1]}>
+            <mesh
+              position={[0, capsuleHalfHeight * 0.5, -(capsuleRadius + 0.1)]}
+            >
               <boxGeometry args={[0.4, 0.15, 0.3]} />
               <meshStandardMaterial color="cyan" />
             </mesh>

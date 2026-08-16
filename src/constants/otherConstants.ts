@@ -23,7 +23,7 @@ export const vehicleRespawnValues = {
 
 export const playerRespawnValues = {
   position: [0, 5, 10] as [number, number, number],
-  rotation: [0, Math.PI, 0] as [number, number, number],
+  rotation: [0, 0, 0] as [number, number, number],
 };
 
 export const playerConstants = {

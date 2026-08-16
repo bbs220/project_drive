@@ -100,8 +100,8 @@ export const usePlayerCreator = (
 
         // hardcode the visual mesh local rotation to prevent double spinning
         if (visualRef.current) {
-          // if the player is facing backwards in the seat change math pi to 0
-          visualRef.current.rotation.set(0, 0, 0);
+          // flip the player 180 degrees on the y axis to align with the car forward
+          visualRef.current.rotation.set(0, Math.PI, 0);
         }
 
         // sync player telemetry to the seat so the store always knows where we are
@@ -123,10 +123,13 @@ export const usePlayerCreator = (
 
       // instantly snap the player to the street next to the car
       currentPosition.set(exitPos[0], exitPos[1], exitPos[2]);
-      playerBody.setNextKinematicTranslation(currentPosition);
-
       // force reset the physics body rotation so visual walk math aligns with the world again
       playerBody.setNextKinematicRotation({ x: 0, y: 0, z: 0, w: 1 });
+
+      // instantly untwist the visual mesh so you do not stand backward on the street
+      if (visualRef.current) {
+        visualRef.current.rotation.set(0, 0, 0);
+      }
 
       // exit early this frame to let rapier cleanly resolve the teleport
       return;
@@ -181,7 +184,7 @@ export const usePlayerCreator = (
       moveDir.normalize();
 
       // add math pi 180 degrees to perfectly flip the visual mesh forward
-      const angle = Math.atan2(moveDir.x, moveDir.z);
+      const angle = Math.atan2(moveDir.x, moveDir.z) + Math.PI;
 
       // convert that angle into a quaternion on the y axis
       targetQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle);
