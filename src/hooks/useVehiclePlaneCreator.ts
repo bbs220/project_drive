@@ -38,7 +38,6 @@ export const useVehiclePlaneCreator = (
             yawLeft: false,
             yawRight: false,
             respawn: false,
-            mount: false,
           };
 
     const chassis = chassisRef.current;
