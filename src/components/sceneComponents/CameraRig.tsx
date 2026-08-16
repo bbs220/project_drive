@@ -3,7 +3,11 @@ import { OrbitControls } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
-import { useVehicleStore } from "../../stores/useVehicleStore";
+import {
+  useVehicleStore,
+  CONTROL_STATE,
+  type TypeControlState,
+} from "../../stores/useVehicleStore";
 
 // define props with optional debug flag
 type typeCameraRigProps = {
@@ -92,18 +96,19 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
     // exit early if debug mode is active or target is missing
     if (debugMode || !targetRef.current) return;
 
-    // fetch the currently active vehicle from global state
-    const { activeControl } = useVehicleStore.getState();
+    // fetch the currently active vehicle from the new global state object
+    const { active } = useVehicleStore.getState();
 
-    // determine the correct locked distance based on the vehicle type
-    let targetRadius = params.carDistance as number;
-    if (activeControl === "on_foot") {
-      targetRadius = params.playerDistance as number;
-    } else if (activeControl === "helicopter") {
-      targetRadius = params.heliDistance as number;
-    } else if (activeControl === "plane") {
-      targetRadius = params.planeDistance as number;
-    }
+    // strictly map the control states to the tweakpane distances
+    const distanceMap: Record<TypeControlState, number> = {
+      [CONTROL_STATE.ON_FOOT]: params.playerDistance as number,
+      [CONTROL_STATE.CAR]: params.carDistance as number,
+      [CONTROL_STATE.HELICOPTER]: params.heliDistance as number,
+      [CONTROL_STATE.PLANE]: params.planeDistance as number,
+    };
+
+    // determine the correct locked distance based on the active control type
+    const targetRadius = distanceMap[active.control];
 
     // smoothly lerp the spherical radius so the camera dynamically pushes in and out when swapping vehicles
     spherical.current.radius = THREE.MathUtils.lerp(

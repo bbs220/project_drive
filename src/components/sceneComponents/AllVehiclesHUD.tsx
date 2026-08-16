@@ -1,6 +1,10 @@
 import { Fragment } from "react";
 import { respawnLimit } from "../../constants/otherConstants";
-import { useVehicleStore } from "../../stores/useVehicleStore";
+import {
+  useVehicleStore,
+  CONTROL_STATE,
+  ENTITY_ID,
+} from "../../stores/useVehicleStore";
 
 // define strict type for our generic control items
 type typeControlItem = {
@@ -234,61 +238,53 @@ const AltimeterTape = ({ altitude }: { altitude: number }) => {
 // main heads up display wrapper
 const AllVehiclesHUD = () => {
   // subscribe to active control state to conditionally render ui
-  const activeControl = useVehicleStore((state) => state.activeControl);
+  const activeControl = useVehicleStore((state) => state.active.control);
 
-  // subscribe to strict car telemetry speed from global store
+  // subscribe to strict car telemetry from global store via exact entity ID
   const currentCarSpeed = useVehicleStore(
-    (state) => state.carTelemetry?.speed || 0,
+    (state) => state.telemetry[ENTITY_ID.CAR_1].speed,
   );
 
-  // subscribe to strict helicopter telemetry altitude from global store
+  // subscribe to strict helicopter telemetry from global store via exact entity ID
   const currentHeliAltitude = useVehicleStore(
-    (state) => state.helicopterTelemetry?.altitude || 0,
+    (state) => state.telemetry[ENTITY_ID.HELI_1].altitude,
   );
 
-  // subscribe to strict helicopter telemetry airspeed from global store
   const currentHeliAirspeed = useVehicleStore(
-    (state) => state.helicopterTelemetry?.airspeed || 0,
+    (state) => state.telemetry[ENTITY_ID.HELI_1].airspeed,
   );
 
-  // subscribe to strict helicopter telemetry pitch from global store
   const currentHeliPitch = useVehicleStore(
-    (state) => state.helicopterTelemetry?.pitch || 0,
+    (state) => state.telemetry[ENTITY_ID.HELI_1].pitch,
   );
 
-  // subscribe to strict helicopter telemetry roll from global store
   const currentHeliRoll = useVehicleStore(
-    (state) => state.helicopterTelemetry?.roll || 0,
+    (state) => state.telemetry[ENTITY_ID.HELI_1].roll,
   );
 
-  // subscribe to strict helicopter telemetry yaw from global store for the compass bezel
   const currentHeliYaw = useVehicleStore(
-    (state) => state.helicopterTelemetry?.yaw || 0,
+    (state) => state.telemetry[ENTITY_ID.HELI_1].yaw,
   );
 
-  // subscribe to strict plane telemetry airspeed from global store
+  // subscribe to strict plane telemetry from global store via exact entity ID
   const currentPlaneAirspeed = useVehicleStore(
-    (state) => state.planeTelemetry?.airspeed || 0,
+    (state) => state.telemetry[ENTITY_ID.PLANE_1].airspeed,
   );
 
-  // subscribe to strict plane telemetry altitude from global store
   const currentPlaneAltitude = useVehicleStore(
-    (state) => state.planeTelemetry?.altitude || 0,
+    (state) => state.telemetry[ENTITY_ID.PLANE_1].altitude,
   );
 
-  // subscribe to strict plane telemetry pitch from global store
   const currentPlanePitch = useVehicleStore(
-    (state) => state.planeTelemetry?.pitch || 0,
+    (state) => state.telemetry[ENTITY_ID.PLANE_1].pitch,
   );
 
-  // subscribe to strict plane telemetry roll from global store
   const currentPlaneRoll = useVehicleStore(
-    (state) => state.planeTelemetry?.roll || 0,
+    (state) => state.telemetry[ENTITY_ID.PLANE_1].roll,
   );
 
-  // subscribe to strict plane telemetry yaw from global store for the compass bezel
   const currentPlaneYaw = useVehicleStore(
-    (state) => state.planeTelemetry?.yaw || 0,
+    (state) => state.telemetry[ENTITY_ID.PLANE_1].yaw,
   );
 
   // pad speed strings for arcade styling
@@ -300,7 +296,7 @@ const AllVehiclesHUD = () => {
     // full screen non interactive overlay
     <div className="pointer-events-none absolute inset-0 z-10">
       {/* only render player display if character is on foot */}
-      {activeControl === "on_foot" && (
+      {activeControl === CONTROL_STATE.ON_FOOT && (
         <>
           {/* dynamic player controls */}
           <SharedControlsDisplay
@@ -314,7 +310,7 @@ const AllVehiclesHUD = () => {
       )}
 
       {/* only render car display if player is actively driving */}
-      {activeControl === "car" && (
+      {activeControl === CONTROL_STATE.CAR && (
         <>
           {/* dynamic car controls */}
           <SharedControlsDisplay
@@ -342,7 +338,7 @@ const AllVehiclesHUD = () => {
       )}
 
       {/* only render helicopter display if player is actively flying */}
-      {activeControl === "helicopter" && (
+      {activeControl === CONTROL_STATE.HELICOPTER && (
         <>
           {/* dynamic helicopter controls */}
           <SharedControlsDisplay
@@ -380,7 +376,7 @@ const AllVehiclesHUD = () => {
       )}
 
       {/* only render plane display if player is actively flying */}
-      {activeControl === "plane" && (
+      {activeControl === CONTROL_STATE.PLANE && (
         <>
           {/* dynamic plane controls */}
           <SharedControlsDisplay

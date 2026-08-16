@@ -13,7 +13,10 @@ import VehicleHelicopter from "./VehicleHelicopter";
 import VehiclePlane from "./VehiclePlane";
 import {
   useVehicleStore,
-  type ControlState,
+  CONTROL_STATE,
+  ENTITY_ID,
+  type TypeControlState,
+  type TypeEntityId,
 } from "../../stores/useVehicleStore";
 import ProceduralRadar from "../ProceduralRadar";
 import BackgroundLight from "./BackgroundLight";
@@ -28,42 +31,51 @@ const DriveScene = () => {
   const planeRef = useRef<THREE.Group>(null);
   const playerRef = useRef<THREE.Group>(null);
 
-  // fetch active vehicle and setter from global store
-  const activeControl = useVehicleStore((state) => state.activeControl);
-  const setActiveControl = useVehicleStore((state) => state.setActiveControl);
+  // fetch active object (containing control type and entity id) and setter
+  const active = useVehicleStore((state) => state.active);
+  const setActive = useVehicleStore((state) => state.setActive);
 
-  // determine active reference based on state mapping
+  // determine active reference based on strict state mapping
   const activeTargetRef =
-    activeControl === "helicopter"
+    active.control === CONTROL_STATE.HELICOPTER
       ? heliRef
-      : activeControl === "plane"
+      : active.control === CONTROL_STATE.PLANE
         ? planeRef
-        : activeControl === "on_foot"
+        : active.control === CONTROL_STATE.ON_FOOT
           ? playerRef
           : carRef;
 
-  // configure debug tools with dynamic dropdown options
+  // configure debug tools with dynamic dropdown options pulling from the enum
   const { cameraDebug, activeVehicle } = useTweakpane(
     { title: "☀️ Scene" },
     {
       cameraDebug: { value: true, label: "camera debug" },
       activeVehicle: {
-        value: activeControl as ControlState,
+        value: active.control,
         label: "current vehicle",
         options: {
-          on_foot: "on_foot",
-          car: "car",
-          helicopter: "helicopter",
-          plane: "plane",
+          on_foot: CONTROL_STATE.ON_FOOT,
+          car: CONTROL_STATE.CAR,
+          helicopter: CONTROL_STATE.HELICOPTER,
+          plane: CONTROL_STATE.PLANE,
         },
       },
     },
   );
 
-  // sync dropdown state to global store
+  // sync dropdown state to global store using strict ECS entity mappings
   useEffect(() => {
-    setActiveControl(activeVehicle as ControlState);
-  }, [activeVehicle, setActiveControl]);
+    // deduce the correct entity id based on the dropdown selection
+    let targetEntity: TypeEntityId = ENTITY_ID.PLAYER_1;
+
+    if (activeVehicle === CONTROL_STATE.CAR) targetEntity = ENTITY_ID.CAR_1;
+    if (activeVehicle === CONTROL_STATE.HELICOPTER)
+      targetEntity = ENTITY_ID.HELI_1;
+    if (activeVehicle === CONTROL_STATE.PLANE) targetEntity = ENTITY_ID.PLANE_1;
+
+    // push both the class and the instance ID to the store
+    setActive(activeVehicle as TypeControlState, targetEntity);
+  }, [activeVehicle, setActive]);
 
   return (
     <>

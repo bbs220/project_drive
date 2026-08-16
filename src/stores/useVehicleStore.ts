@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-// class Dictionary (What kind of vehicle is it?)
+// class dictionary (what kind of vehicle is it?)
 export const CONTROL_STATE = {
   ON_FOOT: "on_foot",
   CAR: "car",
@@ -11,7 +11,7 @@ export const CONTROL_STATE = {
 export type TypeControlState =
   (typeof CONTROL_STATE)[keyof typeof CONTROL_STATE];
 
-// instance Dictionary (Exactly WHICH vehicle is it?)
+// instance dictionary (exactly which vehicle is it?)
 export const ENTITY_ID = {
   PLAYER_1: "player_01",
   CAR_1: "car_01",
@@ -61,7 +61,7 @@ export type TelemetryMap = {
 
 // define strict global state
 type VehicleState = {
-  // active state combines WHAT we are driving and WHICH ONE we are driving
+  // active state combines what we are driving and which one we are driving
   active: {
     control: TypeControlState;
     entity: TypeEntityId;
