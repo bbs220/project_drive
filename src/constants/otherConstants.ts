@@ -148,9 +148,28 @@ export const vehicleHelicopterConstants = {
     skidLength: { value: 2, min: 0.1, max: 10, label: "skid length" },
     skidHeight: { value: -2.4, min: -5, max: 5, label: "skid height" },
     tailRadius: { value: 0.6, min: 0.1, max: 5, label: "tail radius" },
-    tailMass: { value: 2, min: 1, max: 100, label: "tail mass" },
+    tailMass: { value: 0.1, min: 0.1, max: 100, label: "tail mass" },
     tailPosZ: { value: 7.4, min: 0, max: 20, label: "tail pos z" },
     tailPosY: { value: 0.7, min: -5, max: 10, label: "tail pos y" },
+
+    // physics flight mechanics
+    liftForce: { value: 2000, min: 1000, max: 5000, label: "lift force" },
+    descendForce: { value: 2000, min: 500, max: 2000, label: "descend force" },
+    pitchTorque: { value: 400, min: 10, max: 2000, label: "pitch torque" },
+    rollTorque: { value: 400, min: 10, max: 2000, label: "roll torque" },
+    yawTorque: { value: 400, min: 10, max: 2000, label: "yaw torque" },
+    rotorSpeed: { value: 20, min: 1, max: 50, label: "rotor speed" },
+    autoLevelStrength: {
+      value: 1500,
+      min: 10,
+      max: 5000,
+      label: "auto level str",
+    },
+    angularDamping: { value: 0.95, min: 0, max: 1, label: "angular damping" },
+
+    // arcade limiters
+    altitudeLimit: { value: 200, min: 50, max: 1000, label: "altitude limit" },
+    maxLeanAngle: { value: 30, min: 5, max: 90, label: "max lean deg" },
   },
   physics: {},
 };
