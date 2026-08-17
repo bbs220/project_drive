@@ -122,6 +122,26 @@ export const vehiclePlaneConstants = {
       max: 10,
       label: "bearing offset y",
     },
+
+    // physics flight mechanics
+    engineForce: { value: 40, min: 1, max: 200, label: "engine force" },
+    liftMultiplier: { value: 0.8, min: 0.1, max: 5, label: "lift multiplier" },
+    pitchTorque: { value: 1200, min: 100, max: 5000, label: "pitch torque" },
+    rollTorque: { value: 1800, min: 100, max: 5000, label: "roll torque" },
+    yawTorque: { value: 800, min: 100, max: 5000, label: "yaw torque" },
+    dragCoefficient: { value: 0.05, min: 0, max: 0.5, label: "drag coeff" },
+    angularDamping: { value: 0.95, min: 0, max: 1, label: "angular damping" },
+    autoLevelStrength: {
+      value: 800,
+      min: 0,
+      max: 5000,
+      label: "auto level str",
+    },
+
+    // arcade limiters
+    maxSpeed: { value: 150, min: 50, max: 500, label: "max speed" },
+    altitudeLimit: { value: 300, min: 50, max: 1500, label: "altitude limit" },
+    maxLeanAngle: { value: 30, min: 5, max: 90, label: "max lean deg" },
   },
   physics: {},
 };

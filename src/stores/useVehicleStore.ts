@@ -35,6 +35,7 @@ export type CarTelemetry = {
 
 export type PlaneTelemetry = {
   airspeed: number;
+  throttle: number;
   altitude: number;
   pitch: number;
   roll: number;
@@ -107,6 +108,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
     },
     [ENTITY_ID.PLANE_1]: {
       airspeed: 0,
+      throttle: 0,
       altitude: 0,
       pitch: 0,
       roll: 0,
