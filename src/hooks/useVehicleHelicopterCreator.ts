@@ -156,13 +156,22 @@ export const useVehicleHelicopterCreator = (
       delta * 4,
     );
 
-    // rotate visual meshes based on current rpm
+    // dynamically scale visual rotor speed based on altitude limits
+    let extraRotorSpeed = 0;
+    if (pos.y >= 100) {
+      extraRotorSpeed = 30;
+    } else if (pos.y >= 10) {
+      extraRotorSpeed = 20;
+    }
+    const finalRotorSpeed = rotorSpeedVal + extraRotorSpeed;
+
+    // rotate visual meshes based on current rpm and altitude multiplier
     if (mainRotorRef.current) {
-      mainRotorRef.current.rotateY(rotorSpeedVal * rpmRef.current * delta);
+      mainRotorRef.current.rotateY(finalRotorSpeed * rpmRef.current * delta);
     }
     if (tailRotorRef.current) {
       // rotate x or z depending on how your tail rotor was exported
-      tailRotorRef.current.rotateX(rotorSpeedVal * rpmRef.current * delta);
+      tailRotorRef.current.rotateX(finalRotorSpeed * rpmRef.current * delta);
     }
 
     // only apply physics forces if the rotors are actually spinning
@@ -260,15 +269,23 @@ export const useVehicleHelicopterCreator = (
       localSeatOffset,
     );
 
+    // the helicopter model faces positive z so we rotate the seat 180 degrees on y
+    // this guarantees the player mesh which natively faces negative z sits looking forward
+    const seatRotationOffset = new THREE.Quaternion().setFromAxisAngle(
+      new THREE.Vector3(0, 1, 0),
+      Math.PI,
+    );
+    const finalSeatQuat = quaternion.clone().multiply(seatRotationOffset);
+
     // format strict rotation array for the player hook to consume
     const seatRot: [number, number, number, number] = [
-      quaternion.x,
-      quaternion.y,
-      quaternion.z,
-      quaternion.w,
+      finalSeatQuat.x,
+      finalSeatQuat.y,
+      finalSeatQuat.z,
+      finalSeatQuat.w,
     ];
 
-    // always broadcast full telemetry so UI and mount systems function properly
+    // always broadcast full telemetry so ui and mount systems function properly
     useVehicleStore.getState().updateTelemetry(ENTITY_ID.HELI_1, {
       airspeed: Math.round(currentSpeed * 3.6),
       rotorRpm: rpmRef.current,
