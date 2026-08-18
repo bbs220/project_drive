@@ -12,7 +12,7 @@ const WelcomePage = () => {
 
   return (
     // main container with deep void background and faint cyan grid
-    <div className="relative flex min-h-screen w-screen flex-col items-center justify-center bg-tron-bg bg-[linear-gradient(rgba(0,243,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,243,255,0.03)_1px,transparent_1px)] bg-size-[40px_40px]">
+    <div className="relative flex min-h-screen w-screen flex-col items-center justify-center bg-tron-bg bg-[linear-gradient(rgba(0,243,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,243,255,0.03)_1px,transparent_1px)] bg-size-[40px_40px] select-none">
       {/* background ambient magenta glow */}
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-150 w-150 -translate-x-1/2 -translate-y-1/2 bg-tron-magenta/10 blur-[120px]"></div>
 

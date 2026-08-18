@@ -1,12 +1,20 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-type typeAppState = {
+type typeAppStore = {
   // tracks the active environment
   activeScene: "welcome" | "drive" | "garage";
   setActiveScene: (scene: "welcome" | "drive" | "garage") => void;
 };
 
-export const useAppStore = create<typeAppState>((set) => ({
-  activeScene: "welcome",
-  setActiveScene: (scene) => set({ activeScene: scene }),
-}));
+export const useAppStore = create<typeAppStore>()(
+  persist(
+    (set) => ({
+      activeScene: "welcome",
+      setActiveScene: (scene) => set({ activeScene: scene }),
+    }),
+    {
+      name: "app-store-storage",
+    },
+  ),
+);
