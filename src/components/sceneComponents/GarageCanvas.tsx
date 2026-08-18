@@ -10,6 +10,8 @@ import Floor from "./Floor";
 import PostprocessingEffects from "./PostprocessingEffects";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { bankHDR } from "../../utils/assetpaths";
+import { Physics } from "@react-three/rapier";
+import CustomizationUI from "../CustomizationUI";
 
 const GarageScene = () => {
   return (
@@ -91,10 +93,15 @@ const GarageCanvas = () => {
 
   return (
     // enabling shadows is critical for the showroom aesthetic
-    <Canvas shadows={"soft"} dpr={setDpr}>
-      <GarageScene />
-      <PostprocessingEffects />
-    </Canvas>
+    <>
+      <Canvas shadows={"soft"} dpr={setDpr}>
+        <Physics>
+          <GarageScene />
+          <PostprocessingEffects />
+        </Physics>
+      </Canvas>
+      <CustomizationUI />
+    </>
   );
 };
 

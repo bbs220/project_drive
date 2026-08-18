@@ -43,11 +43,15 @@ export const useMountSystem = () => {
         ...telemetry[ENTITY_ID.PLAYER_1].position,
       );
 
-      // define strict list of mountable vehicles mapped to their entities
+      // define strict list of mountable vehicles mapped to their entities and their custom grab radii!
       const vehicles = [
-        { control: CONTROL_STATE.CAR, entity: ENTITY_ID.CAR_1 },
-        { control: CONTROL_STATE.HELICOPTER, entity: ENTITY_ID.HELI_1 },
-        { control: CONTROL_STATE.PLANE, entity: ENTITY_ID.PLANE_1 },
+        { control: CONTROL_STATE.CAR, entity: ENTITY_ID.CAR_1, radius: 4 },
+        {
+          control: CONTROL_STATE.HELICOPTER,
+          entity: ENTITY_ID.HELI_1,
+          radius: 5,
+        },
+        { control: CONTROL_STATE.PLANE, entity: ENTITY_ID.PLANE_1, radius: 8 },
       ];
 
       let closestVehicle = null;
@@ -58,8 +62,8 @@ export const useMountSystem = () => {
         const vPos = new THREE.Vector3(...telemetry[v.entity].position);
         const dist = playerPos.distanceTo(vPos);
 
-        // register vehicle as target if it is within 4 meters
-        if (dist < 4 && dist < minDistance) {
+        // register vehicle as target if it is within its custom radius
+        if (dist < v.radius && dist < minDistance) {
           minDistance = dist;
           closestVehicle = v;
         }

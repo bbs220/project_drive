@@ -1,14 +1,14 @@
 import type { RapierRigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 import {
-  vehicleRespawnValues,
+  respawnValues,
   playerRespawnValues,
 } from "../constants/otherConstants";
-import type { ControlState } from "../stores/useVehicleStore";
+import type { TypeControlState } from "../stores/useVehicleStore";
 
 // strictly type the incoming parameters directly from the global store
 type typeRespawnVehicleFunc = {
-  vehicleType: ControlState;
+  vehicleType: TypeControlState;
   vehicleBody: RapierRigidBody;
 };
 
@@ -23,9 +23,7 @@ const respawnVehicle = ({
 }: typeRespawnVehicleFunc) => {
   // extract the target respawn data dynamically checking if it is a vehicle or the player
   const spawnData =
-    vehicleType === "on_foot"
-      ? playerRespawnValues
-      : vehicleRespawnValues[vehicleType];
+    vehicleType === "player" ? playerRespawnValues : respawnValues[vehicleType];
 
   // extract current position to prevent teleporting across the infinite map
   const currentPos = vehicleBody.translation();
