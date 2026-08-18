@@ -105,23 +105,17 @@ export const vehiclePlaneConstants = {
     // visuals
     planePosX: { value: 0, min: -20, max: 20, label: "plane pos x" },
     planePosY: { value: 0, min: -20, max: 20, label: "plane pos y" },
-    planePosZ: { value: 2.7, min: -20, max: 20, label: "plane pos z" },
+    planePosZ: { value: -3, min: -20, max: 20, label: "plane pos z" },
     cockpitPosX: { value: 0, min: -20, max: 20, label: "cockpit pos x" },
     cockpitPosY: { value: 0.68, min: -20, max: 20, label: "cockpit pos y" },
     cockpitPosZ: { value: -2.8, min: -20, max: 20, label: "cockpit pos z" },
 
-    // physics colliders utilizing custom four point layout
-    bearingRadius: { value: 1.75, min: 0.1, max: 5, label: "bearing radius" },
-    bearingMass: { value: 25, min: 1, max: 200, label: "bearing mass" },
-    wingOffset: { value: 10, min: 0.1, max: 20, label: "wing offset x" },
-    noseOffsetZ: { value: -4, min: -20, max: 0, label: "nose offset z" },
-    tailOffsetZ: { value: 14, min: 0, max: 20, label: "tail offset z" },
-    bearingOffsetY: {
-      value: -0.65,
-      min: -10,
-      max: 10,
-      label: "bearing offset y",
-    },
+    // physics colliders - single centralized mass for arcade forgiveness
+    chassisWidth: { value: 3.8, min: 0.1, max: 20, label: "chassis width" },
+    chassisHeight: { value: 1.8, min: 0.1, max: 20, label: "chassis height" },
+    chassisLength: { value: 10, min: 0.1, max: 20, label: "chassis length" },
+    chassisRadius: { value: 0.2, min: 0, max: 1, label: "chassis radius" },
+    chassisMass: { value: 500, min: 10, max: 2000, label: "chassis mass" },
 
     // unity airplane extracted movement speeds
     defaultSpeed: { value: 30, min: 5, max: 100, label: "default speed" },
@@ -183,7 +177,7 @@ export const vehicleHelicopterConstants = {
     // visuals
     cabinPosX: { value: 0, min: -20, max: 20, label: "cabin pos x" },
     cabinPosY: { value: 0, min: -20, max: 20, label: "cabin pos y" },
-    cabinPosZ: { value: 1, min: -20, max: 20, label: "cabin pos z" },
+    cabinPosZ: { value: -0.35, min: -20, max: 20, label: "cabin pos z" },
     mainRotorPosX: { value: 0, min: -20, max: 20, label: "main rotor x" },
     mainRotorPosY: { value: 2.25, min: -20, max: 20, label: "main rotor y" },
     mainRotorPosZ: { value: -0.9, min: -20, max: 20, label: "main rotor z" },
@@ -191,37 +185,34 @@ export const vehicleHelicopterConstants = {
     tailRotorPosY: { value: 0.1, min: -20, max: 20, label: "tail rotor y" },
     tailRotorPosZ: { value: 6.46, min: -20, max: 20, label: "tail rotor z" },
 
-    // physics colliders utilizing custom six point layout
-    centerRadius: { value: 2, min: 0.1, max: 5, label: "center radius" },
-    centerMass: { value: 250, min: 10, max: 1000, label: "center mass" },
-    skidRadius: { value: 0.8, min: 0.1, max: 5, label: "skid radius" },
-    skidMass: { value: 100, min: 1, max: 100, label: "skid mass" },
-    skidWidth: { value: 3.5, min: 0.1, max: 10, label: "skid width" },
-    skidLength: { value: 3.5, min: 0.1, max: 10, label: "skid length" },
-    skidHeight: { value: -2.4, min: -5, max: 5, label: "skid height" },
-    tailRadius: { value: 0.6, min: 0.1, max: 5, label: "tail radius" },
-    tailMass: { value: 0.1, min: 0.1, max: 100, label: "tail mass" },
-    tailPosZ: { value: 7.4, min: 0, max: 20, label: "tail pos z" },
-    tailPosY: { value: 0.7, min: -5, max: 10, label: "tail pos y" },
+    // physics colliders - single centralized mass for responsive arcade physics
+    chassisWidth: { value: 1.75, min: 0.1, max: 5, label: "chassis width" },
+    chassisHeight: { value: 2.15, min: 0.1, max: 5, label: "chassis height" },
+    chassisLength: { value: 6.3, min: 0.1, max: 10, label: "chassis length" },
+    chassisRadius: { value: 0.3, min: 0, max: 1, label: "chassis radius" },
+    chassisMass: { value: 300, min: 10, max: 2000, label: "chassis mass" },
 
-    // physics flight mechanics
-    liftForce: { value: 2000, min: 1000, max: 5000, label: "lift force" },
-    descendForce: { value: 2000, min: 500, max: 2000, label: "descend force" },
-    pitchTorque: { value: 400, min: 10, max: 2000, label: "pitch torque" },
-    rollTorque: { value: 400, min: 10, max: 2000, label: "roll torque" },
-    yawTorque: { value: 400, min: 10, max: 2000, label: "yaw torque" },
-    rotorSpeed: { value: 20, min: 1, max: 50, label: "rotor speed" },
+    // restored impulse mechanics
+    liftForce: { value: 4000, min: 1000, max: 10000, label: "lift force" },
+    descendForce: {
+      value: 2000,
+      min: 1000,
+      max: 10000,
+      label: "descend force",
+    },
+    pitchTorque: { value: 800, min: 100, max: 5000, label: "pitch torque" },
+    rollTorque: { value: 800, min: 100, max: 5000, label: "roll torque" },
+    yawTorque: { value: 1200, min: 100, max: 5000, label: "yaw torque" },
+    rotorSpeed: { value: 20, min: 5, max: 50, label: "rotor speed" },
     autoLevelStrength: {
       value: 1500,
-      min: 10,
+      min: 0,
       max: 5000,
       label: "auto level str",
     },
     angularDamping: { value: 0.95, min: 0, max: 1, label: "angular damping" },
-
-    // arcade limiters
-    altitudeLimit: { value: 200, min: 50, max: 1000, label: "altitude limit" },
-    maxLeanAngle: { value: 30, min: 5, max: 90, label: "max lean deg" },
+    maxLeanAngle: { value: 30, min: 10, max: 90, label: "max lean angle" },
+    altitudeLimit: { value: 500, min: 100, max: 2000, label: "altitude limit" },
   },
   physics: {},
 };

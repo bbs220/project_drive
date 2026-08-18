@@ -5,8 +5,8 @@ import { useGLTF } from "@react-three/drei";
 import { type GLTF } from "three-stdlib";
 import {
   RigidBody,
-  BallCollider,
   type RapierRigidBody,
+  RoundCuboidCollider,
 } from "@react-three/rapier";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
@@ -101,64 +101,22 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
   const trPosY = unwrapParam(params.tailRotorPosY, 0.1);
   const trPosZ = unwrapParam(params.tailRotorPosZ, 6.46);
 
-  // extract six point physics parameters
-  const centerRadius = unwrapParam(params.centerRadius, 1.5);
-  const centerMass = unwrapParam(params.centerMass, 150);
-
-  const skidRadius = unwrapParam(params.skidRadius, 0.4);
-  const skidMass = unwrapParam(params.skidMass, 15);
-  const skidWidth = unwrapParam(params.skidWidth, 1.2);
-  const skidLength = unwrapParam(params.skidLength, 2.0);
-  const skidHeight = unwrapParam(params.skidHeight, -1.2);
-
-  const tailRadius = unwrapParam(params.tailRadius, 0.6);
-  const tailMass = unwrapParam(params.tailMass, 20);
-  const tailPosZ = unwrapParam(params.tailPosZ, 6.0);
-  const tailPosY = unwrapParam(params.tailPosY, 0.5);
-
   return (
     <group
       position={vehicleRespawnValues.helicopter.position}
       rotation={vehicleRespawnValues.helicopter.rotation}
     >
       <RigidBody ref={chassisRef} colliders={false} canSleep={false}>
-        {/* big center ball for majority of the mass */}
-        <BallCollider
-          args={[centerRadius]}
+        {/* replace the multiple ball colliders inside your rigid body with this */}
+        <RoundCuboidCollider
+          args={[
+            unwrapParam(params.chassisWidth, 1.2),
+            unwrapParam(params.chassisHeight, 1.5),
+            unwrapParam(params.chassisLength, 3.5),
+            unwrapParam(params.chassisRadius, 0.2),
+          ]}
           position={[0, 0, 0]}
-          mass={centerMass}
-        />
-
-        {/* front left skid */}
-        <BallCollider
-          args={[skidRadius]}
-          position={[skidWidth, skidHeight, -skidLength]}
-          mass={skidMass}
-        />
-        {/* front right skid */}
-        <BallCollider
-          args={[skidRadius]}
-          position={[-skidWidth, skidHeight, -skidLength]}
-          mass={skidMass}
-        />
-        {/* rear left skid */}
-        <BallCollider
-          args={[skidRadius]}
-          position={[skidWidth, skidHeight, skidLength]}
-          mass={skidMass}
-        />
-        {/* rear right skid */}
-        <BallCollider
-          args={[skidRadius]}
-          position={[-skidWidth, skidHeight, skidLength]}
-          mass={skidMass}
-        />
-
-        {/* tail ball for rotational inertia and strikes */}
-        <BallCollider
-          args={[tailRadius]}
-          position={[0, tailPosY, tailPosZ]}
-          mass={tailMass}
+          mass={unwrapParam(params.chassisMass, 300)}
         />
 
         {/* offset group for tweakpane tuning */}

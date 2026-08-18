@@ -19,7 +19,7 @@ type TweakpaneParam<T> = {
   label?: string;
 };
 
-// define helicopter tuning parameters allowing flat numbers or tweakpane objects
+// restored type definitions to exactly match your rapier impulse mechanics
 export type typeHelicopterTuning = {
   liftForce: number | TweakpaneParam<number>;
   descendForce: number | TweakpaneParam<number>;
@@ -29,8 +29,8 @@ export type typeHelicopterTuning = {
   rotorSpeed: number | TweakpaneParam<number>;
   autoLevelStrength: number | TweakpaneParam<number>;
   angularDamping: number | TweakpaneParam<number>;
-  altitudeLimit: number | TweakpaneParam<number>;
   maxLeanAngle: number | TweakpaneParam<number>;
+  altitudeLimit: number | TweakpaneParam<number>;
 };
 
 // initialize reusable three js objects outside the loop to prevent aggressive memory leaks
@@ -263,7 +263,7 @@ export const useVehicleHelicopterCreator = (
 
     // seat position and rotation socket math
     // define local offset for the pilot seat tweak these to perfectly align the pink capsule
-    const localSeatOffset = new THREE.Vector3(0, 1, -4);
+    const localSeatOffset = new THREE.Vector3(0, 4, -4);
     localSeatOffset.applyQuaternion(quaternion);
     const worldSeat = new THREE.Vector3(pos.x, pos.y, pos.z).add(
       localSeatOffset,

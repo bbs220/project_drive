@@ -5,8 +5,8 @@ import { useGLTF } from "@react-three/drei";
 import { type GLTF } from "three-stdlib";
 import {
   RigidBody,
-  BallCollider,
   type RapierRigidBody,
+  RoundCuboidCollider,
 } from "@react-three/rapier";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
@@ -74,43 +74,22 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
   const cPosY = unwrapParam(params.cockpitPosY, 0.68);
   const cPosZ = unwrapParam(params.cockpitPosZ, -2.8);
 
-  // extract asymmetric physics parameters
-  const bRadius = unwrapParam(params.bearingRadius, 1.75);
-  const bMass = unwrapParam(params.bearingMass, 25);
-  const wingOffset = unwrapParam(params.wingOffset, 10);
-  const noseOffsetZ = unwrapParam(params.noseOffsetZ, -10);
-  const tailOffsetZ = unwrapParam(params.tailOffsetZ, 10);
-  const bOffsetY = unwrapParam(params.bearingOffsetY, -0.65);
-
   return (
     <group
       position={vehicleRespawnValues.plane.position}
       rotation={vehicleRespawnValues.plane.rotation}
     >
       <RigidBody ref={chassisRef} colliders={false} canSleep={false}>
-        {/* left wing bearing */}
-        <BallCollider
-          args={[bRadius]}
-          position={[wingOffset, bOffsetY, 0]}
-          mass={bMass}
-        />
-        {/* right wing bearing */}
-        <BallCollider
-          args={[bRadius]}
-          position={[-wingOffset, bOffsetY, 0]}
-          mass={bMass}
-        />
-        {/* nose bearing pulling custom z offset */}
-        <BallCollider
-          args={[bRadius]}
-          position={[0, bOffsetY, noseOffsetZ]}
-          mass={bMass}
-        />
-        {/* tail bearing pulling custom z offset */}
-        <BallCollider
-          args={[bRadius]}
-          position={[0, bOffsetY, tailOffsetZ]}
-          mass={bMass}
+        {/* central fuselage collider. wings are intentionally left as ghost meshes so they do not snag on buildings */}
+        <RoundCuboidCollider
+          args={[
+            unwrapParam(params.chassisWidth, 1.5),
+            unwrapParam(params.chassisHeight, 1.0),
+            unwrapParam(params.chassisLength, 5.0),
+            unwrapParam(params.chassisRadius, 0.2),
+          ]}
+          position={[0, 0, 0]}
+          mass={unwrapParam(params.chassisMass, 500)}
         />
 
         {/* offset group for tweakpane tuning */}
