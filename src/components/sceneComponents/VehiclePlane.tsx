@@ -76,8 +76,8 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
 
   return (
     <group
-      position={respawnValues.plane.position}
-      rotation={respawnValues.plane.rotation}
+      position={respawnValues.drive.plane.position}
+      rotation={respawnValues.drive.plane.rotation}
     >
       <RigidBody ref={chassisRef} colliders={false} canSleep={false}>
         {/* central fuselage collider. wings are intentionally left as ghost meshes so they do not snag on buildings */}

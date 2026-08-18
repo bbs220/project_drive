@@ -3,27 +3,45 @@ export const sceneConstants = {
   fov: 60,
 };
 
-export const respawnLimit = -50;
-
-// unified spawn object using math pi for precise euler rotations
+// unified spawn object split by game mode
 export const respawnValues = {
-  car: {
-    position: [0, 5, -10] as [number, number, number],
-    rotation: [0, Math.PI, 0] as [number, number, number],
+  drive: {
+    player: {
+      position: [0, 5, 0] as [number, number, number],
+      rotation: [0, 0, 0] as [number, number, number],
+    },
+    car: {
+      position: [0, 5, -10] as [number, number, number],
+      rotation: [0, Math.PI, 0] as [number, number, number],
+    },
+    plane: {
+      position: [20, 5, -10] as [number, number, number],
+      rotation: [0, 0, 0] as [number, number, number],
+    },
+    helicopter: {
+      position: [-20, 5, -10] as [number, number, number],
+      rotation: [0, 0, 0] as [number, number, number],
+    },
   },
-  plane: {
-    position: [20, 5, -10] as [number, number, number],
-    rotation: [0, 0, 0] as [number, number, number],
+  garage: {
+    player: {
+      position: [0, 2, 5] as [number, number, number],
+      rotation: [0, Math.PI, 0] as [number, number, number],
+    },
+    car: {
+      position: [0, 2, 0] as [number, number, number],
+      rotation: [0, Math.PI, 0] as [number, number, number],
+    },
+    plane: {
+      position: [0, 2, 0] as [number, number, number],
+      rotation: [0, Math.PI, 0] as [number, number, number],
+    },
+    helicopter: {
+      position: [0, 2, 0] as [number, number, number],
+      rotation: [0, Math.PI, 0] as [number, number, number],
+    },
   },
-  helicopter: {
-    position: [-20, 5, -10] as [number, number, number],
-    rotation: [0, 0, 0] as [number, number, number],
-  },
-};
-
-export const playerRespawnValues = {
-  position: [0, 5, 0] as [number, number, number],
-  rotation: [0, 0, 0] as [number, number, number],
+  universalRespawnLimit: -50,
 };
 
 export const playerConstants = {

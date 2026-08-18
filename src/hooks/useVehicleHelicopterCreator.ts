@@ -91,6 +91,7 @@ export const useVehicleHelicopterCreator = (
       respawnVehicle({
         vehicleType: "helicopter",
         vehicleBody: chassis,
+        mode: "drive",
       });
 
       // instantly kill rotor momentum visuals

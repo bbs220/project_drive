@@ -103,8 +103,8 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
 
   return (
     <group
-      position={respawnValues.helicopter.position}
-      rotation={respawnValues.helicopter.rotation}
+      position={respawnValues.drive.helicopter.position}
+      rotation={respawnValues.drive.helicopter.rotation}
     >
       <RigidBody ref={chassisRef} colliders={false} canSleep={false}>
         {/* replace the multiple ball colliders inside your rigid body with this */}

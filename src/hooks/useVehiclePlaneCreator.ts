@@ -91,6 +91,7 @@ export const useVehiclePlaneCreator = (
       respawnVehicle({
         vehicleType: "plane",
         vehicleBody: chassis,
+        mode: "drive",
       });
 
       // kill engine momentum on respawn

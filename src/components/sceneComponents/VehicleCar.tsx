@@ -145,8 +145,8 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
         ref={chassisRef}
         colliders={false}
         friction={friction}
-        position={respawnValues.car.position}
-        rotation={respawnValues.car.rotation}
+        position={respawnValues.drive.car.position}
+        rotation={respawnValues.drive.car.rotation}
         mass={mass}
         canSleep={false}
       >

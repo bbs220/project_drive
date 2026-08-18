@@ -141,8 +141,9 @@ export const usePlayerCreator = (
 
     if (controls.respawn) {
       respawnVehicle({
-        vehicleType: "on_foot",
+        vehicleType: "player",
         vehicleBody: playerBody,
+        mode: "drive",
       });
       verticalVelocity.current = 0;
       return;

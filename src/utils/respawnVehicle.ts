@@ -1,15 +1,13 @@
 import type { RapierRigidBody } from "@react-three/rapier";
 import * as THREE from "three";
-import {
-  respawnValues,
-  playerRespawnValues,
-} from "../constants/otherConstants";
+import { respawnValues } from "../constants/otherConstants";
 import type { TypeControlState } from "../stores/useVehicleStore";
 
 // strictly type the incoming parameters directly from the global store
 type typeRespawnVehicleFunc = {
   vehicleType: TypeControlState;
   vehicleBody: RapierRigidBody;
+  mode: "drive" | "garage";
 };
 
 // initialize reusable objects outside the function to prevent garbage collection stutters
@@ -20,10 +18,13 @@ const spawnQuat = new THREE.Quaternion();
 const respawnVehicle = ({
   vehicleType,
   vehicleBody,
+  mode = "drive",
 }: typeRespawnVehicleFunc) => {
-  // extract the target respawn data dynamically checking if it is a vehicle or the player
-  const spawnData =
-    vehicleType === "player" ? playerRespawnValues : respawnValues[vehicleType];
+  // extract the target respawn data by chaining through the requested mode
+  const spawnData = respawnValues[mode][vehicleType];
+
+  // fatal error failsafe just in case a bad vehicle type gets passed
+  if (!spawnData) return;
 
   // extract current position to prevent teleporting across the infinite map
   const currentPos = vehicleBody.translation();

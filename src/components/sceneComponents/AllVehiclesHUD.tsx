@@ -1,10 +1,10 @@
 import { Fragment } from "react";
-import { respawnLimit } from "../../constants/otherConstants";
 import {
   useVehicleStore,
   CONTROL_STATE,
   ENTITY_ID,
 } from "../../stores/useVehicleStore";
+import { respawnValues } from "../../constants/otherConstants";
 
 // define strict type for our generic control items
 type typeControlItem = {
@@ -206,7 +206,7 @@ const AltimeterTape = ({ altitude }: { altitude: number }) => {
         {[2, 1, 0, -1, -2].map((offset) => {
           const val = baseAlt + offset;
           // allow dropping to negative bounds
-          const isVisible = val >= respawnLimit;
+          const isVisible = val >= respawnValues.universalRespawnLimit;
 
           return (
             <div

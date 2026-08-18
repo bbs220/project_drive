@@ -237,6 +237,7 @@ export const useVehicleCarCreator = (
       respawnVehicle({
         vehicleType: "car",
         vehicleBody: chassis,
+        mode: "drive",
       });
 
       // exit the physics step early to prevent applying forces to a teleporting body

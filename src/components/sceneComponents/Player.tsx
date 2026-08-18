@@ -7,10 +7,7 @@ import {
 } from "@react-three/rapier";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { unwrapParam } from "../../utils/unwrapParam";
-import {
-  playerConstants,
-  playerRespawnValues,
-} from "../../constants/otherConstants";
+import { playerConstants, respawnValues } from "../../constants/otherConstants";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { usePlayerCreator } from "../../hooks/usePlayerCreator";
 
@@ -49,8 +46,8 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
         mass={playerMass}
         canSleep={false}
         enabledRotations={[false, false, false]}
-        position={playerRespawnValues.position}
-        rotation={playerRespawnValues.rotation}
+        position={respawnValues.drive.player.position}
+        rotation={respawnValues.drive.player.rotation}
       >
         {/* frictionless physical representation of the character */}
         <CapsuleCollider
