@@ -123,25 +123,57 @@ export const vehiclePlaneConstants = {
       label: "bearing offset y",
     },
 
-    // physics flight mechanics
-    engineForce: { value: 40, min: 1, max: 200, label: "engine force" },
-    liftMultiplier: { value: 0.8, min: 0.1, max: 5, label: "lift multiplier" },
-    pitchTorque: { value: 1200, min: 100, max: 5000, label: "pitch torque" },
-    rollTorque: { value: 1800, min: 100, max: 5000, label: "roll torque" },
-    yawTorque: { value: 800, min: 100, max: 5000, label: "yaw torque" },
-    dragCoefficient: { value: 0.05, min: 0, max: 0.5, label: "drag coeff" },
-    angularDamping: { value: 0.95, min: 0, max: 1, label: "angular damping" },
-    autoLevelStrength: {
-      value: 800,
-      min: 0,
-      max: 5000,
-      label: "auto level str",
+    // unity airplane extracted movement speeds
+    defaultSpeed: { value: 30, min: 5, max: 100, label: "default speed" },
+    turboSpeed: { value: 60, min: 10, max: 200, label: "turbo speed" },
+    accelerating: { value: 10, min: 0.1, max: 50, label: "accelerating" },
+    deaccelerating: { value: 5, min: 0.1, max: 50, label: "deaccelerating" },
+
+    // unity airplane extracted rotating speeds
+    yawSpeed: { value: 50, min: 5, max: 200, label: "yaw speed" },
+    pitchSpeed: { value: 100, min: 5, max: 300, label: "pitch speed" },
+    rollSpeed: { value: 200, min: 5, max: 500, label: "roll speed" },
+
+    // unity turbo multipliers
+    yawTurboMultiplier: {
+      value: 0.3,
+      min: 0.1,
+      max: 5,
+      label: "yaw turbo mult",
+    },
+    pitchTurboMultiplier: {
+      value: 0.5,
+      min: 0.1,
+      max: 5,
+      label: "pitch turbo mult",
+    },
+    rollTurboMultiplier: {
+      value: 1,
+      min: 0.1,
+      max: 5,
+      label: "roll turbo mult",
     },
 
-    // arcade limiters
-    maxSpeed: { value: 150, min: 50, max: 500, label: "max speed" },
-    altitudeLimit: { value: 300, min: 50, max: 1500, label: "altitude limit" },
-    maxLeanAngle: { value: 30, min: 5, max: 90, label: "max lean deg" },
+    // unity sideways forces for banking and artificial lift drop
+    sidewaysMovement: { value: 15, min: 0.1, max: 50, label: "sideways move" },
+    sidewaysMovementXRot: {
+      value: 0.012,
+      min: 0.001,
+      max: 0.1,
+      label: "sideways x rot",
+    },
+    sidewaysMovementYRot: {
+      value: 1.5,
+      min: 0.1,
+      max: 5,
+      label: "sideways y rot",
+    },
+    sidewaysMovementYPos: {
+      value: 0.1,
+      min: 0,
+      max: 1,
+      label: "sideways y pos",
+    },
   },
   physics: {},
 };

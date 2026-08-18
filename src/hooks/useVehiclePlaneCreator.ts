@@ -19,19 +19,22 @@ type TweakpaneParam<T> = {
   label?: string;
 };
 
-// define plane tuning parameters
+// define plane tuning parameters exactly matching the unity flight model
 export type typePlaneTuning = {
-  engineForce: number | TweakpaneParam<number>;
-  liftMultiplier: number | TweakpaneParam<number>;
-  pitchTorque: number | TweakpaneParam<number>;
-  rollTorque: number | TweakpaneParam<number>;
-  yawTorque: number | TweakpaneParam<number>;
-  dragCoefficient: number | TweakpaneParam<number>;
-  angularDamping: number | TweakpaneParam<number>;
-  autoLevelStrength: number | TweakpaneParam<number>;
-  maxSpeed: number | TweakpaneParam<number>;
-  altitudeLimit: number | TweakpaneParam<number>;
-  maxLeanAngle: number | TweakpaneParam<number>;
+  defaultSpeed: number | TweakpaneParam<number>;
+  turboSpeed: number | TweakpaneParam<number>;
+  accelerating: number | TweakpaneParam<number>;
+  deaccelerating: number | TweakpaneParam<number>;
+  yawSpeed: number | TweakpaneParam<number>;
+  pitchSpeed: number | TweakpaneParam<number>;
+  rollSpeed: number | TweakpaneParam<number>;
+  yawTurboMultiplier: number | TweakpaneParam<number>;
+  pitchTurboMultiplier: number | TweakpaneParam<number>;
+  rollTurboMultiplier: number | TweakpaneParam<number>;
+  sidewaysMovement: number | TweakpaneParam<number>;
+  sidewaysMovementXRot: number | TweakpaneParam<number>;
+  sidewaysMovementYRot: number | TweakpaneParam<number>;
+  sidewaysMovementYPos: number | TweakpaneParam<number>;
 };
 
 // initialize reusable three js objects outside the loop to prevent aggressive memory leaks
@@ -41,12 +44,8 @@ const localX = new THREE.Vector3();
 const localY = new THREE.Vector3();
 const localZ = new THREE.Vector3();
 const forwardVector = new THREE.Vector3();
-const forceVector = new THREE.Vector3();
-
-// initialize vectors for arcade stabilization
-const globalUp = new THREE.Vector3(0, 1, 0);
-const stabilizeTorque = new THREE.Vector3();
-const dampingTorque = new THREE.Vector3();
+const moveVelocity = new THREE.Vector3();
+const angularVelocity = new THREE.Vector3();
 
 export const useVehiclePlaneCreator = (
   chassisRef: RefObject<RapierRigidBody | null>,
@@ -55,8 +54,8 @@ export const useVehiclePlaneCreator = (
 ) => {
   const { world } = useRapier();
 
-  // initialize refs for engine states
-  const throttleRef = useRef(0);
+  // strict tracker for raw forward speed replicating unity cruise control
+  const currentSpeedRef = useRef(0);
 
   // execute logic immediately after the physics engine calculates collisions
   useAfterPhysicsStep(() => {
@@ -93,7 +92,7 @@ export const useVehiclePlaneCreator = (
       });
 
       // kill engine momentum on respawn
-      throttleRef.current = 0;
+      currentSpeedRef.current = 0;
 
       // exit the physics step early to prevent applying forces to a teleporting body
       return;
@@ -102,26 +101,26 @@ export const useVehiclePlaneCreator = (
     // fetch current physical state
     const pos = chassis.translation();
     const rot = chassis.rotation();
-    const linvel = chassis.linvel();
-    const angvel = chassis.angvel();
-    const mass = chassis.mass();
     const delta = world.timestep;
 
-    // extract dynamic tweakpane values
-    const engineForceVal = unwrapParam(tuning.engineForce, 40);
-    const liftMultiplierVal = unwrapParam(tuning.liftMultiplier, 0.8);
-    const pitchTorqueVal = unwrapParam(tuning.pitchTorque, 1200);
-    const rollTorqueVal = unwrapParam(tuning.rollTorque, 1800);
-    const yawTorqueVal = unwrapParam(tuning.yawTorque, 800);
-    const dragCoefficientVal = unwrapParam(tuning.dragCoefficient, 0.05);
-    const angularDampingVal = unwrapParam(tuning.angularDamping, 0.95);
-    const autoLevelVal = unwrapParam(tuning.autoLevelStrength, 800);
-    const maxSpeedVal = unwrapParam(tuning.maxSpeed, 150);
-    const altitudeLimitVal = unwrapParam(tuning.altitudeLimit, 300);
+    // extract dynamic tweakpane values to perfectly emulate unity inputs
+    const defaultSpeedVal = unwrapParam(tuning.defaultSpeed, 30);
+    const turboSpeedVal = unwrapParam(tuning.turboSpeed, 60);
+    const acceleratingVal = unwrapParam(tuning.accelerating, 10);
+    const deacceleratingVal = unwrapParam(tuning.deaccelerating, 5);
 
-    // convert degrees to radians for raw quaternion math
-    const maxLeanAngleVal = unwrapParam(tuning.maxLeanAngle, 60);
-    const maxLeanRad = maxLeanAngleVal * (Math.PI / 180);
+    const yawSpeedVal = unwrapParam(tuning.yawSpeed, 50);
+    const pitchSpeedVal = unwrapParam(tuning.pitchSpeed, 100);
+    const rollSpeedVal = unwrapParam(tuning.rollSpeed, 200);
+
+    const yawTurboMult = unwrapParam(tuning.yawTurboMultiplier, 0.3);
+    const pitchTurboMult = unwrapParam(tuning.pitchTurboMultiplier, 0.5);
+    const rollTurboMult = unwrapParam(tuning.rollTurboMultiplier, 1.0);
+
+    const sideMoveVal = unwrapParam(tuning.sidewaysMovement, 15);
+    const sideXRotVal = unwrapParam(tuning.sidewaysMovementXRot, 0.012);
+    const sideYRotVal = unwrapParam(tuning.sidewaysMovementYRot, 1.5);
+    const sideYPosVal = unwrapParam(tuning.sidewaysMovementYPos, 0.1);
 
     // populate our global reusable quaternion
     quaternion.set(rot.x, rot.y, rot.z, rot.w);
@@ -138,114 +137,89 @@ export const useVehiclePlaneCreator = (
     // check if pilot is in the seat to allow engine spooling
     const isPiloted = active.control === CONTROL_STATE.PLANE;
 
-    // phase 1 throttle logic
-    // boost ramps up throttle brake cuts it down
-    let targetThrottle = throttleRef.current;
+    // phase 1 strictly emulate unity kinematic update loop
     if (isPiloted) {
-      if (controls.boost) targetThrottle += delta * 0.5;
-      if (controls.brake) targetThrottle -= delta * 0.5;
-    } else {
-      // automatically cut throttle if no pilot is in the seat
-      targetThrottle -= delta * 0.5;
-    }
+      let targetMaxSpeed = defaultSpeedVal;
+      let activeYawSpeed = yawSpeedVal;
+      let activePitchSpeed = pitchSpeedVal;
+      let activeRollSpeed = rollSpeedVal;
 
-    // clamp throttle between 0 and 1
-    throttleRef.current = THREE.MathUtils.clamp(targetThrottle, 0, 1);
-
-    // phase 2 aerodynamics and lift
-    // convert raw rapier velocity object into a three js vector so we can use dot products
-    const linvelVec = new THREE.Vector3(linvel.x, linvel.y, linvel.z);
-
-    const forwardSpeed = linvelVec.dot(forwardVector);
-
-    // zero out the accumulator
-    forceVector.set(0, 0, 0);
-
-    // apply forward engine thrust but strictly cut it if the plane exceeds maximum allowed speed
-    let thrust = engineForceVal * throttleRef.current * mass;
-    if (forwardSpeed > maxSpeedVal) {
-      thrust = 0;
-    }
-    forceVector.addScaledVector(forwardVector, thrust * delta);
-
-    // apply aerodynamic lift scaled by forward velocity
-    // planes only generate lift when moving fast
-    const lift = Math.max(0, forwardSpeed) * liftMultiplierVal * mass;
-    forceVector.addScaledVector(localY, lift * delta);
-
-    // apply natural air resistance drag
-    const drag = forwardSpeed * dragCoefficientVal * mass;
-    forceVector.addScaledVector(forwardVector, -drag * delta);
-
-    // apply extreme anti slip lateral drag
-    // airplane wings prevent the plane from drifting sideways like a car
-    const sideSpeed = linvelVec.dot(localX);
-    forceVector.addScaledVector(localX, -sideSpeed * mass * 4 * delta);
-
-    // arcade soft ceiling altitude limiter
-    if (pos.y > altitudeLimitVal) {
-      // if the plane is still moving upward apply heavy drag strictly against the upward velocity axis
-      if (linvelVec.y > 0) {
-        forceVector.addScaledVector(globalUp, -linvelVec.y * mass * 15 * delta);
+      // handle unity style turbo mode which overrides standard speed and rotation multipliers
+      if (controls.boost) {
+        targetMaxSpeed = turboSpeedVal;
+        activeYawSpeed *= yawTurboMult;
+        activePitchSpeed *= pitchTurboMult;
+        activeRollSpeed *= rollTurboMult;
       }
+
+      // safely intercept brake to completely kill speed since unity script had no brake
+      if (controls.brake) {
+        targetMaxSpeed = 0;
+      }
+
+      // unity cruise control acceleration loop
+      if (currentSpeedRef.current < targetMaxSpeed) {
+        currentSpeedRef.current += acceleratingVal * delta;
+      } else if (currentSpeedRef.current > targetMaxSpeed) {
+        currentSpeedRef.current -= deacceleratingVal * delta;
+      }
+      currentSpeedRef.current = Math.max(0, currentSpeedRef.current);
+
+      // phase 2 map keyboard inputs exactly to unity axis inputs
+      const rollInput = controls.left ? 1 : controls.right ? -1 : 0;
+      const pitchInput = controls.forward ? -1 : controls.backward ? 1 : 0;
+      const yawInput = controls.yawLeft ? 1 : controls.yawRight ? -1 : 0;
+
+      // convert raw unity degrees to safe radians
+      const rollRad = rollInput * activeRollSpeed * (Math.PI / 180);
+      const pitchRad = pitchInput * activePitchSpeed * (Math.PI / 180);
+      const yawRad = yawInput * activeYawSpeed * (Math.PI / 180);
+
+      // zero out angular velocity accumulator
+      angularVelocity.set(0, 0, 0);
+
+      // apply raw rotational speeds locally
+      angularVelocity.addScaledVector(localZ, rollRad);
+      angularVelocity.addScaledVector(localX, pitchRad);
+      angularVelocity.addScaledVector(localY, yawRad);
+
+      // phase 3 exact unity sideways force emulation using continuous sine waves instead of quadrants
+      // this mimics the curved altitude drop when banking left or right
+      const rollRatio = Math.sin(euler.z);
+      const absRoll = Math.abs(rollRatio);
+
+      const multXRot = sideMoveVal * sideXRotVal;
+      const multYRot = sideMoveVal * sideYRotVal;
+      const multYPos = sideMoveVal * sideYPosVal;
+
+      // sideways yaw effect forces the plane to yaw towards the bank
+      angularVelocity.addScaledVector(
+        localY,
+        rollRatio * multYRot * (Math.PI / 180),
+      );
+
+      // sideways pitch effect slightly pitches the nose up to create a curved flight path
+      angularVelocity.addScaledVector(
+        localX,
+        absRoll * multXRot * activePitchSpeed * (Math.PI / 180),
+      );
+
+      // zero out linear velocity accumulator
+      moveVelocity.set(0, 0, 0);
+
+      // forcefully translate forward based on unity cruise speed
+      moveVelocity.addScaledVector(forwardVector, currentSpeedRef.current);
+
+      // apply artificial slip to slowly push the plane sideways towards the roof vector when banked
+      moveVelocity.addScaledVector(localY, absRoll * multYPos);
+
+      // directly set velocity bypassing rapier gravity completely
+      chassis.setLinvel(moveVelocity, true);
+      chassis.setAngvel(angularVelocity, true);
+    } else {
+      // if empty instantly clear kinematic overrides so the plane falls out of the sky naturally
+      currentSpeedRef.current = 0;
     }
-
-    // push all accumulated linear forces to the rigid body
-    chassis.applyImpulse(forceVector, true);
-
-    // phase 3 rotational flight controls
-    // pitch uses w and s to lean forward and backward
-    let pitchInput = controls.forward ? 1 : controls.backward ? -1 : 0;
-    // roll uses a and d to bank the wings
-    let rollInput = controls.left ? -1 : controls.right ? 1 : 0;
-    // yaw uses special keys to steer the tail rudder
-    const yawInput = controls.yawLeft ? 1 : controls.yawRight ? -1 : 0;
-
-    // arcade angle limiter
-    // if the plane exceeds the lean limit zero out any inputs trying to push it further
-    if (euler.x > maxLeanRad && pitchInput > 0) pitchInput = 0;
-    if (euler.x < -maxLeanRad && pitchInput < 0) pitchInput = 0;
-    if (euler.z > maxLeanRad && rollInput > 0) rollInput = 0;
-    if (euler.z < -maxLeanRad && rollInput < 0) rollInput = 0;
-
-    // zero out the torque accumulator
-    stabilizeTorque.set(0, 0, 0);
-
-    // apply raw input torques mapped to local axes
-    stabilizeTorque.addScaledVector(
-      localX,
-      pitchInput * pitchTorqueVal * delta,
-    );
-    stabilizeTorque.addScaledVector(localZ, rollInput * rollTorqueVal * delta);
-    stabilizeTorque.addScaledVector(localY, yawInput * yawTorqueVal * delta);
-
-    // phase 4 arcade auto leveler
-    // gently roll the wings flat when the player lets go of the roll keys
-    if (rollInput === 0) {
-      // project the planes right wing onto the global flat plane to calculate offset
-      const flatRight = new THREE.Vector3()
-        .crossVectors(globalUp, forwardVector)
-        .normalize();
-
-      dampingTorque
-        .crossVectors(localX, flatRight)
-        .multiplyScalar(autoLevelVal * delta);
-      stabilizeTorque.add(dampingTorque);
-    }
-
-    // phase 5 manual angular damping
-    // fight the current angular velocity so the plane does not spiral wildly
-    stabilizeTorque.x -= angvel.x * angularDampingVal * mass * delta;
-    stabilizeTorque.y -= angvel.y * angularDampingVal * mass * delta;
-    stabilizeTorque.z -= angvel.z * angularDampingVal * mass * delta;
-
-    // apply accumulated torques to the rigid body
-    chassis.applyTorqueImpulse(stabilizeTorque, true);
-
-    // calculate current true speed
-    const currentSpeed = Math.sqrt(
-      linvel.x * linvel.x + linvel.y * linvel.y + linvel.z * linvel.z,
-    );
 
     // seat position and rotation socket math
     // local offset matches your constant file definition perfectly
@@ -272,8 +246,8 @@ export const useVehiclePlaneCreator = (
 
     // always broadcast full telemetry so ui and mount systems function properly
     useVehicleStore.getState().updateTelemetry(ENTITY_ID.PLANE_1, {
-      airspeed: Math.round(currentSpeed * 3.6),
-      throttle: throttleRef.current,
+      airspeed: Math.round(currentSpeedRef.current * 3.6),
+      throttle: turboSpeedVal > 0 ? currentSpeedRef.current / turboSpeedVal : 0,
       altitude: Math.round(pos.y),
       pitch: euler.x,
       roll: euler.z,
