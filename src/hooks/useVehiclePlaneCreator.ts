@@ -139,7 +139,9 @@ export const useVehiclePlaneCreator = (
 
     // phase 1 strictly emulate unity kinematic update loop
     if (isPiloted) {
-      let targetMaxSpeed = defaultSpeedVal;
+      // default target speed to whatever we are currently doing so it stays perfectly still on mount
+      let targetMaxSpeed = currentSpeedRef.current;
+
       let activeYawSpeed = yawSpeedVal;
       let activePitchSpeed = pitchSpeedVal;
       let activeRollSpeed = rollSpeedVal;
@@ -150,11 +152,14 @@ export const useVehiclePlaneCreator = (
         activeYawSpeed *= yawTurboMult;
         activePitchSpeed *= pitchTurboMult;
         activeRollSpeed *= rollTurboMult;
-      }
-
-      // safely intercept brake to completely kill speed since unity script had no brake
-      if (controls.brake) {
+      } else if (controls.brake) {
+        // safely intercept brake to completely kill speed since unity script had no brake
         targetMaxSpeed = 0;
+      } else {
+        // if letting go of keys slowly decay back to default cruise speed only if we were going faster
+        if (currentSpeedRef.current > defaultSpeedVal) {
+          targetMaxSpeed = defaultSpeedVal;
+        }
       }
 
       // unity cruise control acceleration loop
