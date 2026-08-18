@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 // class dictionary (what kind of vehicle is it?)
 export const CONTROL_STATE = {
-  ON_FOOT: "on_foot",
+  PLAYER: "player",
   CAR: "car",
   PLANE: "plane",
   HELICOPTER: "helicopter",
@@ -89,9 +89,9 @@ type VehicleState = {
 
 // create and export global store
 export const useVehicleStore = create<VehicleState>((set) => ({
-  // start the game on foot as Player 1
+  // start the game as player
   active: {
-    control: CONTROL_STATE.ON_FOOT,
+    control: CONTROL_STATE.PLAYER,
     entity: ENTITY_ID.PLAYER_1,
   },
 

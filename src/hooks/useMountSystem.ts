@@ -19,7 +19,7 @@ export const useMountSystem = () => {
       const { active, telemetry, setActive, updateTelemetry } = state;
 
       // handle unmounting if player is actively driving a vehicle
-      if (active.control !== CONTROL_STATE.ON_FOOT) {
+      if (active.control !== CONTROL_STATE.PLAYER) {
         // grab the exact world coordinates of the active vehicle
         const vehiclePos = telemetry[active.entity].position;
 
@@ -34,11 +34,11 @@ export const useMountSystem = () => {
         });
 
         // hand control back to the player character
-        setActive(CONTROL_STATE.ON_FOOT, ENTITY_ID.PLAYER_1);
+        setActive(CONTROL_STATE.PLAYER, ENTITY_ID.PLAYER_1);
         return;
       }
 
-      // handle mounting if player is currently on foot
+      // handle mounting if player is in use
       const playerPos = new THREE.Vector3(
         ...telemetry[ENTITY_ID.PLAYER_1].position,
       );

@@ -44,7 +44,7 @@ const DriveScene = () => {
       ? heliRef
       : active.control === CONTROL_STATE.PLANE
         ? planeRef
-        : active.control === CONTROL_STATE.ON_FOOT
+        : active.control === CONTROL_STATE.PLAYER
           ? playerRef
           : carRef;
 
@@ -57,7 +57,7 @@ const DriveScene = () => {
         value: active.control,
         label: "current vehicle",
         options: {
-          on_foot: CONTROL_STATE.ON_FOOT,
+          on_foot: CONTROL_STATE.PLAYER,
           car: CONTROL_STATE.CAR,
           helicopter: CONTROL_STATE.HELICOPTER,
           plane: CONTROL_STATE.PLANE,

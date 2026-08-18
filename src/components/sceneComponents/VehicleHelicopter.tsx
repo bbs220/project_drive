@@ -11,7 +11,7 @@ import {
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
   vehicleHelicopterConstants,
-  vehicleRespawnValues,
+  respawnValues,
 } from "../../constants/otherConstants";
 import { unwrapParam } from "../../utils/unwrapParam";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
@@ -103,8 +103,8 @@ const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
 
   return (
     <group
-      position={vehicleRespawnValues.helicopter.position}
-      rotation={vehicleRespawnValues.helicopter.rotation}
+      position={respawnValues.helicopter.position}
+      rotation={respawnValues.helicopter.rotation}
     >
       <RigidBody ref={chassisRef} colliders={false} canSleep={false}>
         {/* replace the multiple ball colliders inside your rigid body with this */}

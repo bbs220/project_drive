@@ -68,7 +68,7 @@ export const usePlayerCreator = (
     const controller = controllerRef.current;
 
     // phase 1 mounted we are driving a vehicle
-    if (active.control !== CONTROL_STATE.ON_FOOT) {
+    if (active.control !== CONTROL_STATE.PLAYER) {
       wasMounted.current = true;
 
       // ensure visual mesh stays visible so we can see the player in the driver seat
@@ -135,8 +135,8 @@ export const usePlayerCreator = (
       return;
     }
 
-    // phase 3 on foot standard walking physics
-    // assign controls directly since we verified we are on foot in phase 1
+    // phase 3 player standard walking physics
+    // assign controls directly since we verified we are player in phase 1
     const controls = controlsRef.current;
 
     if (controls.respawn) {

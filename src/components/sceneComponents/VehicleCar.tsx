@@ -9,7 +9,7 @@ import { useGLTF, Html } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
 import {
   vehicleCarConstants,
-  vehicleRespawnValues,
+  respawnValues,
 } from "../../constants/otherConstants";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { useVehicleCarCreator } from "../../hooks/useVehicleCarCreator";
@@ -145,8 +145,8 @@ const VehicleCar = forwardRef<THREE.Group>((_props, ref) => {
         ref={chassisRef}
         colliders={false}
         friction={friction}
-        position={vehicleRespawnValues.car.position}
-        rotation={vehicleRespawnValues.car.rotation}
+        position={respawnValues.car.position}
+        rotation={respawnValues.car.rotation}
         mass={mass}
         canSleep={false}
       >

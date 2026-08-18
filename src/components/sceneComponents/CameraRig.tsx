@@ -101,7 +101,7 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
 
     // strictly map the control states to the tweakpane distances
     const distanceMap: Record<TypeControlState, number> = {
-      [CONTROL_STATE.ON_FOOT]: params.playerDistance as number,
+      [CONTROL_STATE.PLAYER]: params.playerDistance as number,
       [CONTROL_STATE.CAR]: params.carDistance as number,
       [CONTROL_STATE.HELICOPTER]: params.heliDistance as number,
       [CONTROL_STATE.PLANE]: params.planeDistance as number,

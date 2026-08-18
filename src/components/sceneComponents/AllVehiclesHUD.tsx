@@ -295,8 +295,8 @@ const AllVehiclesHUD = () => {
   return (
     // full screen non interactive overlay
     <div className="pointer-events-none absolute inset-0 z-10">
-      {/* only render player display if character is on foot */}
-      {activeControl === CONTROL_STATE.ON_FOOT && (
+      {/* only render player display if character is player */}
+      {activeControl === CONTROL_STATE.PLAYER && (
         <>
           {/* dynamic player controls */}
           <SharedControlsDisplay

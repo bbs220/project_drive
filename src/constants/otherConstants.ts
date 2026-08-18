@@ -6,23 +6,23 @@ export const sceneConstants = {
 export const respawnLimit = -50;
 
 // unified spawn object using math pi for precise euler rotations
-export const vehicleRespawnValues = {
+export const respawnValues = {
   car: {
-    position: [0, 5, 0] as [number, number, number],
+    position: [0, 5, -10] as [number, number, number],
     rotation: [0, Math.PI, 0] as [number, number, number],
   },
   plane: {
-    position: [20, 5, 0] as [number, number, number],
+    position: [20, 5, -10] as [number, number, number],
     rotation: [0, 0, 0] as [number, number, number],
   },
   helicopter: {
-    position: [-20, 5, 0] as [number, number, number],
+    position: [-20, 5, -10] as [number, number, number],
     rotation: [0, 0, 0] as [number, number, number],
   },
 };
 
 export const playerRespawnValues = {
-  position: [0, 5, 10] as [number, number, number],
+  position: [0, 5, 0] as [number, number, number],
   rotation: [0, 0, 0] as [number, number, number],
 };
 

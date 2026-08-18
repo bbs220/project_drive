@@ -11,7 +11,7 @@ import {
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
   vehiclePlaneConstants,
-  vehicleRespawnValues,
+  respawnValues,
 } from "../../constants/otherConstants";
 import { unwrapParam } from "../../utils/unwrapParam";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
@@ -76,8 +76,8 @@ const VehiclePlane = forwardRef<THREE.Group>((_props, ref) => {
 
   return (
     <group
-      position={vehicleRespawnValues.plane.position}
-      rotation={vehicleRespawnValues.plane.rotation}
+      position={respawnValues.plane.position}
+      rotation={respawnValues.plane.rotation}
     >
       <RigidBody ref={chassisRef} colliders={false} canSleep={false}>
         {/* central fuselage collider. wings are intentionally left as ghost meshes so they do not snag on buildings */}
