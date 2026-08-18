@@ -35,6 +35,8 @@ export type typePlaneTuning = {
   sidewaysMovementXRot: number | TweakpaneParam<number>;
   sidewaysMovementYRot: number | TweakpaneParam<number>;
   sidewaysMovementYPos: number | TweakpaneParam<number>;
+  maxPitchAngle: number | TweakpaneParam<number>;
+  maxRollAngle: number | TweakpaneParam<number>;
 };
 
 // initialize reusable three js objects outside the loop to prevent aggressive memory leaks
@@ -109,7 +111,7 @@ export const useVehiclePlaneCreator = (
     const acceleratingVal = unwrapParam(tuning.accelerating, 10);
     const deacceleratingVal = unwrapParam(tuning.deaccelerating, 5);
 
-    const yawSpeedVal = unwrapParam(tuning.yawSpeed, 50);
+    const yawSpeedVal = unwrapParam(tuning.yawSpeed, 30);
     const pitchSpeedVal = unwrapParam(tuning.pitchSpeed, 100);
     const rollSpeedVal = unwrapParam(tuning.rollSpeed, 200);
 
@@ -121,6 +123,12 @@ export const useVehiclePlaneCreator = (
     const sideXRotVal = unwrapParam(tuning.sidewaysMovementXRot, 0.012);
     const sideYRotVal = unwrapParam(tuning.sidewaysMovementYRot, 1.5);
     const sideYPosVal = unwrapParam(tuning.sidewaysMovementYPos, 0.1);
+
+    // convert angle limits strictly to radians
+    const maxPitchAngleVal = unwrapParam(tuning.maxPitchAngle, 20);
+    const maxRollAngleVal = unwrapParam(tuning.maxRollAngle, 20);
+    const maxPitchRad = maxPitchAngleVal * (Math.PI / 180);
+    const maxRollRad = maxRollAngleVal * (Math.PI / 180);
 
     // populate our global reusable quaternion
     quaternion.set(rot.x, rot.y, rot.z, rot.w);
@@ -140,6 +148,7 @@ export const useVehiclePlaneCreator = (
     // phase 1 strictly emulate unity kinematic update loop
     if (isPiloted) {
       // default target speed to whatever we are currently doing so it stays perfectly still on mount
+      // eslint-disable-next-line no-useless-assignment
       let targetMaxSpeed = currentSpeedRef.current;
 
       let activeYawSpeed = yawSpeedVal;
@@ -153,12 +162,21 @@ export const useVehiclePlaneCreator = (
         activePitchSpeed *= pitchTurboMult;
         activeRollSpeed *= rollTurboMult;
       } else if (controls.brake) {
-        // safely intercept brake to completely kill speed since unity script had no brake
-        targetMaxSpeed = 0;
+        // anti magic suspension check
+        if (pos.y < 5) {
+          // we are safely on the ground allow full stop
+          targetMaxSpeed = 0;
+        } else {
+          // we are in the sky limit air brake to 20 units roughly 72 knots
+          targetMaxSpeed = 20;
+        }
       } else {
-        // if letting go of keys slowly decay back to default cruise speed only if we were going faster
-        if (currentSpeedRef.current > defaultSpeedVal) {
+        // automatically return to cruise speed if we are flying
+        if (pos.y > 5) {
           targetMaxSpeed = defaultSpeedVal;
+        } else {
+          // stay parked if we are on the ground and not pressing anything
+          targetMaxSpeed = currentSpeedRef.current;
         }
       }
 
@@ -176,20 +194,11 @@ export const useVehiclePlaneCreator = (
       const yawInput = controls.yawLeft ? 1 : controls.yawRight ? -1 : 0;
 
       // convert raw unity degrees to safe radians
-      const rollRad = rollInput * activeRollSpeed * (Math.PI / 180);
-      const pitchRad = pitchInput * activePitchSpeed * (Math.PI / 180);
+      let rollRad = rollInput * activeRollSpeed * (Math.PI / 180);
+      let pitchRad = pitchInput * activePitchSpeed * (Math.PI / 180);
       const yawRad = yawInput * activeYawSpeed * (Math.PI / 180);
 
-      // zero out angular velocity accumulator
-      angularVelocity.set(0, 0, 0);
-
-      // apply raw rotational speeds locally
-      angularVelocity.addScaledVector(localZ, rollRad);
-      angularVelocity.addScaledVector(localX, pitchRad);
-      angularVelocity.addScaledVector(localY, yawRad);
-
-      // phase 3 exact unity sideways force emulation using continuous sine waves instead of quadrants
-      // this mimics the curved altitude drop when banking left or right
+      // phase 3 exact unity sideways force emulation
       const rollRatio = Math.sin(euler.z);
       const absRoll = Math.abs(rollRatio);
 
@@ -197,16 +206,35 @@ export const useVehiclePlaneCreator = (
       const multYRot = sideMoveVal * sideYRotVal;
       const multYPos = sideMoveVal * sideYPosVal;
 
+      // add the artificial unity curved flight path pitch to our raw pitch request
+      pitchRad += absRoll * multXRot * activePitchSpeed * (Math.PI / 180);
+
+      // STRICT ANGLE LIMITERS: prevent mid-air flips and barrel rolls
+      // rubber-band wall: if the plane exceeds the 20 degree limit, actively force the angular velocity backward
+      if (euler.x > maxPitchRad && pitchRad >= 0) {
+        pitchRad = -(euler.x - maxPitchRad) * 10;
+      } else if (euler.x < -maxPitchRad && pitchRad <= 0) {
+        pitchRad = -(euler.x + maxPitchRad) * 10;
+      }
+
+      if (euler.z > maxRollRad && rollRad >= 0) {
+        rollRad = -(euler.z - maxRollRad) * 10;
+      } else if (euler.z < -maxRollRad && rollRad <= 0) {
+        rollRad = -(euler.z + maxRollRad) * 10;
+      }
+
+      // zero out angular velocity accumulator
+      angularVelocity.set(0, 0, 0);
+
+      // apply raw rotational speeds locally strictly protected by our limiters
+      angularVelocity.addScaledVector(localZ, rollRad);
+      angularVelocity.addScaledVector(localX, pitchRad);
+      angularVelocity.addScaledVector(localY, yawRad);
+
       // sideways yaw effect forces the plane to yaw towards the bank
       angularVelocity.addScaledVector(
         localY,
         rollRatio * multYRot * (Math.PI / 180),
-      );
-
-      // sideways pitch effect slightly pitches the nose up to create a curved flight path
-      angularVelocity.addScaledVector(
-        localX,
-        absRoll * multXRot * activePitchSpeed * (Math.PI / 180),
       );
 
       // zero out linear velocity accumulator

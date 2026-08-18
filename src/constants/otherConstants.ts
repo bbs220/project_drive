@@ -168,6 +168,9 @@ export const vehiclePlaneConstants = {
       max: 1,
       label: "sideways y pos",
     },
+    // strict angle limits
+    maxPitchAngle: { value: 30, min: 5, max: 90, label: "max pitch angle" },
+    maxRollAngle: { value: 30, min: 5, max: 90, label: "max roll angle" },
   },
   physics: {},
 };
