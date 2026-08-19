@@ -14,11 +14,24 @@ import { Physics } from "@react-three/rapier";
 import CustomizationUI from "../CustomizationUI";
 
 const GarageScene = () => {
+  const { fogValue, fogColor } = useTweakpane(
+    { title: "☀️ Scene", expanded: true },
+    {
+      fogValue: {
+        value: 0.1,
+        min: 0.01,
+        max: 1,
+        label: "fog amount",
+      },
+      fogColor: { value: "#003535", label: "fog color" },
+    },
+  );
   return (
     <>
       <PerspectiveCamera makeDefault fov={35} position={[0, 3, 8]} />
       <Stats showPanel={sceneConstants.isDev ? 0 : 4} />
-      <fog attach="fog" args={["black", 150, 400]} />
+      <fogExp2 attach="fog" args={[fogColor, fogValue]} />
+      <color attach="background" args={[fogColor]} />
 
       {/* lock the camera so the user cannot clip under the floor */}
       <OrbitControls

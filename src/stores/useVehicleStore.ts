@@ -1,5 +1,9 @@
 import { create } from "zustand";
 
+export type VehicleProps = {
+  spawnMode: "drive" | "garage";
+};
+
 // class dictionary (what kind of vehicle is it?)
 export const CONTROL_STATE = {
   PLAYER: "player",
