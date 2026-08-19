@@ -35,7 +35,7 @@ const BackgroundLight = () => {
     { title: "☀️ Scene" },
     {
       activeEnvironment: {
-        value: "skyDay",
+        value: "skyNight",
         label: "environment",
         options: envOptions,
       },

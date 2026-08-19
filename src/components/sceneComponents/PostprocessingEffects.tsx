@@ -1,18 +1,33 @@
-// import required postprocessing components
-import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
-// import our custom tweakpane hook
+import {
+  Bloom,
+  EffectComposer,
+  DepthOfField,
+  ChromaticAberration,
+  Noise,
+  BrightnessContrast,
+} from "@react-three/postprocessing";
+import { BlendFunction } from "postprocessing";
+import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
 
 const PostprocessingEffects = () => {
-  // destructured state from our config with nested folders
   const {
     enableBloom,
     bloomIntensity,
     luminanceThreshold,
     luminanceSmoothing,
-    enableVignette,
-    vignetteOffset,
-    vignetteDarkness,
+    enableDoF,
+    focusDistance,
+    focalLength,
+    bokehScale,
+    enableCA,
+    caOffsetX,
+    caOffsetY,
+    enableNoise,
+    noiseOpacity,
+    enableBC,
+    brightness,
+    contrast,
   } = useTweakpane(
     { title: "🌟 Post-Processing", expanded: false },
     {
@@ -41,29 +56,83 @@ const PostprocessingEffects = () => {
         folder: "Bloom",
         label: "smoothing",
       },
-      enableVignette: { value: false, folder: "Vignette", label: "enable" },
-      vignetteOffset: {
-        value: 0.5,
+      enableDoF: { value: false, folder: "Depth of Field", label: "enable" },
+      focusDistance: {
+        value: 0.0,
         min: 0.0,
         max: 1.0,
-        step: 0.01,
-        folder: "Vignette",
-        label: "offset",
+        step: 0.001,
+        folder: "Depth of Field",
+        label: "focus distance",
       },
-      vignetteDarkness: {
-        value: 0.5,
+      focalLength: {
+        value: 0.02,
+        min: 0.0,
+        max: 1.0,
+        step: 0.001,
+        folder: "Depth of Field",
+        label: "focal length",
+      },
+      bokehScale: {
+        value: 2.0,
+        min: 0.0,
+        max: 10.0,
+        step: 0.1,
+        folder: "Depth of Field",
+        label: "bokeh scale",
+      },
+      enableCA: {
+        value: false,
+        folder: "Chromatic Aberration",
+        label: "enable",
+      },
+      caOffsetX: {
+        value: 0.002,
+        min: -0.05,
+        max: 0.05,
+        step: 0.001,
+        folder: "Chromatic Aberration",
+        label: "offset X",
+      },
+      caOffsetY: {
+        value: 0.002,
+        min: -0.05,
+        max: 0.05,
+        step: 0.001,
+        folder: "Chromatic Aberration",
+        label: "offset Y",
+      },
+      enableNoise: { value: false, folder: "Noise", label: "enable" },
+      noiseOpacity: {
+        value: 0.03,
         min: 0.0,
         max: 1.0,
         step: 0.01,
-        folder: "Vignette",
-        label: "darkness",
+        folder: "Noise",
+        label: "opacity",
+      },
+      enableBC: { value: false, folder: "Color Grade", label: "enable" },
+      brightness: {
+        value: 0.0,
+        min: -1.0,
+        max: 1.0,
+        step: 0.05,
+        folder: "Color Grade",
+        label: "brightness",
+      },
+      contrast: {
+        value: 0.2,
+        min: -1.0,
+        max: 1.0,
+        step: 0.05,
+        folder: "Color Grade",
+        label: "contrast",
       },
     },
   );
 
   return (
     <EffectComposer enableNormalPass={false}>
-      {/* conditional rendering for bloom effect */}
       {enableBloom && (
         <Bloom
           mipmapBlur
@@ -72,11 +141,32 @@ const PostprocessingEffects = () => {
           luminanceSmoothing={luminanceSmoothing as number}
         />
       )}
-      {/* conditional rendering for vignette effect */}
-      {enableVignette && (
-        <Vignette
-          offset={vignetteOffset as number}
-          darkness={vignetteDarkness as number}
+
+      {enableDoF && (
+        <DepthOfField
+          focusDistance={focusDistance as number}
+          focalLength={focalLength as number}
+          bokehScale={bokehScale as number}
+        />
+      )}
+
+      {enableBC && (
+        <BrightnessContrast
+          brightness={brightness as number}
+          contrast={contrast as number}
+        />
+      )}
+
+      {enableCA && (
+        <ChromaticAberration
+          offset={new THREE.Vector2(caOffsetX as number, caOffsetY as number)}
+        />
+      )}
+
+      {enableNoise && (
+        <Noise
+          opacity={noiseOpacity as number}
+          blendFunction={BlendFunction.OVERLAY}
         />
       )}
     </EffectComposer>

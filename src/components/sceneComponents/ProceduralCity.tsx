@@ -119,7 +119,6 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
         <instancedMesh
           ref={buildingsRef}
           args={[undefined, undefined, buildings.length]}
-          visible={false}
         >
           <boxGeometry />
           <meshBasicMaterial color="blue" toneMapped={false} />
@@ -131,7 +130,6 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
         <instancedMesh
           ref={roadsRef}
           args={[undefined, undefined, roads.length]}
-          visible={false}
         >
           <boxGeometry />
           <meshBasicMaterial color="red" toneMapped={false} />
