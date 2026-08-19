@@ -23,7 +23,7 @@ class SpeedLinesImpl extends Effect {
   }
 }
 
-// NEW: add radius to the props interface
+// add radius to the props interface
 export const SpeedLines = forwardRef(
   (props: { speed: number; radius?: number }, ref) => {
     const effect = useMemo(() => new SpeedLinesImpl(), []);
