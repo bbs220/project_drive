@@ -18,35 +18,20 @@ import { modelsSeperatedBank } from "../../utils/assetpaths";
 import { unwrapParam } from "../../utils/unwrapParam";
 import type { VehicleProps } from "../../stores/useVehicleStore";
 
-// --- GLTF TYPES ---
+// type definitions for the cleaned up gltf models
 type typeChassisGLTF = GLTF & {
   nodes: {
     chassis: THREE.Mesh;
     chassisDisplayGlow: THREE.Mesh;
     chassisGlow: THREE.Mesh;
     displayScreen: THREE.Mesh;
-    frontLeftSuspensionPiston: THREE.Mesh;
-    frontLeftSuspensionGlow: THREE.Mesh;
-    frontRightSuspensionPiston: THREE.Mesh;
-    frontRightSuspensionGlow: THREE.Mesh;
-    pedals: THREE.Mesh;
-    radiator: THREE.Mesh;
-    rearLeftSuspensionPiston: THREE.Mesh;
-    rearLeftSuspensionGlow: THREE.Mesh;
-    rearRightSuspensionPiston: THREE.Mesh;
-    rearRightSuspensionGlow: THREE.Mesh;
     seats: THREE.Mesh;
-    steeringWheel: THREE.Mesh;
-    steeringWheelDial: THREE.Mesh;
   };
   materials: {
     baseMetal_MAT: THREE.MeshStandardMaterial;
-    Black: THREE.MeshStandardMaterial;
-    Glow: THREE.MeshStandardMaterial;
+    PaletteMaterial001: THREE.MeshStandardMaterial;
+    PaletteMaterial002: THREE.MeshStandardMaterial;
     Screens: THREE.MeshStandardMaterial;
-    Piston_Chrome: THREE.MeshStandardMaterial;
-    Gray_parts: THREE.MeshStandardMaterial;
-    Gray: THREE.MeshStandardMaterial;
     Seat: THREE.MeshStandardMaterial;
   };
 };
@@ -77,12 +62,13 @@ type typeRearTyreGLTF = GLTF & {
   };
 };
 
-// Reusable style for the floating HTML labels
+// reusable style for the floating html labels
 const labelStyle: React.CSSProperties = {
   color: "white",
   fontFamily: "sans-serif",
   fontSize: "6px",
   fontWeight: "bold",
+  userSelect: "none",
 };
 
 // wrap component in forward ref to expose visual group to parent
@@ -94,7 +80,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
     const wheelsRef = useRef<THREE.Object3D[]>([]);
     const controlsRef = useAllVehicleInput();
 
-    // initialize tweakpane hook using ONLY the tuning object
+    // initialize tweakpane hook using only the tuning object
     const tuningParams = useTweakpane(
       { title: "🚗 Car Tuning", expanded: false },
       vehicleCarConstants.tuning,
@@ -130,7 +116,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
       return geo;
     }, [tuningParams.wheelRadius, tuningParams.wheelWidth]);
 
-    // Pre-extract chassis variables
+    // pre extract chassis variables
     const cWidth = unwrapParam(tuningParams.chassisWidth, 1.6);
     const cHeight = unwrapParam(tuningParams.chassisHeight, 0.8);
     const cLength = unwrapParam(tuningParams.chassisLength, 3);
@@ -140,7 +126,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
     const cPosZ = unwrapParam(tuningParams.chassisPosZ, 0);
     const mass = unwrapParam(tuningParams.mass, 200);
 
-    // Extract the debug wireframe toggle
+    // extract the debug wireframe toggle
     const showWireframes = unwrapParam(tuningParams.showWireframes, false);
 
     return (
@@ -160,131 +146,41 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
           />
 
           <group ref={ref}>
-            {/* --- CHASSIS --- */}
+            {/* central chassis rendering block */}
             <group position={[cPosX, cPosY, cPosZ]}>
               <mesh
                 castShadow
                 receiveShadow
                 geometry={chassisGLTF.nodes.chassis.geometry}
                 material={chassisGLTF.materials.baseMetal_MAT}
-              >
-                <mesh
-                  castShadow
-                  receiveShadow
-                  geometry={chassisGLTF.nodes.chassisDisplayGlow.geometry}
-                  material={chassisGLTF.materials.Black}
-                />
-                <mesh
-                  castShadow
-                  receiveShadow
-                  geometry={chassisGLTF.nodes.chassisGlow.geometry}
-                  material={chassisGLTF.materials.Glow}
-                />
-                <mesh
-                  castShadow
-                  receiveShadow
-                  geometry={chassisGLTF.nodes.displayScreen.geometry}
-                  material={chassisGLTF.materials.Screens}
-                />
-                <mesh
-                  castShadow
-                  receiveShadow
-                  geometry={
-                    chassisGLTF.nodes.frontLeftSuspensionPiston.geometry
-                  }
-                  material={chassisGLTF.materials.Piston_Chrome}
-                >
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={
-                      chassisGLTF.nodes.frontLeftSuspensionGlow.geometry
-                    }
-                    material={chassisGLTF.materials.Glow}
-                  />
-                </mesh>
-                <mesh
-                  castShadow
-                  receiveShadow
-                  geometry={
-                    chassisGLTF.nodes.frontRightSuspensionPiston.geometry
-                  }
-                  material={chassisGLTF.materials.Piston_Chrome}
-                >
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={
-                      chassisGLTF.nodes.frontRightSuspensionGlow.geometry
-                    }
-                    material={chassisGLTF.materials.Glow}
-                  />
-                </mesh>
-                <mesh
-                  castShadow
-                  receiveShadow
-                  geometry={chassisGLTF.nodes.pedals.geometry}
-                  material={chassisGLTF.materials.Gray_parts}
-                />
-                <mesh
-                  castShadow
-                  receiveShadow
-                  geometry={chassisGLTF.nodes.radiator.geometry}
-                  material={chassisGLTF.materials.Gray}
-                />
-                <mesh
-                  castShadow
-                  receiveShadow
-                  geometry={chassisGLTF.nodes.rearLeftSuspensionPiston.geometry}
-                  material={chassisGLTF.materials.Piston_Chrome}
-                >
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={chassisGLTF.nodes.rearLeftSuspensionGlow.geometry}
-                    material={chassisGLTF.materials.Glow}
-                  />
-                </mesh>
-                <mesh
-                  castShadow
-                  receiveShadow
-                  geometry={
-                    chassisGLTF.nodes.rearRightSuspensionPiston.geometry
-                  }
-                  material={chassisGLTF.materials.Piston_Chrome}
-                >
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={
-                      chassisGLTF.nodes.rearRightSuspensionGlow.geometry
-                    }
-                    material={chassisGLTF.materials.Glow}
-                  />
-                </mesh>
-                <mesh
-                  castShadow
-                  receiveShadow
-                  geometry={chassisGLTF.nodes.seats.geometry}
-                  material={chassisGLTF.materials.Seat}
-                />
-                <mesh
-                  castShadow
-                  receiveShadow
-                  geometry={chassisGLTF.nodes.steeringWheel.geometry}
-                  material={chassisGLTF.materials.Seat}
-                >
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={chassisGLTF.nodes.steeringWheelDial.geometry}
-                    material={chassisGLTF.materials.Glow}
-                  />
-                </mesh>
-              </mesh>
+              />
+              <mesh
+                castShadow
+                receiveShadow
+                geometry={chassisGLTF.nodes.chassisDisplayGlow.geometry}
+                material={chassisGLTF.materials.PaletteMaterial001}
+              />
+              <mesh
+                castShadow
+                receiveShadow
+                geometry={chassisGLTF.nodes.chassisGlow.geometry}
+                material={chassisGLTF.materials.PaletteMaterial002}
+              />
+              <mesh
+                castShadow
+                receiveShadow
+                geometry={chassisGLTF.nodes.displayScreen.geometry}
+                material={chassisGLTF.materials.Screens}
+              />
+              <mesh
+                castShadow
+                receiveShadow
+                geometry={chassisGLTF.nodes.seats.geometry}
+                material={chassisGLTF.materials.Seat}
+              />
             </group>
 
-            {/* --- WHEEL 0: FRONT LEFT --- */}
+            {/* front left wheel grouping */}
             <group
               position={[
                 wheelsInfo[0].position.x,
@@ -295,29 +191,28 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                 if (el) wheelsRef.current[0] = el;
               }}
             >
-              {/* Visual GLB */}
+              {/* visual mesh rendering */}
               <group>
                 <mesh
                   castShadow
                   receiveShadow
                   geometry={frontTyreGLTF.nodes.tyreFrontLeft.geometry}
                   material={frontTyreGLTF.materials["Rubber.001"]}
-                >
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={frontTyreGLTF.nodes.frontLeftWheelGlow.geometry}
-                    material={frontTyreGLTF.materials["Glow.002"]}
-                  />
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={frontTyreGLTF.nodes.rimFrontLeft.geometry}
-                    material={frontTyreGLTF.materials["Chrome.001"]}
-                  />
-                </mesh>
+                />
+                <mesh
+                  castShadow
+                  receiveShadow
+                  geometry={frontTyreGLTF.nodes.frontLeftWheelGlow.geometry}
+                  material={frontTyreGLTF.materials["Glow.002"]}
+                />
+                <mesh
+                  castShadow
+                  receiveShadow
+                  geometry={frontTyreGLTF.nodes.rimFrontLeft.geometry}
+                  material={frontTyreGLTF.materials["Chrome.001"]}
+                />
               </group>
-              {/* Tweakpane Debug Overlay */}
+              {/* debug wireframe overlay */}
               {showWireframes && (
                 <>
                   <mesh geometry={wheelGeo}>
@@ -330,7 +225,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
               )}
             </group>
 
-            {/* --- WHEEL 1: FRONT RIGHT --- */}
+            {/* front right wheel grouping */}
             <group
               position={[
                 wheelsInfo[1].position.x,
@@ -341,29 +236,28 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                 if (el) wheelsRef.current[1] = el;
               }}
             >
-              {/* Visual GLB (Rotated 180 degrees so rims face out) */}
+              {/* visual mesh rotated half circle so rims face out */}
               <group rotation={[0, Math.PI, 0]}>
                 <mesh
                   castShadow
                   receiveShadow
                   geometry={frontTyreGLTF.nodes.tyreFrontLeft.geometry}
                   material={frontTyreGLTF.materials["Rubber.001"]}
-                >
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={frontTyreGLTF.nodes.frontLeftWheelGlow.geometry}
-                    material={frontTyreGLTF.materials["Glow.002"]}
-                  />
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={frontTyreGLTF.nodes.rimFrontLeft.geometry}
-                    material={frontTyreGLTF.materials["Chrome.001"]}
-                  />
-                </mesh>
+                />
+                <mesh
+                  castShadow
+                  receiveShadow
+                  geometry={frontTyreGLTF.nodes.frontLeftWheelGlow.geometry}
+                  material={frontTyreGLTF.materials["Glow.002"]}
+                />
+                <mesh
+                  castShadow
+                  receiveShadow
+                  geometry={frontTyreGLTF.nodes.rimFrontLeft.geometry}
+                  material={frontTyreGLTF.materials["Chrome.001"]}
+                />
               </group>
-              {/* Tweakpane Debug Overlay */}
+              {/* debug wireframe overlay */}
               {showWireframes && (
                 <>
                   <mesh geometry={wheelGeo}>
@@ -376,7 +270,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
               )}
             </group>
 
-            {/* --- WHEEL 2: REAR LEFT --- */}
+            {/* rear left wheel grouping */}
             <group
               position={[
                 wheelsInfo[2].position.x,
@@ -387,29 +281,28 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                 if (el) wheelsRef.current[2] = el;
               }}
             >
-              {/* Visual GLB */}
+              {/* visual mesh rendering */}
               <group>
                 <mesh
                   castShadow
                   receiveShadow
                   geometry={rearTyreGLTF.nodes.tyreRearLeft.geometry}
                   material={rearTyreGLTF.materials["Rubber.002"]}
-                >
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={rearTyreGLTF.nodes.rearLeftWheelGlow.geometry}
-                    material={rearTyreGLTF.materials["Glow.001"]}
-                  />
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={rearTyreGLTF.nodes.rimRearLeft.geometry}
-                    material={rearTyreGLTF.materials["Chrome.002"]}
-                  />
-                </mesh>
+                />
+                <mesh
+                  castShadow
+                  receiveShadow
+                  geometry={rearTyreGLTF.nodes.rearLeftWheelGlow.geometry}
+                  material={rearTyreGLTF.materials["Glow.001"]}
+                />
+                <mesh
+                  castShadow
+                  receiveShadow
+                  geometry={rearTyreGLTF.nodes.rimRearLeft.geometry}
+                  material={rearTyreGLTF.materials["Chrome.002"]}
+                />
               </group>
-              {/* Tweakpane Debug Overlay */}
+              {/* debug wireframe overlay */}
               {showWireframes && (
                 <>
                   <mesh geometry={wheelGeo}>
@@ -422,7 +315,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
               )}
             </group>
 
-            {/* --- WHEEL 3: REAR RIGHT --- */}
+            {/* rear right wheel grouping */}
             <group
               position={[
                 wheelsInfo[3].position.x,
@@ -433,29 +326,28 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                 if (el) wheelsRef.current[3] = el;
               }}
             >
-              {/* Visual GLB (Rotated 180 degrees so rims face out) */}
+              {/* visual mesh rotated half circle so rims face out */}
               <group rotation={[0, Math.PI, 0]}>
                 <mesh
                   castShadow
                   receiveShadow
                   geometry={rearTyreGLTF.nodes.tyreRearLeft.geometry}
                   material={rearTyreGLTF.materials["Rubber.002"]}
-                >
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={rearTyreGLTF.nodes.rearLeftWheelGlow.geometry}
-                    material={rearTyreGLTF.materials["Glow.001"]}
-                  />
-                  <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={rearTyreGLTF.nodes.rimRearLeft.geometry}
-                    material={rearTyreGLTF.materials["Chrome.002"]}
-                  />
-                </mesh>
+                />
+                <mesh
+                  castShadow
+                  receiveShadow
+                  geometry={rearTyreGLTF.nodes.rearLeftWheelGlow.geometry}
+                  material={rearTyreGLTF.materials["Glow.001"]}
+                />
+                <mesh
+                  castShadow
+                  receiveShadow
+                  geometry={rearTyreGLTF.nodes.rimRearLeft.geometry}
+                  material={rearTyreGLTF.materials["Chrome.002"]}
+                />
               </group>
-              {/* Tweakpane Debug Overlay */}
+              {/* debug wireframe overlay */}
               {showWireframes && (
                 <>
                   <mesh geometry={wheelGeo}>
@@ -478,7 +370,7 @@ VehicleCar.displayName = "VehicleCar";
 
 export default VehicleCar;
 
-// Preloads
+// preloads
 useGLTF.preload(modelsSeperatedBank.runner01chassis);
 useGLTF.preload(modelsSeperatedBank.runner01leftFrontTyre);
 useGLTF.preload(modelsSeperatedBank.runner01leftRearTyre);
