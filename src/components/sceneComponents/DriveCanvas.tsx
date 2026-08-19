@@ -49,7 +49,7 @@ const DriveScene = () => {
           : carRef;
 
   // configure debug tools with dynamic dropdown options pulling from the enum
-  const { cameraDebug, activeVehicle } = useTweakpane(
+  const { cameraDebug, activeVehicle, fogValue, fogColor } = useTweakpane(
     { title: "☀️ Scene" },
     {
       cameraDebug: { value: true, label: "camera debug" },
@@ -63,6 +63,8 @@ const DriveScene = () => {
           plane: CONTROL_STATE.PLANE,
         },
       },
+      fogValue: { value: 0.01, min: 0.01, max: 1, label: "fog amount" },
+      fogColor: { value: "#003535", label: "fog color" },
     },
   );
 
@@ -87,6 +89,7 @@ const DriveScene = () => {
         fov={sceneConstants.fov}
         position={[0, 5, 10]}
       />
+      <fogExp2 attach="fog" args={[fogColor as string, fogValue as number]} />
       <Stats showPanel={sceneConstants.isDev ? 0 : 4} />
       <BackgroundLight />
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />

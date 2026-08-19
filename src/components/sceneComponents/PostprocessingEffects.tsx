@@ -9,6 +9,7 @@ import {
 import { BlendFunction } from "postprocessing";
 import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
+import { SpeedLines } from "./SpeedLinesEffect";
 
 const PostprocessingEffects = () => {
   const {
@@ -28,6 +29,9 @@ const PostprocessingEffects = () => {
     enableBC,
     brightness,
     contrast,
+    enableSpeedLines,
+    speedLinesIntensity,
+    speedLinesRadius,
   } = useTweakpane(
     { title: "🌟 Post-Processing", expanded: false },
     {
@@ -128,6 +132,16 @@ const PostprocessingEffects = () => {
         folder: "Color Grade",
         label: "contrast",
       },
+      enableSpeedLines: { value: true, folder: "Speed Lines", label: "enable" },
+      speedLinesIntensity: {
+        value: 0.0,
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        folder: "Speed Lines",
+        label: "intensity",
+      },
+      speedLinesRadius: { value: 0.4, min: 0.0, max: 1, step: 0.01 },
     },
   );
 
@@ -167,6 +181,13 @@ const PostprocessingEffects = () => {
         <Noise
           opacity={noiseOpacity as number}
           blendFunction={BlendFunction.OVERLAY}
+        />
+      )}
+
+      {enableSpeedLines && (
+        <SpeedLines
+          speed={speedLinesIntensity as number}
+          radius={speedLinesRadius as number}
         />
       )}
     </EffectComposer>
