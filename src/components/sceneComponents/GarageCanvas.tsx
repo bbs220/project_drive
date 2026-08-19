@@ -13,7 +13,7 @@ import { useCustomizationStore } from "../../stores/useCustomizationStore";
 import VehicleCar from "./VehicleCar";
 import VehiclePlane from "./VehiclePlane";
 import VehicleHelicopter from "./VehicleHelicopter";
-import RotatingScannerLights from "./RotatingScannerLights";
+import GarageLights from "./GarageLights";
 
 const GarageScene = () => {
   // pull the active vehicle string from your store
@@ -84,7 +84,7 @@ const GarageScene = () => {
     if (controlsRef.current) {
       const target = new THREE.Vector3(0, currentTargetY, 0);
 
-      // calculate the current viewing angle/direction from the target to the camera
+      // calculate the current viewing angle from the target to the camera
       let direction = camera.position.clone().sub(target).normalize();
 
       // fallback just in case the camera perfectly overlaps the target somehow
@@ -110,7 +110,7 @@ const GarageScene = () => {
       <fogExp2 attach="fog" args={[fogColor as string, fogValue as number]} />
       <color attach="background" args={[fogColor as string]} />
 
-      {/* lock the camera so the user cannot clip under the floor, and use our dynamic zoom/target constraints */}
+      {/* lock the camera so the user cannot clip under the floor, and use our dynamic zoom constraints */}
       <OrbitControls
         ref={controlsRef}
         enablePan={false}
@@ -120,44 +120,11 @@ const GarageScene = () => {
         target={[0, currentTargetY, 0]}
       />
 
-      {/* quad spotlight setup targeting the center origin */}
-      {/* front right */}
-      <spotLight
-        position={[4, 5, 4]}
-        angle={0.5}
-        penumbra={0.8}
-        intensity={15}
-        castShadow
-      />
-      {/* front left */}
-      <spotLight
-        position={[-4, 5, 4]}
-        angle={0.5}
-        penumbra={0.8}
-        intensity={15}
-        castShadow
-      />
-      {/* back right */}
-      <spotLight
-        position={[4, 5, -4]}
-        angle={0.5}
-        penumbra={0.8}
-        intensity={15}
-        castShadow
-      />
-      {/* back left */}
-      <spotLight
-        position={[-4, 5, -4]}
-        angle={0.5}
-        penumbra={0.8}
-        intensity={15}
-        castShadow
-      />
-
       {/* core showroom floor */}
       <Floor />
 
-      <RotatingScannerLights />
+      {/* dynamic quad directional lights */}
+      <GarageLights />
 
       {/* conditionally render only the active vehicle */}
       {activeGarageVehicle === "car" && <VehicleCar spawnMode="garage" />}
@@ -187,7 +154,7 @@ const GarageCanvas = () => {
   return (
     // enabling shadows is critical for the showroom aesthetic
     <>
-      <Canvas shadows={"soft"} dpr={setDpr as number}>
+      <Canvas shadows={"variance"} dpr={setDpr as number}>
         <Physics>
           <GarageScene />
         </Physics>
