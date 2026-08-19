@@ -70,9 +70,9 @@ const CustomizationUI = () => {
         </div>
 
         {/* modular customization panel */}
-        <div className="pointer-events-auto w-2xl flex items-center gap-6 whitespace-nowrap rounded-md rounded-t-none border border-tron-cyan px-8 py-3 font-telemetry text-sm text-gray-300 backdrop-blur-md [box-shadow:0_5px_15px_rgba(0,243,255,0.2)]">
+        <div className="pointer-events-auto relative z-0 w-2xl flex items-center justify-center whitespace-nowrap rounded-md border border-tron-cyan py-3 font-telemetry text-sm text-gray-300 backdrop-blur-md [box-shadow:0_5px_15px_rgba(0,243,255,0.2)]">
           {/* conditionally mount only the ui matching the active vehicle */}
-          <div className="flex items-center justify-center">
+          <div className="flex w-fit items-center justify-center">
             {activeGarageVehicle === "car" && <CustomizationVehicleCarUI />}
             {activeGarageVehicle === "plane" && <CustomizationVehiclePlaneUI />}
             {activeGarageVehicle === "helicopter" && (
