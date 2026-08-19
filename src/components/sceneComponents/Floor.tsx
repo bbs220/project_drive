@@ -10,7 +10,7 @@ const Floor = () => {
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -0.01, 0]}
       >
-        <planeGeometry args={[50, 50]} />
+        <planeGeometry args={[100, 100]} />
         {/* incredibly optimized real-time reflection material */}
         <MeshReflectorMaterial
           blur={[300, 100]}
