@@ -1,5 +1,8 @@
-import { Canvas } from "@react-three/fiber";
+import { useRef, useEffect } from "react";
+import * as THREE from "three";
+import { Canvas, useThree } from "@react-three/fiber";
 import { PerspectiveCamera, Stats, OrbitControls } from "@react-three/drei";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { sceneConstants } from "../../constants/otherConstants";
 import Floor from "./Floor";
 import PostprocessingEffects from "./PostprocessingEffects";
@@ -17,6 +20,9 @@ const GarageScene = () => {
   const activeGarageVehicle = useCustomizationStore(
     (state) => state.activeGarageVehicle,
   );
+
+  const { camera } = useThree();
+  const controlsRef = useRef<OrbitControlsImpl>(null);
 
   const {
     fogValue,
@@ -73,6 +79,30 @@ const GarageScene = () => {
         ? (planeTargetY as number)
         : (heliTargetY as number);
 
+  // automatically push the camera back to max distance whenever the vehicle changes
+  useEffect(() => {
+    if (controlsRef.current) {
+      const target = new THREE.Vector3(0, currentTargetY, 0);
+
+      // calculate the current viewing angle/direction from the target to the camera
+      let direction = camera.position.clone().sub(target).normalize();
+
+      // fallback just in case the camera perfectly overlaps the target somehow
+      if (direction.lengthSq() === 0) {
+        direction = new THREE.Vector3(0, 0, 1);
+      }
+
+      // multiply that direction by the max zoom and apply the new position
+      const newPos = target
+        .clone()
+        .add(direction.multiplyScalar(currentMaxZoom));
+      camera.position.copy(newPos);
+
+      // manually update the orbit controls to register the new position
+      controlsRef.current.update();
+    }
+  }, [activeGarageVehicle, currentMaxZoom, currentTargetY, camera]);
+
   return (
     <>
       <PerspectiveCamera makeDefault fov={35} position={[0, 3, 8]} />
@@ -82,6 +112,7 @@ const GarageScene = () => {
 
       {/* lock the camera so the user cannot clip under the floor, and use our dynamic zoom/target constraints */}
       <OrbitControls
+        ref={controlsRef}
         enablePan={false}
         maxPolarAngle={Math.PI / 2 - 0.05}
         minDistance={currentMinZoom}
