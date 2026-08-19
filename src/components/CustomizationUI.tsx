@@ -1,8 +1,12 @@
 import { useState } from "react";
+// import CustomizationVehicleCarUI from "./CustomizationVehicleCarUI";
+import CustomizationVehiclePlaneUI from "./CustomizationVehiclePlaneUI";
+import CustomizationVehicleHelicopterUI from "./CustomizationVehicleHelicopterUI";
 import {
   useCustomizationStore,
   type typeGarageVehicle,
 } from "../stores/useCustomizationStore";
+import CustomizationVehicleCarUI from "./CustomizationVehicleCarUI";
 
 const CustomizationUI = () => {
   const { activeGarageVehicle, setActiveGarageVehicle } =
@@ -26,7 +30,7 @@ const CustomizationUI = () => {
     // drop the black curtain
     setIsTransitioning(true);
 
-    // wait exactly 400ms for the screen to go fully black before swapping the heavy 3d models
+    // wait for the screen to go fully black before swapping the heavy 3d models
     setTimeout(() => {
       setActiveGarageVehicle(vehicleId);
 
@@ -47,7 +51,21 @@ const CustomizationUI = () => {
         }`}
       />
 
-      {/* invisible flex container to space out the 3 separate buttons */}
+      {/* modular right side customization panel */}
+      <div className="pointer-events-auto absolute right-6 top-6 flex max-h-[90vh] w-80 flex-col gap-4 overflow-y-auto rounded-md border border-tron-cyan bg-tron-bg/80 p-6 font-telemetry text-sm text-gray-300 backdrop-blur-md transition-all [box-shadow:0_0_15px_rgba(0,243,255,0.2)]">
+        <h2 className="mb-2 border-b border-gray-700 pb-3 text-lg font-bold uppercase tracking-wider text-white">
+          {activeGarageVehicle} Mods
+        </h2>
+
+        {/* conditionally mount only the ui matching the active vehicle */}
+        {activeGarageVehicle === "car" && <CustomizationVehicleCarUI />}
+        {activeGarageVehicle === "plane" && <CustomizationVehiclePlaneUI />}
+        {activeGarageVehicle === "helicopter" && (
+          <CustomizationVehicleHelicopterUI />
+        )}
+      </div>
+
+      {/* invisible flex container to space out the separate buttons */}
       <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-6">
         {vehicles.map((v) => (
           <button
