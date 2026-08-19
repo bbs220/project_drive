@@ -31,7 +31,7 @@ To achieve the glowing neon aesthetic without expensive 3D lighting calculations
 
 ## 📘 MATERIAL_RULESET
 
-| Property | Value |
+| **Property** | **Value** |
 | :--- | :--- |
 | Metallic | 1 |
 | Roughness | 0.1 |
