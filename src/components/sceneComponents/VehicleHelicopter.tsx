@@ -16,6 +16,7 @@ import {
 import { unwrapParam } from "../../utils/unwrapParam";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useVehicleHelicopterCreator } from "../../hooks/useVehicleHelicopterCreator";
+import type { VehicleProps } from "../../stores/useVehicleStore";
 
 // define strict types for the cabin geometry
 type typeCabinGLTF = GLTF & {
@@ -51,171 +52,176 @@ type typeTailRotorGLTF = GLTF & {
 };
 
 // main vehicle component updated with custom six point spherical physics
-const VehicleHelicopter = forwardRef<THREE.Group>((_props, ref) => {
-  // strict reference to the physics body so the hook can manipulate it
-  const chassisRef = useRef<RapierRigidBody>(null);
+const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
+  ({ spawnMode }, ref) => {
+    const initialSpawn = respawnValues[spawnMode].helicopter;
 
-  // refs for targeting rotor assemblies for purely visual animations
-  const mainRotorRef = useRef<THREE.Group>(null);
-  const tailRotorRef = useRef<THREE.Group>(null);
+    // strict reference to the physics body so the hook can manipulate it
+    const chassisRef = useRef<RapierRigidBody>(null);
 
-  // initialize global input listener to capture flight controls and structural keys
-  const controls = useAllVehicleInput();
+    // refs for targeting rotor assemblies for purely visual animations
+    const mainRotorRef = useRef<THREE.Group>(null);
+    const tailRotorRef = useRef<THREE.Group>(null);
 
-  // initialize tweakpane hook and store reactive parameters
-  const params = useTweakpane(
-    { title: "🚁 Helicopter Tuning", expanded: false },
-    vehicleHelicopterConstants.tuning,
-  );
+    // initialize global input listener to capture flight controls and structural keys
+    const controls = useAllVehicleInput();
 
-  // attach the helicopter physics hook to handle respawning and visual resets
-  useVehicleHelicopterCreator(
-    chassisRef,
-    mainRotorRef,
-    tailRotorRef,
-    controls,
-    params,
-  );
+    // initialize tweakpane hook and store reactive parameters
+    const params = useTweakpane(
+      { title: "🚁 Helicopter Tuning", expanded: false },
+      vehicleHelicopterConstants.tuning,
+    );
 
-  // load the separated models
-  const cabinGLTF = useGLTF(
-    modelsSeperatedBank.helicopter01cabin,
-  ) as unknown as typeCabinGLTF;
-  const topRotorGLTF = useGLTF(
-    modelsSeperatedBank.helicopter01topRotor,
-  ) as unknown as typeTopRotorGLTF;
-  const tailRotorGLTF = useGLTF(
-    modelsSeperatedBank.helicopter01tailRotor,
-  ) as unknown as typeTailRotorGLTF;
+    // attach the helicopter physics hook to handle respawning and visual resets
+    useVehicleHelicopterCreator(
+      chassisRef,
+      mainRotorRef,
+      tailRotorRef,
+      controls,
+      params,
+    );
 
-  // extract visual offsets using type safe utility
-  const cPosX = unwrapParam(params.cabinPosX, 0);
-  const cPosY = unwrapParam(params.cabinPosY, 0);
-  const cPosZ = unwrapParam(params.cabinPosZ, 1);
+    // load the separated models
+    const cabinGLTF = useGLTF(
+      modelsSeperatedBank.helicopter01cabin,
+    ) as unknown as typeCabinGLTF;
+    const topRotorGLTF = useGLTF(
+      modelsSeperatedBank.helicopter01topRotor,
+    ) as unknown as typeTopRotorGLTF;
+    const tailRotorGLTF = useGLTF(
+      modelsSeperatedBank.helicopter01tailRotor,
+    ) as unknown as typeTailRotorGLTF;
 
-  const mrPosX = unwrapParam(params.mainRotorPosX, 0);
-  const mrPosY = unwrapParam(params.mainRotorPosY, 2.25);
-  const mrPosZ = unwrapParam(params.mainRotorPosZ, -0.9);
+    // extract visual offsets using type safe utility
+    const cPosX = unwrapParam(params.cabinPosX, 0);
+    const cPosY = unwrapParam(params.cabinPosY, 0);
+    const cPosZ = unwrapParam(params.cabinPosZ, 1);
 
-  const trPosX = unwrapParam(params.tailRotorPosX, 0);
-  const trPosY = unwrapParam(params.tailRotorPosY, 0.1);
-  const trPosZ = unwrapParam(params.tailRotorPosZ, 6.46);
+    const mrPosX = unwrapParam(params.mainRotorPosX, 0);
+    const mrPosY = unwrapParam(params.mainRotorPosY, 2.25);
+    const mrPosZ = unwrapParam(params.mainRotorPosZ, -0.9);
 
-  return (
-    <group
-      position={respawnValues.drive.helicopter.position}
-      rotation={respawnValues.drive.helicopter.rotation}
-    >
-      <RigidBody ref={chassisRef} colliders={false} canSleep={false}>
-        {/* replace the multiple ball colliders inside your rigid body with this */}
-        <RoundCuboidCollider
-          args={[
-            unwrapParam(params.chassisWidth, 1.2),
-            unwrapParam(params.chassisHeight, 1.5),
-            unwrapParam(params.chassisLength, 3.5),
-            unwrapParam(params.chassisRadius, 0.2),
-          ]}
-          position={[0, 0, 0]}
-          mass={unwrapParam(params.chassisMass, 300)}
-        />
+    const trPosX = unwrapParam(params.tailRotorPosX, 0);
+    const trPosY = unwrapParam(params.tailRotorPosY, 0.1);
+    const trPosZ = unwrapParam(params.tailRotorPosZ, 6.46);
 
-        {/* offset group for tweakpane tuning */}
-        <group position={[cPosX, cPosY, cPosZ]}>
-          {/* visual elements perfectly wrapped in the forwarded ref group */}
-          <group ref={ref}>
-            {/* core cabin hierarchy mapped directly from blender export */}
-            <group name="Scene">
-              <group name="origin">
-                <mesh
-                  name="heliBody"
-                  castShadow
-                  receiveShadow
-                  geometry={cabinGLTF.nodes.heliBody.geometry}
-                  material={cabinGLTF.materials.Chopper_material}
-                >
+    return (
+      <group position={initialSpawn.position} rotation={initialSpawn.rotation}>
+        <RigidBody ref={chassisRef} colliders={false} canSleep={false}>
+          {/* replace the multiple ball colliders inside your rigid body with this */}
+          <RoundCuboidCollider
+            args={[
+              unwrapParam(params.chassisWidth, 1.2),
+              unwrapParam(params.chassisHeight, 1.5),
+              unwrapParam(params.chassisLength, 3.5),
+              unwrapParam(params.chassisRadius, 0.2),
+            ]}
+            position={[0, 0, 0]}
+            mass={unwrapParam(params.chassisMass, 300)}
+          />
+
+          {/* offset group for tweakpane tuning */}
+          <group position={[cPosX, cPosY, cPosZ]}>
+            {/* visual elements perfectly wrapped in the forwarded ref group */}
+            <group ref={ref}>
+              {/* core cabin hierarchy mapped directly from blender export */}
+              <group name="Scene">
+                <group name="origin">
                   <mesh
-                    name="heilTailWingLeft"
+                    name="heliBody"
                     castShadow
                     receiveShadow
-                    geometry={cabinGLTF.nodes.heilTailWingLeft.geometry}
-                    material={cabinGLTF.materials.Chopper_material}
-                  />
-                  <mesh
-                    name="heliBarrelSupport"
-                    castShadow
-                    receiveShadow
-                    geometry={cabinGLTF.nodes.heliBarrelSupport.geometry}
+                    geometry={cabinGLTF.nodes.heliBody.geometry}
                     material={cabinGLTF.materials.Chopper_material}
                   >
                     <mesh
-                      name="heliBarrelSupportMini"
+                      name="heilTailWingLeft"
                       castShadow
                       receiveShadow
-                      geometry={cabinGLTF.nodes.heliBarrelSupportMini.geometry}
+                      geometry={cabinGLTF.nodes.heilTailWingLeft.geometry}
+                      material={cabinGLTF.materials.Chopper_material}
+                    />
+                    <mesh
+                      name="heliBarrelSupport"
+                      castShadow
+                      receiveShadow
+                      geometry={cabinGLTF.nodes.heliBarrelSupport.geometry}
                       material={cabinGLTF.materials.Chopper_material}
                     >
                       <mesh
-                        name="heliBarrel"
+                        name="heliBarrelSupportMini"
                         castShadow
                         receiveShadow
-                        geometry={cabinGLTF.nodes.heliBarrel.geometry}
+                        geometry={
+                          cabinGLTF.nodes.heliBarrelSupportMini.geometry
+                        }
                         material={cabinGLTF.materials.Chopper_material}
-                      />
+                      >
+                        <mesh
+                          name="heliBarrel"
+                          castShadow
+                          receiveShadow
+                          geometry={cabinGLTF.nodes.heliBarrel.geometry}
+                          material={cabinGLTF.materials.Chopper_material}
+                        />
+                      </mesh>
                     </mesh>
+                    <mesh
+                      name="heliTailWingRight"
+                      castShadow
+                      receiveShadow
+                      geometry={cabinGLTF.nodes.heliTailWingRight.geometry}
+                      material={cabinGLTF.materials.Chopper_material}
+                    />
                   </mesh>
+                </group>
+              </group>
+
+              {/* main top rotor attached with dialable anchor */}
+              <group ref={mainRotorRef} position={[mrPosX, mrPosY, mrPosZ]}>
+                <mesh
+                  name="heliTopRotorCenter"
+                  castShadow
+                  receiveShadow
+                  geometry={topRotorGLTF.nodes.heliTopRotorCenter.geometry}
+                  material={topRotorGLTF.materials["Chopper_material.002"]}
+                >
                   <mesh
-                    name="heliTailWingRight"
+                    name="heliTopRotor"
                     castShadow
                     receiveShadow
-                    geometry={cabinGLTF.nodes.heliTailWingRight.geometry}
-                    material={cabinGLTF.materials.Chopper_material}
+                    geometry={topRotorGLTF.nodes.heliTopRotor.geometry}
+                    material={
+                      topRotorGLTF.materials["rotor_blades_material.001"]
+                    }
+                  />
+                  <mesh
+                    name="heliTopRotorDisc"
+                    castShadow
+                    receiveShadow
+                    geometry={topRotorGLTF.nodes.heliTopRotorDisc.geometry}
+                    material={topRotorGLTF.materials["chopper_rotors.001"]}
                   />
                 </mesh>
               </group>
-            </group>
 
-            {/* main top rotor attached with dialable anchor */}
-            <group ref={mainRotorRef} position={[mrPosX, mrPosY, mrPosZ]}>
-              <mesh
-                name="heliTopRotorCenter"
-                castShadow
-                receiveShadow
-                geometry={topRotorGLTF.nodes.heliTopRotorCenter.geometry}
-                material={topRotorGLTF.materials["Chopper_material.002"]}
-              >
+              {/* tail rotor attached with dialable anchor */}
+              <group ref={tailRotorRef} position={[trPosX, trPosY, trPosZ]}>
                 <mesh
-                  name="heliTopRotor"
+                  name="heliTailRotor"
                   castShadow
                   receiveShadow
-                  geometry={topRotorGLTF.nodes.heliTopRotor.geometry}
-                  material={topRotorGLTF.materials["rotor_blades_material.001"]}
+                  geometry={tailRotorGLTF.nodes.heliTailRotor.geometry}
+                  material={tailRotorGLTF.materials["rear_rotors.002"]}
                 />
-                <mesh
-                  name="heliTopRotorDisc"
-                  castShadow
-                  receiveShadow
-                  geometry={topRotorGLTF.nodes.heliTopRotorDisc.geometry}
-                  material={topRotorGLTF.materials["chopper_rotors.001"]}
-                />
-              </mesh>
-            </group>
-
-            {/* tail rotor attached with dialable anchor */}
-            <group ref={tailRotorRef} position={[trPosX, trPosY, trPosZ]}>
-              <mesh
-                name="heliTailRotor"
-                castShadow
-                receiveShadow
-                geometry={tailRotorGLTF.nodes.heliTailRotor.geometry}
-                material={tailRotorGLTF.materials["rear_rotors.002"]}
-              />
+              </group>
             </group>
           </group>
-        </group>
-      </RigidBody>
-    </group>
-  );
-});
+        </RigidBody>
+      </group>
+    );
+  },
+);
 
 // assign display name for react devtools compatibility
 VehicleHelicopter.displayName = "VehicleHelicopter";
