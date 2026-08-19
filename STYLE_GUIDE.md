@@ -28,3 +28,13 @@ To achieve the glowing neon aesthetic without expensive 3D lighting calculations
 * Only the text and inner elements within a container have text-shadow or drop-shadow effects.
 * Create a dense inner core of light (e.g., `5px` spread) surrounded by a softer, wider falloff (e.g., `20px` spread).
 * This perfectly mimics a WebGL post-processing bloom pass while keeping UI rendering completely separate and highly performant.
+
+## 📘 MATERIAL_RULESET
+
+| Property | Value |
+| :--- | :--- |
+| Metallic | 1 |
+| Roughness | 0.1 |
+| IOR | 1.5 |
+| Alpha | 1 |
+| Normal | Default |
