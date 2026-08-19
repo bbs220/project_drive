@@ -1,21 +1,16 @@
 import { Canvas } from "@react-three/fiber";
-import {
-  PerspectiveCamera,
-  Stats,
-  OrbitControls,
-  Environment,
-} from "@react-three/drei";
+import { PerspectiveCamera, Stats, OrbitControls } from "@react-three/drei";
 import { sceneConstants } from "../../constants/otherConstants";
 import Floor from "./Floor";
 import PostprocessingEffects from "./PostprocessingEffects";
 import { useTweakpane } from "../../hooks/useTweakpane";
-import { bankHDR } from "../../utils/assetpaths";
 import { Physics } from "@react-three/rapier";
 import CustomizationUI from "../CustomizationUI";
 import { useCustomizationStore } from "../../stores/useCustomizationStore";
 import VehicleCar from "./VehicleCar";
 import VehiclePlane from "./VehiclePlane";
 import VehicleHelicopter from "./VehicleHelicopter";
+import RotatingScannerLights from "./RotatingScannerLights";
 
 const GarageScene = () => {
   // pull the active vehicle string from your store
@@ -94,8 +89,6 @@ const GarageScene = () => {
         target={[0, currentTargetY, 0]}
       />
 
-      <Environment files={bankHDR.studio} environmentIntensity={0.4} />
-
       {/* quad spotlight setup targeting the center origin */}
       {/* front right */}
       <spotLight
@@ -132,6 +125,8 @@ const GarageScene = () => {
 
       {/* core showroom floor */}
       <Floor />
+
+      <RotatingScannerLights />
 
       {/* conditionally render only the active vehicle */}
       {activeGarageVehicle === "car" && <VehicleCar spawnMode="garage" />}
