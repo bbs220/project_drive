@@ -1,5 +1,6 @@
 varying vec2 vUv;
 varying float vRoadType;
+#include <fog_pars_fragment>
 
 void main() {
     vec3 asphaltColor = vec3(0.0);
@@ -38,4 +39,5 @@ void main() {
     finalColor = mix(finalColor,cyanCenterGlow,finalCenter);
 
     gl_FragColor = vec4(finalColor,1.0);
+    #include <fog_fragment>
 }

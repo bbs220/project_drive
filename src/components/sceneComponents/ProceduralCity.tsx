@@ -42,6 +42,8 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
       vertexShader: buildingVert,
       fragmentShader: buildingFrag,
       toneMapped: false,
+      fog: true,
+      uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog]),
     });
   }, []);
 
@@ -50,6 +52,8 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
       vertexShader: roadVert,
       fragmentShader: roadFrag,
       toneMapped: false,
+      fog: true,
+      uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog]),
     });
   }, []);
 

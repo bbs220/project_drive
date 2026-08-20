@@ -1,5 +1,6 @@
 varying vec2 vUv;
 varying float vHeight;
+#include <fog_pars_fragment>
 
 void main() {
     vec3 obsidian = vec3(0.005,0.01,0.015);
@@ -27,4 +28,5 @@ void main() {
     vec3 finalColor = mix(obsidian,neonCyan,clamp(finalGlowIntensity,0.0,1.0));
 
     gl_FragColor = vec4(finalColor,1.0);
+    #include <fog_fragment>
 }

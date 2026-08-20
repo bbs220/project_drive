@@ -26,7 +26,7 @@ const SharedControlsDisplay = ({
 
   return (
     // container automatically flexes to the narrower content width with flex col
-    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1.5 whitespace-nowrap rounded-md border border-tron-cyan bg-tron-bg/80 px-8 py-2 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
+    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1.5 whitespace-nowrap rounded-md border border-tron-cyan px-8 py-2 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
       {/* primary row specific vehicle and character controls */}
       <div className="flex items-center gap-4">
         {controls.map((ctrl, index) => (
@@ -85,7 +85,7 @@ const AttitudeIndicator = ({
 
   return (
     // attitude container with glowing border only and no outer shadow
-    <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-tron-cyan bg-tron-bg/80 p-2 [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
+    <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-tron-cyan p-2 [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
       {/* rotating compass bezel mapping to yaw with bright yellow text */}
       <div
         className="absolute inset-1 rounded-full font-label text-xs font-bold text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)]"
@@ -191,7 +191,7 @@ const AltimeterTape = ({ altitude }: { altitude: number }) => {
 
   return (
     // altimeter container with glowing border only and no outer shadow
-    <div className="relative flex h-24 w-20 items-center overflow-hidden rounded-md border border-tron-cyan bg-tron-bg/80 pl-2 pr-4 text-right font-telemetry text-tron-cyan [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
+    <div className="relative flex h-24 w-20 items-center overflow-hidden rounded-md border border-tron-cyan pl-2 pr-4 text-right font-telemetry text-tron-cyan [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
       {/* static center indicator chevron glowing yellow */}
       <div className="absolute left-2 top-1/2 z-10 -translate-y-1/2 font-black text-tron-yellow [text-shadow:0_0_10px_var(--color-tron-yellow)]">
         {">"}

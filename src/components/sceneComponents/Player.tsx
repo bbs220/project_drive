@@ -10,6 +10,7 @@ import { unwrapParam } from "../../utils/unwrapParam";
 import { playerConstants, respawnValues } from "../../constants/otherConstants";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { usePlayerCreator } from "../../hooks/usePlayerCreator";
+import { MeshReflectorMaterial } from "@react-three/drei";
 
 // main player component for walking around the world
 const Player = forwardRef<THREE.Group>((_props, ref) => {
@@ -62,7 +63,19 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
             {/* placeholder mesh matching dynamic tweakpane capsule dimensions */}
             <mesh>
               <capsuleGeometry args={[capsuleRadius, capsuleHalfHeight * 2]} />
-              <meshStandardMaterial color="hotpink" />
+              <MeshReflectorMaterial
+                blur={[300, 100]}
+                resolution={1024}
+                mixBlur={1}
+                mixStrength={50}
+                roughness={0.15}
+                depthScale={1.2}
+                minDepthThreshold={0.4}
+                maxDepthThreshold={1.4}
+                color="#003535"
+                metalness={0.8}
+                mirror={1}
+              />
             </mesh>
 
             {/* neon cyan visor/nose to clearly indicate the forward facing direction */}
@@ -70,7 +83,19 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
               position={[0, capsuleHalfHeight * 0.5, -(capsuleRadius + 0.1)]}
             >
               <boxGeometry args={[0.4, 0.15, 0.3]} />
-              <meshStandardMaterial color="cyan" />
+              <MeshReflectorMaterial
+                blur={[300, 100]}
+                resolution={1024}
+                mixBlur={1}
+                mixStrength={50}
+                roughness={0.15}
+                depthScale={1.2}
+                minDepthThreshold={0.4}
+                maxDepthThreshold={1.4}
+                color="#003535"
+                metalness={0.8}
+                mirror={1}
+              />
             </mesh>
           </group>
         </group>
