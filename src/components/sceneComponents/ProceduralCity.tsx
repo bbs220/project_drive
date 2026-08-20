@@ -2,12 +2,16 @@ import { useMemo, useRef, useLayoutEffect } from "react";
 import * as THREE from "three";
 import { getTerrainData } from "../../utils/worldGenerator";
 import { useCityStore } from "../../stores/useCItyStore";
+import roadVert from "./shaders/roadVert.glsl";
+import roadFrag from "./shaders/roadFrag.glsl";
 
 // define typescript shape for our visual instances
 export type typeInstanceConfig = {
   key: string;
   position: [number, number, number];
   scale: [number, number, number];
+  rotation?: [number, number, number];
+  roadType?: number;
 };
 
 // reusable dummy object to calculate matrix math without memory overhead
@@ -23,19 +27,27 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
   // subscribe strictly to the city version triggered by the ui radar
   const version = useCityStore((state) => state.version);
 
-  // refs to directly manipulate the instanced meshes
+  // refs to directly manipulate the instanced meshes and geometries
   const buildingsRef = useRef<THREE.InstancedMesh>(null);
   const roadsRef = useRef<THREE.InstancedMesh>(null);
+  const roadGeomRef = useRef<THREE.BoxGeometry>(null);
+
+  // create the shader material once so it doesn't recompile
+  const roadMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      vertexShader: roadVert,
+      fragmentShader: roadFrag,
+      toneMapped: false,
+    });
+  }, []);
 
   // precompute all instance data for visuals in a single pass
   const { buildings, roads } = useMemo(() => {
     // read the version variable to satisfy the react compiler dependency checks
     const activeVersion = version;
 
-    // hold temporary building instances
+    // hold temporary instances
     const tempBuildings: typeInstanceConfig[] = [];
-
-    // hold temporary road instances
     const tempRoads: typeInstanceConfig[] = [];
 
     // base dimensions for the procedural chunk
@@ -69,11 +81,34 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
             scale: [8, data.elevation, 8],
           });
         } else if (data.type === "road") {
+          let roadType = 0.0;
+          let rotation: [number, number, number] = [0, 0, 0];
+
+          // query the grid neighbors to see where connected roads are
+          const n = getTerrainData(worldX, worldZ - cellSize).type === "road";
+          const s = getTerrainData(worldX, worldZ + cellSize).type === "road";
+          const e = getTerrainData(worldX + cellSize, worldZ).type === "road";
+          const w = getTerrainData(worldX - cellSize, worldZ).type === "road";
+
+          const hasVerticalNeighbor = n || s;
+          const hasHorizontalNeighbor = e || w;
+
+          // if it has both vertical and horizontal connections it is an intersection
+          if (hasVerticalNeighbor && hasHorizontalNeighbor) {
+            roadType = 1.0;
+          }
+          // if it is purely east to west we rotate the dashes ninety degrees
+          else if (hasHorizontalNeighbor && !hasVerticalNeighbor) {
+            rotation = [0, Math.PI / 2, 0];
+          }
+
           // roads sit slightly above the ground to avoid z fighting with the shader grid
           tempRoads.push({
             key: `r_${key}`,
             position: [x, 0.05, z],
             scale: [10, 0.1, 10],
+            rotation,
+            roadType,
           });
         }
       }
@@ -85,25 +120,41 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
     };
   }, [version, chunkX, chunkZ]);
 
-  // write the positional matrices to the gpu whenever the data changes
+  // write the positional matrices and custom attributes to the gpu
   useLayoutEffect(() => {
     if (buildingsRef.current) {
       buildings.forEach((b, i) => {
         dummy.position.set(...b.position);
         dummy.scale.set(...b.scale);
+        dummy.rotation.set(0, 0, 0); // reset rotation for buildings
         dummy.updateMatrix();
         buildingsRef.current!.setMatrixAt(i, dummy.matrix);
       });
       buildingsRef.current.instanceMatrix.needsUpdate = true;
     }
 
-    if (roadsRef.current) {
+    if (roadsRef.current && roadGeomRef.current) {
+      // create the array to hold our custom intersection flag
+      const roadTypes = new Float32Array(roads.length);
+
       roads.forEach((r, i) => {
         dummy.position.set(...r.position);
         dummy.scale.set(...r.scale);
+        // apply rotation if it exists
+        dummy.rotation.set(...(r.rotation || [0, 0, 0]));
         dummy.updateMatrix();
+
         roadsRef.current!.setMatrixAt(i, dummy.matrix);
+        // assign the road type into the array
+        roadTypes[i] = r.roadType || 0.0;
       });
+
+      // push the array to the geometry as an instanced buffer attribute
+      roadGeomRef.current.setAttribute(
+        "aRoadType",
+        new THREE.InstancedBufferAttribute(roadTypes, 1),
+      );
+
       roadsRef.current.instanceMatrix.needsUpdate = true;
     }
   }, [buildings, roads]);
@@ -125,14 +176,14 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
         </instancedMesh>
       )}
 
-      {/* roads are flat static objects using the laser magenta pulse color */}
+      {/* roads powered by our custom glsl instanced shader */}
       {roads.length > 0 && (
         <instancedMesh
           ref={roadsRef}
           args={[undefined, undefined, roads.length]}
+          material={roadMaterial}
         >
-          <boxGeometry />
-          <meshBasicMaterial color="red" toneMapped={false} />
+          <boxGeometry ref={roadGeomRef} />
         </instancedMesh>
       )}
     </group>
