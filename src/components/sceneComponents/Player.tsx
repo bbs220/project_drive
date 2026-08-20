@@ -5,13 +5,24 @@ import {
   CapsuleCollider,
   type RapierRigidBody,
 } from "@react-three/rapier";
+import { useGLTF } from "@react-three/drei";
+import type { GLTF } from "three-stdlib";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { unwrapParam } from "../../utils/unwrapParam";
 import { playerConstants, respawnValues } from "../../constants/otherConstants";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { usePlayerCreator } from "../../hooks/usePlayerCreator";
-import { Gltf, MeshReflectorMaterial } from "@react-three/drei";
-import { modelsBank } from "../../utils/assetpaths";
+
+type GLTFResult = GLTF & {
+  nodes: {
+    base: THREE.Mesh;
+    stripes: THREE.Mesh;
+  };
+  materials: {
+    Albedo: THREE.MeshPhysicalMaterial;
+    EmmissiveParts: THREE.MeshPhysicalMaterial;
+  };
+};
 
 // main player component for walking around the world
 const Player = forwardRef<THREE.Group>((_props, ref) => {
@@ -20,6 +31,11 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
 
   // dedicated reference purely for spinning the visual mesh independent of physics
   const visualRef = useRef<THREE.Group>(null);
+
+  // load the model directly inside the player component
+  const { nodes, materials } = useGLTF(
+    "/models/player01Compressed.glb",
+  ) as unknown as GLTFResult;
 
   // initialize global input listener to capture wasd and structural keys
   const controls = useAllVehicleInput();
@@ -61,44 +77,29 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
         <group ref={ref}>
           {/* the inner group handles the smooth visual rotation from the physics hook */}
           <group ref={visualRef}>
-            <Gltf src={modelsBank.player01} />
-            {/* placeholder mesh matching dynamic tweakpane capsule dimensions */}
-            <mesh>
-              <capsuleGeometry args={[capsuleRadius, capsuleHalfHeight * 2]} />
-              <MeshReflectorMaterial
-                blur={[300, 100]}
-                resolution={1024}
-                mixBlur={1}
-                mixStrength={50}
-                roughness={0.15}
-                depthScale={1.2}
-                minDepthThreshold={0.4}
-                maxDepthThreshold={1.4}
-                color="#003535"
-                metalness={0.8}
-                mirror={1}
-              />
-            </mesh>
-
-            {/* neon cyan visor/nose to clearly indicate the forward facing direction */}
-            <mesh
-              position={[0, capsuleHalfHeight * 0.5, -(capsuleRadius + 0.1)]}
+            {/* The inline model, shifted down by the capsule's half-height + radius so its feet touch the floor */}
+            <group
+              position={[0, -(capsuleHalfHeight + capsuleRadius), 0]}
+              dispose={null}
             >
-              <boxGeometry args={[0.4, 0.15, 0.3]} />
-              <MeshReflectorMaterial
-                blur={[300, 100]}
-                resolution={1024}
-                mixBlur={1}
-                mixStrength={50}
-                roughness={0.15}
-                depthScale={1.2}
-                minDepthThreshold={0.4}
-                maxDepthThreshold={1.4}
-                color="#003535"
-                metalness={0.8}
-                mirror={1}
-              />
-            </mesh>
+              <group name="Scene">
+                <mesh
+                  name="base"
+                  castShadow
+                  receiveShadow
+                  geometry={nodes.base.geometry}
+                  material={materials.Albedo}
+                >
+                  <mesh
+                    name="stripes"
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.stripes.geometry}
+                    material={materials.EmmissiveParts}
+                  />
+                </mesh>
+              </group>
+            </group>
           </group>
         </group>
       </RigidBody>
@@ -108,5 +109,8 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
 
 // assign display name for react devtools compatibility
 Player.displayName = "Player";
+
+// preload the asset so it's ready before the component mounts
+useGLTF.preload("/models/player01Compressed.glb");
 
 export default Player;
