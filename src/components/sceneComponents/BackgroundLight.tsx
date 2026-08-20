@@ -46,7 +46,9 @@ const BackgroundLight = () => {
   const activeIndex = envKeys.indexOf(activeEnvironment as string);
   const activeSkyMap = envTextures[activeIndex];
 
-  return <Environment map={activeSkyMap} background />;
+  return (
+    <Environment map={activeSkyMap} background backgroundBlurriness={0.8} />
+  );
 };
 
 export default BackgroundLight;

@@ -10,7 +10,8 @@ import { unwrapParam } from "../../utils/unwrapParam";
 import { playerConstants, respawnValues } from "../../constants/otherConstants";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { usePlayerCreator } from "../../hooks/usePlayerCreator";
-import { MeshReflectorMaterial } from "@react-three/drei";
+import { Gltf, MeshReflectorMaterial } from "@react-three/drei";
+import { modelsBank } from "../../utils/assetpaths";
 
 // main player component for walking around the world
 const Player = forwardRef<THREE.Group>((_props, ref) => {
@@ -60,6 +61,7 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
         <group ref={ref}>
           {/* the inner group handles the smooth visual rotation from the physics hook */}
           <group ref={visualRef}>
+            <Gltf src={modelsBank.player01} />
             {/* placeholder mesh matching dynamic tweakpane capsule dimensions */}
             <mesh>
               <capsuleGeometry args={[capsuleRadius, capsuleHalfHeight * 2]} />

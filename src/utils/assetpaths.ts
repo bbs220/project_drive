@@ -10,7 +10,7 @@ export const modelsBank = {
   runner02: "/models/runner02.glb",
   runner03: "/models/runner03.glb",
   runner04: "/models/runner04.glb",
-  willow01: "/models/tronWillow01.glb",
+  player01: "/models/player01Compressed.glb",
 };
 
 export const modelsSeperatedBank = {
