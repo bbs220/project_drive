@@ -4,6 +4,8 @@ import { getTerrainData } from "../../utils/worldGenerator";
 import { useCityStore } from "../../stores/useCItyStore";
 import roadVert from "./shaders/roadVert.glsl";
 import roadFrag from "./shaders/roadFrag.glsl";
+import buildingVert from "./shaders/buildingVert.glsl";
+import buildingFrag from "./shaders/buildingFrag.glsl";
 
 // define typescript shape for our visual instances
 export type typeInstanceConfig = {
@@ -12,6 +14,7 @@ export type typeInstanceConfig = {
   scale: [number, number, number];
   rotation?: [number, number, number];
   roadType?: number;
+  colorIndex?: number;
 };
 
 // reusable dummy object to calculate matrix math without memory overhead
@@ -31,8 +34,17 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
   const buildingsRef = useRef<THREE.InstancedMesh>(null);
   const roadsRef = useRef<THREE.InstancedMesh>(null);
   const roadGeomRef = useRef<THREE.BoxGeometry>(null);
+  const buildingGeomRef = useRef<THREE.BoxGeometry>(null);
 
-  // create the shader material once so it doesn't recompile
+  // create the shader materials once so they don't recompile
+  const buildingMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      vertexShader: buildingVert,
+      fragmentShader: buildingFrag,
+      toneMapped: false,
+    });
+  }, []);
+
   const roadMaterial = useMemo(() => {
     return new THREE.ShaderMaterial({
       vertexShader: roadVert,
@@ -43,38 +55,27 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
 
   // precompute all instance data for visuals in a single pass
   const { buildings, roads } = useMemo(() => {
-    // read the version variable to satisfy the react compiler dependency checks
     const activeVersion = version;
 
-    // hold temporary instances
     const tempBuildings: typeInstanceConfig[] = [];
     const tempRoads: typeInstanceConfig[] = [];
 
-    // base dimensions for the procedural chunk
     const chunkSize = 300;
     const halfChunk = chunkSize / 2;
     const cellSize = 10;
     const halfCell = cellSize / 2;
 
-    // calculate the exact mathematical world offset for this specific chunk
     const worldOffsetX = chunkX * chunkSize;
     const worldOffsetZ = chunkZ * chunkSize;
 
-    // loop through local coordinates offset by half a cell to perfectly center the grid
     for (let x = -halfChunk + halfCell; x < halfChunk; x += cellSize) {
       for (let z = -halfChunk + halfCell; z < halfChunk; z += cellSize) {
-        // inject the chunk offset into the local loop to find the true world coordinate
         const worldX = x + worldOffsetX;
         const worldZ = z + worldOffsetZ;
-
-        // strictly ask the generator what belongs at the absolute world coordinate
         const data = getTerrainData(worldX, worldZ);
-
-        // inject version and world coordinates into the key for perfect caching
         const key = `v${activeVersion}_${worldX}_${worldZ}`;
 
         if (data.type === "building") {
-          // position instances locally so they stay perfectly inside their chunk wrapper
           tempBuildings.push({
             key: `b_${key}`,
             position: [x, data.elevation / 2, z],
@@ -84,7 +85,6 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
           let roadType = 0.0;
           let rotation: [number, number, number] = [0, 0, 0];
 
-          // query the grid neighbors to see where connected roads are
           const n = getTerrainData(worldX, worldZ - cellSize).type === "road";
           const s = getTerrainData(worldX, worldZ + cellSize).type === "road";
           const e = getTerrainData(worldX + cellSize, worldZ).type === "road";
@@ -93,16 +93,12 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
           const hasVerticalNeighbor = n || s;
           const hasHorizontalNeighbor = e || w;
 
-          // if it has both vertical and horizontal connections it is an intersection
           if (hasVerticalNeighbor && hasHorizontalNeighbor) {
             roadType = 1.0;
-          }
-          // if it is purely east to west we rotate the dashes ninety degrees
-          else if (hasHorizontalNeighbor && !hasVerticalNeighbor) {
+          } else if (hasHorizontalNeighbor && !hasVerticalNeighbor) {
             rotation = [0, Math.PI / 2, 0];
           }
 
-          // roads sit slightly above the ground to avoid z fighting with the shader grid
           tempRoads.push({
             key: `r_${key}`,
             position: [x, 0.05, z],
@@ -120,63 +116,64 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
     };
   }, [version, chunkX, chunkZ]);
 
-  // write the positional matrices and custom attributes to the gpu
+  // combined GPU Write phase for both Buildings and Roads
   useLayoutEffect(() => {
-    if (buildingsRef.current) {
+    if (buildingsRef.current && buildingGeomRef.current) {
+      const buildingHeights = new Float32Array(buildings.length);
+
       buildings.forEach((b, i) => {
         dummy.position.set(...b.position);
         dummy.scale.set(...b.scale);
-        dummy.rotation.set(0, 0, 0); // reset rotation for buildings
+        dummy.rotation.set(0, 0, 0);
         dummy.updateMatrix();
+
         buildingsRef.current!.setMatrixAt(i, dummy.matrix);
+        buildingHeights[i] = b.scale[1]; // Save elevation
       });
+
+      buildingGeomRef.current.setAttribute(
+        "aHeight",
+        new THREE.InstancedBufferAttribute(buildingHeights, 1),
+      );
       buildingsRef.current.instanceMatrix.needsUpdate = true;
     }
 
     if (roadsRef.current && roadGeomRef.current) {
-      // create the array to hold our custom intersection flag
       const roadTypes = new Float32Array(roads.length);
 
       roads.forEach((r, i) => {
         dummy.position.set(...r.position);
         dummy.scale.set(...r.scale);
-        // apply rotation if it exists
         dummy.rotation.set(...(r.rotation || [0, 0, 0]));
         dummy.updateMatrix();
 
         roadsRef.current!.setMatrixAt(i, dummy.matrix);
-        // assign the road type into the array
         roadTypes[i] = r.roadType || 0.0;
       });
 
-      // push the array to the geometry as an instanced buffer attribute
       roadGeomRef.current.setAttribute(
         "aRoadType",
         new THREE.InstancedBufferAttribute(roadTypes, 1),
       );
-
       roadsRef.current.instanceMatrix.needsUpdate = true;
     }
   }, [buildings, roads]);
 
   return (
-    // shift the entire chunk group to its proper grid location in the 3d world
     <group
       position={[chunkX * 300, 0, chunkZ * 300]}
       key={`${version}_${chunkX}_${chunkZ}`}
     >
-      {/* buildings are static objects using the neon cyan grid color */}
       {buildings.length > 0 && (
         <instancedMesh
           ref={buildingsRef}
           args={[undefined, undefined, buildings.length]}
+          material={buildingMaterial}
         >
-          <boxGeometry />
-          <meshBasicMaterial color="blue" toneMapped={false} />
+          <boxGeometry ref={buildingGeomRef} />
         </instancedMesh>
       )}
 
-      {/* roads powered by our custom glsl instanced shader */}
       {roads.length > 0 && (
         <instancedMesh
           ref={roadsRef}
