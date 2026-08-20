@@ -1,7 +1,6 @@
 varying vec2 vUv;
 varying float vHeight;
 varying vec3 vLocalPosition;
-
 attribute float aHeight;
 
 void main() {

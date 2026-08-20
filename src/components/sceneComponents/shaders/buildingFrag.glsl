@@ -1,7 +1,5 @@
 varying vec2 vUv;
 varying float vHeight;
-// vLocalPosition is no longer needed here, but you can leave it in the varying definition 
-// just in case you want to use it later, or strip it from the vertex shader too!
 
 void main() {
     vec3 obsidian = vec3(0.005,0.01,0.015);
