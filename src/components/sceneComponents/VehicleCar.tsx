@@ -17,7 +17,7 @@ import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import { unwrapParam } from "../../utils/unwrapParam";
 import type { VehicleProps } from "../../stores/useVehicleStore";
-import VehicleTrail from "./VehicleTrail";
+import TrailEngine from "./TrailEngine";
 
 // type definitions for the cleaned up gltf models
 type typeChassisGLTF = GLTF & {
@@ -145,13 +145,13 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
             args={[cWidth / 2, cHeight / 2, cLength / 2, cBorderRadius]}
             position={[cPosX, cPosY, cPosZ]}
           />
-          <VehicleTrail
+          <TrailEngine
             offset={[-0.45, 0.8, -0.8]}
             color={"#ffffff"}
             width={1}
             length={5}
           />
-          <VehicleTrail
+          <TrailEngine
             offset={[0.45, 0.8, -0.8]}
             color={"#ffffff"}
             width={1}

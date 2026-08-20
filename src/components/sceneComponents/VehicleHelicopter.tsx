@@ -17,7 +17,7 @@ import { unwrapParam } from "../../utils/unwrapParam";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useVehicleHelicopterCreator } from "../../hooks/useVehicleHelicopterCreator";
 import type { VehicleProps } from "../../stores/useVehicleStore";
-import VehicleTrail from "./VehicleTrail";
+import TrailEngine from "./TrailEngine";
 
 // define strict types for the cabin geometry
 type typeCabinGLTF = GLTF & {
@@ -120,13 +120,13 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
             position={[0, 0, 0]}
             mass={unwrapParam(params.chassisMass, 300)}
           />
-          <VehicleTrail
+          <TrailEngine
             offset={[-1.4, 0.6, 4.6]}
             color={"#bcff05"}
             width={1}
             length={15}
           />
-          <VehicleTrail
+          <TrailEngine
             offset={[1.4, 0.6, 4.6]}
             color={"#bcff05"}
             width={1}

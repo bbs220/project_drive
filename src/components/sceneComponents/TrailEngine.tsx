@@ -11,7 +11,7 @@ export type VehicleTrailProps = {
   offset?: [number, number, number];
 };
 
-const VehicleTrail = ({
+const TrailEngine = ({
   width = 0.2,
   length = 20,
   decay = 1,
@@ -44,4 +44,4 @@ const VehicleTrail = ({
   );
 };
 
-export default VehicleTrail;
+export default TrailEngine;
