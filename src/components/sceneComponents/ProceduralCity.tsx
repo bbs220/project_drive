@@ -165,7 +165,7 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
 
   return (
     <group
-      position={[chunkX * 300, 0, chunkZ * 300]}
+      position={[chunkX * 300, -0.48, chunkZ * 300]}
       key={`${version}_${chunkX}_${chunkZ}`}
     >
       {buildings.length > 0 && (

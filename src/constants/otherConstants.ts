@@ -48,12 +48,12 @@ export const playerConstants = {
   tuning: {
     // physical capsule dimensions and weight
     capsuleHalfHeight: {
-      value: 0.3,
+      value: 0.8,
       min: 0.1,
       max: 2,
       label: "capsule half height",
     },
-    capsuleRadius: { value: 0.2, min: 0.1, max: 1, label: "capsule radius" },
+    capsuleRadius: { value: 0.3, min: 0.1, max: 1, label: "capsule radius" },
     playerMass: { value: 30, min: 10, max: 200, label: "player mass" },
 
     // movement physics

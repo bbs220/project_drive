@@ -4,8 +4,8 @@ varying float vRoadType;
 
 void main() {
     vec3 asphaltColor = vec3(0.0);
-    vec3 cyanCenterGlow = vec3(0.0,1.0,1.0) * 5.0;
-    vec3 yellowEdgeGlow = vec3(1.0,0.8,0.0) * 5.0;
+    vec3 cyanCenterGlow = vec3(0.0,1.0,1.0) * 2.0;
+    vec3 yellowEdgeGlow = vec3(1.0,0.8,0.0) * 3.0;
 
     float lineX = smoothstep(0.48,0.5,vUv.x) - smoothstep(0.5,0.52,vUv.x);
     float dashes = step(0.3,fract(vUv.y * 3.0));
