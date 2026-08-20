@@ -3,10 +3,7 @@ import {
   EffectComposer,
   DepthOfField,
   ChromaticAberration,
-  Noise,
-  BrightnessContrast,
 } from "@react-three/postprocessing";
-import { BlendFunction } from "postprocessing";
 import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { SpeedLines } from "./SpeedLinesEffect";
@@ -24,11 +21,6 @@ const PostprocessingEffects = () => {
     enableCA,
     caOffsetX,
     caOffsetY,
-    enableNoise,
-    noiseOpacity,
-    enableBC,
-    brightness,
-    contrast,
     enableSpeedLines,
     speedLinesIntensity,
     speedLinesRadius,
@@ -106,42 +98,22 @@ const PostprocessingEffects = () => {
         folder: "Chromatic Aberration",
         label: "offset Y",
       },
-      enableNoise: { value: false, folder: "Noise", label: "enable" },
-      noiseOpacity: {
-        value: 0.03,
-        min: 0.0,
-        max: 1.0,
-        step: 0.01,
-        folder: "Noise",
-        label: "opacity",
-      },
-      enableBC: { value: false, folder: "Color Grade", label: "enable" },
-      brightness: {
-        value: 0.0,
-        min: -1.0,
-        max: 1.0,
-        step: 0.05,
-        folder: "Color Grade",
-        label: "brightness",
-      },
-      contrast: {
-        value: 0.2,
-        min: -1.0,
-        max: 1.0,
-        step: 0.05,
-        folder: "Color Grade",
-        label: "contrast",
-      },
-      enableSpeedLines: { value: true, folder: "Speed Lines", label: "enable" },
+      enableSpeedLines: { value: true, folder: "speedlines", label: "enable" },
       speedLinesIntensity: {
         value: 0.0,
         min: 0.0,
         max: 1.0,
         step: 0.01,
-        folder: "Speed Lines",
+        folder: "speedlines",
         label: "intensity",
       },
-      speedLinesRadius: { value: 0.4, min: 0.0, max: 1, step: 0.01 },
+      speedLinesRadius: {
+        value: 0.4,
+        min: 0.0,
+        max: 1,
+        step: 0.01,
+        folder: "speedlines",
+      },
     },
   );
 
@@ -164,23 +136,9 @@ const PostprocessingEffects = () => {
         />
       )}
 
-      {enableBC && (
-        <BrightnessContrast
-          brightness={brightness as number}
-          contrast={contrast as number}
-        />
-      )}
-
       {enableCA && (
         <ChromaticAberration
           offset={new THREE.Vector2(caOffsetX as number, caOffsetY as number)}
-        />
-      )}
-
-      {enableNoise && (
-        <Noise
-          opacity={noiseOpacity as number}
-          blendFunction={BlendFunction.OVERLAY}
         />
       )}
 
