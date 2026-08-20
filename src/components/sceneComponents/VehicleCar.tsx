@@ -145,15 +145,12 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
             args={[cWidth / 2, cHeight / 2, cLength / 2, cBorderRadius]}
             position={[cPosX, cPosY, cPosZ]}
           />
-          // inside VehicleCar.tsx (underneath your chassis meshes)
-          {/* Left Brake Light Trail */}
           <VehicleTrail
             offset={[-0.45, 0.8, -0.8]}
             color={"#ffffff"}
             width={1}
             length={5}
           />
-          {/* Right Brake Light Trail */}
           <VehicleTrail
             offset={[0.45, 0.8, -0.8]}
             color={"#ffffff"}
