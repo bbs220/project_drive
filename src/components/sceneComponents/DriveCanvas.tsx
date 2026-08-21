@@ -21,7 +21,7 @@ import {
 import ProceduralRadar from "../ProceduralRadar";
 import BackgroundLight from "./BackgroundLight";
 import PostprocessingEffects from "./PostprocessingEffects";
-import ChunkManager from "./ChunkManager";
+import ChunkManager from "./proceduralCity/ChunkManager";
 import Player from "./Player";
 import { useMountSystem } from "../../hooks/useMountSystem";
 
@@ -63,7 +63,7 @@ const DriveScene = () => {
           plane: CONTROL_STATE.PLANE,
         },
       },
-      fogValue: { value: 0.01, min: 0.01, max: 1, label: "fog amount" },
+      fogValue: { value: 0.01, min: 0, max: 1, label: "fog amount" },
       fogColor: { value: "#003535", label: "fog color" },
     },
   );

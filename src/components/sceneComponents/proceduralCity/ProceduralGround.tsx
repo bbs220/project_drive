@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
-import fragmentShader from "./shaders/gridFrag.glsl";
-import vertexShader from "./shaders/gridVert.glsl";
-import { useTweakpane } from "../../hooks/useTweakpane";
+import fragmentShader from "../shaders/gridFrag.glsl";
+import vertexShader from "../shaders/gridVert.glsl";
+import { useTweakpane } from "../../../hooks/useTweakpane";
 import { RigidBody } from "@react-three/rapier";
 
 const groundDim = {
