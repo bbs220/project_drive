@@ -78,7 +78,10 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
           {/* the inner group handles the smooth visual rotation from the physics hook */}
           <group ref={visualRef}>
             {/* The inline model, shifted down by the capsule's half-height + radius so its feet touch the floor */}
-            <group position={[0, 0, 0]} dispose={null}>
+            <group
+              position={[0, -(capsuleHalfHeight + capsuleRadius), 0]}
+              dispose={null}
+            >
               <group name="Scene">
                 <mesh
                   name="base"

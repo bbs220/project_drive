@@ -48,7 +48,7 @@ export const playerConstants = {
   tuning: {
     // physical capsule dimensions and weight
     capsuleHalfHeight: {
-      value: 0.8,
+      value: 0.7,
       min: 0.1,
       max: 2,
       label: "capsule half height",
