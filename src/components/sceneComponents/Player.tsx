@@ -80,6 +80,7 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
             {/* The inline model, shifted down by the capsule's half-height + radius so its feet touch the floor */}
             <group
               position={[0, -(capsuleHalfHeight + capsuleRadius), 0]}
+              rotation={[0, Math.PI, 0]}
               dispose={null}
             >
               <group name="Scene">
