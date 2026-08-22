@@ -27,12 +27,16 @@ export type TypeEntityId = (typeof ENTITY_ID)[keyof typeof ENTITY_ID];
 
 // define the exact shapes of telemetry
 export type PlayerTelemetry = {
+  speed: number;
+  isGrounded: boolean;
   position: [number, number, number];
+  rotation: [number, number, number, number];
 };
 
 export type CarTelemetry = {
   speed: number;
   position: [number, number, number];
+  rotation: [number, number, number, number];
   seatPosition: [number, number, number];
   seatRotation: [number, number, number, number];
 };
@@ -45,6 +49,7 @@ export type PlaneTelemetry = {
   roll: number;
   yaw: number;
   position: [number, number, number];
+  rotation: [number, number, number, number];
   seatPosition: [number, number, number];
   seatRotation: [number, number, number, number];
 };
@@ -58,6 +63,7 @@ export type HelicopterTelemetry = {
   roll: number;
   yaw: number;
   position: [number, number, number];
+  rotation: [number, number, number, number];
   seatPosition: [number, number, number];
   seatRotation: [number, number, number, number];
 };
@@ -103,10 +109,16 @@ export const useVehicleStore = create<VehicleState>((set) => ({
 
   // initialize the world data dictionary
   telemetry: {
-    [ENTITY_ID.PLAYER_1]: { position: [0, 0, 0] },
+    [ENTITY_ID.PLAYER_1]: {
+      speed: 0,
+      isGrounded: true,
+      position: [0, 0, 0],
+      rotation: [0, 0, 0, 1],
+    },
     [ENTITY_ID.CAR_1]: {
       speed: 0,
       position: [0, 0, 0],
+      rotation: [0, 0, 0, 1],
       seatPosition: [0, 0, 0],
       seatRotation: [0, 0, 0, 1],
     },
@@ -118,6 +130,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
       roll: 0,
       yaw: 0,
       position: [0, 0, 0],
+      rotation: [0, 0, 0, 1],
       seatPosition: [0, 0, 0],
       seatRotation: [0, 0, 0, 1],
     },
@@ -130,6 +143,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
       roll: 0,
       yaw: 0,
       position: [0, 0, 0],
+      rotation: [0, 0, 0, 1],
       seatPosition: [0, 0, 0],
       seatRotation: [0, 0, 0, 1],
     },

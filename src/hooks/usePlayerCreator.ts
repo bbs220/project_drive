@@ -104,9 +104,17 @@ export const usePlayerCreator = (
           visualRef.current.rotation.set(0, Math.PI, 0);
         }
 
-        // sync player telemetry to the seat so the store always knows where we are
+        // sync complete telemetry to the seat so the store always knows where we are
         useVehicleStore.getState().updateTelemetry(ENTITY_ID.PLAYER_1, {
           position: [currentPosition.x, currentPosition.y, currentPosition.z],
+          rotation: [
+            targetQuaternion.x,
+            targetQuaternion.y,
+            targetQuaternion.z,
+            targetQuaternion.w,
+          ],
+          speed: 0, // player is idle
+          isGrounded: true,
         });
       }
 
@@ -179,8 +187,11 @@ export const usePlayerCreator = (
     if (controls.left) moveDir.sub(cameraRight);
     if (controls.right) moveDir.add(cameraRight);
 
+    // track whether the player is actually actively moving for telemetry
+    const isMoving = moveDir.lengthSq() > 0;
+
     // if we are actively pressing movement keys calculate which way the mesh should face
-    if (moveDir.lengthSq() > 0 && visualRef.current) {
+    if (isMoving && visualRef.current) {
       // normalize the diagonal vector so we do not move too fast
       moveDir.normalize();
 
@@ -226,9 +237,18 @@ export const usePlayerCreator = (
     // aggressively lock the physics capsule rotation to zero every frame so local space matches world space
     playerBody.setNextKinematicRotation({ x: 0, y: 0, z: 0, w: 1 });
 
-    // push the live coordinates to the global store without causing a re render
+    // safely extract the raw quaternion array directly from the visual mesh
+    const quat = visualRef.current?.quaternion || new THREE.Quaternion();
+
+    // actual movement speed (returns 0 if standing still, otherwise walk or sprint speed)
+    const actualSpeed = isMoving ? speed : 0;
+
+    // push the completely updated live telemetry to the global store!
     useVehicleStore.getState().updateTelemetry(ENTITY_ID.PLAYER_1, {
       position: [currentPosition.x, currentPosition.y, currentPosition.z],
+      rotation: [quat.x, quat.y, quat.z, quat.w],
+      speed: actualSpeed,
+      isGrounded: isGrounded,
     });
   });
 };
