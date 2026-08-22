@@ -125,20 +125,6 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
           friction={0}
         />
 
-        {/* wireframe debug mesh mapping directly to the physical collider bounds */}
-        {debugMesh && (
-          <mesh>
-            <capsuleGeometry
-              args={[capsuleRadius, capsuleHalfHeight * 2, 4, 16]}
-            />
-            <meshBasicMaterial
-              color="#00ff00"
-              wireframe={true}
-              toneMapped={false}
-            />
-          </mesh>
-        )}
-
         {/* the outer group handles the camera targeting so the camera doesn't spin wildly */}
         <group ref={ref}>
           {/* the inner group handles the smooth visual rotation from the physics hook */}
