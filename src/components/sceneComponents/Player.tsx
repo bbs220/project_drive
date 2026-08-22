@@ -1,11 +1,11 @@
-import { forwardRef, useRef } from "react";
+import { forwardRef, useRef, useEffect } from "react";
 import * as THREE from "three";
 import {
   RigidBody,
   CapsuleCollider,
   type RapierRigidBody,
 } from "@react-three/rapier";
-import { useGLTF } from "@react-three/drei";
+import { useGLTF, useAnimations } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { unwrapParam } from "../../utils/unwrapParam";
@@ -13,15 +13,26 @@ import { playerConstants, respawnValues } from "../../constants/otherConstants";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { usePlayerCreator } from "../../hooks/usePlayerCreator";
 
+// define the action names exported from blender
+type ActionName = "idle";
+
+// create a strict interface extending three animation clip
+interface GLTFAction extends THREE.AnimationClip {
+  name: ActionName;
+}
+
+// extend gltf result to include skinned meshes and typed animations
 type GLTFResult = GLTF & {
   nodes: {
-    base: THREE.Mesh;
-    stripes: THREE.Mesh;
+    base: THREE.SkinnedMesh;
+    stripes: THREE.SkinnedMesh;
+    mixamorigHips: THREE.Bone;
   };
   materials: {
     Albedo: THREE.MeshPhysicalMaterial;
     EmmissiveParts: THREE.MeshPhysicalMaterial;
   };
+  animations: GLTFAction[];
 };
 
 // main player component for walking around the world
@@ -32,10 +43,13 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   // dedicated reference purely for spinning the visual mesh independent of physics
   const visualRef = useRef<THREE.Group>(null);
 
-  // load the model directly inside the player component
-  const { nodes, materials } = useGLTF(
-    "/models/player01Compressed.glb",
+  // load the model and typed animations directly inside the player component
+  const { nodes, materials, animations } = useGLTF(
+    "/models/player01CompressedAnimated.glb",
   ) as unknown as GLTFResult;
+
+  // initialize the animation hook bound to the visual ref
+  const { actions } = useAnimations(animations, visualRef);
 
   // initialize global input listener to capture wasd and structural keys
   const controls = useAllVehicleInput();
@@ -53,6 +67,13 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   const capsuleHalfHeight = unwrapParam(params.capsuleHalfHeight, 0.7);
   const capsuleRadius = unwrapParam(params.capsuleRadius, 0.3);
   const playerMass = unwrapParam(params.playerMass, 70);
+
+  // safely play the idle animation on mount
+  useEffect(() => {
+    if (actions.idle) {
+      actions.idle.reset().fadeIn(0.2).play();
+    }
+  }, [actions]);
 
   return (
     <group>
@@ -77,28 +98,34 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
         <group ref={ref}>
           {/* the inner group handles the smooth visual rotation from the physics hook */}
           <group ref={visualRef}>
-            {/* The inline model, shifted down by the capsule's half-height + radius so its feet touch the floor */}
+            {/* shift the inline model down by capsule bounds so feet touch the floor */}
             <group
               position={[0, -(capsuleHalfHeight + capsuleRadius), 0]}
               rotation={[0, Math.PI, 0]}
               dispose={null}
             >
               <group name="Scene">
-                <mesh
-                  name="base"
-                  castShadow
-                  receiveShadow
-                  geometry={nodes.base.geometry}
-                  material={materials.Albedo}
-                >
-                  <mesh
+                {/* scale mixamo rigs down to match standard blender units */}
+                <group name="Armature" scale={0.01}>
+                  <skinnedMesh
+                    name="base"
+                    castShadow
+                    receiveShadow
+                    geometry={nodes.base.geometry}
+                    material={materials.Albedo}
+                    skeleton={nodes.base.skeleton}
+                  />
+                  <skinnedMesh
                     name="stripes"
                     castShadow
                     receiveShadow
                     geometry={nodes.stripes.geometry}
                     material={materials.EmmissiveParts}
+                    skeleton={nodes.stripes.skeleton}
                   />
-                </mesh>
+                  {/* inject the root bone primitive required for animations */}
+                  <primitive object={nodes.mixamorigHips} />
+                </group>
               </group>
             </group>
           </group>
@@ -112,6 +139,6 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
 Player.displayName = "Player";
 
 // preload the asset so it's ready before the component mounts
-useGLTF.preload("/models/player01Compressed.glb");
+useGLTF.preload("/models/player01CompressedAnimated.glb");
 
 export default Player;
