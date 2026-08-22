@@ -61,6 +61,10 @@ export const playerConstants = {
     sprintSpeed: { value: 8, min: 2, max: 40, label: "sprint speed" },
     jumpForce: { value: 5, min: 1, max: 20, label: "jump force" },
     gravityMultiplier: { value: 2, min: 0.5, max: 5, label: "gravity mult" },
+
+    // debug tools
+    debugBones: { value: false, label: "bones" },
+    debugMesh: { value: false, label: "wireframe" },
   },
 };
 

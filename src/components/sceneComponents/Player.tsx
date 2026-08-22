@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useEffect } from "react";
+import { forwardRef, useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import {
   RigidBody,
@@ -60,13 +60,21 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
     playerConstants.tuning,
   );
 
-  // attach the player physics hook and pass in the params and visual ref
-  usePlayerCreator(playerBodyRef, visualRef, controls, params);
-
   // extract physical dimensions using type safe utility
   const capsuleHalfHeight = unwrapParam(params.capsuleHalfHeight, 0.7);
   const capsuleRadius = unwrapParam(params.capsuleRadius, 0.3);
   const playerMass = unwrapParam(params.playerMass, 70);
+
+  // extract debug booleans
+  const debugBones = unwrapParam(params.debugBones, false);
+  const debugMesh = unwrapParam(params.debugMesh, false);
+
+  // state to hold the dynamically generated skeleton helper
+  const [skeletonHelper, setSkeletonHelper] =
+    useState<THREE.SkeletonHelper | null>(null);
+
+  // attach the player physics hook and pass in the params and visual ref
+  usePlayerCreator(playerBodyRef, visualRef, controls, params);
 
   // safely play the idle animation on mount
   useEffect(() => {
@@ -74,6 +82,29 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
       actions.idle.reset().fadeIn(0.2).play();
     }
   }, [actions]);
+
+  // dynamically toggle wireframe directly on the shared materials
+  useEffect(() => {
+    materials.Albedo.wireframe = debugMesh;
+    materials.EmmissiveParts.wireframe = debugMesh;
+    materials.Albedo.needsUpdate = true;
+    materials.EmmissiveParts.needsUpdate = true;
+  }, [debugMesh, materials]);
+
+  // generate the skeleton helper targeting the root bone directly
+  useEffect(() => {
+    if (!debugBones) return;
+
+    // pass the root hip bone so it traverses down the entire skeleton
+    const helper = new THREE.SkeletonHelper(nodes.mixamorigHips);
+    setSkeletonHelper(helper);
+
+    // clean up memory when toggled off
+    return () => {
+      helper.dispose();
+      setSkeletonHelper(null);
+    };
+  }, [debugBones, nodes.mixamorigHips]);
 
   return (
     <group>
@@ -93,6 +124,20 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
           args={[capsuleHalfHeight, capsuleRadius]}
           friction={0}
         />
+
+        {/* wireframe debug mesh mapping directly to the physical collider bounds */}
+        {debugMesh && (
+          <mesh>
+            <capsuleGeometry
+              args={[capsuleRadius, capsuleHalfHeight * 2, 4, 16]}
+            />
+            <meshBasicMaterial
+              color="#00ff00"
+              wireframe={true}
+              toneMapped={false}
+            />
+          </mesh>
+        )}
 
         {/* the outer group handles the camera targeting so the camera doesn't spin wildly */}
         <group ref={ref}>
@@ -131,6 +176,8 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
           </group>
         </group>
       </RigidBody>
+      {/* prevents the double-transform trap so it maps perfectly 1:1 with the world */}
+      {skeletonHelper && <primitive object={skeletonHelper} />}
     </group>
   );
 });
