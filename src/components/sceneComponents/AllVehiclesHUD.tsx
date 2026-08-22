@@ -26,7 +26,7 @@ const SharedControlsDisplay = ({
 
   return (
     // container automatically flexes to the narrower content width with flex col
-    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1.5 whitespace-nowrap rounded-md border border-tron-cyan px-8 py-2 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
+    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1.5 whitespace-nowrap rounded-md border border-tron-cyan px-8 py-2 z-10 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
       {/* primary row specific vehicle and character controls */}
       <div className="flex items-center gap-4">
         {controls.map((ctrl, index) => (

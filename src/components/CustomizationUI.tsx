@@ -42,7 +42,7 @@ const CustomizationUI = () => {
 
   return (
     // full screen container strictly set to not block 3d orbit controls unless clicking buttons
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 overflow-hidden z-10">
       {/* cinematic transition curtain */}
       <div
         className={`absolute inset-0 bg-black transition-opacity duration-300 ease-in-out z-0 ${
