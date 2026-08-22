@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
-import { useUIStore } from "../stores/useUiStore";
+import { useUIStore } from "../stores/useUIStore";
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);

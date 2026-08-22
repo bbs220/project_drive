@@ -8,21 +8,34 @@ type typeLoaderProps = {
 
 const SceneLoader = ({ title = "INITIALIZING..." }: typeLoaderProps) => {
   const { progress, active } = useProgress();
+
+  // decouple visibility from fading to ensure we cover the 3d canvas setup
   const [visible, setVisible] = useState(true);
+  const [isFading, setIsFading] = useState(false);
 
   useEffect(() => {
+    // only trigger the exit sequence when all assets are fully loaded
     if (!active && progress === 100) {
-      const timer = setTimeout(() => setVisible(false), 800);
-      return () => clearTimeout(timer);
+      // hold solid for 150ms to mask threejs shader compilation and prevent the white flash
+      const fadeTimer = setTimeout(() => setIsFading(true), 150);
+
+      // unmount the component entirely after the 700ms css transition finishes
+      const unmountTimer = setTimeout(() => setVisible(false), 150 + 700);
+
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(unmountTimer);
+      };
     }
   }, [active, progress]);
 
+  // remove from dom entirely once fade is complete
   if (!visible) return null;
 
   return (
     <div
       className={`absolute inset-0 z-50 flex flex-col items-center justify-center bg-tron-bg transition-opacity duration-700 pointer-events-none ${
-        active || progress < 100 ? "opacity-100" : "opacity-0"
+        isFading ? "opacity-0" : "opacity-100"
       }`}
     >
       <div className="flex w-80 flex-col items-center">
