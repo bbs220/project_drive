@@ -118,6 +118,8 @@ const GarageScene = () => {
         minDistance={currentMinZoom}
         maxDistance={currentMaxZoom}
         target={[0, currentTargetY, 0]}
+        autoRotate
+        autoRotateSpeed={0.8}
       />
 
       {/* core showroom floor */}
