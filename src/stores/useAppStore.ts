@@ -14,7 +14,7 @@ export const useAppStore = create<typeAppStore>()(
       setActiveScene: (scene) => set({ activeScene: scene }),
     }),
     {
-      name: "app-store-storage",
+      name: "drive-active-scene",
     },
   ),
 );

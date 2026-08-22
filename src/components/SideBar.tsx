@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
+import { useAppStore } from "../stores/useAppStore";
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const activeScene = useAppStore((state) => state.activeScene);
 
   return (
     <>
@@ -12,9 +14,30 @@ const SideBar = () => {
         }`}
       >
         <div className="flex h-full flex-col">
-          <h2 className="mb-8 border-b border-tron-cyan pb-4 text-2xl font-telemetry uppercase tracking-[4px] [text-shadow:0_0_8px_#00f3ff] text-center">
-            SETTINGS
+          <h2 className="mb-8 border-b border-tron-cyan pb-4 text-xl font-telemetry uppercase tracking-[4px] [text-shadow:0_0_8px_#00f3ff] text-center">
+            SETTINGS:
+            <span className="text-white">{activeScene?.toUpperCase()}</span>
           </h2>
+
+          <div className="flex flex-col gap-2 text-sm">
+            <div className="pt-6">
+              {activeScene === "garage" ? (
+                <div className="flex flex-col gap-3">
+                  <h3 className="mb-2 text-lg font-bold text-tron-cyan">
+                    hello world
+                  </h3>
+                </div>
+              ) : activeScene === "drive" ? (
+                <div className="flex flex-col gap-3">
+                  <h3 className="mb-2 text-lg font-bold text-tron-cyan">
+                    hello world
+                  </h3>
+                </div>
+              ) : (
+                <p className="animate-pulse text-yellow-400">hello world</p>
+              )}
+            </div>
+          </div>
         </div>
       </aside>
 
