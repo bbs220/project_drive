@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useUIStore } from "../stores/useUIStore";
+import RadioHUD from "./RadioHUD";
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -79,7 +80,7 @@ const SideBar = () => {
                       max="100"
                       value={masterVolume}
                       onChange={(e) => setMasterVolume(Number(e.target.value))}
-                      className="h-1 w-full cursor-pointer appearance-none bg-tron-cyan/30 accent-tron-cyan outline-none"
+                      className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                     />
                   </div>
 
@@ -95,7 +96,7 @@ const SideBar = () => {
                       max="100"
                       value={sfxVolume}
                       onChange={(e) => setSfxVolume(Number(e.target.value))}
-                      className="h-1 w-full cursor-pointer appearance-none bg-tron-cyan/30 accent-tron-cyan outline-none"
+                      className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                     />
                   </div>
 
@@ -111,7 +112,7 @@ const SideBar = () => {
                       max="100"
                       value={radioVolume}
                       onChange={(e) => setRadioVolume(Number(e.target.value))}
-                      className="h-1 w-full cursor-pointer appearance-none bg-tron-cyan/30 accent-tron-cyan outline-none"
+                      className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                     />
                   </div>
                 </div>
@@ -123,76 +124,68 @@ const SideBar = () => {
                   </h3>
 
                   {/* controls toggle */}
-                  <div className="flex items-center justify-between text-xs tracking-wider">
+                  <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                     <span>SHOW CONTROLS</span>
                     <button
                       onClick={() => setShowControls(!showControls)}
-                      className={`flex h-6 w-12 cursor-pointer items-center rounded-full border border-tron-cyan p-1 transition-colors duration-300 ${
-                        showControls ? "bg-tron-cyan/20" : "bg-transparent"
-                      }`}
+                      className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
                     >
                       <div
-                        className={`h-4 w-4 rounded-full bg-tron-cyan transition-transform duration-300 ${
+                        className={`h-full w-1/2 bg-tron-cyan transition-all duration-300 ease-out ${
                           showControls
-                            ? "translate-x-6 shadow-[0_0_8px_#00f3ff]"
-                            : "translate-x-0 opacity-40"
+                            ? "translate-x-full shadow-[0_0_10px_#00f3ff]"
+                            : "translate-x-0 bg-tron-cyan/20"
                         }`}
                       />
                     </button>
                   </div>
 
                   {/* speedometers toggle */}
-                  <div className="flex items-center justify-between text-xs tracking-wider">
+                  <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                     <span>SPEEDOMETERS</span>
                     <button
                       onClick={() => setShowSpeedometers(!showSpeedometers)}
-                      className={`flex h-6 w-12 cursor-pointer items-center rounded-full border border-tron-cyan p-1 transition-colors duration-300 ${
-                        showSpeedometers ? "bg-tron-cyan/20" : "bg-transparent"
-                      }`}
+                      className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
                     >
                       <div
-                        className={`h-4 w-4 rounded-full bg-tron-cyan transition-transform duration-300 ${
+                        className={`h-full w-1/2 bg-tron-cyan transition-all duration-300 ease-out ${
                           showSpeedometers
-                            ? "translate-x-6 shadow-[0_0_8px_#00f3ff]"
-                            : "translate-x-0 opacity-40"
+                            ? "translate-x-full shadow-[0_0_10px_#00f3ff]"
+                            : "translate-x-0 bg-tron-cyan/20"
                         }`}
                       />
                     </button>
                   </div>
 
                   {/* radar toggle */}
-                  <div className="flex items-center justify-between text-xs tracking-wider">
+                  <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                     <span>PROCEDURAL RADAR</span>
                     <button
                       onClick={() => setShowRadar(!showRadar)}
-                      className={`flex h-6 w-12 cursor-pointer items-center rounded-full border border-tron-cyan p-1 transition-colors duration-300 ${
-                        showRadar ? "bg-tron-cyan/20" : "bg-transparent"
-                      }`}
+                      className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
                     >
                       <div
-                        className={`h-4 w-4 rounded-full bg-tron-cyan transition-transform duration-300 ${
+                        className={`h-full w-1/2 bg-tron-cyan transition-all duration-300 ease-out ${
                           showRadar
-                            ? "translate-x-6 shadow-[0_0_8px_#00f3ff]"
-                            : "translate-x-0 opacity-40"
+                            ? "translate-x-full shadow-[0_0_10px_#00f3ff]"
+                            : "translate-x-0 bg-tron-cyan/20"
                         }`}
                       />
                     </button>
                   </div>
 
                   {/* telemetry toggle */}
-                  <div className="flex items-center justify-between text-xs tracking-wider">
+                  <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                     <span>RAW TELEMETRY</span>
                     <button
                       onClick={() => setShowTelemetry(!showTelemetry)}
-                      className={`flex h-6 w-12 cursor-pointer items-center rounded-full border border-tron-cyan p-1 transition-colors duration-300 ${
-                        showTelemetry ? "bg-tron-cyan/20" : "bg-transparent"
-                      }`}
+                      className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
                     >
                       <div
-                        className={`h-4 w-4 rounded-full bg-tron-cyan transition-transform duration-300 ${
+                        className={`h-full w-1/2 bg-tron-cyan transition-all duration-300 ease-out ${
                           showTelemetry
-                            ? "translate-x-6 shadow-[0_0_8px_#00f3ff]"
-                            : "translate-x-0 opacity-40"
+                            ? "translate-x-full shadow-[0_0_10px_#00f3ff]"
+                            : "translate-x-0 bg-tron-cyan/20"
                         }`}
                       />
                     </button>
@@ -205,6 +198,7 @@ const SideBar = () => {
               </p>
             )}
           </div>
+          <RadioHUD />
         </div>
       </aside>
 

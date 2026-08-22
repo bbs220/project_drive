@@ -23,3 +23,11 @@ export const modelsSeperatedBank = {
   runner01leftFrontTyre: "/models/runner01leftFrontTyre.glb",
   runner01leftRearTyre: "/models/runner01leftRearTyre.glb",
 };
+
+export const musicBank = {
+  cyberEclipse: "/music/bykenneth-cyber-eclipse-353492.mp3",
+  futureDesert: "/music/dmassaiii-future-desert-300633.mp3",
+  ghostCoast: "/music/eidunn-ghost-coast-2030-20822.mp3",
+  trapSoul: "/music/kontraa-tron-trap-soul-music-122042.mp3",
+  processorPulses: "/music/tim_kulig_free_music-processor-pulses-472702.mp3",
+};
