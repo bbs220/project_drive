@@ -8,6 +8,7 @@ import {
   CONTROL_STATE,
   type TypeControlState,
 } from "../../stores/useVehicleStore";
+import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 
 // define props with optional debug flag
 type typeCameraRigProps = {
@@ -18,6 +19,9 @@ type typeCameraRigProps = {
 const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
   const { camera, gl } = useThree();
 
+  // initialize global inputs
+  const controls = useAllVehicleInput();
+
   // live tuning params separated by vehicle scale requirements
   const params = useTweakpane(
     { title: "🎥 Camera Rig", expanded: false },
@@ -26,6 +30,16 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
       carDistance: { value: 8, min: 2, max: 20, label: "car dist" },
       heliDistance: { value: 16, min: 5, max: 40, label: "heli dist" },
       planeDistance: { value: 24, min: 10, max: 60, label: "plane dist" },
+
+      // dedicated parameters purely for the cinematic boost lag
+      boostLagOffset: { value: 2, min: 0, max: 10, label: "boost lag (+)" },
+      boostLerpSpeed: {
+        value: 0.02,
+        min: 0.001,
+        max: 0.5,
+        label: "boost lag speed",
+      },
+
       heightOffset: { value: 0, min: 0, max: 10, label: "target height" },
       forwardOffset: { value: 0, min: -10, max: 10, label: "target forward" },
       sensitivity: {
@@ -39,8 +53,11 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
   );
 
   // spherical coordinates manage math for orbiting perfectly around a center point
-  // initialized to the standard car distance
   const spherical = useRef(new THREE.Spherical(8, Math.PI / 3, 0));
+
+  // decouple the base radius from the boost offset so they can lerp at different speeds
+  const baseRadius = useRef(8);
+  const boostOffset = useRef(0);
 
   // vectors used to smooth out the camera movement over time
   const lookAtTarget = useRef(new THREE.Vector3());
@@ -96,7 +113,7 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
     // exit early if debug mode is active or target is missing
     if (debugMode || !targetRef.current) return;
 
-    // fetch the currently active vehicle from the new global state object
+    // fetch the currently active vehicle from the global state object
     const { active } = useVehicleStore.getState();
 
     // strictly map the control states to the tweakpane distances
@@ -107,15 +124,28 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
       [CONTROL_STATE.PLANE]: params.planeDistance as number,
     };
 
-    // determine the correct locked distance based on the active control type
-    const targetRadius = distanceMap[active.control];
-
-    // smoothly lerp the spherical radius so the camera dynamically pushes in and out when swapping vehicles
-    spherical.current.radius = THREE.MathUtils.lerp(
-      spherical.current.radius,
-      targetRadius,
+    // lerp the BASE vehicle distance fast (used for swapping between car/heli/player)
+    baseRadius.current = THREE.MathUtils.lerp(
+      baseRadius.current,
+      distanceMap[active.control],
       (params.smoothness as number) * 0.25,
     );
+
+    // lerp the BOOST offset separately using its own slower cinematic speed
+    const isBoosting =
+      active.control === CONTROL_STATE.CAR && controls.current.boost;
+    const targetBoostOffset = isBoosting
+      ? (params.boostLagOffset as number)
+      : 0;
+
+    boostOffset.current = THREE.MathUtils.lerp(
+      boostOffset.current,
+      targetBoostOffset,
+      params.boostLerpSpeed as number,
+    );
+
+    // combine them for the final calculated camera radius
+    spherical.current.radius = baseRadius.current + boostOffset.current;
 
     // set the exact local coordinates we want to focus on
     dummyTarget.set(

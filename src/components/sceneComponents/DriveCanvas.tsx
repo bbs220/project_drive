@@ -1,5 +1,5 @@
 import { PerspectiveCamera, Stats } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
@@ -48,8 +48,17 @@ const DriveScene = () => {
           ? playerRef
           : carRef;
 
-  // configure debug tools with dynamic dropdown options pulling from the enum
-  const { cameraDebug, activeVehicle, fogValue, fogColor } = useTweakpane(
+  // configure debug tools and dynamic fov tuners
+  const {
+    cameraDebug,
+    activeVehicle,
+    fogValue,
+    fogColor,
+    dynamicFov,
+    maxFovValue,
+    minSpeedThreshold,
+    topSpeedThreshold,
+  } = useTweakpane(
     { title: "☀️ Scene" },
     {
       cameraDebug: { value: true, label: "camera debug" },
@@ -65,6 +74,22 @@ const DriveScene = () => {
       },
       fogValue: { value: 0.01, min: 0, max: 1, label: "fog amount" },
       fogColor: { value: "#003535", label: "fog color" },
+
+      // tuning parameters for camera warp speed
+      dynamicFov: { value: true, label: "dynamic fov" },
+      maxFovValue: { value: 80, min: 60, max: 120, label: "max warp fov" },
+      minSpeedThreshold: {
+        value: 250,
+        min: 0,
+        max: 500,
+        label: "fov start speed",
+      },
+      topSpeedThreshold: {
+        value: 317,
+        min: 50,
+        max: 500,
+        label: "fov max speed",
+      },
     },
   );
 
@@ -81,6 +106,54 @@ const DriveScene = () => {
     // push both the class and the instance ID to the store
     setActive(activeVehicle as TypeControlState, targetEntity);
   }, [activeVehicle, setActive]);
+
+  // dynamically stretch the camera fov based on active vehicle speed
+  useFrame((state, delta) => {
+    const camera = state.camera as THREE.PerspectiveCamera;
+    const baseFov = sceneConstants.fov;
+
+    // if disabled, immediately lerp back to normal resting fov
+    if (!dynamicFov) {
+      if (Math.abs(camera.fov - baseFov) > 0.1) {
+        camera.fov = THREE.MathUtils.lerp(camera.fov, baseFov, delta * 5);
+        camera.updateProjectionMatrix();
+      }
+      return;
+    }
+
+    const storeState = useVehicleStore.getState();
+    const activeControl = storeState.active.control;
+
+    let currentSpeed = 0;
+
+    // pull speed/airspeed directly from your strict telemetry map
+    if (activeControl === CONTROL_STATE.CAR) {
+      currentSpeed = storeState.telemetry[ENTITY_ID.CAR_1].speed;
+    }
+
+    const minSpeed = minSpeedThreshold as number;
+    const maxSpeed = topSpeedThreshold as number;
+    const absoluteSpeed = Math.abs(currentSpeed);
+
+    // prevent division by zero if tweaking sliders land on the same number
+    const speedRange = Math.max(maxSpeed - minSpeed, 1);
+
+    // calculate movement factor only *after* passing the minimum threshold speed
+    const speedFactor = THREE.MathUtils.clamp(
+      (absoluteSpeed - minSpeed) / speedRange,
+      0,
+      1,
+    );
+
+    const targetFov = THREE.MathUtils.lerp(
+      baseFov,
+      maxFovValue as number,
+      speedFactor,
+    );
+
+    camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, delta * 5);
+    camera.updateProjectionMatrix();
+  });
 
   return (
     <>
