@@ -6,13 +6,16 @@ import {
   syncGeneratorParams,
 } from "../utils/worldGenerator";
 import { useCityStore } from "../stores/useCItyStore";
+import { useUIStore } from "../stores/useUIStore";
 
 const ProceduralRadar = () => {
-  // hook up tweakpane to live edit the procedural grid parameters
+  // hook up UI store for global visibility
+  const showRadar = useUIStore((state) => state.showRadar);
+
+  // hook up tweakpane
   const params = useTweakpane(
     { title: "🏙️ City Generator", expanded: false },
     {
-      showRadar: { value: false, label: "show radar" },
       urbanFrequency: {
         value: generatorState.urbanFrequency,
         min: 0.0001,
@@ -45,7 +48,6 @@ const ProceduralRadar = () => {
         min: 10,
         max: 200,
       },
-      // append this directly into the hook config
       seed: {
         value: generatorState.seed,
         min: 0,
@@ -56,28 +58,21 @@ const ProceduralRadar = () => {
     },
   );
 
-  // pull the trigger function from our global store
   const regenerateCity = useCityStore((state) => state.regenerateCity);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // draw the raw noise arrays to a pixel canvas whenever parameters change
   useEffect(() => {
-    // sync the math variables
     syncGeneratorParams(params as typeof generatorState);
-
-    // tell the 3d scene to rebuild the meshes across the zustand bridge
     regenerateCity();
 
-    // bail out early to save massive amounts of cpu power if the radar is hidden
-    if (!params.showRadar) return;
+    // bail out early if radar is hidden globally in settings
+    if (!showRadar) return;
 
-    // draw the 2d canvas radar
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // render radar at actual resolution for smooth gradients without skipping data
     const mapSize = 300;
     const resolution = 1;
     const dim = mapSize / resolution;
@@ -92,39 +87,59 @@ const ProceduralRadar = () => {
         const data = getTerrainData(x, z);
         let shade: number;
 
-        // map elevation to a grayscale gradient
         if (data.type === "building") {
-          // map building heights to a gradient from medium gray to pure white
           shade =
             100 + Math.floor((data.elevation / params.maxBuildingHeight) * 155);
         } else if (data.type === "road") {
-          // roads are dark gray
           shade = 40;
         } else {
-          // empty void is pitch black
           shade = 0;
         }
 
-        // assign the calculated shade to rgb for perfect grayscale
+        // keep it grayscale in memory to save processing time
         imgData.data[i++] = shade;
         imgData.data[i++] = shade;
         imgData.data[i++] = shade;
-
-        // lock full alpha channel
         imgData.data[i++] = 255;
       }
     }
 
-    // push the calculated pixel array into the canvas
     ctx.putImageData(imgData, 0, 0);
-  }, [params, regenerateCity]);
+  }, [params, regenerateCity, showRadar]);
 
-  // perfectly format conditional rendering to keep dom clean when radar is disabled
-  return params.showRadar ? (
-    <div className="pointer-events-none absolute right-64 top-2 z-20 -translate-x-1/2 overflow-hidden rounded-md border-2 border-gray-600 ">
-      <canvas ref={canvasRef} className="h-48 w-48" />
+  // if disabled in the UI settings, return null to completely unmount
+  if (!showRadar) return null;
+
+  return (
+    // turn right 90 to right 60 before shipping
+    <div className="pointer-events-none absolute right-90 top-6 z-20 h-56 w-56 overflow-hidden rounded-full border-2 border-tron-cyan bg-[#00050a]/90 shadow-[0_0_20px_rgba(0,243,255,0.2),inset_0_0_20px_rgba(0,243,255,0.1)] backdrop-blur-md transition-all duration-500 ease-out">
+      {/* underlying procedural map lowered opacity fades it into the background. */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 h-full w-full opacity-60"
+      />
+
+      {/* colorize Trick: instantly turns the white/gray canvas below into neon cyan */}
+      <div className="absolute inset-0 bg-tron-cyan mix-blend-multiply opacity-80" />
+
+      {/* concentric Tactical Rings */}
+      <div className="absolute inset-6 rounded-full border border-tron-cyan/20" />
+      <div className="absolute inset-14 rounded-full border border-tron-cyan/15" />
+      <div className="absolute inset-20 rounded-full border border-tron-cyan/10" />
+
+      {/* static Crosshairs */}
+      <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-tron-cyan/30" />
+      <div className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-tron-cyan/30" />
+
+      {/* rotating Radar Sweep via conic-gradient */}
+      <div className="absolute inset-0 animate-[spin_4s_linear_infinite] rounded-full bg-[conic-gradient(from_0deg,transparent_75%,rgba(0,243,255,0.4)_100%)]" />
+
+      {/* center Player Blip (Glowing Triangle) */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-3 w-3">
+        <div className="h-0 w-0 border-b-10 border-l-[6px] border-r-[6px] border-b-tron-yellow border-l-transparent border-r-transparent drop-shadow-[0_0_8px_#ffeb3b]" />
+      </div>
     </div>
-  ) : null;
+  );
 };
 
 export default ProceduralRadar;
