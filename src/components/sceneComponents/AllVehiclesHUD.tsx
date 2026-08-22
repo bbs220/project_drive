@@ -5,6 +5,7 @@ import {
   ENTITY_ID,
 } from "../../stores/useVehicleStore";
 import { respawnValues } from "../../constants/otherConstants";
+import { useUIStore } from "../../stores/useUIStore";
 
 // define strict type for our generic control items
 type typeControlItem = {
@@ -18,6 +19,12 @@ const SharedControlsDisplay = ({
 }: {
   controls: typeControlItem[];
 }) => {
+  // subscribe to the controls toggle in the ui store
+  const showControls = useUIStore((state) => state.showControls);
+
+  // if disabled in settings, return nothing to completely hide the ui element
+  if (!showControls) return null;
+
   // isolate universal controls to stack them on a secondary row
   const universalControls = [
     { keys: "F", action: "mount/unmount" },
@@ -240,6 +247,9 @@ const AllVehiclesHUD = () => {
   // subscribe to active control state to conditionally render ui
   const activeControl = useVehicleStore((state) => state.active.control);
 
+  // subscribe to ui store to control speedometer/instrument visibility
+  const showSpeedometers = useUIStore((state) => state.showSpeedometers);
+
   // subscribe to strict car telemetry from global store via exact entity ID
   const currentCarSpeed = useVehicleStore(
     (state) => state.telemetry[ENTITY_ID.CAR_1].speed,
@@ -323,17 +333,19 @@ const AllVehiclesHUD = () => {
           />
 
           {/* inline speedometer */}
-          <div className="absolute bottom-6 right-8 flex items-baseline">
-            {/* inject live padded speed value with tabular mono font to prevent jumping */}
-            <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
-              {displayCarSpeed}
-            </span>
+          {showSpeedometers && (
+            <div className="absolute bottom-6 right-8 flex items-baseline">
+              {/* inject live padded speed value with tabular mono font to prevent jumping */}
+              <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
+                {displayCarSpeed}
+              </span>
 
-            {/* speed unit using strict width to prevent container shifting */}
-            <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
-              KM/H
-            </span>
-          </div>
+              {/* speed unit using strict width to prevent container shifting */}
+              <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
+                KM/H
+              </span>
+            </div>
+          )}
         </>
       )}
 
@@ -350,28 +362,32 @@ const AllVehiclesHUD = () => {
             ]}
           />
 
-          {/* advanced aviation instruments container anchored to bottom left */}
-          <div className="absolute bottom-6 left-8 flex items-end gap-6">
-            {/* dynamic artificial horizon with compass bezel */}
-            <AttitudeIndicator
-              pitch={currentHeliPitch}
-              roll={currentHeliRoll}
-              yaw={currentHeliYaw}
-            />
+          {showSpeedometers && (
+            <>
+              {/* advanced aviation instruments container anchored to bottom left */}
+              <div className="absolute bottom-6 left-8 flex items-end gap-6">
+                {/* dynamic artificial horizon with compass bezel */}
+                <AttitudeIndicator
+                  pitch={currentHeliPitch}
+                  roll={currentHeliRoll}
+                  yaw={currentHeliYaw}
+                />
 
-            {/* scrolling altimeter tape */}
-            <AltimeterTape altitude={currentHeliAltitude} />
-          </div>
+                {/* scrolling altimeter tape */}
+                <AltimeterTape altitude={currentHeliAltitude} />
+              </div>
 
-          {/* inline helicopter airspeed anchored to bottom right */}
-          <div className="absolute bottom-6 right-8 flex items-baseline">
-            <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
-              {displayHeliSpeed}
-            </span>
-            <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
-              KTS
-            </span>
-          </div>
+              {/* inline helicopter airspeed anchored to bottom right */}
+              <div className="absolute bottom-6 right-8 flex items-baseline">
+                <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
+                  {displayHeliSpeed}
+                </span>
+                <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
+                  KTS
+                </span>
+              </div>
+            </>
+          )}
         </>
       )}
 
@@ -388,28 +404,32 @@ const AllVehiclesHUD = () => {
             ]}
           />
 
-          {/* advanced aviation instruments container anchored to bottom left */}
-          <div className="absolute bottom-6 left-8 flex items-end gap-6">
-            {/* dynamic artificial horizon with compass bezel */}
-            <AttitudeIndicator
-              pitch={currentPlanePitch}
-              roll={currentPlaneRoll}
-              yaw={currentPlaneYaw}
-            />
+          {showSpeedometers && (
+            <>
+              {/* advanced aviation instruments container anchored to bottom left */}
+              <div className="absolute bottom-6 left-8 flex items-end gap-6">
+                {/* dynamic artificial horizon with compass bezel */}
+                <AttitudeIndicator
+                  pitch={currentPlanePitch}
+                  roll={currentPlaneRoll}
+                  yaw={currentPlaneYaw}
+                />
 
-            {/* scrolling altimeter tape */}
-            <AltimeterTape altitude={currentPlaneAltitude} />
-          </div>
+                {/* scrolling altimeter tape */}
+                <AltimeterTape altitude={currentPlaneAltitude} />
+              </div>
 
-          {/* inline plane airspeed anchored to bottom right */}
-          <div className="absolute bottom-6 right-8 flex items-baseline">
-            <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
-              {displayPlaneSpeed}
-            </span>
-            <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
-              KTS
-            </span>
-          </div>
+              {/* inline plane airspeed anchored to bottom right */}
+              <div className="absolute bottom-6 right-8 flex items-baseline">
+                <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
+                  {displayPlaneSpeed}
+                </span>
+                <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
+                  KTS
+                </span>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

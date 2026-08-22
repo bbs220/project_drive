@@ -29,7 +29,7 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
       playerDistance: { value: 3, min: 1, max: 15, label: "player dist" },
       carDistance: { value: 8, min: 2, max: 20, label: "car dist" },
       heliDistance: { value: 16, min: 5, max: 40, label: "heli dist" },
-      planeDistance: { value: 24, min: 10, max: 60, label: "plane dist" },
+      planeDistance: { value: 28, min: 10, max: 60, label: "plane dist" },
 
       // dedicated parameters purely for the cinematic boost lag
       boostLagOffset: { value: 2, min: 0, max: 10, label: "boost lag (+)" },
