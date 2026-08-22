@@ -1,7 +1,4 @@
-// pass world position to fragment
 varying vec3 vWorldPosition;
-
-// uniforms injected from react
 uniform vec3 uBgColor;
 uniform vec3 uLineColor;
 uniform vec3 uCrossColor;
@@ -10,6 +7,7 @@ uniform float uSubGridSize;
 uniform float uCrossSize;
 uniform float uCrossOpacity;
 uniform float uGridThickness;
+#include <fog_pars_fragment>
 
 void main() {
   // calculate main outer grid cells
@@ -52,4 +50,5 @@ void main() {
   // inject native tone mapping chunks
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
+  #include <fog_fragment>
 }

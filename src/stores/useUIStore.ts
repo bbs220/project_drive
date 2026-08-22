@@ -28,7 +28,7 @@ export const useUIStore = create<UIState>((set) => ({
   // default audio state
   masterVolume: 50,
   sfxVolume: 50,
-  radioVolume: 80,
+  radioVolume: 50,
 
   // default hud state
   showControls: true,

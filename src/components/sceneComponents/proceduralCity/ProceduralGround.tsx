@@ -29,21 +29,26 @@ type GroundTileProps = {
 const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
+  // merge the built-in fog uniforms with your custom grid uniforms right here
   const uniforms = useMemo(
-    () => ({
-      uBgColor: { value: new THREE.Color(params.bgColor) },
-      uLineColor: {
-        value: new THREE.Color(params.lineColor).multiplyScalar(2),
-      },
-      uCrossColor: {
-        value: new THREE.Color(params.crossColor).multiplyScalar(2),
-      },
-      uGridSize: { value: params.gridSize },
-      uSubGridSize: { value: params.subGridSize },
-      uCrossSize: { value: params.crossSize },
-      uCrossOpacity: { value: params.crossOpacity },
-      uGridThickness: { value: params.gridThickness },
-    }),
+    () =>
+      THREE.UniformsUtils.merge([
+        THREE.UniformsLib.fog,
+        {
+          uBgColor: { value: new THREE.Color(params.bgColor) },
+          uLineColor: {
+            value: new THREE.Color(params.lineColor).multiplyScalar(2),
+          },
+          uCrossColor: {
+            value: new THREE.Color(params.crossColor).multiplyScalar(2),
+          },
+          uGridSize: { value: params.gridSize },
+          uSubGridSize: { value: params.subGridSize },
+          uCrossSize: { value: params.crossSize },
+          uCrossOpacity: { value: params.crossOpacity },
+          uGridThickness: { value: params.gridThickness },
+        },
+      ]),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
@@ -77,6 +82,7 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
           vertexShader={vertexShader}
           fragmentShader={fragmentShader}
           uniforms={uniforms}
+          fog={true}
         />
       </mesh>
     </RigidBody>
@@ -111,7 +117,7 @@ const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
           key={`ground_${c.chunkX}_${c.chunkZ}`}
           chunkX={c.chunkX}
           chunkZ={c.chunkZ}
-          params={params}
+          params={params as GroundTileProps["params"]}
         />
       ))}
     </group>
