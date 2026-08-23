@@ -12,6 +12,7 @@ import {
 import respawnVehicle from "../utils/respawnVehicle";
 import { unwrapParam } from "../utils/unwrapParam";
 import type { KinematicCharacterController } from "@dimforge/rapier3d-compat";
+import { respawnValues } from "../constants/otherConstants";
 
 type typePlayerTuning = {
   walkSpeed: number;
@@ -148,6 +149,16 @@ export const usePlayerCreator = (
     const controls = controlsRef.current;
 
     if (controls.respawn) {
+      respawnVehicle({
+        vehicleType: "player",
+        vehicleBody: playerBody,
+        mode: "drive",
+      });
+      verticalVelocity.current = 0;
+      return;
+    }
+
+    if (playerBody.translation().y < respawnValues.universalRespawnLimit) {
       respawnVehicle({
         vehicleType: "player",
         vehicleBody: playerBody,

@@ -10,6 +10,7 @@ import {
 } from "../stores/useVehicleStore";
 import respawnVehicle from "../utils/respawnVehicle";
 import { unwrapParam } from "../utils/unwrapParam";
+import { respawnValues } from "../constants/otherConstants";
 
 // define tweakpane parameter descriptor type structure
 type TweakpaneParam<T> = {
@@ -88,6 +89,21 @@ export const useVehiclePlaneCreator = (
     // manual respawn trigger resets plane to standard spawn point
     if (controls.respawn) {
       // execute centralized respawn logic mapped to the plane
+      respawnVehicle({
+        vehicleType: "plane",
+        vehicleBody: chassis,
+        mode: "drive",
+      });
+
+      // kill engine momentum on respawn
+      currentSpeedRef.current = 0;
+
+      // exit the physics step early to prevent applying forces to a teleporting body
+      return;
+    }
+
+    if (chassis.translation().y < respawnValues.universalRespawnLimit) {
+      // execute centralized respawn logic
       respawnVehicle({
         vehicleType: "plane",
         vehicleBody: chassis,

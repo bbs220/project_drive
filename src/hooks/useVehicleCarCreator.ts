@@ -14,6 +14,7 @@ import {
 } from "../stores/useVehicleStore";
 import respawnVehicle from "../utils/respawnVehicle";
 import { unwrapParam } from "../utils/unwrapParam";
+import { respawnValues } from "../constants/otherConstants";
 
 // define up vector
 const up = new THREE.Vector3(0, 1, 0);
@@ -233,6 +234,18 @@ export const useVehicleCarCreator = (
 
     // manual respawn trigger
     if (controls.respawn) {
+      // execute centralized respawn logic
+      respawnVehicle({
+        vehicleType: "car",
+        vehicleBody: chassis,
+        mode: "drive",
+      });
+
+      // exit the physics step early to prevent applying forces to a teleporting body
+      return;
+    }
+
+    if (chassis.translation().y < respawnValues.universalRespawnLimit) {
       // execute centralized respawn logic
       respawnVehicle({
         vehicleType: "car",
