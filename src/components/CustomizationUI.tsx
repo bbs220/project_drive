@@ -6,10 +6,13 @@ import {
   useCustomizationStore,
   type typeGarageVehicle,
 } from "../stores/useCustomizationStore";
+import { useUISounds } from "../hooks/useUISounds";
 
 const CustomizationUI = () => {
   const { activeGarageVehicle, setActiveGarageVehicle } =
     useCustomizationStore();
+
+  const { playToggle } = useUISounds();
 
   // local state to handle the cinematic transition curtain
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -57,7 +60,10 @@ const CustomizationUI = () => {
           {vehicles.map((v) => (
             <button
               key={v.id}
-              onClick={() => handleSwap(v.id)}
+              onClick={() => {
+                playToggle();
+                handleSwap(v.id);
+              }}
               className={`pointer-events-auto relative top-px whitespace-nowrap rounded-t-md border border-b-0 px-8 py-2.5 font-telemetry text-sm uppercase tracking-wider backdrop-blur-md transition-all duration-200 hover:cursor-pointer ${
                 activeGarageVehicle === v.id
                   ? "border-tron-cyan text-tron-yellow [box-shadow:0_-5px_15px_rgba(0,243,255,0.15)] [text-shadow:0_0_8px_var(--color-tron-yellow)]"

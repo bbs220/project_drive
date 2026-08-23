@@ -3,6 +3,7 @@ import useSound from "use-sound";
 import { Play, Pause, SkipBack, SkipForward, Radio } from "lucide-react";
 import { musicBank } from "../utils/assetpaths";
 import { useUIStore } from "../stores/useUIStore";
+import { useUISounds } from "../hooks/useUISounds";
 
 // map the music bank into an array so we can easily skip forward and backward
 const TRACK_LIST = [
@@ -28,18 +29,29 @@ const RadioHUD = () => {
   const [trackIndex, setTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // pull the volume slider value directly from your global store
+  // bring in the UI sound hook for our media buttons
+  const { playClick } = useUISounds();
+
+  // pull volume slider values directly from your global store
   const radioVolume = useUIStore((state) => state.radioVolume);
+  const masterVolume = useUIStore((state) => state.masterVolume);
+
   const currentTrack = TRACK_LIST[trackIndex];
+
+  // strictly convert 0-100 scales to a single 0.0-1.0 scale
+  const finalVolume = (radioVolume / 100) * (masterVolume / 100);
 
   // initialize the use-sound hook with the current track
   const [play, { pause, stop, sound }] = useSound(currentTrack.src, {
-    volume: radioVolume / 100, // strictly convert 0-100 to 0.0-1.0
-    onend: () => handleNext(), // auto-play next track when finished
+    volume: finalVolume,
+    // auto-play next track when finished (pass false so it doesn't click)
+    onend: () => handleNext(false),
   });
 
   // handle play/pause toggling safely
   const togglePlay = () => {
+    // play UI sound
+    playClick();
     if (isPlaying) {
       pause();
       setIsPlaying(false);
@@ -50,12 +62,15 @@ const RadioHUD = () => {
   };
 
   // stop current audio before switching indices to prevent overlapping ghost tracks
-  const handleNext = () => {
+  const handleNext = (userInitiated = true) => {
+    // play UI sound only if user clicked it manually
+    if (userInitiated) playClick();
     stop();
     setTrackIndex((prev) => (prev + 1) % TRACK_LIST.length);
   };
 
   const handlePrev = () => {
+    playClick(); // play UI sound
     stop();
     setTrackIndex((prev) => (prev - 1 + TRACK_LIST.length) % TRACK_LIST.length);
   };
@@ -138,7 +153,7 @@ const RadioHUD = () => {
         </button>
 
         <button
-          onClick={handleNext}
+          onClick={() => handleNext(true)}
           className="flex h-8 w-12 skew-x-[-15deg] cursor-pointer items-center justify-center border border-tron-cyan/40 bg-black/50 transition-all hover:border-tron-cyan hover:bg-tron-cyan/10 hover:shadow-[0_0_10px_#00f3ff]"
         >
           <SkipForward size={16} className="skew-x-15" />

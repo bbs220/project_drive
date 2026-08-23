@@ -1,9 +1,12 @@
 import { Link } from "react-router";
 import { useEffect } from "react";
 import { useAppStore } from "../stores/useAppStore";
+import { useUISounds } from "../hooks/useUISounds";
 
 const WelcomePage = () => {
   const setActiveScene = useAppStore((state) => state.setActiveScene);
+
+  const { playClick } = useUISounds();
 
   // explicitly register the active scene so the 3d environment logic stays suspended
   useEffect(() => {
@@ -33,7 +36,10 @@ const WelcomePage = () => {
         {/* DRIVE BLOCK */}
         <div className="flex flex-col items-center gap-4">
           <Link to={"/drive"}>
-            <button className="group relative flex w-64 cursor-pointer items-center justify-center overflow-hidden border border-tron-magenta bg-transparent py-5 shadow-neon-magenta transition-all duration-500 ease-out hover:scale-105 hover:bg-tron-magenta">
+            <button
+              onClick={() => playClick()}
+              className="group relative flex w-64 cursor-pointer items-center justify-center overflow-hidden border border-tron-magenta bg-transparent py-5 shadow-neon-magenta transition-all duration-500 ease-out hover:scale-105 hover:bg-tron-magenta"
+            >
               {/* stark utilitarian cyan bar on the left edge */}
               <span className="absolute left-0 top-0 z-20 h-full w-2 bg-tron-cyan transition-colors duration-500 group-hover:bg-tron-bg"></span>
               {/* button text tracking out and inverting on hover */}
@@ -54,7 +60,10 @@ const WelcomePage = () => {
         <div className="flex flex-col items-center gap-4">
           <Link to={"/garage"}>
             {/* swapping the primary color to cyan for visual distinction */}
-            <button className="group relative flex w-64 cursor-pointer items-center justify-center overflow-hidden border border-tron-cyan bg-transparent py-5 shadow-neon-cyan transition-all duration-500 ease-out hover:scale-105 hover:bg-tron-cyan">
+            <button
+              onClick={() => playClick()}
+              className="group relative flex w-64 cursor-pointer items-center justify-center overflow-hidden border border-tron-cyan bg-transparent py-5 shadow-neon-cyan transition-all duration-500 ease-out hover:scale-105 hover:bg-tron-cyan"
+            >
               {/* magenta bar on the left edge */}
               <span className="absolute left-0 top-0 z-20 h-full w-2 bg-tron-magenta transition-colors duration-500 group-hover:bg-tron-bg"></span>
               {/* button text tracking out and inverting on hover */}
