@@ -372,12 +372,19 @@ export const useVehicleCarCreator = (
       localSeatOffset,
     );
 
-    // format the exact car rotation as a strict array for the store without any offsets
-    const seatRot: [number, number, number, number] = [
-      chassisQuat.x,
-      chassisQuat.y,
-      chassisQuat.z,
-      chassisQuat.w,
+    // format the exact car rotation as a strict array for the store with an inverted offset
+    const flipOffset = new THREE.Quaternion().setFromAxisAngle(
+      new THREE.Vector3(0, 1, 0),
+      Math.PI,
+    );
+    const invertedQuat = chassisQuat.clone().multiply(flipOffset);
+
+    // format the flipped car rotation as a strict array for the store
+    const carRot: [number, number, number, number] = [
+      invertedQuat.x,
+      invertedQuat.y,
+      invertedQuat.z,
+      invertedQuat.w,
     ];
 
     // update physics state variables if actively driving but always broadcast position and seat
@@ -385,15 +392,17 @@ export const useVehicleCarCreator = (
       useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
         speed: speedKmh,
         position: [pos.x, pos.y, pos.z],
+        rotation: carRot,
         seatPosition: [worldSeat.x, worldSeat.y, worldSeat.z],
-        seatRotation: seatRot,
+        seatRotation: carRot,
       });
     } else {
       // if empty only broadcast the coordinates so the player knows where to walk or sit
       useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
         position: [pos.x, pos.y, pos.z],
+        rotation: carRot,
         seatPosition: [worldSeat.x, worldSeat.y, worldSeat.z],
-        seatRotation: seatRot,
+        seatRotation: carRot,
       });
     }
 

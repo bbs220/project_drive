@@ -296,6 +296,7 @@ export const useVehicleHelicopterCreator = (
       roll: euler.z,
       yaw: euler.y,
       position: [pos.x, pos.y, pos.z],
+      rotation: [quaternion.x, quaternion.y, quaternion.z, quaternion.w],
       seatPosition: [worldSeat.x, worldSeat.y, worldSeat.z],
       seatRotation: seatRot,
     });
