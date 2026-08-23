@@ -191,6 +191,7 @@ const SideBar = () => {
                     </button>
                   </div>
                 </div>
+                <RadioHUD />
               </div>
             ) : (
               <p className="animate-pulse text-yellow-400">
@@ -198,7 +199,6 @@ const SideBar = () => {
               </p>
             )}
           </div>
-          <RadioHUD />
         </div>
       </aside>
 

@@ -71,6 +71,12 @@ const WelcomePage = () => {
           </p>
         </div>
       </div>
+      <div className="text-tron-lime font-telemetry fixed bottom-2 font-bold uppercase select-none animate-pulse">
+        ⚠️Note:{" "}
+        <span className="text-white uppercase font-thin">
+          For now 🖥️Desktop only
+        </span>
+      </div>
     </div>
   );
 };
