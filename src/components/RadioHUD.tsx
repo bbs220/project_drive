@@ -10,7 +10,7 @@ const TRACK_LIST = [
   { id: "cyberEclipse", title: "CYBER ECLIPSE", src: musicBank.cyberEclipse },
   { id: "futureDesert", title: "FUTURE DESERT", src: musicBank.futureDesert },
   { id: "ghostCoast", title: "GHOST COAST", src: musicBank.ghostCoast },
-  { id: "trapSoul", title: "TRON TRAP SOUL", src: musicBank.trapSoul },
+  { id: "trapSoul", title: "TRAP SOUL", src: musicBank.trapSoul },
   {
     id: "processorPulses",
     title: "PROCESSOR PULSES",
@@ -98,8 +98,8 @@ const RadioHUD = () => {
               isPlaying ? "animate-pulse text-tron-cyan" : "text-tron-cyan/50"
             }
           />
-          <span className="text-xs font-bold tracking-[3px] [text-shadow:0_0_5px_#00f3ff]">
-            COMM_LINK
+          <span className="text-xs font-bold tracking-[3px] [text-shadow:0_0_5px_#00f3ff] uppercase">
+            {`Radio`}
           </span>
         </div>
 
