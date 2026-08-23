@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ChevronRight } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useUIStore } from "../stores/useUIStore";
 import RadioHUD from "./RadioHUD";
+import { useUISounds } from "../hooks/useUISounds";
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const activeScene = useAppStore((state) => state.activeScene);
+
+  const { playClick, playToggle, playSlider } = useUISounds();
+
+  // ref to track the last time the slider sound played
+  const lastPlayed = useRef(0);
 
   // pull all settings and setters from the ui store
   const {
@@ -25,6 +31,21 @@ const SideBar = () => {
     setShowRadar,
     setShowTelemetry,
   } = useUIStore();
+
+  const handleSliderChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setter: (value: number) => void,
+  ) => {
+    //  update the visual state instantly
+    setter(Number(e.target.value));
+
+    // the audio to max 1 tick per 80ms
+    const now = Date.now();
+    if (now - lastPlayed.current > 80) {
+      playSlider();
+      lastPlayed.current = now;
+    }
+  };
 
   return (
     <>
@@ -79,7 +100,7 @@ const SideBar = () => {
                       min="0"
                       max="100"
                       value={masterVolume}
-                      onChange={(e) => setMasterVolume(Number(e.target.value))}
+                      onChange={(e) => handleSliderChange(e, setMasterVolume)}
                       className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                     />
                   </div>
@@ -95,7 +116,7 @@ const SideBar = () => {
                       min="0"
                       max="100"
                       value={sfxVolume}
-                      onChange={(e) => setSfxVolume(Number(e.target.value))}
+                      onChange={(e) => handleSliderChange(e, setSfxVolume)}
                       className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                     />
                   </div>
@@ -111,7 +132,7 @@ const SideBar = () => {
                       min="0"
                       max="100"
                       value={radioVolume}
-                      onChange={(e) => setRadioVolume(Number(e.target.value))}
+                      onChange={(e) => handleSliderChange(e, setRadioVolume)}
                       className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                     />
                   </div>
@@ -127,7 +148,10 @@ const SideBar = () => {
                   <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                     <span>SHOW CONTROLS</span>
                     <button
-                      onClick={() => setShowControls(!showControls)}
+                      onClick={() => {
+                        playToggle();
+                        setShowControls(!showControls);
+                      }}
                       className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
                     >
                       <div
@@ -144,7 +168,10 @@ const SideBar = () => {
                   <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                     <span>SPEEDOMETERS</span>
                     <button
-                      onClick={() => setShowSpeedometers(!showSpeedometers)}
+                      onClick={() => {
+                        playToggle();
+                        setShowSpeedometers(!showSpeedometers);
+                      }}
                       className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
                     >
                       <div
@@ -161,7 +188,10 @@ const SideBar = () => {
                   <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                     <span>MINI-MAP</span>
                     <button
-                      onClick={() => setShowRadar(!showRadar)}
+                      onClick={() => {
+                        playToggle();
+                        setShowRadar(!showRadar);
+                      }}
                       className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
                     >
                       <div
@@ -178,7 +208,10 @@ const SideBar = () => {
                   <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                     <span>RAW TELEMETRY</span>
                     <button
-                      onClick={() => setShowTelemetry(!showTelemetry)}
+                      onClick={() => {
+                        playToggle();
+                        setShowTelemetry(!showTelemetry);
+                      }}
                       className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
                     >
                       <div
@@ -204,7 +237,10 @@ const SideBar = () => {
 
       {/* Center-Left Toggle Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          playClick();
+          setIsOpen(!isOpen);
+        }}
         className={`fixed top-1/2 -translate-y-1/2 flex cursor-pointer items-center justify-center rounded-r-lg border-2 border-l-0 border-tron-cyan px-2 py-6 text-tron-cyan z-11 backdrop-blur-sm shadow-[4px_0_15px_rgba(0,243,255,0.3)] transition-[left] duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen ? "left-1/5" : "left-0"
         }`}

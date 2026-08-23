@@ -31,3 +31,9 @@ export const musicBank = {
   trapSoul: "/music/kontraa-tron-trap-soul-music-122042.mp3",
   processorPulses: "/music/tim_kulig_free_music-processor-pulses-472702.mp3",
 };
+
+export const soundBank = {
+  click: "/sound/click.mp3",
+  toggle: "/sound/toggle.mp3",
+  slider: "/sound/slider.mp3",
+};
