@@ -159,7 +159,7 @@ const SideBar = () => {
 
                   {/* radar toggle */}
                   <div className="flex items-center justify-between text-xs tracking-wider pr-3">
-                    <span>PROCEDURAL RADAR</span>
+                    <span>MINI-MAP</span>
                     <button
                       onClick={() => setShowRadar(!showRadar)}
                       className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 skew-x-[-15deg] hover:border-tron-cyan transition-colors"

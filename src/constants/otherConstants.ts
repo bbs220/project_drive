@@ -57,7 +57,7 @@ export const playerConstants = {
     playerMass: { value: 30, min: 10, max: 200, label: "player mass" },
 
     // movement physics
-    walkSpeed: { value: 4, min: 1, max: 20, label: "walk speed" },
+    walkSpeed: { value: 2, min: 1, max: 20, label: "walk speed" },
     sprintSpeed: { value: 8, min: 2, max: 40, label: "sprint speed" },
     jumpForce: { value: 5, min: 1, max: 20, label: "jump force" },
     gravityMultiplier: { value: 2, min: 0.5, max: 5, label: "gravity mult" },

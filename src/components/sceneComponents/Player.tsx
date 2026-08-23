@@ -6,15 +6,34 @@ import {
   type RapierRigidBody,
 } from "@react-three/rapier";
 import { useGLTF, useAnimations } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
 import type { GLTF } from "three-stdlib";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { unwrapParam } from "../../utils/unwrapParam";
 import { playerConstants, respawnValues } from "../../constants/otherConstants";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { usePlayerCreator } from "../../hooks/usePlayerCreator";
+import { useVehicleStore, ENTITY_ID } from "../../stores/useVehicleStore";
 
-// define the action names exported from blender
-type ActionName = "idle";
+// action names exported from blender
+type ActionName =
+  | "Cheering"
+  | "Clapping"
+  | "CrossJumps"
+  | "DancingTwerk"
+  | "Driving"
+  | "EnteringCar"
+  | "Excited"
+  | "ExitingCar"
+  | "FastRun"
+  | "Idle"
+  | "Jump"
+  | "KipUp"
+  | "LayingIdle"
+  | "LeftTurn"
+  | "RightTurn"
+  | "Sitting"
+  | "Walking";
 
 // create a strict interface extending three animation clip
 interface GLTFAction extends THREE.AnimationClip {
@@ -76,12 +95,50 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   // attach the player physics hook and pass in the params and visual ref
   usePlayerCreator(playerBodyRef, visualRef, controls, params);
 
+  // animation controller
+  // Keep track of the currently playing animation to handle crossfades
+  const currentAnim = useRef<ActionName>("Idle");
+
   // safely play the idle animation on mount
   useEffect(() => {
-    if (actions.idle) {
-      actions.idle.reset().fadeIn(0.2).play();
+    if (actions.Idle) {
+      actions.Idle.reset().fadeIn(0.2).play();
     }
   }, [actions]);
+
+  // high-performance loop to poll telemetry and switch animations
+  useFrame(() => {
+    const telemetry = useVehicleStore.getState().telemetry[ENTITY_ID.PLAYER_1];
+    if (!telemetry) return;
+
+    const { speed, isGrounded } = telemetry;
+
+    // derived animation state
+    let nextAnim: ActionName = "Idle";
+
+    if (!isGrounded) {
+      nextAnim = "Jump"; // airborne overrides all ground movement
+    } else if (speed > 4.5) {
+      nextAnim = "FastRun"; // greater than walkSpeed triggers sprint
+    } else if (speed > 0.1) {
+      nextAnim = "Walking"; // slight movement triggers walking
+    }
+
+    // If the required animation has changed, execute a smooth crossfade
+    if (nextAnim !== currentAnim.current) {
+      const prevAction = actions[currentAnim.current];
+      const nextAction = actions[nextAnim];
+
+      if (prevAction) {
+        prevAction.fadeOut(0.2);
+      }
+      if (nextAction) {
+        nextAction.reset().fadeIn(0.2).play();
+      }
+
+      currentAnim.current = nextAnim;
+    }
+  });
 
   // dynamically toggle wireframe directly on the shared materials
   useEffect(() => {
