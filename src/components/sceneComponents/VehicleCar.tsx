@@ -146,13 +146,13 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
             position={[cPosX, cPosY, cPosZ]}
           />
           <TrailEngine
-            offset={[-0.45, 0.8, -0.8]}
+            offset={[-0.45, 0.55, -1.7]}
             color={"#ffffff"}
             width={1}
             length={5}
           />
           <TrailEngine
-            offset={[0.45, 0.8, -0.8]}
+            offset={[0.45, 0.55, -1.7]}
             color={"#ffffff"}
             width={1}
             length={5}
