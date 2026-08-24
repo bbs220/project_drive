@@ -1,20 +1,20 @@
 import { useState, useEffect } from "react";
 import useSound from "use-sound";
 import { Play, Pause, SkipBack, SkipForward, Radio } from "lucide-react";
-import { musicBank } from "../utils/assetpaths";
+import { tracksBank } from "../utils/assetpaths";
 import { useUIStore } from "../stores/useUIStore";
 import { useUISounds } from "../hooks/useUISounds";
 
 // map the music bank into an array so we can easily skip forward and backward
 const TRACK_LIST = [
-  { id: "cyberEclipse", title: "CYBER ECLIPSE", src: musicBank.cyberEclipse },
-  { id: "futureDesert", title: "FUTURE DESERT", src: musicBank.futureDesert },
-  { id: "ghostCoast", title: "GHOST COAST", src: musicBank.ghostCoast },
-  { id: "trapSoul", title: "TRAP SOUL", src: musicBank.trapSoul },
+  { id: "cyberEclipse", title: "CYBER ECLIPSE", src: tracksBank.cyberEclipse },
+  { id: "futureDesert", title: "FUTURE DESERT", src: tracksBank.futureDesert },
+  { id: "ghostCoast", title: "GHOST COAST", src: tracksBank.ghostCoast },
+  { id: "trapSoul", title: "TRAP SOUL", src: tracksBank.trapSoul },
   {
     id: "processorPulses",
     title: "PROCESSOR PULSES",
-    src: musicBank.processorPulses,
+    src: tracksBank.processorPulses,
   },
 ];
 

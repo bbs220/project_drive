@@ -1,6 +1,6 @@
 export const bankHDR = {
-  skyDay: "/hdri/kloofendal_48d_partly_cloudy_puresky_2k.hdr",
-  skyNight: "/hdri/NightSkyHDRI001_2K_HDR.hdr",
+  skyDay: "/hdris/kloofendal_48d_partly_cloudy_puresky_2k.hdr",
+  skyNight: "/hdris/NightSkyHDRI001_2K_HDR.hdr",
 };
 
 export const modelsBank = {
@@ -24,16 +24,16 @@ export const modelsSeperatedBank = {
   runner01leftRearTyre: "/models/runner01leftRearTyre.glb",
 };
 
-export const musicBank = {
-  cyberEclipse: "/music/bykenneth-cyber-eclipse-353492.mp3",
-  futureDesert: "/music/dmassaiii-future-desert-300633.mp3",
-  ghostCoast: "/music/eidunn-ghost-coast-2030-20822.mp3",
-  trapSoul: "/music/kontraa-tron-trap-soul-music-122042.mp3",
-  processorPulses: "/music/tim_kulig_free_music-processor-pulses-472702.mp3",
+export const tracksBank = {
+  cyberEclipse: "/tracks/bykenneth-cyber-eclipse-353492.mp3",
+  futureDesert: "/tracks/dmassaiii-future-desert-300633.mp3",
+  ghostCoast: "/tracks/eidunn-ghost-coast-2030-20822.mp3",
+  trapSoul: "/tracks/kontraa-tron-trap-soul-music-122042.mp3",
+  processorPulses: "/tracks/tim_kulig_free_music-processor-pulses-472702.mp3",
 };
 
 export const soundBank = {
-  click: "/sound/click.mp3",
-  toggle: "/sound/toggle.mp3",
-  slider: "/sound/slider.mp3",
+  click: "/sounds/click.mp3",
+  toggle: "/sounds/toggle.mp3",
+  slider: "/sounds/slider.mp3",
 };
