@@ -204,7 +204,7 @@ const SideBar = () => {
 
                   {/* radar toggle */}
                   <div className="flex items-center justify-between text-xs tracking-wider pr-3">
-                    <span>MINI-MAP</span>
+                    <span>MAP</span>
                     <button
                       onClick={() => {
                         playToggle();

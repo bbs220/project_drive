@@ -14,10 +14,8 @@ import { useVehicleStore, ENTITY_ID } from "../stores/useVehicleStore";
 import { useAllVehicleInput } from "../hooks/useAllVehicleInput";
 import { iconsBank } from "../utils/assetpaths";
 
-// We can just use the values from your store dictionary!
 const TRACKED_ENTITIES = Object.values(ENTITY_ID);
 
-// Initialize math objects outside the component so they don't leak memory in the loop
 const tempQuat = new THREE.Quaternion();
 const tempEuler = new THREE.Euler();
 
@@ -25,26 +23,25 @@ const ProceduralRadar = () => {
   const showRadar = useUIStore((state) => state.showRadar);
   const controlsRef = useAllVehicleInput();
 
-  // DOM references
   const wrapperRef = useRef<HTMLDivElement>(null);
   const decorationsRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const blipRefs = useRef<Record<string, HTMLImageElement | null>>({});
 
-  // Track GSAP timeline and current state manually to prevent re-renders
   const tl = useRef<gsap.core.Timeline | null>(null);
 
-  // Toggle & Panning State Refs
   const isExpandedRef = useRef(false);
   const prevMapKeyRef = useRef(false);
   const panOffset = useRef({ x: 0, z: 0 });
   const isDragging = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
 
-  // Setup GSAP animation timeline
   useGSAP(
     () => {
+      // guard against null refs when the component is hidden
+      if (!wrapperRef.current || !decorationsRef.current) return;
+
       tl.current = gsap
         .timeline({ paused: true })
         .to(wrapperRef.current, {
@@ -54,7 +51,7 @@ const ProceduralRadar = () => {
           top: "45%",
           xPercent: 50,
           yPercent: -50,
-          borderRadius: "24px",
+          borderRadius: "24px", // Matches our new starting radius exactly for zero morphing!
           pointerEvents: "auto",
           duration: 0.3,
           ease: "power3.inOut",
@@ -68,8 +65,13 @@ const ProceduralRadar = () => {
           },
           "<",
         );
+
+      // reset the map state so it doesn't stay internally "expanded" when hidden from sidebar
+      isExpandedRef.current = false;
+      panOffset.current = { x: 0, z: 0 };
     },
-    { scope: wrapperRef },
+    // force GSAP to rebuild the timeline whenever showRadar changes!
+    { scope: wrapperRef, dependencies: [showRadar] },
   );
 
   const params = useTweakpane(
@@ -146,7 +148,6 @@ const ProceduralRadar = () => {
       if (timestamp - lastUpdate < interval) return;
       lastUpdate = timestamp;
 
-      // --- TOGGLE EDGE DETECTION LOGIC ---
       const currentMapKey = controlsRef.current.map;
 
       if (currentMapKey && !prevMapKeyRef.current) {
@@ -163,7 +164,6 @@ const ProceduralRadar = () => {
       }
       prevMapKeyRef.current = currentMapKey;
 
-      // --- OPTIMIZED DYNAMIC RESOLUTION ---
       let targetDimX = 150;
       let targetDimY = 150;
       let targetRes = 2.0;
@@ -194,7 +194,6 @@ const ProceduralRadar = () => {
 
       let mapYawDeg = 0;
 
-      // Map spins counter to camera when small
       if (!isExpandedRef.current && activeData?.rotation) {
         tempQuat.set(
           activeData.rotation[0],
@@ -203,6 +202,7 @@ const ProceduralRadar = () => {
           activeData.rotation[3],
         );
         tempEuler.setFromQuaternion(tempQuat, "YXZ");
+        // Spins the map in reverse relative to the player
         mapYawDeg = -tempEuler.y * (180 / Math.PI);
       }
 
@@ -210,7 +210,6 @@ const ProceduralRadar = () => {
         mapContainerRef.current.style.transform = `translate(-50%, -50%) rotate(${mapYawDeg}deg)`;
       }
 
-      // --- PIXEL PERFECT RENDERING LOOP ---
       let i = 0;
       for (let row = 0; row < currentDimY; row++) {
         for (let col = 0; col < currentDimX; col++) {
@@ -236,18 +235,14 @@ const ProceduralRadar = () => {
           imgData.data[i++] = 255;
         }
       }
-
       ctx.putImageData(imgData, 0, 0);
 
-      // --- DYNAMIC BLIP POSITIONING ---
       TRACKED_ENTITIES.forEach((id) => {
         const blip = blipRefs.current[id];
-        // Ensure type safety since we dynamically index the telemetry map
         const data = state.telemetry[id as keyof typeof state.telemetry];
 
         if (!blip) return;
 
-        // Hide if no data, or if we are tracking the player but they are mounted inside a vehicle
         if (
           !data ||
           (id === ENTITY_ID.PLAYER_1 && activeEntity !== ENTITY_ID.PLAYER_1)
@@ -258,18 +253,15 @@ const ProceduralRadar = () => {
 
         blip.style.opacity = "1";
 
-        // Calculate offset relative to current camera/pan center
         const dx = data.position[0] - posX;
         const dz = data.position[2] - posZ;
 
-        // Convert world offset into a percentage of the container box
         const pctX = (dx / (currentDimX * currentRes) + 0.5) * 100;
         const pctY = (dz / (currentDimY * currentRes) + 0.5) * 100;
 
         blip.style.left = `${pctX}%`;
         blip.style.top = `${pctY}%`;
 
-        // Calculate icon yaw rotation
         let iconYaw = 0;
         if (data.rotation) {
           tempQuat.set(
@@ -282,8 +274,8 @@ const ProceduralRadar = () => {
           iconYaw = tempEuler.y * (180 / Math.PI);
         }
 
-        // The blips sit INSIDE mapContainerRef, so they inherit its spin.
-        // Adding their own rotation fixes them perfectly to global North!
+        // Icon rotates forward (+yaw). Because it's inside the counter-rotating map (-yaw),
+        // the active vehicle nets out at exactly 0 degrees (pointing straight UP on screen!)
         blip.style.transform = `translate(-50%, -50%) rotate(${iconYaw}deg)`;
       });
     };
@@ -292,7 +284,6 @@ const ProceduralRadar = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [params, regenerateCity, showRadar, controlsRef]);
 
-  // --- MOUSE PANNING HANDLERS ---
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!isExpandedRef.current) return;
     isDragging.current = true;
@@ -302,11 +293,9 @@ const ProceduralRadar = () => {
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging.current || !isExpandedRef.current) return;
-
     const deltaX = e.clientX - lastMouse.current.x;
     const deltaY = e.clientY - lastMouse.current.y;
     lastMouse.current = { x: e.clientX, y: e.clientY };
-
     const panSpeed = 6.0;
     panOffset.current.x -= deltaX * panSpeed;
     panOffset.current.z -= deltaY * panSpeed;
@@ -324,11 +313,12 @@ const ProceduralRadar = () => {
   return (
     <div
       ref={wrapperRef}
-      style={{ borderRadius: "112px" }}
+      style={{ borderRadius: "24px" }} // NEW: Starts precisely at 24px so the corners never morph!
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
+      // Removed overflow-hidden class since inline styles manage border radius
       className="pointer-events-none absolute right-6 top-6 z-20 h-56 w-56 overflow-hidden border-2 border-tron-cyan bg-[#00050a]/90 shadow-[0_0_20px_rgba(0,243,255,0.2),inset_0_0_20px_rgba(0,243,255,0.1)] backdrop-blur-md"
     >
       <div
@@ -341,7 +331,6 @@ const ProceduralRadar = () => {
           className="h-full w-full opacity-80"
         />
 
-        {/* --- DYNAMIC ICON BLIPS LAYER --- */}
         <div className="absolute inset-0 pointer-events-none">
           {TRACKED_ENTITIES.map((id) => {
             let src = iconsBank.playerRadar;
@@ -370,14 +359,15 @@ const ProceduralRadar = () => {
         ref={decorationsRef}
         className="absolute inset-0 pointer-events-none"
       >
-        <div className="absolute inset-6 rounded-full border border-tron-cyan/20" />
-        <div className="absolute inset-14 rounded-full border border-tron-cyan/15" />
-        <div className="absolute inset-20 rounded-full border border-tron-cyan/10" />
-
+        {/* NEW: Updated the decorative rings to be concentric rounded rectangles instead of perfect circles */}
+        <div className="absolute inset-4 rounded-2xl border border-tron-cyan/20" />
+        <div className="absolute inset-10 rounded-xl border border-tron-cyan/15" />
+        <div className="absolute inset-16 rounded-lg border border-tron-cyan/10" />
         <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-tron-cyan/30" />
         <div className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-tron-cyan/30" />
 
-        <div className="absolute inset-0 animate-[spin_4s_linear_infinite] rounded-full bg-[conic-gradient(from_0deg,transparent_75%,rgba(0,243,255,0.4)_100%)]" />
+        {/* Scanner sweep matches the 24px container radius perfectly */}
+        <div className="absolute inset-0 animate-[spin_4s_linear_infinite] rounded-3xl bg-[conic-gradient(from_0deg,transparent_75%,rgba(0,243,255,0.4)_100%)]" />
       </div>
     </div>
   );
