@@ -52,7 +52,7 @@ const SideBar = () => {
   return (
     <>
       <aside
-        className={`fixed top-0 left-0 h-screen w-1/5 bg-black/60 border-r-2 border-tron-cyan p-4 font-inter text-tron-cyan z-10 pointer-events-auto backdrop-blur-md shadow-[4px_0_20px_rgba(0,243,255,0.2),inset_-4px_0_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed top-0 left-0 h-screen w-[80%] md:w-2/5 lg:w-1/5 bg-black/60 border-r-2 border-tron-cyan p-4 font-inter text-tron-cyan z-10 pointer-events-auto backdrop-blur-md shadow-[4px_0_20px_rgba(0,243,255,0.2),inset_-4px_0_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
