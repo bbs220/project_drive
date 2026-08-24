@@ -50,6 +50,7 @@ const DriveScene = () => {
 
   // configure debug tools and dynamic fov tuners
   const {
+    showFPS,
     cameraDebug,
     activeVehicle,
     fogValue,
@@ -61,6 +62,7 @@ const DriveScene = () => {
   } = useTweakpane(
     { title: "☀️ Scene" },
     {
+      showFPS: { value: false, label: "show fps" },
       cameraDebug: { value: true, label: "camera debug" },
       activeVehicle: {
         value: active.control,
@@ -163,7 +165,7 @@ const DriveScene = () => {
         position={[0, 5, 10]}
       />
       <fogExp2 attach="fog" args={[fogColor as string, fogValue as number]} />
-      <Stats showPanel={sceneConstants.isDev ? 0 : 4} />
+      <Stats showPanel={showFPS ? 0 : 4} />
       <BackgroundLight />
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} spawnMode={"drive"} />

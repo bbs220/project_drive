@@ -3,7 +3,6 @@ import * as THREE from "three";
 import { Canvas, useThree } from "@react-three/fiber";
 import { PerspectiveCamera, Stats, OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import { sceneConstants } from "../../constants/otherConstants";
 import Floor from "./Floor";
 import PostprocessingEffects from "./PostprocessingEffects";
 import { useTweakpane } from "../../hooks/useTweakpane";
@@ -25,6 +24,7 @@ const GarageScene = () => {
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
   const {
+    showFPS,
     fogValue,
     fogColor,
     carMinZoom,
@@ -38,7 +38,9 @@ const GarageScene = () => {
     heliTargetY,
   } = useTweakpane(
     { title: "☀️ Scene", expanded: true },
+
     {
+      showFPS: { value: false, label: "show fps" },
       fogValue: { value: 0.03, min: 0.01, max: 1, label: "fog amount" },
       fogColor: { value: "#003535", label: "fog color" },
 
@@ -106,7 +108,7 @@ const GarageScene = () => {
   return (
     <>
       <PerspectiveCamera makeDefault fov={35} position={[0, 3, 8]} />
-      <Stats showPanel={sceneConstants.isDev ? 0 : 4} />
+      <Stats showPanel={showFPS ? 0 : 4} />
       <fogExp2 attach="fog" args={[fogColor as string, fogValue as number]} />
       <color attach="background" args={[fogColor as string]} />
 

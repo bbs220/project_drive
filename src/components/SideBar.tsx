@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { ChevronRight } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useUIStore } from "../stores/useUIStore";
 import RadioHUD from "./RadioHUD";
@@ -123,7 +123,7 @@ const SideBar = () => {
                     />
                   </div>
 
-                  {/* ambience volume (NEW) */}
+                  {/* ambience volume */}
                   <div className="flex flex-col gap-2">
                     <div className="flex justify-between text-xs tracking-wider">
                       <span>AMBIENCE</span>
@@ -210,7 +210,7 @@ const SideBar = () => {
                         playToggle();
                         setShowRadar(!showRadar);
                       }}
-                      className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
+                      className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
                     >
                       <div
                         className={`h-full w-1/2 bg-tron-cyan transition-all duration-300 ease-out ${
@@ -253,23 +253,28 @@ const SideBar = () => {
         </div>
       </aside>
 
-      {/* Center-Left Toggle Button */}
+      {/* Top-Left Fixed Toggle Button (Hamburger / Cross Switcher) */}
       <button
         onClick={() => {
           playClick();
           setIsOpen(!isOpen);
         }}
-        className={`fixed top-1/2 -translate-y-1/2 flex cursor-pointer items-center justify-center rounded-r-lg border-2 border-l-0 border-tron-cyan px-2 py-6 text-tron-cyan z-11 backdrop-blur-sm shadow-[4px_0_15px_rgba(0,243,255,0.3)] transition-[left] duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isOpen ? "left-1/5" : "left-0"
-        }`}
+        className="fixed top-4 left-4 flex cursor-pointer items-center justify-center rounded-md border-2 border-tron-cyan p-2 text-tron-cyan z-15 backdrop-blur-sm shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:bg-tron-cyan hover:text-black transition-colors"
+        aria-label="Toggle Settings Menu"
       >
-        <ChevronRight
-          size={24}
-          strokeWidth={3}
-          className={`drop-shadow-[0_0_4px_#00f3ff] transition-transform duration-300 ease-out ${
-            isOpen ? "rotate-180" : "rotate-0"
-          }`}
-        />
+        {isOpen ? (
+          <X
+            size={24}
+            strokeWidth={2.5}
+            className="drop-shadow-[0_0_4px_#00f3ff]"
+          />
+        ) : (
+          <Menu
+            size={24}
+            strokeWidth={2.5}
+            className="drop-shadow-[0_0_4px_#00f3ff]"
+          />
+        )}
       </button>
     </>
   );
