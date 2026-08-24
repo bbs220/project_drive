@@ -14,17 +14,19 @@ const SideBar = () => {
   // ref to track the last time the slider sound played
   const lastPlayed = useRef(0);
 
-  // pull all settings and setters from the ui store
+  // pull all settings and setters from the updated ui store
   const {
     masterVolume,
-    sfxVolume,
+    uiVolume,
+    ambienceVolume,
     radioVolume,
     showControls,
     showSpeedometers,
     showRadar,
     showTelemetry,
     setMasterVolume,
-    setSfxVolume,
+    setUiVolume,
+    setAmbienceVolume,
     setRadioVolume,
     setShowControls,
     setShowSpeedometers,
@@ -36,10 +38,10 @@ const SideBar = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     setter: (value: number) => void,
   ) => {
-    //  update the visual state instantly
+    // update the visual state instantly
     setter(Number(e.target.value));
 
-    // the audio to max 1 tick per 80ms
+    // throttle the audio to max 1 tick per 80ms
     const now = Date.now();
     if (now - lastPlayed.current > 80) {
       playSlider();
@@ -92,7 +94,7 @@ const SideBar = () => {
                   {/* master volume */}
                   <div className="flex flex-col gap-2">
                     <div className="flex justify-between text-xs tracking-wider">
-                      <span>MASTER VOL</span>
+                      <span>MASTER</span>
                       <span className="text-white">{masterVolume}%</span>
                     </div>
                     <input
@@ -105,18 +107,34 @@ const SideBar = () => {
                     />
                   </div>
 
-                  {/* sfx volume */}
+                  {/* ui volume */}
                   <div className="flex flex-col gap-2">
                     <div className="flex justify-between text-xs tracking-wider">
-                      <span>SFX VOL</span>
-                      <span className="text-white">{sfxVolume}%</span>
+                      <span>INTERFACE</span>
+                      <span className="text-white">{uiVolume}%</span>
                     </div>
                     <input
                       type="range"
                       min="0"
                       max="100"
-                      value={sfxVolume}
-                      onChange={(e) => handleSliderChange(e, setSfxVolume)}
+                      value={uiVolume}
+                      onChange={(e) => handleSliderChange(e, setUiVolume)}
+                      className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
+                    />
+                  </div>
+
+                  {/* ambience volume (NEW) */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between text-xs tracking-wider">
+                      <span>AMBIENCE</span>
+                      <span className="text-white">{ambienceVolume}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={ambienceVolume}
+                      onChange={(e) => handleSliderChange(e, setAmbienceVolume)}
                       className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                     />
                   </div>
@@ -124,7 +142,7 @@ const SideBar = () => {
                   {/* radio volume */}
                   <div className="flex flex-col gap-2">
                     <div className="flex justify-between text-xs tracking-wider">
-                      <span>RADIO VOL</span>
+                      <span>RADIO</span>
                       <span className="text-white">{radioVolume}%</span>
                     </div>
                     <input

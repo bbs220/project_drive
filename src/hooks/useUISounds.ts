@@ -5,7 +5,7 @@ import { soundBank } from "../utils/assetpaths";
 export const useUISounds = () => {
   // Subscribe to volume changes so the sounds update instantly when sliders move
   const masterVolume = useUIStore((state) => state.masterVolume);
-  const sfxVolume = useUIStore((state) => state.sfxVolume);
+  const sfxVolume = useUIStore((state) => state.uiVolume);
 
   // Convert 0-100 scales into a single 0.0-1.0 scale for use-sound
   const volume = (masterVolume / 100) * (sfxVolume / 100);

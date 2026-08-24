@@ -3,7 +3,8 @@ import { create } from "zustand";
 type UIState = {
   // audio settings
   masterVolume: number; // 0 to 100
-  sfxVolume: number; // engine, tires, ui clicks, weather, ambient noise
+  uiVolume: number; // ui clicks, toggles, sliders
+  ambienceVolume: number; // vehicle engine, tires, nitro, crashes, and world noise
   radioVolume: number; // music and in-game radio
 
   // hud toggles
@@ -14,7 +15,8 @@ type UIState = {
 
   // audio setters
   setMasterVolume: (volume: number) => void;
-  setSfxVolume: (volume: number) => void;
+  setUiVolume: (volume: number) => void;
+  setAmbienceVolume: (volume: number) => void;
   setRadioVolume: (volume: number) => void;
 
   // hud setters
@@ -27,7 +29,8 @@ type UIState = {
 export const useUIStore = create<UIState>((set) => ({
   // default audio state
   masterVolume: 50,
-  sfxVolume: 50,
+  uiVolume: 50,
+  ambienceVolume: 50,
   radioVolume: 50,
 
   // default hud state
@@ -38,7 +41,8 @@ export const useUIStore = create<UIState>((set) => ({
 
   // audio actions
   setMasterVolume: (volume) => set({ masterVolume: volume }),
-  setSfxVolume: (volume) => set({ sfxVolume: volume }),
+  setUiVolume: (volume) => set({ uiVolume: volume }),
+  setAmbienceVolume: (volume) => set({ ambienceVolume: volume }),
   setRadioVolume: (volume) => set({ radioVolume: volume }),
 
   // hud actions
