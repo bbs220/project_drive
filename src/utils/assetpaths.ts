@@ -37,3 +37,10 @@ export const soundBank = {
   toggle: "/sounds/toggle.mp3",
   slider: "/sounds/slider.mp3",
 };
+
+export const iconsBank = {
+  carRadar: "/icons/carRadar.png",
+  helicopterRadar: "/icons/helicopterRadar.png",
+  planeRadar: "/icons/planeRadar.png",
+  playerRadar: "/icons/playerRadar.png",
+};

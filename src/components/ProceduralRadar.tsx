@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { useTweakpane } from "../hooks/useTweakpane";
 import {
   generatorState,
@@ -8,7 +10,12 @@ import {
 } from "../utils/worldGenerator";
 import { useCityStore } from "../stores/useCItyStore";
 import { useUIStore } from "../stores/useUIStore";
-import { useVehicleStore } from "../stores/useVehicleStore";
+import { useVehicleStore, ENTITY_ID } from "../stores/useVehicleStore";
+import { useAllVehicleInput } from "../hooks/useAllVehicleInput";
+import { iconsBank } from "../utils/assetpaths";
+
+// We can just use the values from your store dictionary!
+const TRACKED_ENTITIES = Object.values(ENTITY_ID);
 
 // Initialize math objects outside the component so they don't leak memory in the loop
 const tempQuat = new THREE.Quaternion();
@@ -16,10 +23,54 @@ const tempEuler = new THREE.Euler();
 
 const ProceduralRadar = () => {
   const showRadar = useUIStore((state) => state.showRadar);
+  const controlsRef = useAllVehicleInput();
 
-  // We separate the DOM references. One for drawing pixels, one for spinning.
+  // DOM references
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const decorationsRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const blipRefs = useRef<Record<string, HTMLImageElement | null>>({});
+
+  // Track GSAP timeline and current state manually to prevent re-renders
+  const tl = useRef<gsap.core.Timeline | null>(null);
+
+  // Toggle & Panning State Refs
+  const isExpandedRef = useRef(false);
+  const prevMapKeyRef = useRef(false);
+  const panOffset = useRef({ x: 0, z: 0 });
+  const isDragging = useRef(false);
+  const lastMouse = useRef({ x: 0, y: 0 });
+
+  // Setup GSAP animation timeline
+  useGSAP(
+    () => {
+      tl.current = gsap
+        .timeline({ paused: true })
+        .to(wrapperRef.current, {
+          width: "85vw",
+          height: "80vh",
+          right: "50%",
+          top: "45%",
+          xPercent: 50,
+          yPercent: -50,
+          borderRadius: "24px",
+          pointerEvents: "auto",
+          duration: 0.3,
+          ease: "power3.inOut",
+        })
+        .to(
+          decorationsRef.current,
+          {
+            opacity: 0,
+            duration: 0.15,
+            ease: "power2.out",
+          },
+          "<",
+        );
+    },
+    { scope: wrapperRef },
+  );
 
   const params = useTweakpane(
     { title: "🏙️ City Generator", expanded: false },
@@ -75,37 +126,76 @@ const ProceduralRadar = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const mapSize = 300;
-    const resolution = 2;
-    const dim = mapSize / resolution;
+    let currentDimX = 150;
+    let currentDimY = 150;
+    let currentRes = 2.0;
 
-    canvas.width = dim;
-    canvas.height = dim;
-    const imgData = ctx.createImageData(dim, dim);
+    canvas.width = currentDimX;
+    canvas.height = currentDimY;
+    let imgData = ctx.createImageData(currentDimX, currentDimY);
 
     let animationFrameId: number;
     let lastUpdate = 0;
-    const TARGET_FPS = 120;
-    const interval = 1000 / TARGET_FPS;
 
     const renderRadar = (timestamp: number) => {
       animationFrameId = requestAnimationFrame(renderRadar);
 
+      const targetFPS = isExpandedRef.current ? 24 : 60;
+      const interval = 1000 / targetFPS;
+
       if (timestamp - lastUpdate < interval) return;
       lastUpdate = timestamp;
 
-      const state = useVehicleStore.getState();
+      // --- TOGGLE EDGE DETECTION LOGIC ---
+      const currentMapKey = controlsRef.current.map;
 
+      if (currentMapKey && !prevMapKeyRef.current) {
+        isExpandedRef.current = !isExpandedRef.current;
+
+        if (isExpandedRef.current) {
+          tl.current?.play();
+          if (wrapperRef.current) wrapperRef.current.style.cursor = "grab";
+        } else {
+          tl.current?.reverse();
+          panOffset.current = { x: 0, z: 0 };
+          if (wrapperRef.current) wrapperRef.current.style.cursor = "default";
+        }
+      }
+      prevMapKeyRef.current = currentMapKey;
+
+      // --- OPTIMIZED DYNAMIC RESOLUTION ---
+      let targetDimX = 150;
+      let targetDimY = 150;
+      let targetRes = 2.0;
+
+      if (isExpandedRef.current) {
+        const aspect = (window.innerWidth * 0.85) / (window.innerHeight * 0.8);
+        targetDimY = 180;
+        targetDimX = Math.floor(targetDimY * aspect);
+        targetRes = 5.0;
+      }
+
+      if (currentDimX !== targetDimX || currentDimY !== targetDimY) {
+        currentDimX = targetDimX;
+        currentDimY = targetDimY;
+        currentRes = targetRes;
+
+        canvas.width = currentDimX;
+        canvas.height = currentDimY;
+        imgData = ctx.createImageData(currentDimX, currentDimY);
+      }
+
+      const state = useVehicleStore.getState();
       const activeEntity = state.active.entity;
       const activeData = state.telemetry[activeEntity];
 
-      const posX = activeData?.position?.[0] || 0;
-      const posZ = activeData?.position?.[2] || 0;
+      const posX = (activeData?.position?.[0] || 0) + panOffset.current.x;
+      const posZ = (activeData?.position?.[2] || 0) + panOffset.current.z;
 
-      let activeYaw = 0;
+      let mapYawDeg = 0;
 
-      // Extract yaw mathematically from the universal quaternion
-      if (activeData?.rotation) {
+      // Map spins counter to camera when small
+      if (!isExpandedRef.current && activeData?.rotation) {
         tempQuat.set(
           activeData.rotation[0],
           activeData.rotation[1],
@@ -113,23 +203,19 @@ const ProceduralRadar = () => {
           activeData.rotation[3],
         );
         tempEuler.setFromQuaternion(tempQuat, "YXZ");
-        activeYaw = tempEuler.y;
+        mapYawDeg = -tempEuler.y * (180 / Math.PI);
       }
 
-      // SPIN THE WRAPPER DIV, NOT THE CANVAS
       if (mapContainerRef.current) {
-        // Convert to degrees for perfect CSS parsing
-        const activeYawDeg = activeYaw * (180 / Math.PI);
-
-        // If the map spins opposite to your camera, simply add a minus sign: rotate(${-activeYawDeg}deg)
-        mapContainerRef.current.style.transform = `translate(-50%, -50%) rotate(${activeYawDeg}deg)`;
+        mapContainerRef.current.style.transform = `translate(-50%, -50%) rotate(${mapYawDeg}deg)`;
       }
 
+      // --- PIXEL PERFECT RENDERING LOOP ---
       let i = 0;
-      for (let z = -mapSize / 2; z < mapSize / 2; z += resolution) {
-        for (let x = -mapSize / 2; x < mapSize / 2; x += resolution) {
-          const worldX = x + posX;
-          const worldZ = z + posZ;
+      for (let row = 0; row < currentDimY; row++) {
+        for (let col = 0; col < currentDimX; col++) {
+          const worldX = (col - currentDimX / 2) * currentRes + posX;
+          const worldZ = (row - currentDimY / 2) * currentRes + posZ;
 
           const data = getTerrainData(worldX, worldZ);
           let shade: number;
@@ -152,53 +238,146 @@ const ProceduralRadar = () => {
       }
 
       ctx.putImageData(imgData, 0, 0);
+
+      // --- DYNAMIC BLIP POSITIONING ---
+      TRACKED_ENTITIES.forEach((id) => {
+        const blip = blipRefs.current[id];
+        // Ensure type safety since we dynamically index the telemetry map
+        const data = state.telemetry[id as keyof typeof state.telemetry];
+
+        if (!blip) return;
+
+        // Hide if no data, or if we are tracking the player but they are mounted inside a vehicle
+        if (
+          !data ||
+          (id === ENTITY_ID.PLAYER_1 && activeEntity !== ENTITY_ID.PLAYER_1)
+        ) {
+          blip.style.opacity = "0";
+          return;
+        }
+
+        blip.style.opacity = "1";
+
+        // Calculate offset relative to current camera/pan center
+        const dx = data.position[0] - posX;
+        const dz = data.position[2] - posZ;
+
+        // Convert world offset into a percentage of the container box
+        const pctX = (dx / (currentDimX * currentRes) + 0.5) * 100;
+        const pctY = (dz / (currentDimY * currentRes) + 0.5) * 100;
+
+        blip.style.left = `${pctX}%`;
+        blip.style.top = `${pctY}%`;
+
+        // Calculate icon yaw rotation
+        let iconYaw = 0;
+        if (data.rotation) {
+          tempQuat.set(
+            data.rotation[0],
+            data.rotation[1],
+            data.rotation[2],
+            data.rotation[3],
+          );
+          tempEuler.setFromQuaternion(tempQuat, "YXZ");
+          iconYaw = tempEuler.y * (180 / Math.PI);
+        }
+
+        // The blips sit INSIDE mapContainerRef, so they inherit its spin.
+        // Adding their own rotation fixes them perfectly to global North!
+        blip.style.transform = `translate(-50%, -50%) rotate(${iconYaw}deg)`;
+      });
     };
 
     animationFrameId = requestAnimationFrame(renderRadar);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [params, regenerateCity, showRadar]);
+  }, [params, regenerateCity, showRadar, controlsRef]);
+
+  // --- MOUSE PANNING HANDLERS ---
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!isExpandedRef.current) return;
+    isDragging.current = true;
+    lastMouse.current = { x: e.clientX, y: e.clientY };
+    if (wrapperRef.current) wrapperRef.current.style.cursor = "grabbing";
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || !isExpandedRef.current) return;
+
+    const deltaX = e.clientX - lastMouse.current.x;
+    const deltaY = e.clientY - lastMouse.current.y;
+    lastMouse.current = { x: e.clientX, y: e.clientY };
+
+    const panSpeed = 6.0;
+    panOffset.current.x -= deltaX * panSpeed;
+    panOffset.current.z -= deltaY * panSpeed;
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
+    if (wrapperRef.current && isExpandedRef.current) {
+      wrapperRef.current.style.cursor = "grab";
+    }
+  };
 
   if (!showRadar) return null;
 
   return (
-    <div className="pointer-events-none absolute right-6 top-6 z-20 h-56 w-56 overflow-hidden rounded-full border-2 border-tron-cyan bg-[#00050a]/90 shadow-[0_0_20px_rgba(0,243,255,0.2),inset_0_0_20px_rgba(0,243,255,0.1)] backdrop-blur-md transition-all duration-500 ease-out">
-      {/* 
-        NEW: We wrap the canvas in a div. 
-        CSS rotates this div smoothly, while the canvas safely redraws pixels inside it.
-      */}
+    <div
+      ref={wrapperRef}
+      style={{ borderRadius: "112px" }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      className="pointer-events-none absolute right-6 top-6 z-20 h-56 w-56 overflow-hidden border-2 border-tron-cyan bg-[#00050a]/90 shadow-[0_0_20px_rgba(0,243,255,0.2),inset_0_0_20px_rgba(0,243,255,0.1)] backdrop-blur-md"
+    >
       <div
         ref={mapContainerRef}
         className="absolute left-1/2 top-1/2 h-[150%] w-[150%] origin-center"
       >
         <canvas
           ref={canvasRef}
-          className="h-full w-full opacity-60 blur-[0.5px]"
+          style={{ imageRendering: "pixelated" }}
+          className="h-full w-full opacity-80"
         />
+
+        {/* --- DYNAMIC ICON BLIPS LAYER --- */}
+        <div className="absolute inset-0 pointer-events-none">
+          {TRACKED_ENTITIES.map((id) => {
+            let src = iconsBank.playerRadar;
+            if (id === ENTITY_ID.CAR_1) src = iconsBank.carRadar;
+            if (id === ENTITY_ID.HELI_1) src = iconsBank.helicopterRadar;
+            if (id === ENTITY_ID.PLANE_1) src = iconsBank.planeRadar;
+
+            return (
+              <img
+                key={id}
+                ref={(el) => {
+                  blipRefs.current[id] = el;
+                }}
+                src={src}
+                alt={`${id} Icon`}
+                className="absolute w-8 h-8 opacity-0 drop-shadow-[0_0_12px_rgba(0,243,255,1)] transition-opacity duration-300 z-30"
+              />
+            );
+          })}
+        </div>
       </div>
 
-      <div className="absolute inset-0 bg-tron-cyan mix-blend-multiply opacity-80" />
+      <div className="absolute inset-0 bg-tron-cyan mix-blend-multiply opacity-80 pointer-events-none" />
 
-      <div className="absolute inset-6 rounded-full border border-tron-cyan/20" />
-      <div className="absolute inset-14 rounded-full border border-tron-cyan/15" />
-      <div className="absolute inset-20 rounded-full border border-tron-cyan/10" />
+      <div
+        ref={decorationsRef}
+        className="absolute inset-0 pointer-events-none"
+      >
+        <div className="absolute inset-6 rounded-full border border-tron-cyan/20" />
+        <div className="absolute inset-14 rounded-full border border-tron-cyan/15" />
+        <div className="absolute inset-20 rounded-full border border-tron-cyan/10" />
 
-      <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-tron-cyan/30" />
-      <div className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-tron-cyan/30" />
+        <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-tron-cyan/30" />
+        <div className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-tron-cyan/30" />
 
-      <div className="absolute inset-0 animate-[spin_4s_linear_infinite] rounded-full bg-[conic-gradient(from_0deg,transparent_75%,rgba(0,243,255,0.4)_100%)]" />
-
-      {/* 
-        STATIC CENTER BLIP: 
-        Always points straight UP. The map rotates underneath it. 
-      */}
-      <div className="absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2">
-        <svg
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          className="h-6 w-6 text-tron-yellow drop-shadow-[0_0_8px_#ffeb3b]"
-        >
-          <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-        </svg>
+        <div className="absolute inset-0 animate-[spin_4s_linear_infinite] rounded-full bg-[conic-gradient(from_0deg,transparent_75%,rgba(0,243,255,0.4)_100%)]" />
       </div>
     </div>
   );

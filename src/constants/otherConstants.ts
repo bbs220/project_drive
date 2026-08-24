@@ -11,15 +11,15 @@ export const respawnValues = {
       rotation: [0, 0, 0] as [number, number, number],
     },
     car: {
-      position: [0, 5, -10] as [number, number, number],
+      position: [0, 5, -20] as [number, number, number],
       rotation: [0, Math.PI, 0] as [number, number, number],
     },
     plane: {
-      position: [20, 5, -10] as [number, number, number],
+      position: [70, 5, -20] as [number, number, number],
       rotation: [0, 0, 0] as [number, number, number],
     },
     helicopter: {
-      position: [-20, 5, -10] as [number, number, number],
+      position: [-70, 5, -20] as [number, number, number],
       rotation: [0, 0, 0] as [number, number, number],
     },
   },

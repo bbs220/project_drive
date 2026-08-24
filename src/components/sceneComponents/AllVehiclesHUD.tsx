@@ -29,6 +29,7 @@ const SharedControlsDisplay = ({
   const universalControls = [
     { keys: "F", action: "mount/unmount" },
     { keys: "R", action: "respawn" },
+    { keys: "M", action: "map" },
   ];
 
   return (

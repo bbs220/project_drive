@@ -11,6 +11,7 @@ export type typeAllVehicleControls = {
   yawLeft: boolean; // q - only on aerial vehicles
   yawRight: boolean; // e - only on aerial vehicles
   respawn: boolean; // r - works across all vehicles
+  map: boolean; // m - opens the big scale map
 };
 
 // export default hook
@@ -26,6 +27,7 @@ export const useAllVehicleInput = () => {
     yawLeft: false,
     yawRight: false,
     respawn: false,
+    map: false,
   });
 
   // handle key press events
@@ -65,6 +67,10 @@ export const useAllVehicleInput = () => {
         case "KeyR":
           vehicleInputControls.current.respawn = true;
           break;
+        // big scale map
+        case "KeyM":
+          vehicleInputControls.current.map = true;
+          break;
       }
     };
 
@@ -102,6 +108,10 @@ export const useAllVehicleInput = () => {
         // respawn and mounting
         case "KeyR":
           vehicleInputControls.current.respawn = false;
+          break;
+        // big scale map
+        case "KeyM":
+          vehicleInputControls.current.map = false;
           break;
       }
     };
