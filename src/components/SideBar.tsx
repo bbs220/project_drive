@@ -52,18 +52,14 @@ const SideBar = () => {
   return (
     <>
       <aside
-        className={`fixed top-0 left-0 h-screen w-1/5 bg-black/60 border-r-2 border-tron-cyan p-8 font-inter text-tron-cyan z-10 pointer-events-auto backdrop-blur-md shadow-[4px_0_20px_rgba(0,243,255,0.2),inset_-4px_0_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed top-0 left-0 h-screen w-1/5 bg-black/60 border-r-2 border-tron-cyan p-4 font-inter text-tron-cyan z-10 pointer-events-auto backdrop-blur-md shadow-[4px_0_20px_rgba(0,243,255,0.2),inset_-4px_0_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* main wrapper forces full height and hides overflow at the root */}
         <div className="flex h-full flex-col overflow-hidden">
-          {/* fixed header */}
-          <h2 className="mb-4 border-b border-tron-cyan pb-4 text-xl font-telemetry uppercase tracking-[4px] [text-shadow:0_0_8px_#00f3ff] text-center shrink-0">
-            SETTINGS:
-            <span className="text-white ml-2">
-              {activeScene?.toUpperCase()}
-            </span>
+          <h2 className="mb-3 flex items-center justify-center border-b border-tron-cyan pb-5 pt-2.5 pl-2 text-xl font-telemetry uppercase tracking-[6px] text-white [text-shadow:0_0_8px_#00f3ff] shrink-0">
+            {`[ ${activeScene} ]`}
           </h2>
 
           {/* scrollable content area with hidden scrollbar for a clean look */}

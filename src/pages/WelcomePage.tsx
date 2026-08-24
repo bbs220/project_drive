@@ -52,7 +52,7 @@ const WelcomePage = () => {
             <span className="absolute left-0 top-0 z-20 h-full w-2 bg-tron-cyan transition-colors duration-500 group-hover:bg-tron-bg"></span>
             {/* button text tracking out and inverting on hover */}
             <span className="relative z-10 font-telemetry text-lg md:text-xl font-black tracking-[0.4em] text-tron-magenta transition-colors duration-500 group-hover:text-tron-bg">
-              // DRIVE //
+              {`[ DRIVE ]`}
             </span>
             {/* tech ui decal in the corner */}
             <span className="absolute right-3 top-3 z-20 h-2 w-2 bg-tron-cyan transition-colors duration-500 group-hover:bg-tron-bg"></span>
@@ -73,7 +73,7 @@ const WelcomePage = () => {
             <span className="absolute left-0 top-0 z-20 h-full w-2 bg-tron-magenta transition-colors duration-500 group-hover:bg-tron-bg"></span>
             {/* button text tracking out and inverting on hover */}
             <span className="relative z-10 font-telemetry text-lg md:text-xl font-black tracking-[0.4em] text-tron-cyan transition-colors duration-500 group-hover:text-tron-bg">
-              // GARAGE //
+              {`[ GARAGE ]`}
             </span>
             {/* magenta decal in the corner */}
             <span className="absolute right-3 top-3 z-20 h-2 w-2 bg-tron-magenta transition-colors duration-500 group-hover:bg-tron-bg"></span>
