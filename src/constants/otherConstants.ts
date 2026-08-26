@@ -193,6 +193,7 @@ export const vehiclePlaneConstants = {
     // strict angle limits
     maxPitchAngle: { value: 30, min: 5, max: 90, label: "max pitch angle" },
     maxRollAngle: { value: 30, min: 5, max: 90, label: "max roll angle" },
+    altitudeLimit: { value: 200, min: 100, max: 1000, label: "altitude limit" },
   },
   physics: {},
 };

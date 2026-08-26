@@ -38,6 +38,7 @@ export type typePlaneTuning = {
   sidewaysMovementYPos: number | TweakpaneParam<number>;
   maxPitchAngle: number | TweakpaneParam<number>;
   maxRollAngle: number | TweakpaneParam<number>;
+  altitudeLimit: number | TweakpaneParam<number>;
 };
 
 // initialize reusable three js objects outside the loop to prevent aggressive memory leaks
@@ -86,23 +87,10 @@ export const useVehiclePlaneCreator = (
 
     const chassis = chassisRef.current;
 
-    // manual respawn trigger resets plane to standard spawn point
-    if (controls.respawn) {
-      // execute centralized respawn logic mapped to the plane
-      respawnVehicle({
-        vehicleType: "plane",
-        vehicleBody: chassis,
-        mode: "drive",
-      });
-
-      // kill engine momentum on respawn
-      currentSpeedRef.current = 0;
-
-      // exit the physics step early to prevent applying forces to a teleporting body
-      return;
-    }
-
-    if (chassis.translation().y < respawnValues.universalRespawnLimit) {
+    if (
+      controls.respawn ||
+      chassis.translation().y < respawnValues.universalRespawnLimit
+    ) {
       // execute centralized respawn logic
       respawnVehicle({
         vehicleType: "plane",
@@ -146,6 +134,9 @@ export const useVehiclePlaneCreator = (
     const maxRollAngleVal = unwrapParam(tuning.maxRollAngle, 20);
     const maxPitchRad = maxPitchAngleVal * (Math.PI / 180);
     const maxRollRad = maxRollAngleVal * (Math.PI / 180);
+
+    // extract altitude limit defaulting to 500
+    const altitudeLimitVal = unwrapParam(tuning.altitudeLimit, 500);
 
     // populate our global reusable quaternion
     quaternion.set(rot.x, rot.y, rot.z, rot.w);
@@ -226,8 +217,8 @@ export const useVehiclePlaneCreator = (
       // add the artificial unity curved flight path pitch to our raw pitch request
       pitchRad += absRoll * multXRot * activePitchSpeed * (Math.PI / 180);
 
-      // STRICT ANGLE LIMITERS: prevent mid-air flips and barrel rolls
-      // rubber-band wall: if the plane exceeds the 20 degree limit, actively force the angular velocity backward
+      // strict angle limiters prevent mid air flips and barrel rolls
+      // rubber band wall if the plane exceeds the 20 degree limit actively force the angular velocity backward
       if (euler.x > maxPitchRad && pitchRad >= 0) {
         pitchRad = -(euler.x - maxPitchRad) * 10;
       } else if (euler.x < -maxPitchRad && pitchRad <= 0) {
@@ -262,6 +253,12 @@ export const useVehiclePlaneCreator = (
 
       // apply artificial slip to slowly push the plane sideways towards the roof vector when banked
       moveVelocity.addScaledVector(localY, absRoll * multYPos);
+
+      // enforce arcade altitude limit so the plane cannot fly into space
+      // zero out any upward momentum if we exceed the ceiling boundary
+      if (pos.y > altitudeLimitVal && moveVelocity.y > 0) {
+        moveVelocity.y = 0;
+      }
 
       // directly set velocity bypassing rapier gravity completely
       chassis.setLinvel(moveVelocity, true);
