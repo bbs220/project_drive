@@ -210,34 +210,23 @@ export const vehicleHelicopterConstants = {
     tailRotorPosY: { value: 0.1, min: -20, max: 20, label: "tail rotor y" },
     tailRotorPosZ: { value: 6.46, min: -20, max: 20, label: "tail rotor z" },
 
-    // physics colliders - single centralized mass for responsive arcade physics
+    // physics colliders
     chassisWidth: { value: 1.75, min: 0.1, max: 5, label: "chassis width" },
     chassisHeight: { value: 2.15, min: 0.1, max: 5, label: "chassis height" },
     chassisLength: { value: 6.3, min: 0.1, max: 10, label: "chassis length" },
     chassisRadius: { value: 0.3, min: 0, max: 1, label: "chassis radius" },
     chassisMass: { value: 300, min: 10, max: 2000, label: "chassis mass" },
 
-    // restored impulse mechanics
-    liftForce: { value: 4000, min: 1000, max: 10000, label: "lift force" },
-    descendForce: {
-      value: 2000,
-      min: 1000,
-      max: 10000,
-      label: "descend force",
-    },
-    pitchTorque: { value: 800, min: 100, max: 5000, label: "pitch torque" },
-    rollTorque: { value: 800, min: 100, max: 5000, label: "roll torque" },
-    yawTorque: { value: 1200, min: 100, max: 5000, label: "yaw torque" },
+    // arcade velocity override mechanics
+    verticalSpeed: { value: 15, min: 5, max: 100, label: "vertical speed" },
+    forwardSpeed: { value: 40, min: 10, max: 100, label: "forward speed" },
+    strafeSpeed: { value: 25, min: 5, max: 100, label: "strafe speed" },
+    yawSpeed: { value: 15, min: 0.5, max: 100, label: "yaw speed" },
+    maxPitch: { value: 25, min: 10, max: 60, label: "max pitch deg" },
+    maxRoll: { value: 25, min: 10, max: 60, label: "max roll deg" },
+    smoothing: { value: 5, min: 1, max: 20, label: "visual smoothing" },
     rotorSpeed: { value: 20, min: 5, max: 50, label: "rotor speed" },
-    autoLevelStrength: {
-      value: 1500,
-      min: 0,
-      max: 5000,
-      label: "auto level str",
-    },
-    angularDamping: { value: 0.95, min: 0, max: 1, label: "angular damping" },
-    maxLeanAngle: { value: 30, min: 10, max: 90, label: "max lean angle" },
-    altitudeLimit: { value: 500, min: 100, max: 2000, label: "altitude limit" },
+    altitudeLimit: { value: 200, min: 100, max: 1000, label: "altitude limit" },
   },
   physics: {},
 };
