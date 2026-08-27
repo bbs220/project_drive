@@ -4,6 +4,7 @@ import * as THREE from "three";
 import ProceduralCity from "./ProceduralCity";
 import ProceduralGround from "./ProceduralGround";
 import { worldConstants } from "../../../constants/proceduralConstants";
+import { useCityStore } from "../../../stores/useCItyStore";
 
 type typeChunkManagerProps = {
   targetRef: React.RefObject<THREE.Group | null>;
@@ -31,6 +32,9 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
   // keep track of the current center chunk to trigger re-renders only when crossing boundaries
   const [centerChunk, setCenterChunk] = useState({ x: 0, z: 0 });
 
+  // dynamically pull the chunk radius from your zustand store so the slider updates it in real-time
+  const chunkRadius = useCityStore((state) => state.chunkRadius);
+
   // dummy vector to extract world position without memory leaks every frame
   const dummyPosition = useRef(new THREE.Vector3());
 
@@ -56,12 +60,10 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
   });
 
   const activeChunks = useMemo(() => {
-    // pull radius from your global constants falling back to 1 if it is missing
-    const radius = worldConstants.chunkRadius || 1;
-
-    // call the pure function to build the new dynamic array
-    return generateChunkGrid(centerChunk.x, centerChunk.z, radius);
-  }, [centerChunk]);
+    // call the pure function to build the new dynamic array using the zustand radius
+    return generateChunkGrid(centerChunk.x, centerChunk.z, chunkRadius);
+    // strictly added chunkradius as a dependency so it scales instantly
+  }, [centerChunk, chunkRadius]);
 
   return (
     <group>

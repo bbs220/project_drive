@@ -28,7 +28,7 @@ export const proceduralConstants = {
 
 export const worldConstants = {
   chunkSize: 300,
-  chunkRadius: 2,
+  chunkRadius: 1,
   cellSize: 10,
   groundHeight: 0.1,
   groundOffset: -0.5,
