@@ -25,3 +25,11 @@ export const proceduralConstants = {
     distance: FastNoiseLite.CellularReturnType.Distance,
   },
 };
+
+export const worldConstants = {
+  chunkSize: 300,
+  chunkRadius: 2,
+  cellSize: 10,
+  groundHeight: 0.1,
+  groundOffset: -0.5,
+};

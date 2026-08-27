@@ -3,8 +3,9 @@ import { getTerrainData } from "../../../utils/worldGenerator";
 import { useCityStore } from "../../../stores/useCItyStore";
 import ProceduralBuildings from "./ProceduralBuildings";
 import ProceduralRoads from "./ProceduralRoads";
+import { worldConstants } from "../../../constants/proceduralConstants";
 
-// Define and export the typescript shape for the visual instances
+// define and export the typescript shape for the visual instances
 export type typeInstanceConfig = {
   key: string;
   position: [number, number, number];
@@ -20,19 +21,17 @@ type typeChunkProps = {
 };
 
 const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
-  // subscribe strictly to the city version triggered by the ui radar
   const version = useCityStore((state) => state.version);
 
-  // precompute all instance data for visuals in a single pass
   const { buildings, roads } = useMemo(() => {
     const activeVersion = version;
-
     const tempBuildings: typeInstanceConfig[] = [];
     const tempRoads: typeInstanceConfig[] = [];
 
-    const chunkSize = 300;
+    // strictly grab sizes from the global constants
+    const chunkSize = worldConstants.chunkSize;
     const halfChunk = chunkSize / 2;
-    const cellSize = 10;
+    const cellSize = worldConstants.cellSize;
     const halfCell = cellSize / 2;
 
     const worldOffsetX = chunkX * chunkSize;
@@ -88,7 +87,12 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
 
   return (
     <group
-      position={[chunkX * 300, -0.48, chunkZ * 300]}
+      // strictly use the global chunk size for group placement
+      position={[
+        chunkX * worldConstants.chunkSize,
+        -0.48,
+        chunkZ * worldConstants.chunkSize,
+      ]}
       key={`${version}_${chunkX}_${chunkZ}`}
     >
       <ProceduralBuildings buildings={buildings} />

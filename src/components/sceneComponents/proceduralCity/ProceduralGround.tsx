@@ -4,12 +4,7 @@ import fragmentShader from "../shaders/gridFrag.glsl";
 import vertexShader from "../shaders/gridVert.glsl";
 import { useTweakpane } from "../../../hooks/useTweakpane";
 import { RigidBody } from "@react-three/rapier";
-
-const groundDim = {
-  width: 300,
-  height: 0.1,
-  depth: 300,
-};
+import { worldConstants } from "../../../constants/proceduralConstants";
 
 type GroundTileProps = {
   chunkX: number;
@@ -71,11 +66,19 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
       type="fixed"
       colliders="cuboid"
       friction={2}
-      position={[chunkX * groundDim.width, -0.5, chunkZ * groundDim.depth]}
+      position={[
+        chunkX * worldConstants.chunkSize,
+        worldConstants.groundOffset,
+        chunkZ * worldConstants.chunkSize,
+      ]}
     >
       <mesh receiveShadow>
         <boxGeometry
-          args={[groundDim.width, groundDim.height, groundDim.depth]}
+          args={[
+            worldConstants.chunkSize,
+            worldConstants.groundHeight,
+            worldConstants.chunkSize,
+          ]}
         />
         <shaderMaterial
           ref={materialRef}
