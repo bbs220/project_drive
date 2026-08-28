@@ -24,7 +24,7 @@ const ProceduralRadar = () => {
   const controlsRef = useAllVehicleInput();
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const decorationsRef = useRef<HTMLDivElement>(null);
+  const legendRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const blipRefs = useRef<Record<string, HTMLImageElement | null>>({});
@@ -40,7 +40,7 @@ const ProceduralRadar = () => {
   useGSAP(
     () => {
       // guard against null refs when the component is hidden
-      if (!wrapperRef.current || !decorationsRef.current) return;
+      if (!wrapperRef.current || !legendRef.current) return;
 
       tl.current = gsap
         .timeline({ paused: true })
@@ -51,26 +51,27 @@ const ProceduralRadar = () => {
           top: "45%",
           xPercent: 50,
           yPercent: -50,
-          borderRadius: "24px", // Matches our new starting radius exactly for zero morphing!
+          borderRadius: "16px",
           pointerEvents: "auto",
-          duration: 0.3,
+          duration: 0.35,
           ease: "power3.inOut",
         })
         .to(
-          decorationsRef.current,
+          legendRef.current,
           {
-            opacity: 0,
-            duration: 0.15,
+            opacity: 1,
+            pointerEvents: "auto",
+            duration: 0.2,
             ease: "power2.out",
           },
-          "<",
+          "-=0.1",
         );
 
       // reset the map state so it doesn't stay internally "expanded" when hidden from sidebar
       isExpandedRef.current = false;
       panOffset.current = { x: 0, z: 0 };
     },
-    // force GSAP to rebuild the timeline whenever showRadar changes!
+    // force gsap to rebuild the timeline whenever showradar changes
     { scope: wrapperRef, dependencies: [showRadar] },
   );
 
@@ -117,6 +118,26 @@ const ProceduralRadar = () => {
 
   const regenerateCity = useCityStore((state) => state.regenerateCity);
 
+  // smoothly pan to an entity when clicked in the legend
+  const centerOnEntity = (id: string) => {
+    const state = useVehicleStore.getState();
+    const activeEntity = state.active.entity;
+    const activeData = state.telemetry[activeEntity];
+    const targetData = state.telemetry[id as keyof typeof state.telemetry];
+
+    if (activeData && targetData) {
+      const targetX = targetData.position[0] - activeData.position[0];
+      const targetZ = targetData.position[2] - activeData.position[2];
+
+      gsap.to(panOffset.current, {
+        x: targetX,
+        z: targetZ,
+        duration: 0.6,
+        ease: "power3.out",
+      });
+    }
+  };
+
   useEffect(() => {
     syncGeneratorParams(params as typeof generatorState);
     regenerateCity();
@@ -128,7 +149,7 @@ const ProceduralRadar = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let currentDimX = 150;
+    let currentDimX = 225; // 3:2 ratio matching the visual ui width for gta feel
     let currentDimY = 150;
     let currentRes = 2.0;
 
@@ -158,13 +179,19 @@ const ProceduralRadar = () => {
           if (wrapperRef.current) wrapperRef.current.style.cursor = "grab";
         } else {
           tl.current?.reverse();
-          panOffset.current = { x: 0, z: 0 };
+          // animate back to center smoothly instead of snapping instantly
+          gsap.to(panOffset.current, {
+            x: 0,
+            z: 0,
+            duration: 0.4,
+            ease: "power2.out",
+          });
           if (wrapperRef.current) wrapperRef.current.style.cursor = "default";
         }
       }
       prevMapKeyRef.current = currentMapKey;
 
-      let targetDimX = 150;
+      let targetDimX = 225;
       let targetDimY = 150;
       let targetRes = 2.0;
 
@@ -202,7 +229,7 @@ const ProceduralRadar = () => {
           activeData.rotation[3],
         );
         tempEuler.setFromQuaternion(tempQuat, "YXZ");
-        // Spins the map in reverse relative to the player
+        // spins the map in reverse relative to the player
         mapYawDeg = -tempEuler.y * (180 / Math.PI);
       }
 
@@ -274,8 +301,8 @@ const ProceduralRadar = () => {
           iconYaw = tempEuler.y * (180 / Math.PI);
         }
 
-        // Icon rotates forward (+yaw). Because it's inside the counter-rotating map (-yaw),
-        // the active vehicle nets out at exactly 0 degrees (pointing straight UP on screen!)
+        // icon rotates forward (+yaw). because it's inside the counter-rotating map (-yaw),
+        // the active vehicle nets out at exactly 0 degrees (pointing straight up on screen)
         blip.style.transform = `translate(-50%, -50%) rotate(${iconYaw}deg)`;
       });
     };
@@ -286,6 +313,9 @@ const ProceduralRadar = () => {
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!isExpandedRef.current) return;
+    // kill any active automated gsap pans if the user grabs the map manually
+    gsap.killTweensOf(panOffset.current);
+
     isDragging.current = true;
     lastMouse.current = { x: e.clientX, y: e.clientY };
     if (wrapperRef.current) wrapperRef.current.style.cursor = "grabbing";
@@ -308,18 +338,34 @@ const ProceduralRadar = () => {
     }
   };
 
+  // helper for legend mapping
+  const getEntityDetails = (id: string) => {
+    switch (id) {
+      case ENTITY_ID.PLAYER_1:
+        return { label: "PLAYER", icon: iconsBank.playerRadar };
+      case ENTITY_ID.CAR_1:
+        return { label: "CAR", icon: iconsBank.carRadar };
+      case ENTITY_ID.HELI_1:
+        return { label: "HELI", icon: iconsBank.helicopterRadar };
+      case ENTITY_ID.PLANE_1:
+        return { label: "PLANE", icon: iconsBank.planeRadar };
+      default:
+        return { label: "UNKNOWN", icon: iconsBank.playerRadar };
+    }
+  };
+
   if (!showRadar) return null;
 
   return (
     <div
       ref={wrapperRef}
-      style={{ borderRadius: "24px" }} // NEW: Starts precisely at 24px so the corners never morph!
+      style={{ borderRadius: "16px" }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      // Removed overflow-hidden class since inline styles manage border radius
-      className="pointer-events-none absolute right-6 top-6 z-20 h-56 w-56 overflow-hidden border-2 border-tron-cyan bg-[#00050a]/90 shadow-[0_0_20px_rgba(0,243,255,0.2),inset_0_0_20px_rgba(0,243,255,0.1)] backdrop-blur-md"
+      // re-positioned back to the top right with original tron cyan bloom shadows
+      className="pointer-events-none absolute right-6 top-6 z-20 h-48 w-72 overflow-hidden border-2 border-tron-cyan bg-[#00050a]/90 shadow-[0_0_20px_rgba(0,243,255,0.2),inset_0_0_20px_rgba(0,243,255,0.1)] backdrop-blur-md"
     >
       <div
         ref={mapContainerRef}
@@ -333,19 +379,16 @@ const ProceduralRadar = () => {
 
         <div className="absolute inset-0 pointer-events-none">
           {TRACKED_ENTITIES.map((id) => {
-            let src = iconsBank.playerRadar;
-            if (id === ENTITY_ID.CAR_1) src = iconsBank.carRadar;
-            if (id === ENTITY_ID.HELI_1) src = iconsBank.helicopterRadar;
-            if (id === ENTITY_ID.PLANE_1) src = iconsBank.planeRadar;
-
+            const { icon } = getEntityDetails(id);
             return (
               <img
                 key={id}
                 ref={(el) => {
                   blipRefs.current[id] = el;
                 }}
-                src={src}
+                src={icon}
                 alt={`${id} Icon`}
+                // restored the original cyan drop shadow for the map blips
                 className="absolute w-8 h-8 opacity-0 drop-shadow-[0_0_12px_rgba(0,243,255,1)] transition-opacity duration-300 z-30"
               />
             );
@@ -353,21 +396,38 @@ const ProceduralRadar = () => {
         </div>
       </div>
 
-      <div className="absolute inset-0 bg-tron-cyan mix-blend-multiply opacity-80 pointer-events-none" />
+      <div className="absolute inset-0 bg-tron-cyan mix-blend-multiply opacity-20 pointer-events-none" />
 
+      {/* interactive legend (only visible on expanded view) */}
       <div
-        ref={decorationsRef}
-        className="absolute inset-0 pointer-events-none"
+        ref={legendRef}
+        className="absolute top-6 left-6 opacity-0 pointer-events-none z-40 flex flex-col gap-2"
       >
-        {/* NEW: Updated the decorative rings to be concentric rounded rectangles instead of perfect circles */}
-        <div className="absolute inset-4 rounded-2xl border border-tron-cyan/20" />
-        <div className="absolute inset-10 rounded-xl border border-tron-cyan/15" />
-        <div className="absolute inset-16 rounded-lg border border-tron-cyan/10" />
-        <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-tron-cyan/30" />
-        <div className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-tron-cyan/30" />
-
-        {/* Scanner sweep matches the 24px container radius perfectly */}
-        <div className="absolute inset-0 animate-[spin_4s_linear_infinite] rounded-3xl bg-[conic-gradient(from_0deg,transparent_75%,rgba(0,243,255,0.4)_100%)]" />
+        <div className="bg-[#00050a]/90 border border-tron-cyan/30 rounded-lg p-3 flex flex-col gap-3 backdrop-blur-md shadow-lg">
+          <span className="text-tron-cyan text-xs font-bold tracking-widest border-b border-tron-cyan/20 pb-1">
+            VEHICLE TRACKING
+          </span>
+          {TRACKED_ENTITIES.map((id) => {
+            const { label, icon } = getEntityDetails(id);
+            return (
+              <button
+                key={id}
+                onClick={(e) => {
+                  e.stopPropagation(); // prevents map drag from catching the click
+                  centerOnEntity(id);
+                }}
+                className="flex items-center gap-3 text-white hover:text-tron-cyan hover:bg-white/5 p-1 rounded transition-colors cursor-pointer"
+              >
+                <img
+                  src={icon}
+                  className="w-5 h-5 drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]"
+                  alt={label}
+                />
+                <span className="text-xs font-mono">{label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
