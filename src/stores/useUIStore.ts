@@ -10,7 +10,7 @@ type UIState = {
   // hud toggles
   showControls: boolean; // wasd and shift hints
   showSpeedometers: boolean; // car, plane, and heli instrument clusters
-  showRadar: boolean; // procedural radar component visibility
+  showMap: boolean; // procedural radar component visibility
   showTelemetry: boolean; // fps, ping, or raw physics debug text
 
   // audio setters
@@ -22,7 +22,7 @@ type UIState = {
   // hud setters
   setShowControls: (show: boolean) => void;
   setShowSpeedometers: (show: boolean) => void;
-  setShowRadar: (show: boolean) => void;
+  setShowMap: (show: boolean) => void;
   setShowTelemetry: (show: boolean) => void;
 };
 
@@ -36,7 +36,7 @@ export const useUIStore = create<UIState>((set) => ({
   // default hud state
   showControls: true,
   showSpeedometers: true,
-  showRadar: true,
+  showMap: false,
   showTelemetry: false, // usually off by default for a clean screen
 
   // audio actions
@@ -48,6 +48,6 @@ export const useUIStore = create<UIState>((set) => ({
   // hud actions
   setShowControls: (show) => set({ showControls: show }),
   setShowSpeedometers: (show) => set({ showSpeedometers: show }),
-  setShowRadar: (show) => set({ showRadar: show }),
+  setShowMap: (show) => set({ showMap: show }),
   setShowTelemetry: (show) => set({ showTelemetry: show }),
 }));

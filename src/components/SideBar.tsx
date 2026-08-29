@@ -23,14 +23,14 @@ const SideBar = () => {
     radioVolume,
     showControls,
     showSpeedometers,
-    showRadar,
+    showMap,
     setMasterVolume,
     setUiVolume,
     setAmbienceVolume,
     setRadioVolume,
     setShowControls,
     setShowSpeedometers,
-    setShowRadar,
+    setShowMap,
   } = useUIStore();
 
   const { chunkRadius, setChunkRadius } = useCityStore();
@@ -228,13 +228,13 @@ const SideBar = () => {
                     <button
                       onClick={() => {
                         playToggle();
-                        setShowRadar(!showRadar);
+                        setShowMap(!showMap);
                       }}
                       className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
                     >
                       <div
                         className={`h-full w-1/2 bg-tron-cyan transition-all duration-300 ease-out ${
-                          showRadar
+                          showMap
                             ? "translate-x-full shadow-[0_0_10px_#00f3ff]"
                             : "translate-x-0 bg-tron-cyan/20"
                         }`}

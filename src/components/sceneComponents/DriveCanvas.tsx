@@ -23,6 +23,7 @@ import PostprocessingEffects from "./PostprocessingEffects";
 import ChunkManager from "./proceduralCity/ChunkManager";
 import Player from "./Player";
 import { useMountSystem } from "../../hooks/useMountSystem";
+import MiniMap from "../MiniMap";
 
 const DriveScene = () => {
   // initialize refs for all instantiated vehicles and player
@@ -73,7 +74,7 @@ const DriveScene = () => {
           plane: CONTROL_STATE.PLANE,
         },
       },
-      fogValue: { value: 0.01, min: 0, max: 1, label: "fog amount" },
+      fogValue: { value: 0.0, min: 0, max: 1, label: "fog amount" },
       fogColor: { value: "#003535", label: "fog color" },
 
       // tuning parameters for camera warp speed
@@ -161,12 +162,13 @@ const DriveScene = () => {
       <PerspectiveCamera
         makeDefault
         fov={sceneConstants.fov}
-        position={[0, 5, 10]}
+        position={[0, 0, 500]}
         near={0.01}
         far={50000}
       />
       <fogExp2 attach="fog" args={[fogColor as string, fogValue as number]} />
       <Stats showPanel={showFPS ? 0 : 4} />
+      <gridHelper args={[300, 1, "white", "orange"]} position={[0, 60, 0]} />
       <BackgroundLight />
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} spawnMode={"drive"} />
@@ -197,6 +199,7 @@ const DriveCanvas = () => {
   return (
     <>
       <AllVehiclesHUD />
+      <MiniMap />
       <Canvas shadows={"soft"} dpr={setDpr}>
         <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>
           <DriveScene />
