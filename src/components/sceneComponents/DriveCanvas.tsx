@@ -168,7 +168,6 @@ const DriveScene = () => {
       />
       <fogExp2 attach="fog" args={[fogColor as string, fogValue as number]} />
       <Stats showPanel={showFPS ? 0 : 4} />
-      <gridHelper args={[300, 1, "white", "orange"]} position={[0, 60, 0]} />
       <BackgroundLight />
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} spawnMode={"drive"} />

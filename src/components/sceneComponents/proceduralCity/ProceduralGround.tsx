@@ -18,6 +18,7 @@ type GroundTileProps = {
     crossSize: number;
     crossOpacity: number;
     gridThickness: number;
+    showChunkBoundary: boolean;
   };
 };
 
@@ -44,8 +45,16 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
           uGridThickness: { value: params.gridThickness },
         },
       ]),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [
+      params.bgColor,
+      params.crossColor,
+      params.crossOpacity,
+      params.crossSize,
+      params.gridSize,
+      params.gridThickness,
+      params.lineColor,
+      params.subGridSize,
+    ],
   );
 
   useEffect(() => {
@@ -61,34 +70,43 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
     mat.uniforms.uCrossColor.value.set(params.crossColor).multiplyScalar(2);
   }, [params]);
 
+  const posX = chunkX * worldConstants.chunkSize;
+  const posZ = chunkZ * worldConstants.chunkSize;
+
   return (
-    <RigidBody
-      type="fixed"
-      colliders="cuboid"
-      friction={2}
-      position={[
-        chunkX * worldConstants.chunkSize,
-        worldConstants.groundOffset,
-        chunkZ * worldConstants.chunkSize,
-      ]}
-    >
-      <mesh receiveShadow>
-        <boxGeometry
-          args={[
-            worldConstants.chunkSize,
-            worldConstants.groundHeight,
-            worldConstants.chunkSize,
-          ]}
-        />
-        <shaderMaterial
-          ref={materialRef}
-          vertexShader={vertexShader}
-          fragmentShader={fragmentShader}
-          uniforms={uniforms}
-          fog={true}
-        />
-      </mesh>
-    </RigidBody>
+    <group position={[posX, 0, posZ]}>
+      {/* individual chunk collision & visual ground */}
+      <RigidBody
+        type="fixed"
+        colliders="cuboid"
+        friction={2}
+        position={[0, worldConstants.groundOffset, 0]}
+      >
+        <mesh receiveShadow>
+          <boxGeometry
+            args={[
+              worldConstants.chunkSize,
+              worldConstants.groundHeight,
+              worldConstants.chunkSize,
+            ]}
+          />
+          <shaderMaterial
+            ref={materialRef}
+            vertexShader={vertexShader}
+            fragmentShader={fragmentShader}
+            uniforms={uniforms}
+            fog={true}
+          />
+        </mesh>
+      </RigidBody>
+
+      {/* individual chunk debug boundary helper controlled by parent params */}
+      <gridHelper
+        args={[worldConstants.chunkSize, 1, "white", "orange"]}
+        position={[0, 40, 0]}
+        visible={params.showChunkBoundary}
+      />
+    </group>
   );
 };
 
@@ -97,10 +115,11 @@ type typeGroundProps = {
 };
 
 const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
-  // parent manages the ui state strictly once
+  // Move the chunk boundary toggle here so it is only registered in Tweakpane once
   const params = useTweakpane(
     { title: "➕ Grid Shader", expanded: false },
     {
+      showChunkBoundary: { value: false, label: "chunk boundary" },
       gridSize: { value: 10.0, min: 5.0, max: 50.0, step: 5 },
       subGridSize: { value: 2.5, min: 0.5, max: 2.5, step: 0.5 },
       crossSize: { value: 0.08, min: 0.01, max: 0.5 },
@@ -114,7 +133,6 @@ const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
 
   return (
     <group>
-      {/* dynamically map the isolated sub-components */}
       {activeChunks.map((c) => (
         <GroundTile
           key={`ground_${c.chunkX}_${c.chunkZ}`}
