@@ -163,6 +163,8 @@ const DriveScene = () => {
         makeDefault
         fov={sceneConstants.fov}
         position={[0, 5, 10]}
+        near={0.01}
+        far={50000}
       />
       <fogExp2 attach="fog" args={[fogColor as string, fogValue as number]} />
       <Stats showPanel={showFPS ? 0 : 4} />
