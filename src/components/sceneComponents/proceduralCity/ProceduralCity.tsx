@@ -1,9 +1,8 @@
 import { useMemo } from "react";
-import { getTerrainData } from "../../../utils/worldGenerator";
+import { getTerrainData, worldConstants } from "../../../utils/worldGenerator";
 import { useCityStore } from "../../../stores/useCItyStore";
 import ProceduralBuildings from "./ProceduralBuildings";
 import ProceduralRoads from "./ProceduralRoads";
-import { worldConstants } from "../../../constants/proceduralConstants";
 
 // define and export the typescript shape for the visual instances
 export type typeInstanceConfig = {

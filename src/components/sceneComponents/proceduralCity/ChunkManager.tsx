@@ -3,8 +3,8 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import ProceduralCity from "./ProceduralCity";
 import ProceduralGround from "./ProceduralGround";
-import { worldConstants } from "../../../constants/proceduralConstants";
 import { useCityStore } from "../../../stores/useCItyStore";
+import { worldConstants } from "../../../utils/worldGenerator";
 
 type typeChunkManagerProps = {
   targetRef: React.RefObject<THREE.Group | null>;

@@ -4,7 +4,7 @@ import fragmentShader from "../shaders/gridFrag.glsl";
 import vertexShader from "../shaders/gridVert.glsl";
 import { useTweakpane } from "../../../hooks/useTweakpane";
 import { RigidBody } from "@react-three/rapier";
-import { worldConstants } from "../../../constants/proceduralConstants";
+import { worldConstants } from "../../../utils/worldGenerator";
 
 type GroundTileProps = {
   chunkX: number;
