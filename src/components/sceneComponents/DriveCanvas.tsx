@@ -18,7 +18,6 @@ import {
   type TypeControlState,
   type TypeEntityId,
 } from "../../stores/useVehicleStore";
-import ProceduralRadar from "../ProceduralRadar";
 import BackgroundLight from "./BackgroundLight";
 import PostprocessingEffects from "./PostprocessingEffects";
 import ChunkManager from "./proceduralCity/ChunkManager";
@@ -197,7 +196,6 @@ const DriveCanvas = () => {
 
   return (
     <>
-      {sceneConstants.isDev && <ProceduralRadar />}
       <AllVehiclesHUD />
       <Canvas shadows={"soft"} dpr={setDpr}>
         <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>
