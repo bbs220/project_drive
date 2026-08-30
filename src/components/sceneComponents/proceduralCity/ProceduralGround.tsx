@@ -73,14 +73,17 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
   const posX = chunkX * worldConstants.chunkSize;
   const posZ = chunkZ * worldConstants.chunkSize;
 
+  // Calculate the half-cell offset to match the roads
+  const halfCell = worldConstants.cellSize / 2;
+
   return (
     <group position={[posX, 0, posZ]}>
-      {/* individual chunk collision & visual ground */}
+      {/* Shift the physics body and visual mesh by -halfCell on X and Z */}
       <RigidBody
         type="fixed"
         colliders="cuboid"
         friction={2}
-        position={[0, worldConstants.groundOffset, 0]}
+        position={[-halfCell, worldConstants.groundOffset, -halfCell]}
       >
         <mesh receiveShadow>
           <boxGeometry
@@ -100,10 +103,10 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
         </mesh>
       </RigidBody>
 
-      {/* individual chunk debug boundary helper controlled by parent params */}
+      {/* Shift the debug boundary so it outlines the new chunk area accurately */}
       <gridHelper
         args={[worldConstants.chunkSize, 1, "white", "orange"]}
-        position={[0, 10, 0]}
+        position={[-halfCell, 10, -halfCell]}
         visible={params.showChunkBoundary}
       />
     </group>
@@ -115,7 +118,6 @@ type typeGroundProps = {
 };
 
 const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
-  // Move the chunk boundary toggle here so it is only registered in Tweakpane once
   const params = useTweakpane(
     { title: "➕ Grid Shader", expanded: false },
     {

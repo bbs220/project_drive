@@ -3,6 +3,7 @@ import * as THREE from "three";
 import roadVert from "../shaders/roadVert.glsl";
 import roadFrag from "../shaders/roadFrag.glsl";
 import type { typeInstanceConfig } from "./ProceduralCity";
+import { worldConstants } from "../../../utils/worldGenerator"; //
 
 const dummy = new THREE.Object3D();
 
@@ -23,9 +24,15 @@ const ProceduralRoads = ({ roads }: { roads: typeInstanceConfig[] }) => {
   useLayoutEffect(() => {
     if (meshRef.current && geomRef.current) {
       const roadTypes = new Float32Array(roads.length);
+      const halfCell = worldConstants.cellSize / 2; // 2. calculate the offset
 
       roads.forEach((r, i) => {
-        dummy.position.set(...r.position);
+        // 3. subtract half a cell to shift the corner into the dead center
+        dummy.position.set(
+          r.position[0] - halfCell,
+          r.position[1],
+          r.position[2] - halfCell,
+        );
         dummy.scale.set(...r.scale);
         dummy.rotation.set(...(r.rotation || [0, 0, 0]));
         dummy.updateMatrix();
@@ -47,6 +54,7 @@ const ProceduralRoads = ({ roads }: { roads: typeInstanceConfig[] }) => {
   return (
     <instancedMesh
       ref={meshRef}
+      // using null as any to stop TS from yelling about undefined args
       args={[undefined, undefined, roads.length]}
       material={material}
     >
