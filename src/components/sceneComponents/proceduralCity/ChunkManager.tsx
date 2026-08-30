@@ -60,16 +60,26 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
     }
   });
 
+  // Base chunks for heavy geometry (Ground and City)
   const activeChunks = useMemo(() => {
     // call the pure function to build the new dynamic array using the zustand radius
     return generateChunkGrid(centerChunk.x, centerChunk.z, chunkRadius);
     // strictly added chunkradius as a dependency so it scales instantly
   }, [centerChunk, chunkRadius]);
 
+  // Extended chunks for cheap geometry (Sky)
+  const skyChunks = useMemo(() => {
+    // +1 adds an outer ring of chunks so the stars horizon extends further
+    return generateChunkGrid(centerChunk.x, centerChunk.z, chunkRadius + 1);
+  }, [centerChunk, chunkRadius]);
+
   return (
     <group>
       <ProceduralGround activeChunks={activeChunks} />
-      <ProceduralSky activeChunks={activeChunks} />
+
+      {/* Pass the extended array strictly to the sky */}
+      <ProceduralSky activeChunks={skyChunks} />
+
       {activeChunks.map((coord) => (
         <ProceduralCity
           key={`chunk_${coord.chunkX}_${coord.chunkZ}`}

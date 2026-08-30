@@ -8,9 +8,9 @@ type ProceduralSkyProps = {
 };
 
 // sky config
-const STARS_PER_CHUNK = 20;
-const MIN_Y = 100;
-const MAX_Y = 400;
+const STARS_PER_CHUNK = 50;
+const MIN_Y = 200;
+const MAX_Y = 500;
 
 // gpu shaders for twinkling and blooming
 const starVert = `
