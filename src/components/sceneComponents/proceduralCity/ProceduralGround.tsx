@@ -103,7 +103,7 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
       {/* individual chunk debug boundary helper controlled by parent params */}
       <gridHelper
         args={[worldConstants.chunkSize, 1, "white", "orange"]}
-        position={[0, 40, 0]}
+        position={[0, 10, 0]}
         visible={params.showChunkBoundary}
       />
     </group>
