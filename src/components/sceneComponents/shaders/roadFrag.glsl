@@ -1,41 +1,50 @@
 varying vec2 vUv;
 varying float vRoadType;
+
+// new dynamic uniforms
+uniform vec3 uBgColor;
+uniform vec3 uEdgeColor;
+uniform vec3 uCenterColor;
+uniform float uEdgeDist;
+uniform float uCenterDist;
+
 #include <fog_pars_fragment>
 
 void main() {
-    vec3 asphaltColor = vec3(0.0);
-    // glow for the side lines
-    vec3 yellowEdgeGlow = vec3(1.0,0.8,0.0) * 2.0;
+    vec2 absUV = abs(vUv - 0.5);
 
-    // 1. Calculate solid continuous edges
-    float edgeX = smoothstep(0.38,0.39,abs(vUv.x - 0.5)) - smoothstep(0.39,0.40,abs(vUv.x - 0.5));
-    float edgeY = smoothstep(0.38,0.39,abs(vUv.y - 0.5)) - smoothstep(0.39,0.40,abs(vUv.y - 0.5));
+    // 1. structural lines using our new dynamic distance uniforms
+    float edgeX = 1.0 - smoothstep(0.01,0.03,abs(absUV.x - uEdgeDist));
+    float edgeY = 1.0 - smoothstep(0.01,0.03,abs(absUV.y - uEdgeDist));
 
-    // generate dash patterns based on the opposite axes
-    // adjust the '4.0' to change how many dashes appear per tile
-    float dashY = step(0.3,fract(vUv.y * 4.0));
-    float dashX = step(0.3,fract(vUv.x * 4.0));
+    float innerX = 1.0 - smoothstep(0.003,0.007,abs(absUV.x - uCenterDist));
+    float innerY = 1.0 - smoothstep(0.003,0.007,abs(absUV.y - uCenterDist));
 
-    // apply dashes to the edges
-    float dashedEdgeX = edgeX * dashY;
-    float dashedEdgeY = edgeY * dashX;
+    // --- straight road logic ---
+    float straightInnerX = innerX;
 
-    // calculate intersection corner cuts so the lines don't cross in the middle of a 4-way stop
-    float cutY = step(0.39,abs(vUv.y - 0.5));
-    float cornerEdgeX = dashedEdgeX * cutY;
+    vec3 straightColor = mix(uBgColor,uCenterColor,straightInnerX);
+    straightColor = mix(straightColor,uEdgeColor,edgeX);
 
-    float cutX = step(0.39,abs(vUv.x - 0.5));
-    float cornerEdgeY = dashedEdgeY * cutX;
+    // --- intersection logic ---
+    float bracketX = edgeX * step(uEdgeDist,absUV.y);
+    float bracketY = edgeY * step(uEdgeDist,absUV.x);
+    float cornerBrackets = max(bracketX,bracketY);
 
-    float intersectionEdges = max(cornerEdgeX,cornerEdgeY);
+    float intInnerX = innerX * step(uCenterDist,absUV.y);
+    float intInnerY = innerY * step(uCenterDist,absUV.x);
+    float innerBrackets = max(intInnerX,intInnerY);
 
-    // mix straight roads vs intersection roads based on vRoadType
-    float finalEdges = mix(dashedEdgeX,intersectionEdges,step(0.5,vRoadType));
+    vec3 intersectColor = mix(uBgColor,uCenterColor,innerBrackets);
+    intersectColor = mix(intersectColor,uEdgeColor,cornerBrackets);
 
-    // apply final colors
-    vec3 finalColor = asphaltColor;
-    finalColor = mix(finalColor,yellowEdgeGlow,finalEdges);
+    // --- final mix ---
+    float isIntersection = step(0.5,vRoadType);
+    vec3 finalColor = mix(straightColor,intersectColor,isIntersection);
 
     gl_FragColor = vec4(finalColor,1.0);
+
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
     #include <fog_fragment>
 }

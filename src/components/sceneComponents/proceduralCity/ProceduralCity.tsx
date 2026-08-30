@@ -94,7 +94,7 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
       ]}
       key={`${version}_${chunkX}_${chunkZ}`}
     >
-      <ProceduralBuildings buildings={buildings} />
+      {/* <ProceduralBuildings buildings={buildings} /> */}
       <ProceduralRoads roads={roads} />
     </group>
   );

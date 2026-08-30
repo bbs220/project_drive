@@ -24,6 +24,7 @@ import ChunkManager from "./proceduralCity/ChunkManager";
 import Player from "./Player";
 import { useMountSystem } from "../../hooks/useMountSystem";
 import MiniMap from "../MiniMap";
+import PropSpawner from "./PropSpawner";
 
 const DriveScene = () => {
   // initialize refs for all instantiated vehicles and player
@@ -174,6 +175,7 @@ const DriveScene = () => {
       <VehicleHelicopter ref={heliRef} spawnMode={"drive"} />
       <VehiclePlane ref={planeRef} spawnMode={"drive"} />
       <Player ref={playerRef} />
+      <PropSpawner />
       <ChunkManager targetRef={activeTargetRef} />
     </>
   );
