@@ -3,6 +3,7 @@ import { getTerrainData, worldConstants } from "../../../utils/worldGenerator";
 import { useCityStore } from "../../../stores/useCItyStore";
 import ProceduralBuildings from "./ProceduralBuildings";
 import ProceduralRoads from "./ProceduralRoads";
+import type { RoadShaderParams } from "./ProceduralRoads";
 
 // define and export the typescript shape for the visual instances
 export type typeInstanceConfig = {
@@ -17,9 +18,10 @@ export type typeInstanceConfig = {
 type typeChunkProps = {
   chunkX: number;
   chunkZ: number;
+  roadParams: RoadShaderParams;
 };
 
-const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
+const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
   const version = useCityStore((state) => state.version);
 
   const { buildings, roads } = useMemo(() => {
@@ -95,7 +97,8 @@ const ProceduralCity = ({ chunkX, chunkZ }: typeChunkProps) => {
       key={`${version}_${chunkX}_${chunkZ}`}
     >
       <ProceduralBuildings buildings={buildings} />
-      <ProceduralRoads roads={roads} />
+      {/* strictly pass the params directly into the road component */}
+      <ProceduralRoads roads={roads} params={roadParams} />
     </group>
   );
 };

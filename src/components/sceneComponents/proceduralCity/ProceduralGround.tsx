@@ -5,6 +5,7 @@ import vertexShader from "../shaders/gridVert.glsl";
 import { useTweakpane } from "../../../hooks/useTweakpane";
 import { RigidBody } from "@react-three/rapier";
 import { worldConstants } from "../../../utils/worldGenerator";
+import ProceduralCity from "./ProceduralCity"; // <-- Imported City into Ground
 
 type GroundTileProps = {
   chunkX: number;
@@ -25,7 +26,6 @@ type GroundTileProps = {
 const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
-  // merge the built-in fog uniforms with your custom grid uniforms right here
   const uniforms = useMemo(
     () =>
       THREE.UniformsUtils.merge([
@@ -73,12 +73,11 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
   const posX = chunkX * worldConstants.chunkSize;
   const posZ = chunkZ * worldConstants.chunkSize;
 
-  // Calculate the half-cell offset to match the roads
+  // dynamically pull halfCell so Ground and Roads stay aligned
   const halfCell = worldConstants.cellSize / 2;
 
   return (
     <group position={[posX, 0, posZ]}>
-      {/* Shift the physics body and visual mesh by -halfCell on X and Z */}
       <RigidBody
         type="fixed"
         colliders="cuboid"
@@ -103,7 +102,6 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
         </mesh>
       </RigidBody>
 
-      {/* Shift the debug boundary so it outlines the new chunk area accurately */}
       <gridHelper
         args={[worldConstants.chunkSize, 1, "white", "orange"]}
         position={[-halfCell, 10, -halfCell]}
@@ -118,7 +116,8 @@ type typeGroundProps = {
 };
 
 const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
-  const params = useTweakpane(
+  // grid Shader Tweakpane
+  const gridParams = useTweakpane(
     { title: "➕ Grid Shader", expanded: false },
     {
       showChunkBoundary: { value: false, label: "chunk boundary" },
@@ -133,15 +132,38 @@ const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
     },
   );
 
+  // road Shader Tweakpane
+  const roadParams = useTweakpane(
+    { title: "🛣️ Road Shader", expanded: false },
+    {
+      bgColor: { value: "#010102" },
+      edgeColor: { value: "#00f3ff" },
+      centerColor: { value: "#00f3ff" },
+      edgeDist: { value: 0.42, min: 0.2, max: 0.49, step: 0.01 },
+      centerDist: { value: 0.03, min: 0.0, max: 0.2, step: 0.01 },
+      edgeWidth: { value: 0.01, min: 0.001, max: 0.1, step: 0.001 },
+      centerWidth: { value: 0.003, min: 0.001, max: 0.05, step: 0.001 },
+      edgeGlow: { value: 1.5, min: 0.1, max: 5.0 },
+      centerGlow: { value: 0.8, min: 0.1, max: 5.0 },
+    },
+  );
+
   return (
     <group>
       {activeChunks.map((c) => (
-        <GroundTile
-          key={`ground_${c.chunkX}_${c.chunkZ}`}
-          chunkX={c.chunkX}
-          chunkZ={c.chunkZ}
-          params={params as GroundTileProps["params"]}
-        />
+        <group key={`island_chunk_${c.chunkX}_${c.chunkZ}`}>
+          <GroundTile
+            chunkX={c.chunkX}
+            chunkZ={c.chunkZ}
+            params={gridParams as GroundTileProps["params"]}
+          />
+          {/* render the city chunk right alongside its ground tile */}
+          <ProceduralCity
+            chunkX={c.chunkX}
+            chunkZ={c.chunkZ}
+            roadParams={roadParams}
+          />
+        </group>
       ))}
     </group>
   );

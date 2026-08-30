@@ -1,24 +1,27 @@
 varying vec2 vUv;
 varying float vRoadType;
 
-// new dynamic uniforms
+// dynamic uniforms for colors, distances, and line thickness
 uniform vec3 uBgColor;
 uniform vec3 uEdgeColor;
 uniform vec3 uCenterColor;
 uniform float uEdgeDist;
 uniform float uCenterDist;
+uniform float uEdgeWidth;
+uniform float uCenterWidth;
 
 #include <fog_pars_fragment>
 
 void main() {
     vec2 absUV = abs(vUv - 0.5);
 
-    // 1. structural lines using our new dynamic distance uniforms
-    float edgeX = 1.0 - smoothstep(0.01,0.03,abs(absUV.x - uEdgeDist));
-    float edgeY = 1.0 - smoothstep(0.01,0.03,abs(absUV.y - uEdgeDist));
+    // 1. structural lines using dynamic width and distance uniforms
+    // The first parameter of smoothstep is now our dynamic width
+    float edgeX = 1.0 - smoothstep(uEdgeWidth,uEdgeWidth + 0.02,abs(absUV.x - uEdgeDist));
+    float edgeY = 1.0 - smoothstep(uEdgeWidth,uEdgeWidth + 0.02,abs(absUV.y - uEdgeDist));
 
-    float innerX = 1.0 - smoothstep(0.003,0.007,abs(absUV.x - uCenterDist));
-    float innerY = 1.0 - smoothstep(0.003,0.007,abs(absUV.y - uCenterDist));
+    float innerX = 1.0 - smoothstep(uCenterWidth,uCenterWidth + 0.005,abs(absUV.x - uCenterDist));
+    float innerY = 1.0 - smoothstep(uCenterWidth,uCenterWidth + 0.005,abs(absUV.y - uCenterDist));
 
     // --- straight road logic ---
     float straightInnerX = innerX;

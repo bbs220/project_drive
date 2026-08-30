@@ -1,33 +1,76 @@
-import { useMemo, useRef, useLayoutEffect } from "react";
+import { useMemo, useRef, useLayoutEffect, useEffect } from "react";
 import * as THREE from "three";
 import roadVert from "../shaders/roadVert.glsl";
 import roadFrag from "../shaders/roadFrag.glsl";
 import type { typeInstanceConfig } from "./ProceduralCity";
-import { worldConstants } from "../../../utils/worldGenerator"; //
+import { worldConstants } from "../../../utils/worldGenerator";
 
 const dummy = new THREE.Object3D();
 
-const ProceduralRoads = ({ roads }: { roads: typeInstanceConfig[] }) => {
+export type RoadShaderParams = {
+  bgColor: string;
+  edgeColor: string;
+  centerColor: string;
+  edgeDist: number;
+  centerDist: number;
+  edgeWidth: number;
+  centerWidth: number;
+  edgeGlow: number;
+  centerGlow: number;
+};
+
+type ProceduralRoadsProps = {
+  roads: typeInstanceConfig[];
+  params: RoadShaderParams;
+};
+
+const ProceduralRoads = ({ roads, params }: ProceduralRoadsProps) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const geomRef = useRef<THREE.BoxGeometry>(null);
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
 
-  const material = useMemo(() => {
-    return new THREE.ShaderMaterial({
-      vertexShader: roadVert,
-      fragmentShader: roadFrag,
-      toneMapped: false,
-      fog: true,
-      uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog]),
-    });
-  }, []);
+  // only memoize the initial uniforms, just like in GroundTile
+  const uniforms = useMemo(
+    () =>
+      THREE.UniformsUtils.merge([
+        THREE.UniformsLib.fog,
+        {
+          uBgColor: { value: new THREE.Color() },
+          uEdgeColor: { value: new THREE.Color() },
+          uCenterColor: { value: new THREE.Color() },
+          uEdgeDist: { value: 0.42 },
+          uCenterDist: { value: 0.03 },
+          uEdgeWidth: { value: 0.01 },
+          uCenterWidth: { value: 0.003 },
+        },
+      ]),
+    [],
+  );
+
+  // mutate the ref safely inside useEffect
+  useEffect(() => {
+    if (!materialRef.current) return;
+    const mat = materialRef.current;
+
+    mat.uniforms.uBgColor.value.set(params.bgColor);
+    mat.uniforms.uEdgeColor.value
+      .set(params.edgeColor)
+      .multiplyScalar(params.edgeGlow);
+    mat.uniforms.uCenterColor.value
+      .set(params.centerColor)
+      .multiplyScalar(params.centerGlow);
+    mat.uniforms.uEdgeDist.value = params.edgeDist;
+    mat.uniforms.uCenterDist.value = params.centerDist;
+    mat.uniforms.uEdgeWidth.value = params.edgeWidth;
+    mat.uniforms.uCenterWidth.value = params.centerWidth;
+  }, [params]);
 
   useLayoutEffect(() => {
     if (meshRef.current && geomRef.current) {
       const roadTypes = new Float32Array(roads.length);
-      const halfCell = worldConstants.cellSize / 2; // 2. calculate the offset
+      const halfCell = worldConstants.cellSize / 2;
 
       roads.forEach((r, i) => {
-        // 3. subtract half a cell to shift the corner into the dead center
         dummy.position.set(
           r.position[0] - halfCell,
           r.position[1],
@@ -52,13 +95,17 @@ const ProceduralRoads = ({ roads }: { roads: typeInstanceConfig[] }) => {
   if (roads.length === 0) return null;
 
   return (
-    <instancedMesh
-      ref={meshRef}
-      // using null as any to stop TS from yelling about undefined args
-      args={[undefined, undefined, roads.length]}
-      material={material}
-    >
+    <instancedMesh ref={meshRef} args={[undefined, undefined, roads.length]}>
       <boxGeometry ref={geomRef} />
+      {/* mount the shader material declaratively */}
+      <shaderMaterial
+        ref={materialRef}
+        vertexShader={roadVert}
+        fragmentShader={roadFrag}
+        toneMapped={true}
+        fog={true}
+        uniforms={uniforms}
+      />
     </instancedMesh>
   );
 };

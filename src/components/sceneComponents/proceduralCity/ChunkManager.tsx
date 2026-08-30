@@ -1,7 +1,6 @@
 import { useState, useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import ProceduralCity from "./ProceduralCity";
 import ProceduralGround from "./ProceduralGround";
 import { useCityStore } from "../../../stores/useCItyStore";
 import { worldConstants } from "../../../utils/worldGenerator";
@@ -11,7 +10,6 @@ type typeChunkManagerProps = {
   targetRef: React.RefObject<THREE.Group | null>;
 };
 
-// pure helper function to generate a dynamic grid of surrounding chunks based on radius
 const generateChunkGrid = (
   centerX: number,
   centerZ: number,
@@ -30,24 +28,14 @@ const generateChunkGrid = (
 };
 
 const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
-  // keep track of the current center chunk to trigger re-renders only when crossing boundaries
   const [centerChunk, setCenterChunk] = useState({ x: 0, z: 0 });
-
-  // dynamically pull the chunk radius from your zustand store so the slider updates it in real-time
   const chunkRadius = useCityStore((state) => state.chunkRadius);
-
-  // dummy vector to extract world position without memory leaks every frame
   const dummyPosition = useRef(new THREE.Vector3());
 
-  // core tracking loop
   useFrame(() => {
-    // strictly exit if no vehicle is active
     if (!targetRef?.current) return;
-
-    // extract the exact 3d position of the currently driven vehicle
     targetRef.current.getWorldPosition(dummyPosition.current);
 
-    // strictly use the global chunk size
     const currentX = Math.round(
       dummyPosition.current.x / worldConstants.chunkSize,
     );
@@ -60,33 +48,20 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
     }
   });
 
-  // Base chunks for heavy geometry (Ground and City)
   const activeChunks = useMemo(() => {
-    // call the pure function to build the new dynamic array using the zustand radius
     return generateChunkGrid(centerChunk.x, centerChunk.z, chunkRadius);
-    // strictly added chunkradius as a dependency so it scales instantly
   }, [centerChunk, chunkRadius]);
 
-  // Extended chunks for cheap geometry (Sky)
   const skyChunks = useMemo(() => {
-    // +1 adds an outer ring of chunks so the stars horizon extends further
     return generateChunkGrid(centerChunk.x, centerChunk.z, chunkRadius + 1);
   }, [centerChunk, chunkRadius]);
 
   return (
     <group>
+      {/* ProceduralGround now handles the city mapping internally */}
       <ProceduralGround activeChunks={activeChunks} />
 
-      {/* Pass the extended array strictly to the sky */}
       <ProceduralSky activeChunks={skyChunks} />
-
-      {activeChunks.map((coord) => (
-        <ProceduralCity
-          key={`chunk_${coord.chunkX}_${coord.chunkZ}`}
-          chunkX={coord.chunkX}
-          chunkZ={coord.chunkZ}
-        />
-      ))}
     </group>
   );
 };
