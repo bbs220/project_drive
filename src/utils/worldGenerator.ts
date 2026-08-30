@@ -2,7 +2,7 @@ import { SimplexNoise } from "./SimplexNoise";
 
 // define the data structure that the generator returns
 export type typeTerrainData = {
-  type: "empty" | "road" | "building" | "water";
+  type: "empty" | "road" | "building";
   elevation: number;
 };
 
@@ -54,7 +54,7 @@ const fbm2D = (
   return total / maxValue;
 };
 
-// circular gradient mask to blend zones and sink the island into the sea
+// circular gradient mask to blend zones and fade the island edges
 const getGradientMask = (distance: number, radius: number) => {
   return Math.max(0, 1.0 - distance / radius);
 };
@@ -83,9 +83,9 @@ export const getTerrainData = (x: number, z: number): typeTerrainData => {
   // calculate distance from the island's center hub
   const distanceToCenter = Math.sqrt(x * x + z * z);
 
-  // zone 1: the sea
+  // zone 1: beyond the island bounds (flat empty ground)
   if (distanceToCenter > generatorState.islandRadius) {
-    return { type: "water", elevation: -5 };
+    return { type: "empty", elevation: 0 };
   }
 
   // calculate how close we are to the island edge for tapering
@@ -99,7 +99,7 @@ export const getTerrainData = (x: number, z: number): typeTerrainData => {
     // generate rolling hills and mountains using fbm
     const rawTerrain = fbm2D(x, z, 4, 0.002, 0.5, 2.0);
 
-    // multiply elevation by the mask so mountains naturally taper off into flat beaches
+    // multiply elevation by the mask so mountains naturally taper off into flat edges
     const outlandElevation = ((rawTerrain + 1) / 2) * 120 * islandMask;
 
     return { type: "empty", elevation: Math.max(0, outlandElevation) };
