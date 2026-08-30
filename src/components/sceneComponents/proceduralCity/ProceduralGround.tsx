@@ -139,12 +139,12 @@ const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
       bgColor: { value: "#010102" },
       edgeColor: { value: "#00f3ff" },
       centerColor: { value: "#00f3ff" },
-      edgeDist: { value: 0.42, min: 0.2, max: 0.49, step: 0.01 },
-      centerDist: { value: 0.03, min: 0.0, max: 0.2, step: 0.01 },
-      edgeWidth: { value: 0.01, min: 0.001, max: 0.1, step: 0.001 },
-      centerWidth: { value: 0.003, min: 0.001, max: 0.05, step: 0.001 },
+      edgeDist: { value: 0.49, min: 0.2, max: 0.49, step: 0.01 },
+      centerDist: { value: 0.02, min: 0.0, max: 0.2, step: 0.01 },
+      edgeWidth: { value: 0.001, min: 0.001, max: 0.1, step: 0.001 },
+      centerWidth: { value: 0.001, min: 0.001, max: 0.05, step: 0.001 },
       edgeGlow: { value: 1.5, min: 0.1, max: 5.0 },
-      centerGlow: { value: 0.8, min: 0.1, max: 5.0 },
+      centerGlow: { value: 1.4, min: 0.1, max: 5.0 },
     },
   );
 
