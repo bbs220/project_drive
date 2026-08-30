@@ -3,6 +3,7 @@ import * as THREE from "three";
 import buildingVert from "../shaders/buildingVert.glsl";
 import buildingFrag from "../shaders/buildingFrag.glsl";
 import type { typeInstanceConfig } from "./ProceduralCity";
+import { worldConstants } from "../../../utils/worldGenerator";
 
 // Reusable dummy object for matrix calculations
 const dummy = new THREE.Object3D();
@@ -28,9 +29,15 @@ const ProceduralBuildings = ({
   useLayoutEffect(() => {
     if (meshRef.current && geomRef.current) {
       const buildingHeights = new Float32Array(buildings.length);
+      const halfCell = worldConstants.cellSize / 2; // calculate dynamic offset
 
       buildings.forEach((b, i) => {
-        dummy.position.set(...b.position);
+        // shift X and Z by -halfCell so buildings align perfectly with roads/ground
+        dummy.position.set(
+          b.position[0] - halfCell,
+          b.position[1],
+          b.position[2] - halfCell,
+        );
         dummy.scale.set(...b.scale);
         dummy.rotation.set(0, 0, 0);
         dummy.updateMatrix();
