@@ -57,6 +57,8 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
   ({ spawnMode }, ref) => {
     const initialSpawn = respawnValues[spawnMode].helicopter;
 
+    const visualRef = useRef<THREE.Group>(null);
+
     // strict reference to the physics body so the hook can manipulate it
     const chassisRef = useRef<RapierRigidBody>(null);
 
@@ -107,8 +109,14 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
     const trPosZ = unwrapParam(params.tailRotorPosZ, 6.46);
 
     return (
-      <group position={initialSpawn.position} rotation={initialSpawn.rotation}>
-        <RigidBody ref={chassisRef} colliders={false} canSleep={false}>
+      <group>
+        <RigidBody
+          ref={chassisRef}
+          colliders={false}
+          canSleep={false}
+          position={initialSpawn.position} // moved to rigidbody so trails stay at true 0,0,0
+          rotation={initialSpawn.rotation} // moved to rigidbody
+        >
           {/* replace the multiple ball colliders inside your rigid body with this */}
           <RoundCuboidCollider
             args={[
@@ -120,20 +128,8 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
             position={[0, 0, 0]}
             mass={unwrapParam(params.chassisMass, 300)}
           />
-          <TrailEngine
-            offset={[-1.4, 0.6, 4.6]}
-            color={"#bcff05"}
-            width={1}
-            length={15}
-          />
-          <TrailEngine
-            offset={[1.4, 0.6, 4.6]}
-            color={"#bcff05"}
-            width={1}
-            length={15}
-          />
           {/* offset group for tweakpane tuning */}
-          <group position={[cPosX, cPosY, cPosZ]}>
+          <group position={[cPosX, cPosY, cPosZ]} ref={visualRef}>
             {/* visual elements perfectly wrapped in the forwarded ref group */}
             <group ref={ref}>
               {/* core cabin hierarchy mapped directly from blender export */}
@@ -230,6 +226,21 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
             </group>
           </group>
         </RigidBody>
+
+        <TrailEngine
+          targetRef={visualRef}
+          offset={[0, 0, 0]}
+          color={"#bcff05"}
+          width={1}
+          length={80}
+        />
+        <TrailEngine
+          targetRef={visualRef}
+          offset={[0, 0, 0]}
+          color={"#bcff05"}
+          width={1}
+          length={80}
+        />
       </group>
     );
   },

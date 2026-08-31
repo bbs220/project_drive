@@ -78,6 +78,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
     const initialSpawn = respawnValues[spawnMode].car;
 
     const chassisRef = useRef<RapierRigidBody>(null);
+    const visualRef = useRef<THREE.Group>(null);
     const wheelsRef = useRef<THREE.Object3D[]>([]);
     const controlsRef = useAllVehicleInput();
 
@@ -141,21 +142,10 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
           mass={mass}
           canSleep={false}
         >
+          <group ref={visualRef} />
           <RoundCuboidCollider
             args={[cWidth / 2, cHeight / 2, cLength / 2, cBorderRadius]}
             position={[cPosX, cPosY, cPosZ]}
-          />
-          <TrailEngine
-            offset={[-0.45, 0.55, -1.7]}
-            color={"#ffffff"}
-            width={1}
-            length={5}
-          />
-          <TrailEngine
-            offset={[0.45, 0.55, -1.7]}
-            color={"#ffffff"}
-            width={1}
-            length={5}
           />
           <group ref={ref}>
             {/* central chassis rendering block */}
@@ -373,6 +363,15 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
             </group>
           </group>
         </RigidBody>
+
+        <TrailEngine
+          targetRef={visualRef}
+          offset={[0, 0.1, -2.3]}
+          color={"#ffffff"}
+          height={0.8}
+          width={0.05}
+          length={80}
+        />
       </group>
     );
   },
