@@ -146,27 +146,39 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
             </group>
           </group>
         </RigidBody>
-
+        {/* side trails */}
         <TrailEngine
           targetRef={visualRef}
-          offset={[0, 0, 0]}
+          offset={[-13.65, 0.4, -5]}
           color={"#ffffff"}
-          height={1} // note: since you are flying, you might want to use width and height together for a 3d box trail
-          length={80}
+          height={0.1}
+          width={0.1}
+          length={100}
         />
         <TrailEngine
           targetRef={visualRef}
-          offset={[0, 0, 0]}
+          offset={[13.65, 0.4, -5]}
           color={"#ffffff"}
-          height={1}
-          length={80}
+          height={0.1}
+          width={0.1}
+          length={100}
+        />
+        {/* center trails */}
+        <TrailEngine
+          targetRef={visualRef}
+          offset={[-0.5, 0, 12.3]}
+          color={"#ffffff"}
+          height={0.1}
+          width={0.1}
+          length={200}
         />
         <TrailEngine
           targetRef={visualRef}
-          offset={[0, 0, 0]}
+          offset={[0.5, 0, 12.3]}
           color={"#ffffff"}
-          height={1}
-          length={80}
+          height={0.1}
+          width={0.1}
+          length={200}
         />
       </group>
     );
