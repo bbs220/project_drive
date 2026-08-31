@@ -62,6 +62,10 @@ export const playerConstants = {
     jumpForce: { value: 5, min: 1, max: 20, label: "jump force" },
     gravityMultiplier: { value: 2, min: 0.5, max: 5, label: "gravity mult" },
 
+    // bloom
+    emissionColor: { value: "#ffffff", label: "emission color" },
+    emissionStrength: { value: 1, min: 0, max: 10, label: "emission strength" },
+
     // debug tools
     debugBones: { value: false, label: "bones" },
     debugMesh: { value: false, label: "wireframe" },

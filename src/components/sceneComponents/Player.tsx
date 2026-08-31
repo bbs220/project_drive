@@ -50,7 +50,7 @@ type GLTFResult = GLTF & {
   };
   materials: {
     Albedo: THREE.MeshPhysicalMaterial;
-    EmmissiveParts: THREE.MeshPhysicalMaterial;
+    EmmissiveParts: THREE.MeshStandardMaterial;
   };
   animations: GLTFAction[];
 };
@@ -84,6 +84,10 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   const capsuleHalfHeight = unwrapParam(params.capsuleHalfHeight, 0.7);
   const capsuleRadius = unwrapParam(params.capsuleRadius, 0.3);
   const playerMass = unwrapParam(params.playerMass, 70);
+
+  // extract emission settings
+  const emissionColor = unwrapParam(params.emissionColor, "#ffffff");
+  const emissionStrength = unwrapParam(params.emissionStrength, 1);
 
   // extract debug booleans
   const debugBones = unwrapParam(params.debugBones, false);
@@ -119,7 +123,7 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
     let nextAnim: ActionName = "Idle";
 
     if (!isGrounded) {
-      if (currentY > 1.5) {
+      if (currentY > 1.4) {
         nextAnim = "Falling"; // airborne above standard jump height triggers falling
       } else {
         nextAnim = "Jump"; // airborne overrides all ground movement
@@ -150,9 +154,14 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   useEffect(() => {
     materials.Albedo.wireframe = debugMesh;
     materials.EmmissiveParts.wireframe = debugMesh;
+
+    // apply tweakpane emission settings to the stripes material
+    materials.EmmissiveParts.emissive.set(emissionColor);
+    materials.EmmissiveParts.emissiveIntensity = emissionStrength;
+
     materials.Albedo.needsUpdate = true;
     materials.EmmissiveParts.needsUpdate = true;
-  }, [debugMesh, materials]);
+  }, [debugMesh, emissionColor, emissionStrength, materials]);
 
   // generate the skeleton helper targeting the root bone directly
   useEffect(() => {
