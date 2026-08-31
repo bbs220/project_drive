@@ -54,7 +54,8 @@ const DriveScene = () => {
     showFPS,
     cameraDebug,
     activeVehicle,
-    fogValue,
+    fogNear,
+    fogFar,
     fogColor,
     dynamicFov,
     maxFovValue,
@@ -75,7 +76,8 @@ const DriveScene = () => {
           plane: CONTROL_STATE.PLANE,
         },
       },
-      fogValue: { value: 0.0, min: 0, max: 1, label: "fog amount" },
+      fogNear: { value: 80, min: 0, max: 500, label: "fog near" },
+      fogFar: { value: 270, min: 0, max: 10000, label: "fog far" },
       fogColor: { value: "#003535", label: "fog color" },
 
       // tuning parameters for camera warp speed
@@ -167,7 +169,7 @@ const DriveScene = () => {
         near={0.01}
         far={50000}
       />
-      <fogExp2 attach="fog" args={[fogColor as string, fogValue as number]} />
+      <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
       <Stats showPanel={showFPS ? 0 : 4} />
       <BackgroundLight />
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />

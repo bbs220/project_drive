@@ -5,7 +5,7 @@ import vertexShader from "../shaders/gridVert.glsl";
 import { useTweakpane } from "../../../hooks/useTweakpane";
 import { RigidBody } from "@react-three/rapier";
 import { worldConstants } from "../../../utils/worldGenerator";
-import ProceduralCity from "./ProceduralCity"; // <-- Imported City into Ground
+import ProceduralCity from "./ProceduralCity";
 
 type GroundTileProps = {
   chunkX: number;

@@ -5,6 +5,7 @@ import ProceduralGround from "./ProceduralGround";
 import { useCityStore } from "../../../stores/useCItyStore";
 import { worldConstants } from "../../../utils/worldGenerator";
 import ProceduralSky from "./ProceduralSky";
+import ProceduralStorm from "./ProceduralStorm";
 
 type typeChunkManagerProps = {
   targetRef: React.RefObject<THREE.Group | null>;
@@ -58,9 +59,8 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
 
   return (
     <group>
-      {/* ProceduralGround now handles the city mapping internally */}
       <ProceduralGround activeChunks={activeChunks} />
-
+      <ProceduralStorm centerChunk={centerChunk} chunkRadius={chunkRadius} />
       <ProceduralSky activeChunks={skyChunks} />
     </group>
   );
