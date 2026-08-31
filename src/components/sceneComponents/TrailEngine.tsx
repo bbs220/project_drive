@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 export type VehicleTrailProps = {
-  targetRef: React.RefObject<any>;
+  targetRef: React.RefObject<THREE.Group | null>;
   length?: number;
   height?: number;
   width?: number;
@@ -32,15 +32,19 @@ const TrailEngine = ({
 
     for (let i = 0; i < length; i++) {
       const ratio = i / (length - 1);
-      
+
       // 0: bottom-right
-      uv[i * 8 + 0] = ratio; uv[i * 8 + 1] = 0;
+      uv[i * 8 + 0] = ratio;
+      uv[i * 8 + 1] = 0;
       // 1: bottom-left
-      uv[i * 8 + 2] = ratio; uv[i * 8 + 3] = 0;
+      uv[i * 8 + 2] = ratio;
+      uv[i * 8 + 3] = 0;
       // 2: top-right
-      uv[i * 8 + 4] = ratio; uv[i * 8 + 5] = 1;
+      uv[i * 8 + 4] = ratio;
+      uv[i * 8 + 5] = 1;
       // 3: top-left
-      uv[i * 8 + 6] = ratio; uv[i * 8 + 7] = 1;
+      uv[i * 8 + 6] = ratio;
+      uv[i * 8 + 7] = 1;
 
       if (i < length - 1) {
         const br = i * 4 + 0;
@@ -86,7 +90,7 @@ const TrailEngine = ({
 
   const history = useRef<{ pos: THREE.Vector3 }[]>([]);
   const dummyVec = useRef(new THREE.Vector3());
-  
+
   // reusable vectors for trail thickness math without memory leaks
   const dirVec = useRef(new THREE.Vector3());
   const rightVec = useRef(new THREE.Vector3());
@@ -109,18 +113,22 @@ const TrailEngine = ({
 
     for (let i = 0; i < length; i++) {
       const current = history.current[i] || { pos: dummyVec.current };
-      
+
       // look ahead and behind to find the direction the trail is moving
       const newer = i > 0 ? history.current[i - 1] || current : current;
-      const older = i < length - 1 ? history.current[i + 1] || current : current;
+      const older =
+        i < length - 1 ? history.current[i + 1] || current : current;
 
       dirVec.current.subVectors(newer.pos, older.pos).normalize();
-      
+
       // fallback if the vehicle hasn't moved yet
       if (dirVec.current.lengthSq() === 0) dirVec.current.set(0, 0, 1);
 
       // cross product calculates the left/right axis relative to forward direction
-      rightVec.current.crossVectors(dirVec.current, upVec.current).normalize().multiplyScalar(width / 2);
+      rightVec.current
+        .crossVectors(dirVec.current, upVec.current)
+        .normalize()
+        .multiplyScalar(width / 2);
 
       const baseIdx = i * 4 * 3;
 
@@ -158,10 +166,7 @@ const TrailEngine = ({
           args={[positions, 3]}
           usage={THREE.DynamicDrawUsage}
         />
-        <bufferAttribute
-          attach="attributes-uv"
-          args={[uvs, 2]}
-        />
+        <bufferAttribute attach="attributes-uv" args={[uvs, 2]} />
         <bufferAttribute attach="index" args={[indices, 1]} />
       </bufferGeometry>
 
