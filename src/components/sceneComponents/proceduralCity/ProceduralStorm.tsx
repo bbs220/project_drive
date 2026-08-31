@@ -15,18 +15,18 @@ const ProceduralStorm = ({ centerChunk, chunkRadius }: typeStormProps) => {
     <group
       position={[
         centerChunk.x * worldConstants.chunkSize,
-        80, // Height of the storm
+        180,
         centerChunk.z * worldConstants.chunkSize,
       ]}
     >
       <Clouds material={THREE.MeshBasicMaterial}>
         <Cloud
-          segments={80} // Detail of the cloud texture
+          segments={230} // Detail of the cloud texture
           bounds={[stormSize, 20, stormSize]} // One massive bounding box
-          volume={800} // High volume to create a thick, unbroken blanket
-          color="white" // Dark, stormy grey
+          volume={180} // High volume to create a thick, unbroken blanket
+          color="#0000ff" // Dark, stormy grey
           speed={0.8} // Howling wind speed
-          opacity={1}
+          opacity={0.6}
         />
       </Clouds>
     </group>
