@@ -25,6 +25,7 @@ type ActionName =
   | "EnteringCar"
   | "Excited"
   | "ExitingCar"
+  | "Falling"
   | "FastRun"
   | "Idle"
   | "Jump"
@@ -112,12 +113,17 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
     if (!telemetry) return;
 
     const { speed, isGrounded } = telemetry;
+    const currentY = playerBodyRef.current?.translation().y || 0;
 
     // derived animation state
     let nextAnim: ActionName = "Idle";
 
     if (!isGrounded) {
-      nextAnim = "Jump"; // airborne overrides all ground movement
+      if (currentY > 1.5) {
+        nextAnim = "Falling"; // airborne above standard jump height triggers falling
+      } else {
+        nextAnim = "Jump"; // airborne overrides all ground movement
+      }
     } else if (speed > 4.5) {
       nextAnim = "FastRun"; // greater than walkSpeed triggers sprint
     } else if (speed > 0.1) {
