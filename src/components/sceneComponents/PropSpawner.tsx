@@ -1,9 +1,10 @@
 import { Gltf } from "@react-three/drei";
+import { propSet } from "../../utils/assetpaths";
 
 const PropSpawner = () => {
   return (
     <mesh>
-      <Gltf src="/models/props/propRoadsideArch.glb" position={[0, 3, 0]} />
+      <Gltf src={propSet.fenceSmall} position={[0, 0, 0]} />
     </mesh>
   );
 };
