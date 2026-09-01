@@ -9,6 +9,7 @@ import { useCityStore } from "../stores/useCItyStore";
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const activeScene = useAppStore((state) => state.activeScene);
+  const appVersion = useAppStore((state) => state.appVersion);
 
   const { playClick, playToggle, playSlider } = useUISounds();
 
@@ -59,8 +60,12 @@ const SideBar = () => {
       >
         {/* main wrapper forces full height of the screen */}
         <div className="flex h-full w-full flex-col">
-          <h2 className="mb-6 mt-2 flex items-center justify-center border-b border-tron-cyan pb-4 pt-2 text-xl font-telemetry uppercase tracking-[6px] text-white [text-shadow:0_0_8px_#00f3ff] shrink-0">
-            {`[ ${activeScene} ]`}
+          <h2 className="relative mb-6 mt-2 flex items-center justify-center border-b border-tron-cyan pb-4 pt-2 text-xl font-telemetry uppercase tracking-[6px] text-white [text-shadow:0_0_8px_#00f3ff] shrink-0 select-none">
+            <span>{`[ ${activeScene} ]`}</span>
+            {/* version string absolutely positioned to the far right, overriding parent text effects */}
+            <span className="absolute right-2 md:right-8 bottom-4 text-[10px] md:text-xs tracking-widest text-white normal-case text-shadow-none select-none">
+              {`( v${appVersion}.alpha )`}
+            </span>
           </h2>
 
           {/* scrollable content area, flex layout to center the grid vertically on larger screens */}
