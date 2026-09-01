@@ -2,8 +2,8 @@ import * as THREE from "three";
 import { useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { worldConstants } from "../../../utils/worldGenerator";
-import skyVert from "../shaders/skyVert.glsl";
-import skyFrag from "../shaders/skyFrag.glsl";
+import starsVert from "../shaders/starsVert.glsl";
+import starsFrag from "../shaders/starsFrag.glsl";
 
 type ProceduralSkyProps = {
   activeChunks: Array<{ chunkX: number; chunkZ: number }>;
@@ -24,15 +24,15 @@ const sharedStarMaterial = new THREE.ShaderMaterial({
       uIntensity: { value: 2.5 },
     },
   ]),
-  vertexShader: skyVert,
-  fragmentShader: skyFrag,
+  vertexShader: starsVert,
+  fragmentShader: starsFrag,
   transparent: true,
   depthWrite: false,
   blending: THREE.AdditiveBlending,
   fog: true,
 });
 
-const SkyChunk = ({ chunkX, chunkZ }: { chunkX: number; chunkZ: number }) => {
+const StarChunk = ({ chunkX, chunkZ }: { chunkX: number; chunkZ: number }) => {
   const { positions, offsets, colors } = useMemo(() => {
     // simple deterministic pseudo-random generator
     // given the same chunkX and chunkZ, it will ALWAYS return the same sequence
@@ -93,7 +93,7 @@ const SkyChunk = ({ chunkX, chunkZ }: { chunkX: number; chunkZ: number }) => {
   );
 };
 
-const ProceduralSky = ({ activeChunks }: ProceduralSkyProps) => {
+const ProceduralStars = ({ activeChunks }: ProceduralSkyProps) => {
   useFrame((state) => {
     sharedStarMaterial.uniforms.uTime.value = state.clock.elapsedTime;
   });
@@ -101,7 +101,7 @@ const ProceduralSky = ({ activeChunks }: ProceduralSkyProps) => {
   return (
     <group>
       {activeChunks.map((c) => (
-        <SkyChunk
+        <StarChunk
           key={`sky_${c.chunkX}_${c.chunkZ}`}
           chunkX={c.chunkX}
           chunkZ={c.chunkZ}
@@ -111,4 +111,4 @@ const ProceduralSky = ({ activeChunks }: ProceduralSkyProps) => {
   );
 };
 
-export default ProceduralSky;
+export default ProceduralStars;

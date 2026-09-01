@@ -7,7 +7,9 @@ type typeStormProps = {
   chunkRadius: number;
 };
 
-const ProceduralStorm = ({ centerChunk, chunkRadius }: typeStormProps) => {
+const MIN_Y = 180;
+
+const ProceduralClouds = ({ centerChunk, chunkRadius }: typeStormProps) => {
   const gridSpan = chunkRadius * 2 + 1;
   const stormSize = worldConstants.chunkSize * gridSpan;
 
@@ -15,7 +17,7 @@ const ProceduralStorm = ({ centerChunk, chunkRadius }: typeStormProps) => {
     <group
       position={[
         centerChunk.x * worldConstants.chunkSize,
-        180,
+        MIN_Y,
         centerChunk.z * worldConstants.chunkSize,
       ]}
     >
@@ -33,4 +35,4 @@ const ProceduralStorm = ({ centerChunk, chunkRadius }: typeStormProps) => {
   );
 };
 
-export default ProceduralStorm;
+export default ProceduralClouds;

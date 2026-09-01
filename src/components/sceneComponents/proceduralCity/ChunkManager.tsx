@@ -4,8 +4,8 @@ import * as THREE from "three";
 import ProceduralGround from "./ProceduralGround";
 import { useCityStore } from "../../../stores/useCItyStore";
 import { worldConstants } from "../../../utils/worldGenerator";
-import ProceduralSky from "./ProceduralSky";
-import ProceduralStorm from "./ProceduralStorm";
+import ProceduralStars from "./ProceduralStars";
+import ProceduralClouds from "./ProceduralClouds";
 
 type typeChunkManagerProps = {
   targetRef: React.RefObject<THREE.Group | null>;
@@ -60,8 +60,8 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
   return (
     <group>
       <ProceduralGround activeChunks={activeChunks} />
-      <ProceduralStorm centerChunk={centerChunk} chunkRadius={chunkRadius} />
-      <ProceduralSky activeChunks={skyChunks} />
+      <ProceduralClouds centerChunk={centerChunk} chunkRadius={chunkRadius} />
+      <ProceduralStars activeChunks={skyChunks} />
     </group>
   );
 };
