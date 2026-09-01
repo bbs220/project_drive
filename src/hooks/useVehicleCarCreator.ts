@@ -383,7 +383,7 @@ export const useVehicleCarCreator = (
     const speedKmh = Math.round(groundSpeedMs * 3.6);
 
     // seat position and rotation math
-    const localSeatOffset = new THREE.Vector3(0, 2, 0);
+    const localSeatOffset = new THREE.Vector3(0.4, 0.8, -0.5);
 
     // apply the car current physical rotation to the offset
     localSeatOffset.applyQuaternion(chassisQuat);
