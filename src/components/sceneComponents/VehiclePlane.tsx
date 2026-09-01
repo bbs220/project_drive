@@ -1,4 +1,4 @@
-import { forwardRef, useRef } from "react";
+import { forwardRef, useRef, useEffect } from "react";
 import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { useGLTF } from "@react-three/drei";
@@ -61,6 +61,10 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
       { title: "✈️ Plane Tuning", expanded: false },
       vehiclePlaneConstants.tuning,
     );
+
+    // extract debug boolean
+    const debugMesh = unwrapParam(params.debugMesh, false);
+
     // attach the plane physics hook to handle respawning
     useVehiclePlaneCreator(chassisRef, controls, params);
 
@@ -71,6 +75,19 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
     const cockpitGLTF = useGLTF(
       modelsSeperatedBank.lightPlane01cockpit,
     ) as unknown as typeCockpitGLTF;
+
+    // dynamically toggle wireframe directly on the shared materials
+    useEffect(() => {
+      airframeGLTF.materials["black.001"].wireframe = debugMesh;
+      airframeGLTF.materials["tron.002"].wireframe = debugMesh;
+      airframeGLTF.materials["tron.003"].wireframe = debugMesh;
+      cockpitGLTF.materials["Material.001"].wireframe = debugMesh;
+
+      airframeGLTF.materials["black.001"].needsUpdate = true;
+      airframeGLTF.materials["tron.002"].needsUpdate = true;
+      airframeGLTF.materials["tron.003"].needsUpdate = true;
+      cockpitGLTF.materials["Material.001"].needsUpdate = true;
+    }, [debugMesh, airframeGLTF.materials, cockpitGLTF.materials]);
 
     // extract visual offsets
     const pPosX = unwrapParam(params.planePosX, 0);

@@ -125,7 +125,7 @@ export const vehicleCarConstants = {
     steeringAngle: { value: 0.5, min: 0.1, max: 1, label: "steering angle" },
     flipImpulse: { value: 0.5, min: 0.1, max: 100, label: "flip impulse" },
     // debug wireframes toggle
-    showWireframes: { value: false, label: "show debug wheels" },
+    debugMesh: { value: false, label: "wireframe" },
   },
   physics: {
     friction: 0.5,
@@ -204,6 +204,7 @@ export const vehiclePlaneConstants = {
     maxPitchAngle: { value: 30, min: 5, max: 90, label: "max pitch angle" },
     maxRollAngle: { value: 30, min: 5, max: 90, label: "max roll angle" },
     altitudeLimit: { value: 200, min: 100, max: 1000, label: "altitude limit" },
+    debugMesh: { value: false, label: "wireframe" },
   },
   physics: {},
 };
@@ -238,6 +239,7 @@ export const vehicleHelicopterConstants = {
     smoothing: { value: 5, min: 1, max: 20, label: "visual smoothing" },
     rotorSpeed: { value: 20, min: 5, max: 50, label: "rotor speed" },
     altitudeLimit: { value: 200, min: 100, max: 1000, label: "altitude limit" },
+    debugMesh: { value: false, label: "wireframe" },
   },
   physics: {},
 };

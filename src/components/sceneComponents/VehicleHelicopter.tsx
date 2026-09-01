@@ -1,4 +1,4 @@
-import { forwardRef, useRef } from "react";
+import { forwardRef, useRef, useEffect } from "react";
 import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { useGLTF } from "@react-three/drei";
@@ -75,6 +75,9 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
       vehicleHelicopterConstants.tuning,
     );
 
+    // extract debug boolean
+    const debugMesh = unwrapParam(params.debugMesh, false);
+
     // attach the helicopter physics hook to handle respawning and visual resets
     useVehicleHelicopterCreator(
       chassisRef,
@@ -94,6 +97,26 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
     const tailRotorGLTF = useGLTF(
       modelsSeperatedBank.helicopter01tailRotor,
     ) as unknown as typeTailRotorGLTF;
+
+    // dynamically toggle wireframe directly on the shared materials
+    useEffect(() => {
+      cabinGLTF.materials.Chopper_material.wireframe = debugMesh;
+      topRotorGLTF.materials["Chopper_material.002"].wireframe = debugMesh;
+      topRotorGLTF.materials["rotor_blades_material.001"].wireframe = debugMesh;
+      topRotorGLTF.materials["chopper_rotors.001"].wireframe = debugMesh;
+      tailRotorGLTF.materials["rear_rotors.002"].wireframe = debugMesh;
+
+      cabinGLTF.materials.Chopper_material.needsUpdate = true;
+      topRotorGLTF.materials["Chopper_material.002"].needsUpdate = true;
+      topRotorGLTF.materials["rotor_blades_material.001"].needsUpdate = true;
+      topRotorGLTF.materials["chopper_rotors.001"].needsUpdate = true;
+      tailRotorGLTF.materials["rear_rotors.002"].needsUpdate = true;
+    }, [
+      debugMesh,
+      cabinGLTF.materials,
+      topRotorGLTF.materials,
+      tailRotorGLTF.materials,
+    ]);
 
     // extract visual offsets using type safe utility
     const cPosX = unwrapParam(params.cabinPosX, 0);

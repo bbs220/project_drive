@@ -3,7 +3,7 @@ import {
   RoundCuboidCollider,
   type RapierRigidBody,
 } from "@react-three/rapier";
-import { forwardRef, useMemo, useRef } from "react";
+import { forwardRef, useMemo, useRef, useEffect } from "react";
 import * as THREE from "three";
 import { useGLTF, Html } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
@@ -109,6 +109,45 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
       modelsSeperatedBank.runner01leftRearTyre,
     ) as unknown as typeRearTyreGLTF;
 
+    // extract the debug wireframe toggle
+    const debugMesh = unwrapParam(tuningParams.debugMesh, false);
+
+    // dynamically toggle wireframe directly on the shared materials
+    useEffect(() => {
+      chassisGLTF.materials.baseMetal_MAT.wireframe = debugMesh;
+      chassisGLTF.materials.PaletteMaterial001.wireframe = debugMesh;
+      chassisGLTF.materials.PaletteMaterial002.wireframe = debugMesh;
+      chassisGLTF.materials.Screens.wireframe = debugMesh;
+      chassisGLTF.materials.Seat.wireframe = debugMesh;
+
+      frontTyreGLTF.materials["Rubber.001"].wireframe = debugMesh;
+      frontTyreGLTF.materials["Glow.002"].wireframe = debugMesh;
+      frontTyreGLTF.materials["Chrome.001"].wireframe = debugMesh;
+
+      rearTyreGLTF.materials["Rubber.002"].wireframe = debugMesh;
+      rearTyreGLTF.materials["Glow.001"].wireframe = debugMesh;
+      rearTyreGLTF.materials["Chrome.002"].wireframe = debugMesh;
+
+      chassisGLTF.materials.baseMetal_MAT.needsUpdate = true;
+      chassisGLTF.materials.PaletteMaterial001.needsUpdate = true;
+      chassisGLTF.materials.PaletteMaterial002.needsUpdate = true;
+      chassisGLTF.materials.Screens.needsUpdate = true;
+      chassisGLTF.materials.Seat.needsUpdate = true;
+
+      frontTyreGLTF.materials["Rubber.001"].needsUpdate = true;
+      frontTyreGLTF.materials["Glow.002"].needsUpdate = true;
+      frontTyreGLTF.materials["Chrome.001"].needsUpdate = true;
+
+      rearTyreGLTF.materials["Rubber.002"].needsUpdate = true;
+      rearTyreGLTF.materials["Glow.001"].needsUpdate = true;
+      rearTyreGLTF.materials["Chrome.002"].needsUpdate = true;
+    }, [
+      debugMesh,
+      chassisGLTF.materials,
+      frontTyreGLTF.materials,
+      rearTyreGLTF.materials,
+    ]);
+
     // precompute dynamic wheel geometry for wireframe overlay
     const wheelGeo = useMemo(() => {
       const radius = unwrapParam(tuningParams.wheelRadius, 0.35);
@@ -127,9 +166,6 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
     const cPosY = unwrapParam(tuningParams.chassisPosY, 0.4);
     const cPosZ = unwrapParam(tuningParams.chassisPosZ, 0);
     const mass = unwrapParam(tuningParams.mass, 200);
-
-    // extract the debug wireframe toggle
-    const showWireframes = unwrapParam(tuningParams.showWireframes, false);
 
     return (
       <group>
@@ -215,10 +251,10 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                 />
               </group>
               {/* debug wireframe overlay */}
-              {showWireframes && (
+              {debugMesh && (
                 <>
                   <mesh geometry={wheelGeo}>
-                    <meshStandardMaterial color="yellow" wireframe />
+                    <meshStandardMaterial color="blue" wireframe />
                   </mesh>
                   <Html center transform sprite position={[0, 0.5, 0]}>
                     <div style={labelStyle}>Front Left</div>
@@ -260,7 +296,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                 />
               </group>
               {/* debug wireframe overlay */}
-              {showWireframes && (
+              {debugMesh && (
                 <>
                   <mesh geometry={wheelGeo}>
                     <meshStandardMaterial color="yellow" wireframe />
@@ -305,7 +341,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                 />
               </group>
               {/* debug wireframe overlay */}
-              {showWireframes && (
+              {debugMesh && (
                 <>
                   <mesh geometry={wheelGeo}>
                     <meshStandardMaterial color="yellow" wireframe />
@@ -350,7 +386,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                 />
               </group>
               {/* debug wireframe overlay */}
-              {showWireframes && (
+              {debugMesh && (
                 <>
                   <mesh geometry={wheelGeo}>
                     <meshStandardMaterial color="yellow" wireframe />
