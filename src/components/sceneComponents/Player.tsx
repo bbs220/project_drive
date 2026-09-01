@@ -143,7 +143,9 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
     // derived animation state
     let nextAnim: ActionName = "Idle";
 
-    if (!isGrounded) {
+    if (isMounted) {
+      nextAnim = "Driving"; // force driving animation when mounted in a vehicle
+    } else if (!isGrounded) {
       if (currentY > 1.4) {
         nextAnim = "Falling"; // airborne above standard jump height triggers falling
       } else {

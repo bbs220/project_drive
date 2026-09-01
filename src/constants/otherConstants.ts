@@ -114,6 +114,12 @@ export const vehicleCarConstants = {
     // driving mechanics
     engineForce: { value: 40, min: 1, max: 500, label: "engine force" },
     maxSpeed: { value: 88, min: 10, max: 200, label: "max speed" },
+    maxReverseSpeed: {
+      value: 10,
+      min: 1,
+      max: 100,
+      label: "max reverse speed",
+    },
     boostMultiplier: { value: 2.5, min: 1, max: 5, label: "boost multiplier" },
     brakeForce: { value: 2, min: 1, max: 500, label: "brake force" },
     steeringAngle: { value: 0.5, min: 0.1, max: 1, label: "steering angle" },
