@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { worldConstants } from "../../../utils/worldGenerator";
+import skyVert from "../shaders/skyVert.glsl";
+import skyFrag from "../shaders/skyFrag.glsl";
 
 type ProceduralSkyProps = {
   activeChunks: Array<{ chunkX: number; chunkZ: number }>;
@@ -11,63 +13,6 @@ type ProceduralSkyProps = {
 const STARS_PER_CHUNK = 50;
 const MIN_Y = 200;
 const MAX_Y = 500;
-
-// gpu shaders for twinkling and blooming
-const starVert = `
-  uniform float uTime;
-  uniform float uSize;
-  
-  attribute float aTwinkleOffset;
-  attribute vec3 aColor; 
-  
-  varying float vPulse;
-  varying vec3 vColor; 
-
-  #include <fog_pars_vertex>
-
-  void main() {
-    vColor = aColor;
-
-    // calculate a unique pulse for each star based on time and its random offset
-    float pulse = sin(uTime * 2.0 + aTwinkleOffset) * 0.5 + 0.5; 
-    vPulse = pulse;
-
-    vec4 mvPosition = viewMatrix * modelMatrix * vec4(position, 1.0);
-    
-    // dynamically change point size to create a blooming physical effect
-    gl_PointSize = (uSize + pulse * 15.0) * (100.0 / -mvPosition.z);
-    gl_Position = projectionMatrix * mvPosition;
-    
-    #include <fog_vertex>
-  }
-`;
-
-const starFrag = `
-  uniform float uIntensity;
-  
-  varying float vPulse;
-  varying vec3 vColor;
-
-  #include <fog_pars_fragment>
-
-  void main() {
-    // calculate distance from the center of the point
-    vec2 coord = gl_PointCoord - vec2(0.5);
-    float dist = length(coord);
-    
-    if(dist > 0.5) discard; 
-
-    // smoothstep creates a soft glowing radial gradient
-    float alpha = smoothstep(0.5, 0.0, dist);
-    
-    // boost the core brightness based on the pulse using the unique star color
-    vec3 bloomColor = vColor * (1.0 + vPulse * uIntensity);
-    
-    gl_FragColor = vec4(bloomColor, alpha * (0.4 + vPulse * 0.6));
-    
-    #include <fog_fragment>
-  }
-`;
 
 // share one material globally
 const sharedStarMaterial = new THREE.ShaderMaterial({
@@ -79,8 +24,8 @@ const sharedStarMaterial = new THREE.ShaderMaterial({
       uIntensity: { value: 2.5 },
     },
   ]),
-  vertexShader: starVert,
-  fragmentShader: starFrag,
+  vertexShader: skyVert,
+  fragmentShader: skyFrag,
   transparent: true,
   depthWrite: false,
   blending: THREE.AdditiveBlending,
