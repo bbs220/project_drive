@@ -5,6 +5,7 @@ import {
   CapsuleCollider,
   type RapierRigidBody,
 } from "@react-three/rapier";
+import type { Collider } from "@dimforge/rapier3d-compat";
 import { useGLTF, useAnimations } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import type { GLTF } from "three-stdlib";
@@ -13,7 +14,11 @@ import { unwrapParam } from "../../utils/unwrapParam";
 import { playerConstants, respawnValues } from "../../constants/otherConstants";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { usePlayerCreator } from "../../hooks/usePlayerCreator";
-import { useVehicleStore, ENTITY_ID } from "../../stores/useVehicleStore";
+import {
+  useVehicleStore,
+  ENTITY_ID,
+  CONTROL_STATE,
+} from "../../stores/useVehicleStore";
 
 // action names exported from blender
 type ActionName =
@@ -60,6 +65,9 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   // strict reference to the physics body so the hook can manipulate it
   const playerBodyRef = useRef<RapierRigidBody>(null);
 
+  // strict reference to the physical collider so we can disable it when mounted
+  const colliderRef = useRef<Collider>(null);
+
   // dedicated reference purely for spinning the visual mesh independent of physics
   const visualRef = useRef<THREE.Group>(null);
 
@@ -73,6 +81,10 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
 
   // initialize global input listener to capture wasd and structural keys
   const controls = useAllVehicleInput();
+
+  // subscribe to the active control state to know if we are mounted or on foot
+  const activeControl = useVehicleStore((state) => state.active.control);
+  const isMounted = activeControl !== CONTROL_STATE.PLAYER;
 
   // initialize tweakpane hook and store reactive parameters
   const params = useTweakpane(
@@ -99,6 +111,15 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
 
   // attach the player physics hook and pass in the params and visual ref
   usePlayerCreator(playerBodyRef, visualRef, controls, params);
+
+  // dynamically enable or disable the collider based on mounted state as the primary safeguard
+  useEffect(() => {
+    if (isMounted) {
+      colliderRef.current?.setEnabled(false);
+    } else {
+      colliderRef.current?.setEnabled(true);
+    }
+  }, [isMounted]);
 
   // animation controller
   // Keep track of the currently playing animation to handle crossfades
@@ -193,8 +214,10 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
       >
         {/* frictionless physical representation of the character */}
         <CapsuleCollider
+          ref={colliderRef}
           args={[capsuleHalfHeight, capsuleRadius]}
           friction={0}
+          collisionGroups={isMounted ? 0 : undefined}
         />
 
         {/* the outer group handles the camera targeting so the camera doesn't spin wildly */}
