@@ -61,6 +61,8 @@ const DriveScene = () => {
     maxFovValue,
     minSpeedThreshold,
     topSpeedThreshold,
+    planeFovStartSpeed,
+    planeFovMaxSpeed,
   } = useTweakpane(
     { title: "☀️ Scene" },
     {
@@ -87,13 +89,26 @@ const DriveScene = () => {
         value: 250,
         min: 0,
         max: 500,
-        label: "fov start speed",
+        label: "car fov start",
       },
       topSpeedThreshold: {
         value: 317,
         min: 50,
         max: 500,
-        label: "fov max speed",
+        label: "car fov max",
+      },
+      // specific thresholds for the plane
+      planeFovStartSpeed: {
+        value: 160,
+        min: 0,
+        max: 300,
+        label: "plane fov start",
+      },
+      planeFovMaxSpeed: {
+        value: 200,
+        min: 50,
+        max: 300,
+        label: "plane fov max",
       },
     },
   );
@@ -130,14 +145,18 @@ const DriveScene = () => {
     const activeControl = storeState.active.control;
 
     let currentSpeed = 0;
+    let minSpeed = minSpeedThreshold as number;
+    let maxSpeed = topSpeedThreshold as number;
 
     // pull speed/airspeed directly from your strict telemetry map
     if (activeControl === CONTROL_STATE.CAR) {
       currentSpeed = storeState.telemetry[ENTITY_ID.CAR_1].speed;
+    } else if (activeControl === CONTROL_STATE.PLANE) {
+      currentSpeed = storeState.telemetry[ENTITY_ID.PLANE_1].airspeed;
+      minSpeed = planeFovStartSpeed as number;
+      maxSpeed = planeFovMaxSpeed as number;
     }
 
-    const minSpeed = minSpeedThreshold as number;
-    const maxSpeed = topSpeedThreshold as number;
     const absoluteSpeed = Math.abs(currentSpeed);
 
     // prevent division by zero if tweaking sliders land on the same number

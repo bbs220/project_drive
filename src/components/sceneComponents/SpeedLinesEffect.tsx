@@ -29,7 +29,16 @@ class SpeedLinesImpl extends Effect {
   }
 }
 
-export const SpeedLines = forwardRef((props: { radius?: number }, ref) => {
+// update props to accept the dynamic tweakpane thresholds from DriveScene
+type SpeedLinesProps = {
+  radius?: number;
+  minCarSpeed: number;
+  maxCarSpeed: number;
+  minPlaneSpeed: number;
+  maxPlaneSpeed: number;
+};
+
+export const SpeedLines = forwardRef((props: SpeedLinesProps, ref) => {
   const effect = useMemo(() => new SpeedLinesImpl(), []);
 
   React.useLayoutEffect(() => {
@@ -53,15 +62,24 @@ export const SpeedLines = forwardRef((props: { radius?: number }, ref) => {
       // grab the absolute speed
       const currentSpeed = Math.abs(carTelemetry?.speed || 0);
 
-      // define exactly when the effect starts and peaks
-      const startSpeed = 250; // stays at 0.0 intensity below this
-      const peakSpeed = 300; // hits 1.0 maximum intensity at this speed
-
       // smoothstep evaluates the currentSpeed against our strict thresholds
       targetSpeedIntensity = THREE.MathUtils.smoothstep(
         currentSpeed,
-        startSpeed,
-        peakSpeed,
+        props.minCarSpeed,
+        props.maxCarSpeed,
+      );
+    } else if (activeControl === CONTROL_STATE.PLANE) {
+      const planeTelemetry =
+        state.telemetry[activeEntity as typeof ENTITY_ID.PLANE_1];
+
+      // grab the absolute airspeed
+      const currentSpeed = Math.abs(planeTelemetry?.airspeed || 0);
+
+      // smoothstep evaluates the currentSpeed against the plane's specific thresholds
+      targetSpeedIntensity = THREE.MathUtils.smoothstep(
+        currentSpeed,
+        props.minPlaneSpeed,
+        props.maxPlaneSpeed,
       );
     }
 
