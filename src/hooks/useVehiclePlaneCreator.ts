@@ -270,7 +270,7 @@ export const useVehiclePlaneCreator = (
 
     // seat position and rotation socket math
     // local offset matches your constant file definition perfectly
-    const localSeatOffset = new THREE.Vector3(0, 3, 1);
+    const localSeatOffset = new THREE.Vector3(0, 1, -7);
     localSeatOffset.applyQuaternion(quaternion);
     const worldSeat = new THREE.Vector3(pos.x, pos.y, pos.z).add(
       localSeatOffset,
