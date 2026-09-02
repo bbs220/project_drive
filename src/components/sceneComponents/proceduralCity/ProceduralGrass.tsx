@@ -2,6 +2,7 @@ import { useRef, useLayoutEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { typeInstanceConfig } from "./ProceduralCity";
+import { worldConstants } from "../../../utils/worldGenerator";
 import grassVert from "../shaders/grassVert.glsl";
 import grassFrag from "../shaders/grassFrag.glsl";
 
@@ -9,8 +10,6 @@ const dummy = new THREE.Object3D();
 
 const ProceduralGrass = ({ grass }: { grass: typeInstanceConfig[] }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-
-  // Use a ref for the material instead of useMemo to satisfy the React Compiler
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
   // Geometry: A 3-vertex triangle blade
@@ -35,24 +34,34 @@ const ProceduralGrass = ({ grass }: { grass: typeInstanceConfig[] }) => {
     return geo;
   }, []);
 
-  // Memoize just the uniforms object
+  // Memoize uniforms including the new player tracking variables
   const uniforms = useMemo(() => {
     return THREE.UniformsUtils.merge([
       THREE.UniformsLib.fog,
-      { uTime: { value: 0 } },
+      {
+        uTime: { value: 0 },
+        uPlayerPos: { value: new THREE.Vector3(0, 0, 0) },
+        uInteractRadius: { value: 3.5 },
+      },
     ]);
   }, []);
 
   useLayoutEffect(() => {
     if (meshRef.current && grass.length > 0) {
+      const halfCell = worldConstants.cellSize / 2;
+
       grass.forEach((blade, i) => {
-        dummy.position.set(...blade.position);
+        // Apply the same grid offset used for buildings and roads
+        dummy.position.set(
+          blade.position[0] - halfCell,
+          blade.position[1],
+          blade.position[2] - halfCell,
+        );
         dummy.scale.set(...blade.scale);
-        if (blade.rotation) {
-          dummy.rotation.set(...blade.rotation);
-        } else {
-          dummy.rotation.set(0, 0, 0);
-        }
+
+        // GPU billboarding overrides rotation, so we can save CPU cycles here
+        dummy.rotation.set(0, 0, 0);
+
         dummy.updateMatrix();
         meshRef.current!.setMatrixAt(i, dummy.matrix);
       });
@@ -64,6 +73,9 @@ const ProceduralGrass = ({ grass }: { grass: typeInstanceConfig[] }) => {
   useFrame((state) => {
     if (materialRef.current) {
       materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
+
+      // TODO: Feed your actual vehicle/player world position here!
+      materialRef.current.uniforms.uPlayerPos.value.set(0, 0, 0);
     }
   });
 

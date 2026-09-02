@@ -1,5 +1,9 @@
 import { useMemo } from "react";
-import { getTerrainData, worldConstants } from "../../../utils/worldGenerator";
+import {
+  getTerrainData,
+  worldConstants,
+  generatorState,
+} from "../../../utils/worldGenerator";
 import { useCityStore } from "../../../stores/useCItyStore";
 import { PoissonDisk } from "../../../utils/PoissonDisk";
 import ProceduralBuildings from "./ProceduralBuildings";
@@ -43,15 +47,14 @@ const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
     const worldOffsetX = chunkX * chunkSize;
     const worldOffsetZ = chunkZ * chunkSize;
 
-    // --- TWEAKABLE GRASS PARAMETERS ---
     const GRASS_PARAMS = {
-      patchSpacing: 35, // Distance between each patch in the outlands (lower = more patches)
-      patchRadius: 36.0, // How wide a single patch of grass scatters
-      minBlades: 100, // Minimum blades in a single patch
-      maxBlades: 200, // Maximum blades in a single patch
+      patchSpacing: 20,
+      patchRadius: 60,
+      minBlades: 100,
+      maxBlades: 200,
+      bladeScale: 0.2,
     };
 
-    // --- 1. GENERATE NEON GRASS PATCHES (Poisson Disk) ---
     const chunkSeed = Math.abs(chunkX * 73856 + chunkZ * 19349);
 
     const patchSampler = new PoissonDisk(
@@ -71,7 +74,6 @@ const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
       if (data.type === "empty") {
         const patchRand = getPseudoRandom(worldX, worldZ);
 
-        // Calculate amount of blades for this specific patch
         const bladeRange = GRASS_PARAMS.maxBlades - GRASS_PARAMS.minBlades;
         const numBlades =
           GRASS_PARAMS.minBlades + Math.floor(patchRand * bladeRange);
@@ -80,31 +82,54 @@ const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
           const bladeRandX = getPseudoRandom(worldX + i, worldZ);
           const bladeRandZ = getPseudoRandom(worldX, worldZ + i);
 
-          // Use sqrt on the random value so the blades distribute evenly across the circle area
           const radius = Math.sqrt(bladeRandX) * GRASS_PARAMS.patchRadius;
           const angle = bladeRandZ * Math.PI * 2;
 
           const offsetX = Math.cos(angle) * radius;
           const offsetZ = Math.sin(angle) * radius;
 
-          const scaleY = 1.5 + bladeRandX * 2.0;
-          const scaleXZ = 1.0 + bladeRandZ * 0.8;
+          // calculate local chunk coordinate
+          const localX = point.x - halfChunk + offsetX;
+          const localZ = point.y - halfChunk + offsetZ;
+
+          // prevent scattered blades from rendering outside the 300x300 chunk bounds
+          if (
+            localX < -halfChunk ||
+            localX >= halfChunk ||
+            localZ < -halfChunk ||
+            localZ >= halfChunk
+          ) {
+            continue;
+          }
+
+          // road avoid math
+          const bladeWorldX = worldX + offsetX;
+          const bladeWorldZ = worldZ + offsetZ;
+
+          const blockSize = generatorState.blockSize;
+          const roadWidth = generatorState.roadWidth;
+
+          const modX = ((bladeWorldX % blockSize) + blockSize) % blockSize;
+          const modZ = ((bladeWorldZ % blockSize) + blockSize) % blockSize;
+
+          if (modX < roadWidth || modZ < roadWidth) {
+            continue;
+          }
+
+          const scaleY = (1.5 + bladeRandX * 2.0) * GRASS_PARAMS.bladeScale;
+          const scaleXZ = (1.0 + bladeRandZ * 0.8) * GRASS_PARAMS.bladeScale;
 
           tempGrass.push({
             key: `v${activeVersion}_grass_${worldX}_${worldZ}_${i}`,
-            position: [
-              point.x - halfChunk + offsetX,
-              0, // Ground level
-              point.y - halfChunk + offsetZ,
-            ],
+            position: [localX, 0, localZ],
             scale: [scaleXZ, scaleY, scaleXZ],
-            rotation: [0, bladeRandX * Math.PI * 2, 0],
+            rotation: [0, 0, 0],
           });
         }
       }
     });
 
-    // --- 2. GENERATE STRUCTURED GRID CITY ---
+    // generate structured grid city
     for (let x = -halfChunk + halfCell; x < halfChunk; x += cellSize) {
       for (let z = -halfChunk + halfCell; z < halfChunk; z += cellSize) {
         const worldX = x + worldOffsetX;
