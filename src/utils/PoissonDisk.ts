@@ -1,5 +1,3 @@
-// src/utils/PoissonDisk.ts
-
 export type Point = { x: number; y: number };
 
 export class PoissonDisk {

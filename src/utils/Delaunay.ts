@@ -1,5 +1,3 @@
-// src/utils/Delaunay.ts
-
 export type Point = { x: number; y: number };
 export type Edge = [Point, Point];
 export type Triangle = {

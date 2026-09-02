@@ -1,11 +1,12 @@
 import { useMemo } from "react";
 import { getTerrainData, worldConstants } from "../../../utils/worldGenerator";
 import { useCityStore } from "../../../stores/useCItyStore";
+import { PoissonDisk } from "../../../utils/PoissonDisk";
 import ProceduralBuildings from "./ProceduralBuildings";
 import ProceduralRoads from "./ProceduralRoads";
+import ProceduralRocks from "./ProceduralRocks";
 import type { RoadShaderParams } from "./ProceduralRoads";
 
-// define and export the typescript shape for the visual instances
 export type typeInstanceConfig = {
   key: string;
   position: [number, number, number];
@@ -21,15 +22,20 @@ type typeChunkProps = {
   roadParams: RoadShaderParams;
 };
 
+// simple deterministic random function for organic rock scaling/rotation
+const getPseudoRandom = (x: number, z: number) => {
+  return Math.abs(Math.sin(x * 12.9898 + z * 78.233) * 43758.5453) % 1;
+};
+
 const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
   const version = useCityStore((state) => state.version);
 
-  const { buildings, roads } = useMemo(() => {
+  const { buildings, roads, rocks } = useMemo(() => {
     const activeVersion = version;
     const tempBuildings: typeInstanceConfig[] = [];
     const tempRoads: typeInstanceConfig[] = [];
+    const tempRocks: typeInstanceConfig[] = [];
 
-    // strictly grab sizes from the global constants
     const chunkSize = worldConstants.chunkSize;
     const halfChunk = chunkSize / 2;
     const cellSize = worldConstants.cellSize;
@@ -38,6 +44,44 @@ const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
     const worldOffsetX = chunkX * chunkSize;
     const worldOffsetZ = chunkZ * chunkSize;
 
+    // --- 1. GENERATE ORGANIC OUTLAND ROCKS (Poisson Disk) ---
+    // Create a unique, repeatable seed for this specific chunk
+    const chunkSeed = Math.abs(chunkX * 73856 + chunkZ * 19349);
+
+    // Minimum 30 units between rocks so it feels like a vast landscape, not a dense forest
+    const rockSampler = new PoissonDisk(chunkSize, chunkSize, 30, chunkSeed);
+    const rawRockPoints = rockSampler.generate();
+
+    rawRockPoints.forEach((point) => {
+      // Map local Poisson coordinates (0 to chunkSize) to world coordinates
+      const worldX = point.x - halfChunk + worldOffsetX;
+      const worldZ = point.y - halfChunk + worldOffsetZ;
+
+      const data = getTerrainData(worldX, worldZ);
+      const key = `v${activeVersion}_rock_${worldX}_${worldZ}`;
+
+      // Only place rocks if the terrain generator designated this area as "empty" (outlands)
+      if (data.type === "empty") {
+        const rand = getPseudoRandom(worldX, worldZ);
+        const scale = 2 + rand * 8; // Rocks between 2 and 10 units in size
+
+        tempRocks.push({
+          key,
+          // Shift point to local chunk space (-halfChunk to +halfChunk)
+          position: [point.x - halfChunk, scale / 2, point.y - halfChunk],
+          // Randomize proportions slightly so they aren't all perfect spheres
+          scale: [
+            scale,
+            scale * (0.5 + rand * 0.5),
+            scale * (0.8 + rand * 0.4),
+          ],
+          // Randomly tumble the rock on all axes
+          rotation: [rand * Math.PI, rand * Math.PI * 2, (1 - rand) * Math.PI],
+        });
+      }
+    });
+
+    // --- 2. GENERATE STRUCTURED GRID CITY ---
     for (let x = -halfChunk + halfCell; x < halfChunk; x += cellSize) {
       for (let z = -halfChunk + halfCell; z < halfChunk; z += cellSize) {
         const worldX = x + worldOffsetX;
@@ -83,12 +127,12 @@ const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
     return {
       buildings: tempBuildings,
       roads: tempRoads,
+      rocks: tempRocks,
     };
   }, [version, chunkX, chunkZ]);
 
   return (
     <group
-      // strictly use the global chunk size for group placement
       position={[
         chunkX * worldConstants.chunkSize,
         -0.48,
@@ -97,8 +141,8 @@ const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
       key={`${version}_${chunkX}_${chunkZ}`}
     >
       <ProceduralBuildings buildings={buildings} />
-      {/* strictly pass the params directly into the road component */}
       <ProceduralRoads roads={roads} params={roadParams} />
+      <ProceduralRocks rocks={rocks} />
     </group>
   );
 };
