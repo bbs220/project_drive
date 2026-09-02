@@ -4,7 +4,7 @@ import { useCityStore } from "../../../stores/useCItyStore";
 import { PoissonDisk } from "../../../utils/PoissonDisk";
 import ProceduralBuildings from "./ProceduralBuildings";
 import ProceduralRoads from "./ProceduralRoads";
-import ProceduralRocks from "./ProceduralRocks";
+import ProceduralGrass from "./ProceduralGrass";
 import type { RoadShaderParams } from "./ProceduralRoads";
 
 export type typeInstanceConfig = {
@@ -22,7 +22,6 @@ type typeChunkProps = {
   roadParams: RoadShaderParams;
 };
 
-// simple deterministic random function for organic rock scaling/rotation
 const getPseudoRandom = (x: number, z: number) => {
   return Math.abs(Math.sin(x * 12.9898 + z * 78.233) * 43758.5453) % 1;
 };
@@ -30,11 +29,11 @@ const getPseudoRandom = (x: number, z: number) => {
 const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
   const version = useCityStore((state) => state.version);
 
-  const { buildings, roads, rocks } = useMemo(() => {
+  const { buildings, roads, grass } = useMemo(() => {
     const activeVersion = version;
     const tempBuildings: typeInstanceConfig[] = [];
     const tempRoads: typeInstanceConfig[] = [];
-    const tempRocks: typeInstanceConfig[] = [];
+    const tempGrass: typeInstanceConfig[] = [];
 
     const chunkSize = worldConstants.chunkSize;
     const halfChunk = chunkSize / 2;
@@ -44,40 +43,64 @@ const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
     const worldOffsetX = chunkX * chunkSize;
     const worldOffsetZ = chunkZ * chunkSize;
 
-    // --- 1. GENERATE ORGANIC OUTLAND ROCKS (Poisson Disk) ---
-    // Create a unique, repeatable seed for this specific chunk
+    // --- TWEAKABLE GRASS PARAMETERS ---
+    const GRASS_PARAMS = {
+      patchSpacing: 35, // Distance between each patch in the outlands (lower = more patches)
+      patchRadius: 36.0, // How wide a single patch of grass scatters
+      minBlades: 100, // Minimum blades in a single patch
+      maxBlades: 200, // Maximum blades in a single patch
+    };
+
+    // --- 1. GENERATE NEON GRASS PATCHES (Poisson Disk) ---
     const chunkSeed = Math.abs(chunkX * 73856 + chunkZ * 19349);
 
-    // Minimum 30 units between rocks so it feels like a vast landscape, not a dense forest
-    const rockSampler = new PoissonDisk(chunkSize, chunkSize, 30, chunkSeed);
-    const rawRockPoints = rockSampler.generate();
+    const patchSampler = new PoissonDisk(
+      chunkSize,
+      chunkSize,
+      GRASS_PARAMS.patchSpacing,
+      chunkSeed,
+    );
+    const rawPatchPoints = patchSampler.generate();
 
-    rawRockPoints.forEach((point) => {
-      // Map local Poisson coordinates (0 to chunkSize) to world coordinates
+    rawPatchPoints.forEach((point) => {
       const worldX = point.x - halfChunk + worldOffsetX;
       const worldZ = point.y - halfChunk + worldOffsetZ;
 
       const data = getTerrainData(worldX, worldZ);
-      const key = `v${activeVersion}_rock_${worldX}_${worldZ}`;
 
-      // Only place rocks if the terrain generator designated this area as "empty" (outlands)
       if (data.type === "empty") {
-        const rand = getPseudoRandom(worldX, worldZ);
-        const scale = 2 + rand * 8; // Rocks between 2 and 10 units in size
+        const patchRand = getPseudoRandom(worldX, worldZ);
 
-        tempRocks.push({
-          key,
-          // Shift point to local chunk space (-halfChunk to +halfChunk)
-          position: [point.x - halfChunk, scale / 2, point.y - halfChunk],
-          // Randomize proportions slightly so they aren't all perfect spheres
-          scale: [
-            scale,
-            scale * (0.5 + rand * 0.5),
-            scale * (0.8 + rand * 0.4),
-          ],
-          // Randomly tumble the rock on all axes
-          rotation: [rand * Math.PI, rand * Math.PI * 2, (1 - rand) * Math.PI],
-        });
+        // Calculate amount of blades for this specific patch
+        const bladeRange = GRASS_PARAMS.maxBlades - GRASS_PARAMS.minBlades;
+        const numBlades =
+          GRASS_PARAMS.minBlades + Math.floor(patchRand * bladeRange);
+
+        for (let i = 0; i < numBlades; i++) {
+          const bladeRandX = getPseudoRandom(worldX + i, worldZ);
+          const bladeRandZ = getPseudoRandom(worldX, worldZ + i);
+
+          // Use sqrt on the random value so the blades distribute evenly across the circle area
+          const radius = Math.sqrt(bladeRandX) * GRASS_PARAMS.patchRadius;
+          const angle = bladeRandZ * Math.PI * 2;
+
+          const offsetX = Math.cos(angle) * radius;
+          const offsetZ = Math.sin(angle) * radius;
+
+          const scaleY = 1.5 + bladeRandX * 2.0;
+          const scaleXZ = 1.0 + bladeRandZ * 0.8;
+
+          tempGrass.push({
+            key: `v${activeVersion}_grass_${worldX}_${worldZ}_${i}`,
+            position: [
+              point.x - halfChunk + offsetX,
+              0, // Ground level
+              point.y - halfChunk + offsetZ,
+            ],
+            scale: [scaleXZ, scaleY, scaleXZ],
+            rotation: [0, bladeRandX * Math.PI * 2, 0],
+          });
+        }
       }
     });
 
@@ -127,7 +150,7 @@ const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
     return {
       buildings: tempBuildings,
       roads: tempRoads,
-      rocks: tempRocks,
+      grass: tempGrass,
     };
   }, [version, chunkX, chunkZ]);
 
@@ -142,7 +165,7 @@ const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
     >
       <ProceduralBuildings buildings={buildings} />
       <ProceduralRoads roads={roads} params={roadParams} />
-      <ProceduralRocks rocks={rocks} />
+      <ProceduralGrass grass={grass} />
     </group>
   );
 };
