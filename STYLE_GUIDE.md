@@ -35,6 +35,6 @@ To achieve the glowing neon aesthetic without expensive 3D lighting calculations
 | :--- | :--- |
 | Metallic | 1 |
 | Roughness | 0.1 |
-| IOR | 1.5 |
+| IOR | 1.4 |
 | Alpha | 1 |
 | Normal | Default |
