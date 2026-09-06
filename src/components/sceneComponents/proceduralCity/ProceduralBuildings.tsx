@@ -2,7 +2,7 @@ import { useMemo, useRef, useLayoutEffect } from "react";
 import * as THREE from "three";
 import buildingVert from "../shaders/buildingVert.glsl";
 import buildingFrag from "../shaders/buildingFrag.glsl";
-import type { typeInstanceConfig } from "./ProceduralCity";
+import type { typeInstanceConfig } from "../../../hooks/useChunkGenerator";
 import { worldConstants } from "../../../utils/worldGenerator";
 
 // Reusable dummy object for matrix calculations

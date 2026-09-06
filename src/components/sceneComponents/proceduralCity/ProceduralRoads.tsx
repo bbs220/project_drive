@@ -2,8 +2,8 @@ import { useMemo, useRef, useLayoutEffect, useEffect } from "react";
 import * as THREE from "three";
 import roadVert from "../shaders/roadVert.glsl";
 import roadFrag from "../shaders/roadFrag.glsl";
-import type { typeInstanceConfig } from "./ProceduralCity";
 import { worldConstants } from "../../../utils/worldGenerator";
+import type { typeInstanceConfig } from "../../../hooks/useChunkGenerator";
 
 const dummy = new THREE.Object3D();
 

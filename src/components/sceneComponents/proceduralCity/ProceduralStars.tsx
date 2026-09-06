@@ -11,8 +11,8 @@ type ProceduralSkyProps = {
 
 // sky config
 const STARS_PER_CHUNK = 50;
-const MIN_Y = 200;
-const MAX_Y = 500;
+const MIN_Y = 180;
+const MAX_Y = 400;
 
 // share one material globally
 const sharedStarMaterial = new THREE.ShaderMaterial({
