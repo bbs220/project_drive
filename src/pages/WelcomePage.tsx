@@ -89,19 +89,21 @@ const WelcomePage = () => {
 
       {/* footer note & build version */}
       <div className="fixed bottom-4 flex w-full items-center justify-center gap-4 px-4 select-none">
+        {/* note */}
         <div className="flex items-center gap-1 text-tron-lime font-telemetry text-[10px] md:text-xs">
           <TriangleAlert className="h-4 w-4" />
           Note: <span className="text-white font-thin">Desktop only</span>
         </div>
         {/* divider */}
         <div className="h-6 w-0.5 bg-tron-lime/70" />
-        {/* version */}
         <div className="font-telemetry text-[10px] md:text-xs tracking-widest text-white hover:text-tron-yellow">
           <a href="https://github.com/bbs220/project_drive" className="">
             Source Code
           </a>
         </div>
+        {/* divider */}
         <div className="h-6 w-0.5 bg-tron-lime/70" />
+        {/* version */}
         <div className="font-telemetry text-[10px] md:text-xs tracking-widest text-white">
           {`( v${appVersion}.alpha )`}
         </div>
