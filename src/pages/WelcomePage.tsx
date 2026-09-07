@@ -28,7 +28,7 @@ const WelcomePage = () => {
     // main container with deep void background and faint cyan grid, using safe padding for small screens
     <div className="relative flex min-h-screen w-screen flex-col items-center justify-center p-6 bg-tron-bg bg-[linear-gradient(rgba(0,243,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,243,255,0.03)_1px,transparent_1px)] bg-size-[40px_40px] select-none overflow-hidden">
       {/* background ambient magenta glow scaled for responsiveness */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-72 w-72 md:h-125 md:w-125 -translate-x-1/2 -translate-y-1/2 bg-tron-magenta/10 blur-[90px] md:blur-[120px]"></div>
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-72 w-72 md:h-125 md:w-125 -translate-x-1/2 -translate-y-1/2 bg-tron-magenta/10 blur-[90px] md:blur-[120px]" />
 
       {/* header section */}
       <div className="relative z-10 mb-10 md:mb-16 flex flex-col items-center text-center px-4">
@@ -89,13 +89,19 @@ const WelcomePage = () => {
 
       {/* footer note & build version */}
       <div className="fixed bottom-4 flex w-full items-center justify-center gap-4 px-4 select-none">
-        <div className="flex items-center gap-1 text-tron-lime font-telemetry text-xs md:text-sm font-bold uppercase">
+        <div className="flex items-center gap-1 text-tron-lime font-telemetry text-[10px] md:text-xs">
           <TriangleAlert className="h-4 w-4" />
           Note: <span className="text-white font-thin">Desktop only</span>
         </div>
         {/* divider */}
         <div className="h-6 w-0.5 bg-tron-lime/70" />
         {/* version */}
+        <div className="font-telemetry text-[10px] md:text-xs tracking-widest text-white hover:text-tron-yellow">
+          <a href="https://github.com/bbs220/project_drive" className="">
+            Source Code
+          </a>
+        </div>
+        <div className="h-6 w-0.5 bg-tron-lime/70" />
         <div className="font-telemetry text-[10px] md:text-xs tracking-widest text-white">
           {`( v${appVersion}.alpha )`}
         </div>
