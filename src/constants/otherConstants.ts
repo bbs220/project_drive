@@ -62,6 +62,10 @@ export const playerConstants = {
     jumpForce: { value: 5, min: 1, max: 20, label: "jump force" },
     gravityMultiplier: { value: 2, min: 0.5, max: 5, label: "gravity mult" },
 
+    // bloom
+    emissionColor: { value: "#ffffff", label: "emission color" },
+    emissionStrength: { value: 1, min: 0, max: 10, label: "emission strength" },
+
     // debug tools
     debugBones: { value: false, label: "bones" },
     debugMesh: { value: false, label: "wireframe" },
@@ -110,12 +114,18 @@ export const vehicleCarConstants = {
     // driving mechanics
     engineForce: { value: 40, min: 1, max: 500, label: "engine force" },
     maxSpeed: { value: 88, min: 10, max: 200, label: "max speed" },
+    maxReverseSpeed: {
+      value: 10,
+      min: 1,
+      max: 100,
+      label: "max reverse speed",
+    },
     boostMultiplier: { value: 2.5, min: 1, max: 5, label: "boost multiplier" },
     brakeForce: { value: 2, min: 1, max: 500, label: "brake force" },
     steeringAngle: { value: 0.5, min: 0.1, max: 1, label: "steering angle" },
     flipImpulse: { value: 0.5, min: 0.1, max: 100, label: "flip impulse" },
     // debug wireframes toggle
-    showWireframes: { value: false, label: "show debug wheels" },
+    debugMesh: { value: false, label: "wireframe" },
   },
   physics: {
     friction: 0.5,
@@ -194,6 +204,7 @@ export const vehiclePlaneConstants = {
     maxPitchAngle: { value: 30, min: 5, max: 90, label: "max pitch angle" },
     maxRollAngle: { value: 30, min: 5, max: 90, label: "max roll angle" },
     altitudeLimit: { value: 200, min: 100, max: 1000, label: "altitude limit" },
+    debugMesh: { value: false, label: "wireframe" },
   },
   physics: {},
 };
@@ -228,6 +239,7 @@ export const vehicleHelicopterConstants = {
     smoothing: { value: 5, min: 1, max: 20, label: "visual smoothing" },
     rotorSpeed: { value: 20, min: 5, max: 50, label: "rotor speed" },
     altitudeLimit: { value: 200, min: 100, max: 1000, label: "altitude limit" },
+    debugMesh: { value: false, label: "wireframe" },
   },
   physics: {},
 };

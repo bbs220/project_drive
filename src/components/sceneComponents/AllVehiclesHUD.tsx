@@ -21,7 +21,7 @@ const SharedControlsDisplay = ({
 }) => {
   // subscribe to the controls and radar toggles in the ui store
   const showControls = useUIStore((state) => state.showControls);
-  const showRadar = useUIStore((state) => state.showRadar);
+  const showMap = useUIStore((state) => state.showMap);
 
   // if disabled in settings, return nothing to completely hide the ui element
   if (!showControls) return null;
@@ -33,7 +33,7 @@ const SharedControlsDisplay = ({
   ];
 
   // only show the map keybind if the radar is actually enabled in the HUD
-  if (showRadar) {
+  if (showMap) {
     universalControls.push({ keys: "M", action: "map" });
   }
 

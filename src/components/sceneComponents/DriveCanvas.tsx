@@ -18,12 +18,12 @@ import {
   type TypeControlState,
   type TypeEntityId,
 } from "../../stores/useVehicleStore";
-import ProceduralRadar from "../ProceduralRadar";
 import BackgroundLight from "./BackgroundLight";
 import PostprocessingEffects from "./PostprocessingEffects";
 import ChunkManager from "./proceduralCity/ChunkManager";
 import Player from "./Player";
 import { useMountSystem } from "../../hooks/useMountSystem";
+import MiniMap from "../MiniMap";
 
 const DriveScene = () => {
   // initialize refs for all instantiated vehicles and player
@@ -53,12 +53,15 @@ const DriveScene = () => {
     showFPS,
     cameraDebug,
     activeVehicle,
-    fogValue,
+    fogNear,
+    fogFar,
     fogColor,
     dynamicFov,
     maxFovValue,
     minSpeedThreshold,
     topSpeedThreshold,
+    planeFovStartSpeed,
+    planeFovMaxSpeed,
   } = useTweakpane(
     { title: "☀️ Scene" },
     {
@@ -74,7 +77,8 @@ const DriveScene = () => {
           plane: CONTROL_STATE.PLANE,
         },
       },
-      fogValue: { value: 0.01, min: 0, max: 1, label: "fog amount" },
+      fogNear: { value: 80, min: 0, max: 500, label: "fog near" },
+      fogFar: { value: 270, min: 0, max: 10000, label: "fog far" },
       fogColor: { value: "#003535", label: "fog color" },
 
       // tuning parameters for camera warp speed
@@ -84,13 +88,26 @@ const DriveScene = () => {
         value: 250,
         min: 0,
         max: 500,
-        label: "fov start speed",
+        label: "car fov start",
       },
       topSpeedThreshold: {
         value: 317,
         min: 50,
         max: 500,
-        label: "fov max speed",
+        label: "car fov max",
+      },
+      // specific thresholds for the plane
+      planeFovStartSpeed: {
+        value: 160,
+        min: 0,
+        max: 300,
+        label: "plane fov start",
+      },
+      planeFovMaxSpeed: {
+        value: 200,
+        min: 50,
+        max: 300,
+        label: "plane fov max",
       },
     },
   );
@@ -127,14 +144,18 @@ const DriveScene = () => {
     const activeControl = storeState.active.control;
 
     let currentSpeed = 0;
+    let minSpeed = minSpeedThreshold as number;
+    let maxSpeed = topSpeedThreshold as number;
 
     // pull speed/airspeed directly from your strict telemetry map
     if (activeControl === CONTROL_STATE.CAR) {
       currentSpeed = storeState.telemetry[ENTITY_ID.CAR_1].speed;
+    } else if (activeControl === CONTROL_STATE.PLANE) {
+      currentSpeed = storeState.telemetry[ENTITY_ID.PLANE_1].airspeed;
+      minSpeed = planeFovStartSpeed as number;
+      maxSpeed = planeFovMaxSpeed as number;
     }
 
-    const minSpeed = minSpeedThreshold as number;
-    const maxSpeed = topSpeedThreshold as number;
     const absoluteSpeed = Math.abs(currentSpeed);
 
     // prevent division by zero if tweaking sliders land on the same number
@@ -162,9 +183,11 @@ const DriveScene = () => {
       <PerspectiveCamera
         makeDefault
         fov={sceneConstants.fov}
-        position={[0, 5, 10]}
+        position={[0, 0, 500]}
+        near={0.01}
+        far={50000}
       />
-      <fogExp2 attach="fog" args={[fogColor as string, fogValue as number]} />
+      <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
       <Stats showPanel={showFPS ? 0 : 4} />
       <BackgroundLight />
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
@@ -195,8 +218,8 @@ const DriveCanvas = () => {
 
   return (
     <>
-      {sceneConstants.isDev && <ProceduralRadar />}
       <AllVehiclesHUD />
+      <MiniMap />
       <Canvas shadows={"soft"} dpr={setDpr}>
         <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>
           <DriveScene />

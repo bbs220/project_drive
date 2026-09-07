@@ -1,4 +1,4 @@
-import { forwardRef, useRef } from "react";
+import { forwardRef, useRef, useEffect } from "react";
 import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { useGLTF } from "@react-three/drei";
@@ -47,6 +47,9 @@ type typeCockpitGLTF = GLTF & {
 const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
   ({ spawnMode }, ref) => {
     const initialSpawn = respawnValues[spawnMode].plane;
+
+    const visualRef = useRef<THREE.Group>(null);
+
     // strict reference to the physics body so the hook can manipulate it
     const chassisRef = useRef<RapierRigidBody>(null);
 
@@ -58,6 +61,10 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
       { title: "✈️ Plane Tuning", expanded: false },
       vehiclePlaneConstants.tuning,
     );
+
+    // extract debug boolean
+    const debugMesh = unwrapParam(params.debugMesh, false);
+
     // attach the plane physics hook to handle respawning
     useVehiclePlaneCreator(chassisRef, controls, params);
 
@@ -69,6 +76,19 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
       modelsSeperatedBank.lightPlane01cockpit,
     ) as unknown as typeCockpitGLTF;
 
+    // dynamically toggle wireframe directly on the shared materials
+    useEffect(() => {
+      airframeGLTF.materials["black.001"].wireframe = debugMesh;
+      airframeGLTF.materials["tron.002"].wireframe = debugMesh;
+      airframeGLTF.materials["tron.003"].wireframe = debugMesh;
+      cockpitGLTF.materials["Material.001"].wireframe = debugMesh;
+
+      airframeGLTF.materials["black.001"].needsUpdate = true;
+      airframeGLTF.materials["tron.002"].needsUpdate = true;
+      airframeGLTF.materials["tron.003"].needsUpdate = true;
+      cockpitGLTF.materials["Material.001"].needsUpdate = true;
+    }, [debugMesh, airframeGLTF.materials, cockpitGLTF.materials]);
+
     // extract visual offsets
     const pPosX = unwrapParam(params.planePosX, 0);
     const pPosY = unwrapParam(params.planePosY, 0);
@@ -79,8 +99,14 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
     const cPosZ = unwrapParam(params.cockpitPosZ, -2.8);
 
     return (
-      <group position={initialSpawn.position} rotation={initialSpawn.rotation}>
-        <RigidBody ref={chassisRef} colliders={false} canSleep={false}>
+      <group>
+        <RigidBody
+          ref={chassisRef}
+          colliders={false}
+          canSleep={false}
+          position={initialSpawn.position} // moved to rigidbody so trails stay at true 0,0,0
+          rotation={initialSpawn.rotation} // moved to rigidbody
+        >
           {/* central fuselage collider. wings are intentionally left as ghost meshes so they do not snag on buildings */}
           <RoundCuboidCollider
             args={[
@@ -92,26 +118,8 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
             position={[0, 0, 0]}
             mass={unwrapParam(params.chassisMass, 500)}
           />
-          <TrailEngine
-            offset={[-13.65, 0.4, -7]}
-            color={"#ffffff"}
-            width={1}
-            length={15}
-          />
-          <TrailEngine
-            offset={[13.65, 0.4, -7]}
-            color={"#ffffff"}
-            width={1}
-            length={15}
-          />
-          <TrailEngine
-            offset={[0, 0, 8]}
-            color={"#ffffff"}
-            width={1}
-            length={15}
-          />
           {/* offset group for tweakpane tuning */}
-          <group position={[pPosX, pPosY, pPosZ]}>
+          <group position={[pPosX, pPosY, pPosZ]} ref={visualRef}>
             {/* visual elements perfectly wrapped in the forwarded ref group */}
             <group ref={ref}>
               {/* core airframe hierarchy mapped directly from blender export */}
@@ -155,6 +163,40 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
             </group>
           </group>
         </RigidBody>
+        {/* side trails */}
+        <TrailEngine
+          targetRef={visualRef}
+          offset={[-13.65, 0.4, -5]}
+          color={"#ffffff"}
+          height={0.1}
+          width={0.1}
+          length={100}
+        />
+        <TrailEngine
+          targetRef={visualRef}
+          offset={[13.65, 0.4, -5]}
+          color={"#ffffff"}
+          height={0.1}
+          width={0.1}
+          length={100}
+        />
+        {/* center trails */}
+        <TrailEngine
+          targetRef={visualRef}
+          offset={[-0.5, 0, 12.3]}
+          color={"#ffffff"}
+          height={0.1}
+          width={0.1}
+          length={200}
+        />
+        <TrailEngine
+          targetRef={visualRef}
+          offset={[0.5, 0, 12.3]}
+          color={"#ffffff"}
+          height={0.1}
+          width={0.1}
+          length={200}
+        />
       </group>
     );
   },

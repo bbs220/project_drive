@@ -11,15 +11,18 @@ uniform float uGridThickness;
 
 void main() {
   // calculate main outer grid cells
+  // removing the '- 0.5' inside the fract automatically shifts the grid lines 
+  // by exactly half of whatever uGridSize is currently set to.
+  // this forces 0,0 to always be the dead center of the cell.
   vec2 mainCoord = vWorldPosition.xz / uGridSize;
-  vec2 mainGrid = abs(fract(mainCoord - 0.5) - 0.5) / fwidth(mainCoord);
+  vec2 mainGrid = abs(fract(mainCoord) - 0.5) / fwidth(mainCoord);
   float mainLine = min(mainGrid.x,mainGrid.y);
   float mainAlpha = 1.0 - smoothstep(uGridThickness - 1.0,uGridThickness + 1.0,mainLine);
 
   // calculate inner sub grid for the crosses
+  // keeping the '- 0.5' here ensures the first cross spawns perfectly at 0,0
+  // radiating perfectly outward based on uSubGridSize.
   vec2 subCoord = vWorldPosition.xz / uSubGridSize;
-
-  // lock coordinates to exact integer intersections
   vec2 subLocal = fract(subCoord - 0.5) - 0.5;
   vec2 subPixelDist = abs(subLocal) / fwidth(subCoord);
 

@@ -51,6 +51,7 @@ export type typeCarTuning = {
   steeringAngle: number | TweakpaneParam<number>;
   flipImpulse: number | TweakpaneParam<number>;
   maxSpeed: number | TweakpaneParam<number>;
+  maxReverseSpeed: number | TweakpaneParam<number>;
   wheelPosX: number | TweakpaneParam<number>;
   wheelPosY: number | TweakpaneParam<number>;
   frontWheelPosZ: number | TweakpaneParam<number>;
@@ -209,6 +210,7 @@ export const useVehicleCarCreator = (
     const engineForceVal = unwrapParam(tuning.engineForce, 5);
     const boostMultiplierVal = unwrapParam(tuning.boostMultiplier, 2.5);
     const maxSpeedVal = unwrapParam(tuning.maxSpeed, 88);
+    const maxReverseSpeedVal = unwrapParam(tuning.maxReverseSpeed, 10);
     const steeringAngleVal = unwrapParam(tuning.steeringAngle, 0.5);
     const brakeForceVal = unwrapParam(tuning.brakeForce, 2);
 
@@ -323,9 +325,15 @@ export const useVehicleCarCreator = (
 
       // fallback speed
       const safeMaxSpeed = maxSpeedVal || 50;
+      const safeMaxReverseSpeed = maxReverseSpeedVal || 10;
 
       // engine governor overrides throttle if vehicle exceeds maximum procedural safe speed
       if (currentSpeed >= safeMaxSpeed && controls.forward) {
+        currentEngineForce = 0;
+      }
+
+      // engine governor overrides throttle if vehicle exceeds maximum reverse speed
+      if (currentSpeed >= safeMaxReverseSpeed && controls.backward) {
         currentEngineForce = 0;
       }
 
@@ -375,7 +383,7 @@ export const useVehicleCarCreator = (
     const speedKmh = Math.round(groundSpeedMs * 3.6);
 
     // seat position and rotation math
-    const localSeatOffset = new THREE.Vector3(0, 2, 0);
+    const localSeatOffset = new THREE.Vector3(0.4, 0.8, -0.5);
 
     // apply the car current physical rotation to the offset
     localSeatOffset.applyQuaternion(chassisQuat);
@@ -400,6 +408,14 @@ export const useVehicleCarCreator = (
       invertedQuat.w,
     ];
 
+    // format the pure unflipped car rotation for the seat so the player faces forward
+    const pureCarRot: [number, number, number, number] = [
+      chassisQuat.x,
+      chassisQuat.y,
+      chassisQuat.z,
+      chassisQuat.w,
+    ];
+
     // update physics state variables if actively driving but always broadcast position and seat
     if (active.control === CONTROL_STATE.CAR) {
       useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
@@ -407,7 +423,7 @@ export const useVehicleCarCreator = (
         position: [pos.x, pos.y, pos.z],
         rotation: carRot,
         seatPosition: [worldSeat.x, worldSeat.y, worldSeat.z],
-        seatRotation: carRot,
+        seatRotation: pureCarRot,
       });
     } else {
       // if empty only broadcast the coordinates so the player knows where to walk or sit
@@ -415,7 +431,7 @@ export const useVehicleCarCreator = (
         position: [pos.x, pos.y, pos.z],
         rotation: carRot,
         seatPosition: [worldSeat.x, worldSeat.y, worldSeat.z],
-        seatRotation: carRot,
+        seatRotation: pureCarRot,
       });
     }
 

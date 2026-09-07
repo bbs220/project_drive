@@ -5,6 +5,7 @@ import {
   CapsuleCollider,
   type RapierRigidBody,
 } from "@react-three/rapier";
+import type { Collider } from "@dimforge/rapier3d-compat";
 import { useGLTF, useAnimations } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import type { GLTF } from "three-stdlib";
@@ -13,7 +14,11 @@ import { unwrapParam } from "../../utils/unwrapParam";
 import { playerConstants, respawnValues } from "../../constants/otherConstants";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { usePlayerCreator } from "../../hooks/usePlayerCreator";
-import { useVehicleStore, ENTITY_ID } from "../../stores/useVehicleStore";
+import {
+  useVehicleStore,
+  ENTITY_ID,
+  CONTROL_STATE,
+} from "../../stores/useVehicleStore";
 
 // action names exported from blender
 type ActionName =
@@ -25,6 +30,7 @@ type ActionName =
   | "EnteringCar"
   | "Excited"
   | "ExitingCar"
+  | "Falling"
   | "FastRun"
   | "Idle"
   | "Jump"
@@ -49,7 +55,7 @@ type GLTFResult = GLTF & {
   };
   materials: {
     Albedo: THREE.MeshPhysicalMaterial;
-    EmmissiveParts: THREE.MeshPhysicalMaterial;
+    EmmissiveParts: THREE.MeshStandardMaterial;
   };
   animations: GLTFAction[];
 };
@@ -58,6 +64,9 @@ type GLTFResult = GLTF & {
 const Player = forwardRef<THREE.Group>((_props, ref) => {
   // strict reference to the physics body so the hook can manipulate it
   const playerBodyRef = useRef<RapierRigidBody>(null);
+
+  // strict reference to the physical collider so we can disable it when mounted
+  const colliderRef = useRef<Collider>(null);
 
   // dedicated reference purely for spinning the visual mesh independent of physics
   const visualRef = useRef<THREE.Group>(null);
@@ -73,6 +82,10 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   // initialize global input listener to capture wasd and structural keys
   const controls = useAllVehicleInput();
 
+  // subscribe to the active control state to know if we are mounted or on foot
+  const activeControl = useVehicleStore((state) => state.active.control);
+  const isMounted = activeControl !== CONTROL_STATE.PLAYER;
+
   // initialize tweakpane hook and store reactive parameters
   const params = useTweakpane(
     { title: "🚶 Player Tuning", expanded: false },
@@ -84,6 +97,10 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   const capsuleRadius = unwrapParam(params.capsuleRadius, 0.3);
   const playerMass = unwrapParam(params.playerMass, 70);
 
+  // extract emission settings
+  const emissionColor = unwrapParam(params.emissionColor, "#ffffff");
+  const emissionStrength = unwrapParam(params.emissionStrength, 1);
+
   // extract debug booleans
   const debugBones = unwrapParam(params.debugBones, false);
   const debugMesh = unwrapParam(params.debugMesh, false);
@@ -94,6 +111,15 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
 
   // attach the player physics hook and pass in the params and visual ref
   usePlayerCreator(playerBodyRef, visualRef, controls, params);
+
+  // dynamically enable or disable the collider based on mounted state as the primary safeguard
+  useEffect(() => {
+    if (isMounted) {
+      colliderRef.current?.setEnabled(false);
+    } else {
+      colliderRef.current?.setEnabled(true);
+    }
+  }, [isMounted]);
 
   // animation controller
   // Keep track of the currently playing animation to handle crossfades
@@ -112,12 +138,19 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
     if (!telemetry) return;
 
     const { speed, isGrounded } = telemetry;
+    const currentY = playerBodyRef.current?.translation().y || 0;
 
     // derived animation state
     let nextAnim: ActionName = "Idle";
 
-    if (!isGrounded) {
-      nextAnim = "Jump"; // airborne overrides all ground movement
+    if (isMounted) {
+      nextAnim = "Driving"; // force driving animation when mounted in a vehicle
+    } else if (!isGrounded) {
+      if (currentY > 1.4) {
+        nextAnim = "Falling"; // airborne above standard jump height triggers falling
+      } else {
+        nextAnim = "Jump"; // airborne overrides all ground movement
+      }
     } else if (speed > 4.5) {
       nextAnim = "FastRun"; // greater than walkSpeed triggers sprint
     } else if (speed > 0.1) {
@@ -144,9 +177,14 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   useEffect(() => {
     materials.Albedo.wireframe = debugMesh;
     materials.EmmissiveParts.wireframe = debugMesh;
+
+    // apply tweakpane emission settings to the stripes material
+    materials.EmmissiveParts.emissive.set(emissionColor);
+    materials.EmmissiveParts.emissiveIntensity = emissionStrength;
+
     materials.Albedo.needsUpdate = true;
     materials.EmmissiveParts.needsUpdate = true;
-  }, [debugMesh, materials]);
+  }, [debugMesh, emissionColor, emissionStrength, materials]);
 
   // generate the skeleton helper targeting the root bone directly
   useEffect(() => {
@@ -178,8 +216,10 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
       >
         {/* frictionless physical representation of the character */}
         <CapsuleCollider
+          ref={colliderRef}
           args={[capsuleHalfHeight, capsuleRadius]}
           friction={0}
+          collisionGroups={isMounted ? 0 : undefined}
         />
 
         {/* the outer group handles the camera targeting so the camera doesn't spin wildly */}

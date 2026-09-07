@@ -2,9 +2,11 @@ import { useNavigate } from "react-router";
 import { useEffect } from "react";
 import { useAppStore } from "../stores/useAppStore";
 import { useUISounds } from "../hooks/useUISounds";
+import { TriangleAlert } from "lucide-react";
 
 const WelcomePage = () => {
   const setActiveScene = useAppStore((state) => state.setActiveScene);
+  const appVersion = useAppStore((state) => state.appVersion);
   const navigate = useNavigate();
 
   const { playClick } = useUISounds();
@@ -85,12 +87,18 @@ const WelcomePage = () => {
         </div>
       </div>
 
-      {/* footer note */}
-      <div className="text-tron-lime font-telemetry text-xs md:text-sm fixed bottom-3 font-bold uppercase select-none animate-pulse text-center w-full px-4">
-        ⚠️Note:{" "}
-        <span className="text-white uppercase font-thin">
-          For now 🖥️Desktop only
-        </span>
+      {/* footer note & build version */}
+      <div className="fixed bottom-4 flex w-full items-center justify-center gap-4 px-4 select-none">
+        <div className="flex items-center gap-1 text-tron-lime font-telemetry text-xs md:text-sm font-bold uppercase">
+          <TriangleAlert className="h-4 w-4" />
+          Note: <span className="text-white font-thin">Desktop only</span>
+        </div>
+        {/* divider */}
+        <div className="h-6 w-0.5 bg-tron-lime/70" />
+        {/* version */}
+        <div className="font-telemetry text-[10px] md:text-xs tracking-widest text-white">
+          {`( v${appVersion}.alpha )`}
+        </div>
       </div>
     </div>
   );

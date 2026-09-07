@@ -32,6 +32,10 @@ const PostprocessingEffects = () => {
     caOffsetY,
     enableSpeedLines,
     speedLinesRadius,
+    minCarSpeed,
+    maxCarSpeed,
+    minPlaneSpeed,
+    maxPlaneSpeed,
   } = useTweakpane(
     { title: "🌟 Post-Processing", expanded: false },
     {
@@ -109,13 +113,44 @@ const PostprocessingEffects = () => {
         label: "max offset Y",
       },
 
-      enableSpeedLines: { value: true, folder: "speedlines", label: "enable" },
+      enableSpeedLines: { value: true, folder: "Speedlines", label: "enable" },
       speedLinesRadius: {
         value: 0.4,
         min: 0.0,
-        max: 1,
+        max: 1.0,
         step: 0.01,
-        folder: "speedlines",
+        folder: "Speedlines",
+        label: "radius",
+      },
+
+      // Shared thresholds for warp effects (CA & Speedlines)
+      minCarSpeed: {
+        value: 250,
+        min: 0,
+        max: 500,
+        folder: "Speed Thresholds",
+        label: "car min speed",
+      },
+      maxCarSpeed: {
+        value: 317,
+        min: 50,
+        max: 500,
+        folder: "Speed Thresholds",
+        label: "car max speed",
+      },
+      minPlaneSpeed: {
+        value: 160,
+        min: 0,
+        max: 300,
+        folder: "Speed Thresholds",
+        label: "plane min speed",
+      },
+      maxPlaneSpeed: {
+        value: 200,
+        min: 50,
+        max: 300,
+        folder: "Speed Thresholds",
+        label: "plane max speed",
       },
     },
   );
@@ -139,11 +174,26 @@ const PostprocessingEffects = () => {
         state.telemetry[activeEntity as typeof ENTITY_ID.CAR_1];
       const currentSpeed = Math.abs(carTelemetry?.speed || 0);
 
-      // strictly bounds the effect from 0.0 (at 250kmh) to 1.0 (at 300kmh)
-      targetIntensity = THREE.MathUtils.smoothstep(currentSpeed, 250, 300);
+      // strictly bounds the effect for the car's speed thresholds
+      targetIntensity = THREE.MathUtils.smoothstep(
+        currentSpeed,
+        minCarSpeed as number,
+        maxCarSpeed as number,
+      );
+    } else if (activeControl === CONTROL_STATE.PLANE) {
+      const planeTelemetry =
+        state.telemetry[activeEntity as typeof ENTITY_ID.PLANE_1];
+      const currentSpeed = Math.abs(planeTelemetry?.airspeed || 0);
+
+      // strictly bounds the effect for the plane's speed thresholds
+      targetIntensity = THREE.MathUtils.smoothstep(
+        currentSpeed,
+        minPlaneSpeed as number,
+        maxPlaneSpeed as number,
+      );
     }
 
-    // Use the Tweakpane values as the "Max" values (so you can still easily adjust the peak in UI!)
+    // Use the Tweakpane values as the "Max" values
     const targetX = targetIntensity * (caOffsetX as number);
     const targetY = targetIntensity * (caOffsetY as number);
 
@@ -181,7 +231,16 @@ const PostprocessingEffects = () => {
         <ChromaticAberration ref={caRef} offset={new THREE.Vector2(0, 0)} />
       )}
 
-      {enableSpeedLines && <SpeedLines radius={speedLinesRadius as number} />}
+      {/* Pass the Tweakpane thresholds dynamically into the custom shader component */}
+      {enableSpeedLines && (
+        <SpeedLines
+          radius={speedLinesRadius as number}
+          minCarSpeed={minCarSpeed as number}
+          maxCarSpeed={maxCarSpeed as number}
+          minPlaneSpeed={minPlaneSpeed as number}
+          maxPlaneSpeed={maxPlaneSpeed as number}
+        />
+      )}
     </EffectComposer>
   );
 };

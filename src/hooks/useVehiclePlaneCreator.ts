@@ -196,10 +196,34 @@ export const useVehiclePlaneCreator = (
       }
       currentSpeedRef.current = Math.max(0, currentSpeedRef.current);
 
-      // phase 2 map keyboard inputs exactly to unity axis inputs
-      const rollInput = controls.left ? 1 : controls.right ? -1 : 0;
-      const pitchInput = controls.forward ? -1 : controls.backward ? 1 : 0;
-      const yawInput = controls.yawLeft ? 1 : controls.yawRight ? -1 : 0;
+      // strictly lock flight controls if the plane is stationary
+      const speedZero = currentSpeedRef.current === 0;
+      // lock roll and yaw at low altitudes to prevent ground spins, but allow pitch so the plane can take off
+      const rollYawLocked = speedZero || pos.y < 30;
+      const pitchLocked = speedZero;
+
+      // phase 2 map keyboard inputs exactly to unity axis inputs, factoring in the control locks
+      const rollInput = rollYawLocked
+        ? 0
+        : controls.left
+          ? 1
+          : controls.right
+            ? -1
+            : 0;
+      const pitchInput = pitchLocked
+        ? 0
+        : controls.forward
+          ? -1
+          : controls.backward
+            ? 1
+            : 0;
+      const yawInput = rollYawLocked
+        ? 0
+        : controls.yawLeft
+          ? 1
+          : controls.yawRight
+            ? -1
+            : 0;
 
       // convert raw unity degrees to safe radians
       let rollRad = rollInput * activeRollSpeed * (Math.PI / 180);
@@ -270,7 +294,7 @@ export const useVehiclePlaneCreator = (
 
     // seat position and rotation socket math
     // local offset matches your constant file definition perfectly
-    const localSeatOffset = new THREE.Vector3(0, 3, 1);
+    const localSeatOffset = new THREE.Vector3(0, 1, -7);
     localSeatOffset.applyQuaternion(quaternion);
     const worldSeat = new THREE.Vector3(pos.x, pos.y, pos.z).add(
       localSeatOffset,

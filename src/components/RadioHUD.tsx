@@ -29,7 +29,7 @@ const RadioHUD = () => {
   const [trackIndex, setTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // bring in the UI sound hook for our media buttons
+  // bring in the ui sound hook for our media buttons
   const { playClick } = useUISounds();
 
   // pull volume slider values directly from your global store
@@ -50,7 +50,7 @@ const RadioHUD = () => {
 
   // handle play/pause toggling safely
   const togglePlay = () => {
-    // play UI sound
+    // play ui sound
     playClick();
     if (isPlaying) {
       pause();
@@ -63,14 +63,15 @@ const RadioHUD = () => {
 
   // stop current audio before switching indices to prevent overlapping ghost tracks
   const handleNext = (userInitiated = true) => {
-    // play UI sound only if user clicked it manually
+    // play ui sound only if user clicked it manually
     if (userInitiated) playClick();
     stop();
     setTrackIndex((prev) => (prev + 1) % TRACK_LIST.length);
   };
 
   const handlePrev = () => {
-    playClick(); // play UI sound
+    // play ui sound
+    playClick();
     stop();
     setTrackIndex((prev) => (prev - 1 + TRACK_LIST.length) % TRACK_LIST.length);
   };
@@ -88,7 +89,7 @@ const RadioHUD = () => {
   }, [trackIndex, sound, isPlaying, play, stop]);
 
   return (
-    <div className="fixed bottom-8 right-10 z-100 flex flex-col border border-tron-cyan/40 bg-[#00050a]/80 p-4 font-mono text-tron-cyan backdrop-blur-md shadow-[4px_0_20px_rgba(0,243,255,0.15),inset_-4px_0_20px_rgba(0,243,255,0.05)] select-none">
+    <div className="relative mt-4 flex w-full shrink-0 flex-col border border-tron-cyan/40 bg-[#00050a]/80 p-4 font-mono text-tron-cyan backdrop-blur-md shadow-[4px_0_20px_rgba(0,243,255,0.15),inset_-4px_0_20px_rgba(0,243,255,0.05)] select-none z-10">
       {/* header and animated equalizer */}
       <div className="mb-3 flex items-center justify-between border-b border-tron-cyan/30 pb-2">
         <div className="flex items-center gap-2">

@@ -132,10 +132,31 @@ export const useVehicleHelicopterCreator = (
       tailRotorRef.current.rotateX(finalRotorSpeed * rpmRef.current * delta);
 
     if (rpmRef.current > 0.1) {
-      // raw Input Mapping
-      const pitchInput = controls.forward ? -1 : controls.backward ? 1 : 0; // -1 leans forward
-      const rollInput = controls.left ? 1 : controls.right ? -1 : 0; // 1 leans left
-      const yawInput = controls.yawLeft ? 1 : controls.yawRight ? -1 : 0;
+      // lock all cyclic and pedal controls at low altitudes to prevent ground spins and sliding
+      const controlsLocked = pos.y < 30;
+
+      // raw Input Mapping, factoring in the control locks
+      const pitchInput = controlsLocked
+        ? 0
+        : controls.forward
+          ? -1
+          : controls.backward
+            ? 1
+            : 0; // -1 leans forward
+      const rollInput = controlsLocked
+        ? 0
+        : controls.left
+          ? 1
+          : controls.right
+            ? -1
+            : 0; // 1 leans left
+      const yawInput = controlsLocked
+        ? 0
+        : controls.yawLeft
+          ? 1
+          : controls.yawRight
+            ? -1
+            : 0;
 
       let verticalInput = collectiveRef.current;
       if (pos.y > altitudeLimitVal && verticalInput > 0) verticalInput = 0;
@@ -186,7 +207,7 @@ export const useVehicleHelicopterCreator = (
       linvel.x * linvel.x + linvel.y * linvel.y + linvel.z * linvel.z,
     );
 
-    const localSeatOffset = new THREE.Vector3(0, 4, -4);
+    const localSeatOffset = new THREE.Vector3(0, -0.6, -5);
     localSeatOffset.applyQuaternion(quaternion);
     const worldSeat = new THREE.Vector3(pos.x, pos.y, pos.z).add(
       localSeatOffset,

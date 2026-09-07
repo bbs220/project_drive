@@ -4,12 +4,8 @@ import fragmentShader from "../shaders/gridFrag.glsl";
 import vertexShader from "../shaders/gridVert.glsl";
 import { useTweakpane } from "../../../hooks/useTweakpane";
 import { RigidBody } from "@react-three/rapier";
-
-const groundDim = {
-  width: 300,
-  height: 0.1,
-  depth: 300,
-};
+import { worldConstants } from "../../../utils/worldGenerator";
+import ProceduralCity from "./ProceduralCity";
 
 type GroundTileProps = {
   chunkX: number;
@@ -23,13 +19,13 @@ type GroundTileProps = {
     crossSize: number;
     crossOpacity: number;
     gridThickness: number;
+    showChunkBoundary: boolean;
   };
 };
 
 const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
-  // merge the built-in fog uniforms with your custom grid uniforms right here
   const uniforms = useMemo(
     () =>
       THREE.UniformsUtils.merge([
@@ -49,8 +45,16 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
           uGridThickness: { value: params.gridThickness },
         },
       ]),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [
+      params.bgColor,
+      params.crossColor,
+      params.crossOpacity,
+      params.crossSize,
+      params.gridSize,
+      params.gridThickness,
+      params.lineColor,
+      params.subGridSize,
+    ],
   );
 
   useEffect(() => {
@@ -66,26 +70,44 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
     mat.uniforms.uCrossColor.value.set(params.crossColor).multiplyScalar(2);
   }, [params]);
 
+  const posX = chunkX * worldConstants.chunkSize;
+  const posZ = chunkZ * worldConstants.chunkSize;
+
+  // dynamically pull halfCell so Ground and Roads stay aligned
+  const halfCell = worldConstants.cellSize / 2;
+
   return (
-    <RigidBody
-      type="fixed"
-      colliders="cuboid"
-      friction={2}
-      position={[chunkX * groundDim.width, -0.5, chunkZ * groundDim.depth]}
-    >
-      <mesh receiveShadow>
-        <boxGeometry
-          args={[groundDim.width, groundDim.height, groundDim.depth]}
-        />
-        <shaderMaterial
-          ref={materialRef}
-          vertexShader={vertexShader}
-          fragmentShader={fragmentShader}
-          uniforms={uniforms}
-          fog={true}
-        />
-      </mesh>
-    </RigidBody>
+    <group position={[posX, 0, posZ]}>
+      <RigidBody
+        type="fixed"
+        colliders="cuboid"
+        friction={2}
+        position={[-halfCell, worldConstants.groundOffset, -halfCell]}
+      >
+        <mesh receiveShadow>
+          <boxGeometry
+            args={[
+              worldConstants.chunkSize,
+              worldConstants.groundHeight,
+              worldConstants.chunkSize,
+            ]}
+          />
+          <shaderMaterial
+            ref={materialRef}
+            vertexShader={vertexShader}
+            fragmentShader={fragmentShader}
+            uniforms={uniforms}
+            fog={true}
+          />
+        </mesh>
+      </RigidBody>
+
+      <gridHelper
+        args={[worldConstants.chunkSize, 1, "white", "orange"]}
+        position={[-halfCell, 10, -halfCell]}
+        visible={params.showChunkBoundary}
+      />
+    </group>
   );
 };
 
@@ -94,10 +116,11 @@ type typeGroundProps = {
 };
 
 const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
-  // parent manages the ui state strictly once
-  const params = useTweakpane(
+  // grid Shader Tweakpane
+  const gridParams = useTweakpane(
     { title: "➕ Grid Shader", expanded: false },
     {
+      showChunkBoundary: { value: false, label: "chunk boundary" },
       gridSize: { value: 10.0, min: 5.0, max: 50.0, step: 5 },
       subGridSize: { value: 2.5, min: 0.5, max: 2.5, step: 0.5 },
       crossSize: { value: 0.08, min: 0.01, max: 0.5 },
@@ -109,16 +132,38 @@ const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
     },
   );
 
+  // road Shader Tweakpane
+  const roadParams = useTweakpane(
+    { title: "🛣️ Road Shader", expanded: false },
+    {
+      bgColor: { value: "#010102" },
+      edgeColor: { value: "#00f3ff" },
+      centerColor: { value: "#00f3ff" },
+      edgeDist: { value: 0.49, min: 0.2, max: 0.49, step: 0.01 },
+      centerDist: { value: 0.02, min: 0.0, max: 0.2, step: 0.01 },
+      edgeWidth: { value: 0.001, min: 0.001, max: 0.1, step: 0.001 },
+      centerWidth: { value: 0.001, min: 0.001, max: 0.05, step: 0.001 },
+      edgeGlow: { value: 1.5, min: 0.1, max: 5.0 },
+      centerGlow: { value: 1.4, min: 0.1, max: 5.0 },
+    },
+  );
+
   return (
     <group>
-      {/* dynamically map the isolated sub-components */}
       {activeChunks.map((c) => (
-        <GroundTile
-          key={`ground_${c.chunkX}_${c.chunkZ}`}
-          chunkX={c.chunkX}
-          chunkZ={c.chunkZ}
-          params={params as GroundTileProps["params"]}
-        />
+        <group key={`island_chunk_${c.chunkX}_${c.chunkZ}`}>
+          <GroundTile
+            chunkX={c.chunkX}
+            chunkZ={c.chunkZ}
+            params={gridParams as GroundTileProps["params"]}
+          />
+          {/* render the city chunk right alongside its ground tile */}
+          <ProceduralCity
+            chunkX={c.chunkX}
+            chunkZ={c.chunkZ}
+            roadParams={roadParams}
+          />
+        </group>
       ))}
     </group>
   );
