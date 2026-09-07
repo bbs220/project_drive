@@ -34,7 +34,7 @@ const WelcomePage = () => {
       <div className="relative z-10 mb-10 md:mb-16 flex flex-col items-center text-center px-4">
         {/* main title with fluid text sizing (scales smoothly between mobile and desktop) */}
         <h1 className="mb-3 md:mb-4 font-telemetry text-4xl sm:text-6xl md:text-8xl font-bold tracking-widest text-tron-cyan [text-shadow:0_0_15px_var(--color-tron-cyan)]">
-          PROJECT DRIVE
+          NEON DRIVES
         </h1>
         {/* subtitle using clean label font with responsive sizing */}
         <p className="font-label text-xs sm:text-base md:text-2xl tracking-[0.2em] md:tracking-[0.3em] text-tron-lime uppercase [text-shadow:0_0_8px_var(--color-tron-lime)]">

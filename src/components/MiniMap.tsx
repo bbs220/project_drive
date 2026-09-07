@@ -71,7 +71,7 @@ const MiniMap = () => {
       ref={wrapperRef}
       className={`${
         showMap ? "block" : "hidden"
-      } fixed ${sceneConstants.isDev ? "right-90" : "right-2"}right-90 top-2 size-60 border-2 border-white z-14 rounded-xl pointer-events-none bg-black/40`}
+      } fixed ${sceneConstants.isDev ? "right-90" : "right-2"} top-2 size-60 border-2 border-white z-14 rounded-xl pointer-events-none bg-black/40`}
     ></div>
   );
 };
