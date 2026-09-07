@@ -1,10 +1,10 @@
 import { useRef, useLayoutEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import type { typeInstanceConfig } from "./ProceduralCity";
 import { worldConstants } from "../../../utils/worldGenerator";
 import grassVert from "../shaders/grassVert.glsl";
 import grassFrag from "../shaders/grassFrag.glsl";
+import type { typeInstanceConfig } from "../../../hooks/useChunkGenerator";
 
 const dummy = new THREE.Object3D();
 

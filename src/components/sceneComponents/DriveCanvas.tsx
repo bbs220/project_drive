@@ -66,7 +66,7 @@ const DriveScene = () => {
     { title: "☀️ Scene" },
     {
       showFPS: { value: false, label: "show fps" },
-      cameraDebug: { value: true, label: "camera debug" },
+      cameraDebug: { value: sceneConstants.isDev, label: "camera debug" },
       activeVehicle: {
         value: active.control,
         label: "current vehicle",
