@@ -105,7 +105,7 @@ const WelcomePage = () => {
         <div className="h-6 w-0.5 bg-tron-lime/70" />
         {/* version */}
         <div className="font-telemetry text-[10px] md:text-xs tracking-widest text-white">
-          {`( v${appVersion}.alpha )`}
+          {`( v ${appVersion}.alpha )`}
         </div>
       </div>
     </div>

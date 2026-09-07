@@ -64,7 +64,7 @@ const SideBar = () => {
             <span>{`[ ${activeScene} ]`}</span>
             {/* version string absolutely positioned to the far right, overriding parent text effects */}
             <span className="absolute right-2 md:right-8 bottom-4 text-[10px] md:text-xs tracking-widest text-white normal-case text-shadow-none select-none">
-              {`( v${appVersion}.alpha )`}
+              {`( v ${appVersion}.alpha )`}
             </span>
           </h2>
 
