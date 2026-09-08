@@ -1,5 +1,7 @@
 import React, { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
+import trailFrag from "./shaders/trailFrag.glsl";
+import trailVert from "./shaders/trailVert.glsl";
 import * as THREE from "three";
 
 export type VehicleTrailProps = {
@@ -89,6 +91,14 @@ const TrailEngine = ({
       c.b * emissiveIntensity,
     );
   }, [color, emissiveIntensity]);
+
+  const uniforms = useMemo(
+    () => ({
+      uColor: { value: intenseColor },
+      uOpacity: { value: 0.8 },
+    }),
+    [intenseColor],
+  );
 
   const history = useRef<{ pos: THREE.Vector3; right: THREE.Vector3 }[]>([]);
 
@@ -193,11 +203,12 @@ const TrailEngine = ({
         <bufferAttribute attach="index" args={[indices, 1]} />
       </bufferGeometry>
 
-      <meshBasicMaterial
-        color={intenseColor}
+      <shaderMaterial
+        vertexShader={trailVert}
+        fragmentShader={trailFrag}
+        uniforms={uniforms}
         side={THREE.DoubleSide}
-        transparent
-        opacity={0.8}
+        transparent={true}
         depthWrite={false}
       />
     </mesh>

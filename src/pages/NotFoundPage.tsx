@@ -14,7 +14,7 @@ const NotFoundPage = () => {
         </h1>
         {/* // tech styled subtitle using the clean label font */}
         <p className="text-xl md:text-3xl font-label text-tron-cyan tracking-[0.4em] uppercase [text-shadow:0_0_10px_var(--color-tron-cyan)]">
-          sector not found
+          page not found
         </p>
       </div>
       {/* // interactive return button */}
