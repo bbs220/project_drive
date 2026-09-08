@@ -11,7 +11,7 @@ type UIState = {
   showControls: boolean; // wasd and shift hints
   showSpeedometers: boolean; // car, plane, and heli instrument clusters
   showMap: boolean; // procedural radar component visibility
-  showTelemetry: boolean; // fps, ping, or raw physics debug text
+  showHints: boolean; // fps, ping, or raw physics debug text
 
   // audio setters
   setMasterVolume: (volume: number) => void;
@@ -23,7 +23,7 @@ type UIState = {
   setShowControls: (show: boolean) => void;
   setShowSpeedometers: (show: boolean) => void;
   setShowMap: (show: boolean) => void;
-  setShowTelemetry: (show: boolean) => void;
+  setShowHints: (show: boolean) => void;
 };
 
 export const useUIStore = create<UIState>((set) => ({
@@ -37,7 +37,7 @@ export const useUIStore = create<UIState>((set) => ({
   showControls: true,
   showSpeedometers: true,
   showMap: false,
-  showTelemetry: false, // usually off by default for a clean screen
+  showHints: false, // usually off by default for a clean screen
 
   // audio actions
   setMasterVolume: (volume) => set({ masterVolume: volume }),
@@ -49,5 +49,5 @@ export const useUIStore = create<UIState>((set) => ({
   setShowControls: (show) => set({ showControls: show }),
   setShowSpeedometers: (show) => set({ showSpeedometers: show }),
   setShowMap: (show) => set({ showMap: show }),
-  setShowTelemetry: (show) => set({ showTelemetry: show }),
+  setShowHints: (show) => set({ showHints: show }),
 }));
