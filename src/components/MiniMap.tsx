@@ -27,7 +27,7 @@ const MiniMap = () => {
         top: "45%",
         xPercent: 50, // centers it horizontally against right: 50%
         yPercent: -50, // centers it vertically against top: 45%
-        borderRadius: "16px",
+        borderRadius: "16px", // smoothly rounds out more when expanded
         pointerEvents: "auto",
         duration: 0.35,
         ease: "power3.inOut",
@@ -69,9 +69,9 @@ const MiniMap = () => {
   return (
     <div
       ref={wrapperRef}
-      className={`${
-        showMap ? "block" : "hidden"
-      } fixed ${sceneConstants.isDev ? "right-90" : "right-2"} top-2 size-60 border-2 border-white z-14 rounded-xl pointer-events-none bg-black/40`}
+      className={`${showMap ? "block" : "hidden"} fixed ${
+        sceneConstants.isDev ? "right-90" : "right-2"
+      } top-2 z-14 size-60 pointer-events-none rounded-md border border-tron-cyan bg-black/40 backdrop-blur-md [box-shadow:0_0_15px_rgba(0,243,255,0.2)]`}
     ></div>
   );
 };
