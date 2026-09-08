@@ -56,7 +56,7 @@ const SideBar = () => {
   return (
     <>
       <aside
-        className={`fixed top-0 left-0 w-full h-screen bg-black/40 border-b-2 border-tron-cyan p-4 font-inter text-tron-cyan z-15 pointer-events-auto backdrop-blur-md shadow-[0_4px_20px_rgba(0,243,255,0.2),inset_0_-4px_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed top-0 left-0 w-full h-screen bg-black/40 border-b-2 border-tron-cyan p-4 font-inter text-tron-cyan z-40 pointer-events-auto backdrop-blur-md shadow-[0_4px_20px_rgba(0,243,255,0.2),inset_0_-4px_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen ? "translate-y-0" : "-translate-y-full"
         }`}
       >
@@ -299,7 +299,7 @@ const SideBar = () => {
           playClick();
           setIsOpen(!isOpen);
         }}
-        className="fixed top-4 left-4 flex cursor-pointer items-center justify-center rounded-md border-2 border-tron-cyan p-2 text-tron-cyan z-15 backdrop-blur-sm shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:bg-tron-cyan hover:text-black transition-colors"
+        className="fixed top-4 left-4 flex cursor-pointer items-center justify-center rounded-md border-2 border-tron-cyan p-2 text-tron-cyan z-45 backdrop-blur-sm shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:bg-tron-cyan hover:text-black transition-colors"
         aria-label="toggle settings menu"
       >
         {isOpen ? (
