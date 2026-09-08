@@ -16,11 +16,10 @@ const SceneLoader = ({ title = "INITIALIZING..." }: typeLoaderProps) => {
   useEffect(() => {
     // only trigger the exit sequence when all assets are fully loaded
     if (!active && progress === 100) {
-      // hold solid for 150ms to mask threejs shader compilation and prevent the white flash
-      const fadeTimer = setTimeout(() => setIsFading(true), 150);
+      const fadeTimer = setTimeout(() => setIsFading(true), 1200);
 
       // unmount the component entirely after the 700ms css transition finishes
-      const unmountTimer = setTimeout(() => setVisible(false), 150 + 700);
+      const unmountTimer = setTimeout(() => setVisible(false), 1200 + 700);
 
       return () => {
         clearTimeout(fadeTimer);
@@ -39,7 +38,6 @@ const SceneLoader = ({ title = "INITIALIZING..." }: typeLoaderProps) => {
       }`}
     >
       <div className="flex w-80 flex-col items-center">
-        {/* inject the dynamic title prop here */}
         <div className="mb-4 font-telemetry text-xl tracking-[0.3em] text-tron-cyan [text-shadow:0_0_10px_var(--color-tron-cyan)] uppercase">
           {title}
         </div>
