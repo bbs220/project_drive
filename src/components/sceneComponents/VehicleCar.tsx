@@ -407,6 +407,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
           height={0.8}
           width={0.05}
           length={80}
+          isCar
         />
       </group>
     );

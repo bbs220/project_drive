@@ -10,6 +10,7 @@ export type VehicleTrailProps = {
   color?: string | THREE.Color;
   emissiveIntensity?: number;
   offset?: [number, number, number];
+  isCar?: boolean;
 };
 
 const TrailEngine = ({
@@ -20,6 +21,7 @@ const TrailEngine = ({
   color = "#00ffff",
   emissiveIntensity = 2.0,
   offset = [0, 0, 0],
+  isCar = false,
 }: VehicleTrailProps) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const geoRef = useRef<THREE.BufferGeometry>(null);
@@ -33,16 +35,16 @@ const TrailEngine = ({
     for (let i = 0; i < length; i++) {
       const ratio = i / (length - 1);
 
-      // 0: bottom-right
+      // bottom-right
       uv[i * 8 + 0] = ratio;
       uv[i * 8 + 1] = 0;
-      // 1: bottom-left
+      // bottom-left
       uv[i * 8 + 2] = ratio;
       uv[i * 8 + 3] = 0;
-      // 2: top-right
+      // top-right
       uv[i * 8 + 4] = ratio;
       uv[i * 8 + 5] = 1;
-      // 3: top-left
+      // top-left
       uv[i * 8 + 6] = ratio;
       uv[i * 8 + 7] = 1;
 
@@ -88,13 +90,14 @@ const TrailEngine = ({
     );
   }, [color, emissiveIntensity]);
 
-  const history = useRef<{ pos: THREE.Vector3 }[]>([]);
-  const dummyVec = useRef(new THREE.Vector3());
+  const history = useRef<{ pos: THREE.Vector3; right: THREE.Vector3 }[]>([]);
 
-  // reusable vectors for trail thickness math without memory leaks
-  const dirVec = useRef(new THREE.Vector3());
-  const rightVec = useRef(new THREE.Vector3());
-  const upVec = useRef(new THREE.Vector3(0, 1, 0));
+  const dummyVec = useRef(new THREE.Vector3());
+  const dummyRight = useRef(new THREE.Vector3());
+  const worldQuat = useRef(new THREE.Quaternion());
+
+  const lastPos = useRef(new THREE.Vector3());
+  const isInitialized = useRef(false);
 
   useFrame(() => {
     if (!targetRef.current || !geoRef.current) return;
@@ -103,54 +106,74 @@ const TrailEngine = ({
     dummyVec.current.set(offset[0], offset[1], offset[2]);
     targetRef.current.localToWorld(dummyVec.current);
 
-    history.current.unshift({ pos: dummyVec.current.clone() });
+    if (!isInitialized.current) {
+      lastPos.current.copy(dummyVec.current);
+      isInitialized.current = true;
+    }
 
-    if (history.current.length > length) {
-      history.current.pop();
+    targetRef.current.getWorldQuaternion(worldQuat.current);
+
+    dummyRight.current
+      .set(1, 0, 0)
+      .applyQuaternion(worldQuat.current)
+      .normalize()
+      .multiplyScalar(width / 2);
+
+    // reverse detection math
+    const moveDelta = dummyVec.current.clone().sub(lastPos.current);
+    lastPos.current.copy(dummyVec.current);
+
+    const localMove = moveDelta.applyQuaternion(
+      worldQuat.current.clone().invert(),
+    );
+
+    // only detect reversing if this trail actually belongs to a car
+    const isReversing = isCar && localMove.z < -0.01;
+
+    // emission logic
+    if (!isReversing) {
+      history.current.unshift({
+        pos: dummyVec.current.clone(),
+        right: dummyRight.current.clone(),
+      });
+
+      if (history.current.length > length) {
+        history.current.pop();
+      }
+    } else {
+      if (history.current.length > 0) {
+        history.current.pop();
+      }
     }
 
     const posAttr = geoRef.current.attributes.position;
 
     for (let i = 0; i < length; i++) {
-      const current = history.current[i] || { pos: dummyVec.current };
+      const current = history.current[i] ||
+        history.current[history.current.length - 1] || {
+          pos: dummyVec.current,
+          right: dummyRight.current,
+        };
 
-      // look ahead and behind to find the direction the trail is moving
-      const newer = i > 0 ? history.current[i - 1] || current : current;
-      const older =
-        i < length - 1 ? history.current[i + 1] || current : current;
-
-      dirVec.current.subVectors(newer.pos, older.pos).normalize();
-
-      // fallback if the vehicle hasn't moved yet
-      if (dirVec.current.lengthSq() === 0) dirVec.current.set(0, 0, 1);
-
-      // cross product calculates the left/right axis relative to forward direction
-      rightVec.current
-        .crossVectors(dirVec.current, upVec.current)
-        .normalize()
-        .multiplyScalar(width / 2);
-
+      const p = current.pos;
+      const r = current.right;
       const baseIdx = i * 4 * 3;
 
-      // 0: bottom-right
-      posAttr.array[baseIdx + 0] = current.pos.x - rightVec.current.x;
-      posAttr.array[baseIdx + 1] = current.pos.y - rightVec.current.y;
-      posAttr.array[baseIdx + 2] = current.pos.z - rightVec.current.z;
+      posAttr.array[baseIdx + 0] = p.x - r.x;
+      posAttr.array[baseIdx + 1] = p.y - r.y;
+      posAttr.array[baseIdx + 2] = p.z - r.z;
 
-      // 1: bottom-left
-      posAttr.array[baseIdx + 3] = current.pos.x + rightVec.current.x;
-      posAttr.array[baseIdx + 4] = current.pos.y + rightVec.current.y;
-      posAttr.array[baseIdx + 5] = current.pos.z + rightVec.current.z;
+      posAttr.array[baseIdx + 3] = p.x + r.x;
+      posAttr.array[baseIdx + 4] = p.y + r.y;
+      posAttr.array[baseIdx + 5] = p.z + r.z;
 
-      // 2: top-right
-      posAttr.array[baseIdx + 6] = current.pos.x - rightVec.current.x;
-      posAttr.array[baseIdx + 7] = current.pos.y - rightVec.current.y + height;
-      posAttr.array[baseIdx + 8] = current.pos.z - rightVec.current.z;
+      posAttr.array[baseIdx + 6] = p.x - r.x;
+      posAttr.array[baseIdx + 7] = p.y - r.y + height;
+      posAttr.array[baseIdx + 8] = p.z - r.z;
 
-      // 3: top-left
-      posAttr.array[baseIdx + 9] = current.pos.x + rightVec.current.x;
-      posAttr.array[baseIdx + 10] = current.pos.y + rightVec.current.y + height;
-      posAttr.array[baseIdx + 11] = current.pos.z + rightVec.current.z;
+      posAttr.array[baseIdx + 9] = p.x + r.x;
+      posAttr.array[baseIdx + 10] = p.y + r.y + height;
+      posAttr.array[baseIdx + 11] = p.z + r.z;
     }
 
     posAttr.needsUpdate = true;
