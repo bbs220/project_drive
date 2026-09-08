@@ -35,7 +35,7 @@ const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
       <ProceduralBuildings buildings={buildings} />
       <ProceduralRoads roads={roads} params={roadParams} />
       <ProceduralGrass grass={grass} />
-      <PropSpawner />
+      <PropSpawner roads={roads} />
     </group>
   );
 };
