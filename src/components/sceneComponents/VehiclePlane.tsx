@@ -166,7 +166,7 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
         {/* side trails */}
         <TrailEngine
           targetRef={visualRef}
-          offset={[-13.65, 0.4, -5]}
+          offset={[-13.65, 0.4, -3.2]}
           color={"#ffffff"}
           height={0.1}
           width={0.1}
@@ -174,7 +174,7 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
         />
         <TrailEngine
           targetRef={visualRef}
-          offset={[13.65, 0.4, -5]}
+          offset={[13.65, 0.4, -3.2]}
           color={"#ffffff"}
           height={0.1}
           width={0.1}
