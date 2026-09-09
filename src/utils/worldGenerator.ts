@@ -64,25 +64,25 @@ export const syncGeneratorParams = (params: typeof generatorState) => {
 };
 
 export const getTerrainData = (x: number, z: number): typeTerrainData => {
-  // 1. MACRO BIOME GENERATION (Infinite)
+  // macro biome generation (infinite)
   const rawBiome = fbm2D(x, z, 3, generatorState.macroFrequency, 0.5, 2.0);
-  const biomeScore = (rawBiome + 1) / 2; // Normalize to 0 - 1
+  const biomeScore = (rawBiome + 1) / 2; // normalize to 0 - 1
 
-  // Threshold determining where city stops and nature begins
+  // threshold determining where city stops and nature begins
   const cityThreshold = 0.45;
 
   if (biomeScore < cityThreshold) {
-    // 2. OUTLANDS / GRASSLANDS ZONE
+    // outlands / grasslands zone
     const rawTerrain = fbm2D(x, z, 4, 0.002, 0.5, 2.0);
-    // Taper the rolling hills near the city borders to keep transitions smooth
+    // taper the rolling hills near the city borders to keep transitions smooth
     const borderBlend = Math.min(1.0, (cityThreshold - biomeScore) * 5.0);
     const outlandElevation = ((rawTerrain + 1) / 2) * 120 * borderBlend;
 
     return { type: "empty", elevation: Math.max(0, outlandElevation) };
   }
 
-  // 3. INFINITE CITY ZONE
-  // cityMask goes from 0.0 (edge of city) to 1.0 (deep downtown)
+  // infinite city zone
+  // citymask goes from 0.0 (edge of city) to 1.0 (deep downtown)
   const cityMask = Math.min(1.0, (biomeScore - cityThreshold) * 5.0);
 
   const modX =
@@ -113,14 +113,14 @@ export const getTerrainData = (x: number, z: number): typeTerrainData => {
     2.0,
   );
 
-  // Multiply urban score by cityMask so suburbs naturally thin out into empty lots near the outlands
+  // multiply urban score by cityMask so suburbs naturally thin out into empty lots near the outlands
   const urbanScore = ((rawUrban + 1) / 2) * cityMask;
 
   if (urbanScore < generatorState.urbanSprawl) {
     return { type: "empty", elevation: 1 };
   }
 
-  // 4. STRUCTURED SKYLINES
+  // structured skylines
   const blockHeightNoise = fbm2D(
     blockX,
     blockZ,
@@ -142,7 +142,7 @@ export const getTerrainData = (x: number, z: number): typeTerrainData => {
   const blendedHeight = blockHeightNoise * 0.85 + cellHeightNoise * 0.15;
   const normalizedHeight = (blendedHeight + 1) / 2;
 
-  // Multiply final height by cityMask so skyscrapers only form deep in the city center,
+  // multiply final height by citymask so skyscrapers only form deep in the city center,
   // and scale down to small buildings at the edge
   const buildingHeight =
     Math.max(0.1, normalizedHeight) *
