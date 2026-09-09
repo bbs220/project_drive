@@ -8,34 +8,62 @@ import { useAllVehicleInput } from "../hooks/useAllVehicleInput";
 import { sceneConstants } from "../constants/otherConstants";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import { generatorState } from "../utils/worldGenerator";
+import { useTweakpane } from "../hooks/useTweakpane";
 
-// Inner R3F component to handle the shader and high-performance useFrame loop
-const ProceduralMapShader = () => {
+type ProceduralMapParams = {
+  fullMapZoom: number;
+  miniMapZoom: number;
+  zoomLerpSpeed: number;
+};
+
+// define props to pass our refs and tweakpane parameters down into the canvas
+type typeProceduralMapProps = {
+  isExpandedRef: React.RefObject<boolean>;
+  params: ProceduralMapParams;
+};
+
+// inner R3F component to handle the shader and high-performance useFrame loop
+const ProceduralMapShader = ({
+  isExpandedRef,
+  params,
+}: typeProceduralMapProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
-  // Memoize the uniforms to prevent unnecessary reallocation
+  // memoize the uniforms to prevent unnecessary reallocation
   const uniforms = useMemo(
     () => ({
       uPlayerPos: { value: new THREE.Vector2(0, 0) },
       uMacroFreq: { value: generatorState.macroFrequency },
-      uAspect: { value: 1.0 }, // Added aspect ratio uniform
+      uAspect: { value: 1.0 }, // added aspect ratio uniform
+      uMapZoom: { value: 4000.0 }, // dynamic zoom uniform
     }),
     [],
   );
 
-  // Poll the active vehicle's telemetry purely for the map offset
+  // poll the active vehicle's telemetry purely for the map offset
   useFrame((state) => {
     if (!materialRef.current) return;
 
-    // Smoothly update the aspect ratio 120 times a second as GSAP resizes the container
+    // smoothly update the aspect ratio 120 times a second as GSAP resizes the container
     materialRef.current.uniforms.uAspect.value =
       state.size.width / state.size.height;
+
+    // smoothly lerp the map zoom based on whether it is expanded or collapsed
+    const targetZoom = isExpandedRef.current
+      ? (params.fullMapZoom as number)
+      : (params.miniMapZoom as number);
+
+    materialRef.current.uniforms.uMapZoom.value = THREE.MathUtils.lerp(
+      materialRef.current.uniforms.uMapZoom.value,
+      targetZoom,
+      params.zoomLerpSpeed as number,
+    );
 
     const { active, telemetry } = useVehicleStore.getState();
     const currentTelemetry = telemetry[active.entity];
 
     if (currentTelemetry) {
-      // Map 3D World X and Z to the 2D map X and Y coordinates
+      // map 3D World X and Z to the 2D map X and Y coordinates
       materialRef.current.uniforms.uPlayerPos.value.set(
         currentTelemetry.position[0],
         currentTelemetry.position[2],
@@ -45,7 +73,6 @@ const ProceduralMapShader = () => {
 
   return (
     <mesh>
-      {/* A full-screen quad (2x2 units in normalized device coordinates covers the whole screen) */}
       <planeGeometry args={[2, 2]} />
       <shaderMaterial
         ref={materialRef}
@@ -64,6 +91,7 @@ const ProceduralMapShader = () => {
           uniform vec2 uPlayerPos;
           uniform float uMacroFreq;
           uniform float uAspect;
+          uniform float uMapZoom;
           varying vec2 vUv;
 
           // --- Ashima Simplex Noise 2D ---
@@ -109,15 +137,13 @@ const ProceduralMapShader = () => {
           }
 
           void main() {
-            // Span of the map in world units (adjust to zoom in or out)
-            float mapZoom = 4000.0; 
-            
             // Shift the UV to center (0.0), scale the X-axis by our aspect ratio, then shift back
             vec2 centeredUv = vUv - 0.5;
             centeredUv.x *= uAspect;
 
             // Map the corrected UVs to physical world coordinates centering on the player
-            vec2 worldPos = uPlayerPos + centeredUv * vec2(mapZoom, -mapZoom);
+            // uMapZoom replaces the hardcoded 4000.0 value
+            vec2 worldPos = uPlayerPos + centeredUv * vec2(uMapZoom, -uMapZoom);
 
             // Replicate macro biome generation
             float rawBiome = fbm2D(worldPos, 3, uMacroFreq, 0.5, 2.0);
@@ -143,6 +169,21 @@ const MiniMap = () => {
 
   const isExpandedRef = useRef(false);
   const prevMapKeyRef = useRef(false);
+
+  // setup tweakpane parameters for dynamic zooming
+  const params: ProceduralMapParams = useTweakpane(
+    { title: "🗺️ Minimap", expanded: false },
+    {
+      miniMapZoom: { value: 1500, min: 500, max: 10000, label: "mini zoom" },
+      fullMapZoom: {
+        value: 8000,
+        min: 1000,
+        max: 30000,
+        label: "full map zoom",
+      },
+      zoomLerpSpeed: { value: 0.1, min: 0.01, max: 1, label: "zoom speed" },
+    },
+  );
 
   // setup the GSAP timeline
   useGSAP(
@@ -198,18 +239,16 @@ const MiniMap = () => {
   return (
     <div
       ref={wrapperRef}
-      // Added overflow-hidden to cleanly clip the canvas to your rounded borders
       className={`${showMap ? "block" : "hidden"} fixed ${
         sceneConstants.isDev ? "right-90" : "right-2"
       } top-2 z-14 size-60 overflow-hidden pointer-events-none rounded-md border border-tron-cyan bg-black/40 backdrop-blur-md [box-shadow:0_0_15px_rgba(0,243,255,0.2)]`}
     >
-      {/* 
-        Inject the WebGL canvas here. 
-        It naturally fills 100% of the parent wrapper and tracks the GSAP resizing seamlessly. 
-      */}
       {showMap && (
-        <Canvas gl={{ antialias: false, alpha: false }}>
-          <ProceduralMapShader />
+        <Canvas
+          gl={{ antialias: false, alpha: false }}
+          resize={{ debounce: 0 }}
+        >
+          <ProceduralMapShader isExpandedRef={isExpandedRef} params={params} />
         </Canvas>
       )}
     </div>
