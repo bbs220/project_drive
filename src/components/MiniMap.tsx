@@ -194,7 +194,7 @@ const MiniMap = () => {
         width: "85vw",
         height: "80vh",
         right: "50%",
-        top: "45%",
+        top: "48.5%",
         xPercent: 50, // centers it horizontally against right: 50%
         yPercent: -50, // centers it vertically against top: 45%
         borderRadius: "16px", // smoothly rounds out more when expanded
