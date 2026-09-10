@@ -174,11 +174,11 @@ const MiniMap = () => {
   const params: ProceduralMapParams = useTweakpane(
     { title: "🗺️ Minimap", expanded: false },
     {
-      miniMapZoom: { value: 1500, min: 500, max: 10000, label: "mini zoom" },
+      miniMapZoom: { value: 1500, min: 50, max: 10000, label: "mini zoom" },
       fullMapZoom: {
-        value: 8000,
-        min: 1000,
-        max: 30000,
+        value: 3000,
+        min: 50,
+        max: 10000,
         label: "full map zoom",
       },
       zoomLerpSpeed: { value: 0.1, min: 0.01, max: 1, label: "zoom speed" },
