@@ -144,9 +144,9 @@ export const vehiclePlaneConstants = {
 
     // physics colliders - single centralized mass for arcade forgiveness
     chassisWidth: { value: 3.8, min: 0.1, max: 20, label: "chassis width" },
-    chassisHeight: { value: 1.8, min: 0.1, max: 20, label: "chassis height" },
+    chassisHeight: { value: 0.6, min: 0.1, max: 20, label: "chassis height" },
     chassisLength: { value: 10, min: 0.1, max: 20, label: "chassis length" },
-    chassisRadius: { value: 0.2, min: 0, max: 1, label: "chassis radius" },
+    chassisRadius: { value: 1.4, min: 0, max: 2, label: "chassis radius" },
     chassisMass: { value: 500, min: 10, max: 2000, label: "chassis mass" },
 
     // unity airplane extracted movement speeds
@@ -224,9 +224,9 @@ export const vehicleHelicopterConstants = {
 
     // physics colliders
     chassisWidth: { value: 1.75, min: 0.1, max: 5, label: "chassis width" },
-    chassisHeight: { value: 2.15, min: 0.1, max: 5, label: "chassis height" },
+    chassisHeight: { value: 1.2, min: 0.1, max: 5, label: "chassis height" },
     chassisLength: { value: 6.3, min: 0.1, max: 10, label: "chassis length" },
-    chassisRadius: { value: 0.3, min: 0, max: 1, label: "chassis radius" },
+    chassisRadius: { value: 1.4, min: 0, max: 2, label: "chassis radius" },
     chassisMass: { value: 300, min: 10, max: 2000, label: "chassis mass" },
 
     // arcade velocity override mechanics
