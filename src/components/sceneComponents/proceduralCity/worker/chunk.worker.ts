@@ -1,3 +1,8 @@
+import {
+  generatorState,
+  syncGeneratorParams,
+} from "../../../../utils/worldGenerator";
+
 // function will eventually hold your heavy noise math and matrix calculations
 const generateChunkGrid = (
   centerX: number,
@@ -17,16 +22,22 @@ const generateChunkGrid = (
   return chunks;
 };
 
-// Listen for messages from the main React thread
+// listen for messages from the main React thread
 self.onmessage = (event) => {
-  const { type, centerX, centerZ, chunkRadius } = event.data;
+  const { type, centerX, centerZ, chunkRadius, seed } = event.data;
 
   if (type === "GENERATE_CHUNKS") {
-    // Run the heavy math
+    // check if the seed from react is different than the worker's current seed
+    if (seed !== undefined && seed !== generatorState.seed) {
+      // sync it up so the underlying fbm2D logic uses the new seed!
+      syncGeneratorParams({ ...generatorState, seed });
+    }
+
+    // run the heavy math
     const activeChunks = generateChunkGrid(centerX, centerZ, chunkRadius);
     const skyChunks = generateChunkGrid(centerX, centerZ, chunkRadius + 1);
 
-    // Send the finished data back to the main thread
+    // send the finished data back to the main thread
     self.postMessage({
       type: "CHUNKS_READY",
       activeChunks,

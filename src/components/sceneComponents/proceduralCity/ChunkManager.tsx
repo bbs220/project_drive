@@ -2,60 +2,73 @@ import { useState, useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import ProceduralGround from "./ProceduralGround";
-import { useCityStore } from "../../../stores/useCItyStore";
-import { worldConstants } from "../../../utils/worldGenerator";
+import {
+  generatorState,
+  syncGeneratorParams,
+  worldConstants,
+} from "../../../utils/worldGenerator";
 import ProceduralStars from "./ProceduralStars";
 import ProceduralClouds from "./ProceduralClouds";
 import ChunkWorker from "./worker/chunk.worker?worker";
+import { useCityStore } from "../../../stores/useCItyStore";
 
 type typeChunkManagerProps = {
   targetRef: React.RefObject<THREE.Group | null>;
 };
 
 const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
+  // grab the seed and version alongside the chunkRadius!
   const chunkRadius = useCityStore((state) => state.chunkRadius);
-  const dummyPosition = useRef(new THREE.Vector3());
+  const seed = useCityStore((state) => state.seed);
+  const version = useCityStore((state) => state.version);
 
-  // track the current center to prevent spamming the worker
+  useEffect(() => {
+    if (seed !== generatorState.seed) {
+      syncGeneratorParams({ ...generatorState, seed });
+    }
+  }, [seed]);
+
+  const dummyPosition = useRef(new THREE.Vector3());
   const currentCenter = useRef({ x: 0, z: 0 });
   const workerRef = useRef<Worker | null>(null);
 
-  // store the generated chunks returned by the worker
   const [chunkData, setChunkData] = useState({
     activeChunks: [],
     skyChunks: [],
-    // added this to state for safe rendering
     centerChunk: { x: 0, z: 0 },
   });
 
-  // initialize the worker once on mount
+  // initialize the worker and its message listener exactly once
   useEffect(() => {
     workerRef.current = new ChunkWorker();
 
     workerRef.current.onmessage = (event) => {
       if (event.data.type === "CHUNKS_READY") {
-        // only trigger a React re-render when the heavy math is completely finished
         setChunkData({
           activeChunks: event.data.activeChunks,
           skyChunks: event.data.skyChunks,
-          // reading a ref inside a callback is perfectly safe
           centerChunk: currentCenter.current,
         });
       }
     };
 
-    // trigger the initial generation
-    workerRef.current.postMessage({
-      type: "GENERATE_CHUNKS",
-      centerX: 0,
-      centerZ: 0,
-      chunkRadius,
-    });
-
     return () => {
       workerRef.current?.terminate(); // clean up on unmount
     };
-  }, [chunkRadius]);
+  }, []);
+
+  // trigger generation whenever radius, seed, or version updates
+  useEffect(() => {
+    if (!workerRef.current) return;
+
+    workerRef.current.postMessage({
+      type: "GENERATE_CHUNKS",
+      centerX: currentCenter.current.x,
+      centerZ: currentCenter.current.z,
+      chunkRadius,
+      seed,
+    });
+  }, [chunkRadius, seed, version]); // react automatically fires this when regenerateCity is called
 
   // track player position at 120fps
   useFrame(() => {
@@ -69,7 +82,6 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
       dummyPosition.current.z / worldConstants.chunkSize,
     );
 
-    // if crossed a chunk border, tell the worker to start calculating the new grid
     if (
       currentX !== currentCenter.current.x ||
       currentZ !== currentCenter.current.z
@@ -81,6 +93,7 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
         centerX: currentX,
         centerZ: currentZ,
         chunkRadius,
+        seed,
       });
     }
   });
