@@ -29,6 +29,11 @@ export const useCityStore = create<typeCityState>((set) => ({
   // update the active radius dynamically
   setChunkRadius: (radius) => set({ chunkRadius: radius }),
 
-  // manually set a specific seed (if you ever want to let players share city codes!)
-  setSeed: (seed) => set({ seed }),
+  // bump the version here too
+  // forces the ChunkManager to instantly rebuild the world with your typed seed
+  setSeed: (newSeed) =>
+    set((state) => ({
+      seed: newSeed,
+      version: state.version + 1,
+    })),
 }));

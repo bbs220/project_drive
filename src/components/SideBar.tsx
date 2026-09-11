@@ -10,6 +10,7 @@ const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const activeScene = useAppStore((state) => state.activeScene);
   const appVersion = useAppStore((state) => state.appVersion);
+  const seed = useCityStore((state) => state.seed);
 
   const { playClick, playToggle, playSlider } = useUISounds();
 
@@ -253,12 +254,29 @@ const SideBar = () => {
                     </div>
                   </div>
 
-                  {/* --- RADIO SECTION --- */}
+                  {/* --- radio section --- */}
                   <div className="flex flex-col gap-4">
                     <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1">
                       COMMUNICATIONS
                     </h3>
                     <RadioHUD />
+                  </div>
+
+                  {/* ---information section--- */}
+                  <div className="flex flex-col gap-4">
+                    <h3 className="border-b border-tron-cyan/30 pb-1 text-lg font-bold text-tron-cyan">
+                      INFORMATION
+                    </h3>
+
+                    {/* Consistent Seed Display */}
+                    <div className="flex items-center justify-between pr-3 text-xs tracking-wider">
+                      <span className="text-white/80">WORLD SEED</span>
+                      <div className="flex h-5 items-center border border-tron-cyan/40 bg-black/50 px-3 skew-x-[-15deg] shadow-[0_0_10px_rgba(0,243,255,0.1)]">
+                        <span className="skew-x-15 font-mono text-tron-cyan drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]">
+                          {seed}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : (
