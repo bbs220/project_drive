@@ -253,18 +253,35 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[1.4, 0.55, 5]}
-          color={"#ffffff"}
+          color={"#E86B2C"}
           width={0.1}
           height={0.1}
-          length={80}
+          length={60}
         />
         <TrailEngine
           targetRef={visualRef}
           offset={[-1.4, 0.55, 5]}
-          color={"#ffffff"}
+          color={"#E86B2C"}
           width={0.1}
           height={0.1}
-          length={80}
+          length={60}
+        />
+        {/* chassis trails */}
+        <TrailEngine
+          targetRef={visualRef}
+          offset={[-1.45, -0.58, -0.5]}
+          color={"#E86B2C"}
+          width={0.1}
+          height={0.1}
+          length={30}
+        />
+        <TrailEngine
+          targetRef={visualRef}
+          offset={[1.45, -0.58, -0.5]}
+          color={"#E86B2C"}
+          width={0.1}
+          height={0.1}
+          length={30}
         />
       </group>
     );
