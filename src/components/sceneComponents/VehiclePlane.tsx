@@ -18,6 +18,7 @@ import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useVehiclePlaneCreator } from "../../hooks/useVehiclePlaneCreator";
 import type { VehicleProps } from "../../stores/useVehicleStore";
 import TrailEngine from "./TrailEngine";
+import { useCustomizationStore } from "../../stores/useCustomizationStore";
 
 // define strict types for the airframe geometry
 type typeAirframeGLTF = GLTF & {
@@ -54,6 +55,20 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
     // initialize global input listener to capture flight controls and structural keys
     const controls = useAllVehicleInput();
 
+    // extract the live plane colors from the customization store
+    const planeBaseColor = useCustomizationStore(
+      (state) => state.planeMods.baseColor,
+    );
+    const planeStripeColor = useCustomizationStore(
+      (state) => state.planeMods.stripeColor,
+    );
+    const planeGlassColor = useCustomizationStore(
+      (state) => state.planeMods.glassColor,
+    );
+    const planeTrailColor = useCustomizationStore(
+      (state) => state.planeMods.trailColor,
+    );
+
     // initialize tweakpane hook and store reactive parameters
     const params = useTweakpane(
       { title: "✈️ Plane Tuning", expanded: false },
@@ -73,6 +88,23 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
     const cockpitGLTF = useGLTF(
       modelsSeperatedBank.lightPlane01cockpit,
     ) as unknown as typeCockpitGLTF;
+
+    // dynamically apply custom paint jobs from store to the plane materials
+    useEffect(() => {
+      // apply base airframe color
+      airframeGLTF.materials.bodyBlack.color.set(planeBaseColor);
+      // for emission shaders from blender, we set the emissive channel to achieve the glow
+      airframeGLTF.materials.stripesWhite.color.set(planeStripeColor);
+      airframeGLTF.materials.stripesWhite.emissive.set(planeStripeColor);
+      // apply cockpit glass color
+      cockpitGLTF.materials.cockpitBlue.color.set(planeGlassColor);
+    }, [
+      planeBaseColor,
+      planeStripeColor,
+      planeGlassColor,
+      airframeGLTF.materials,
+      cockpitGLTF.materials,
+    ]);
 
     // dynamically toggle wireframe directly on the shared materials
     useEffect(() => {
@@ -155,7 +187,7 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[-13.65, 0.4, -3.2]}
-          color={"#ffffff"}
+          color={planeTrailColor}
           height={0.1}
           width={0.1}
           length={100}
@@ -163,7 +195,7 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[13.65, 0.4, -3.2]}
-          color={"#ffffff"}
+          color={planeTrailColor}
           height={0.1}
           width={0.1}
           length={100}
@@ -172,7 +204,7 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[-0.5, 0, 12.3]}
-          color={"#ffffff"}
+          color={planeTrailColor}
           height={0.1}
           width={0.1}
           length={200}
@@ -180,7 +212,7 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[0.5, 0, 12.3]}
-          color={"#ffffff"}
+          color={planeTrailColor}
           height={0.1}
           width={0.1}
           length={200}
