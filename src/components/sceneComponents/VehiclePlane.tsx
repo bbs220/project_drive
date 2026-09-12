@@ -24,12 +24,10 @@ type typeAirframeGLTF = GLTF & {
   nodes: {
     planeBody: THREE.Mesh;
     planeStripes: THREE.Mesh;
-    planeThrusters: THREE.Mesh;
   };
   materials: {
-    ["black.001"]: THREE.MeshStandardMaterial;
-    ["tron.002"]: THREE.MeshStandardMaterial;
-    ["tron.003"]: THREE.MeshStandardMaterial;
+    bodyBlack: THREE.MeshStandardMaterial;
+    stripesWhite: THREE.MeshStandardMaterial;
   };
 };
 
@@ -39,7 +37,7 @@ type typeCockpitGLTF = GLTF & {
     planeCockpit: THREE.Mesh;
   };
   materials: {
-    ["Material.001"]: THREE.MeshStandardMaterial;
+    cockpitBlue: THREE.MeshStandardMaterial;
   };
 };
 
@@ -78,15 +76,13 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
 
     // dynamically toggle wireframe directly on the shared materials
     useEffect(() => {
-      airframeGLTF.materials["black.001"].wireframe = debugMesh;
-      airframeGLTF.materials["tron.002"].wireframe = debugMesh;
-      airframeGLTF.materials["tron.003"].wireframe = debugMesh;
-      cockpitGLTF.materials["Material.001"].wireframe = debugMesh;
+      airframeGLTF.materials.bodyBlack.wireframe = debugMesh;
+      airframeGLTF.materials.stripesWhite.wireframe = debugMesh;
+      cockpitGLTF.materials.cockpitBlue.wireframe = debugMesh;
 
-      airframeGLTF.materials["black.001"].needsUpdate = true;
-      airframeGLTF.materials["tron.002"].needsUpdate = true;
-      airframeGLTF.materials["tron.003"].needsUpdate = true;
-      cockpitGLTF.materials["Material.001"].needsUpdate = true;
+      airframeGLTF.materials.bodyBlack.needsUpdate = true;
+      airframeGLTF.materials.stripesWhite.needsUpdate = true;
+      cockpitGLTF.materials.cockpitBlue.needsUpdate = true;
     }, [debugMesh, airframeGLTF.materials, cockpitGLTF.materials]);
 
     // extract visual offsets
@@ -130,23 +126,15 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
                     castShadow
                     receiveShadow
                     geometry={airframeGLTF.nodes.planeBody.geometry}
-                    material={airframeGLTF.materials["black.001"]}
-                  >
-                    <mesh
-                      name="planeStripes"
-                      castShadow
-                      receiveShadow
-                      geometry={airframeGLTF.nodes.planeStripes.geometry}
-                      material={airframeGLTF.materials["tron.002"]}
-                    />
-                    <mesh
-                      name="planeThrusters"
-                      castShadow
-                      receiveShadow
-                      geometry={airframeGLTF.nodes.planeThrusters.geometry}
-                      material={airframeGLTF.materials["tron.003"]}
-                    />
-                  </mesh>
+                    material={airframeGLTF.materials.bodyBlack}
+                  />
+                  <mesh
+                    name="planeStripes"
+                    castShadow
+                    receiveShadow
+                    geometry={airframeGLTF.nodes.planeStripes.geometry}
+                    material={airframeGLTF.materials.stripesWhite}
+                  />
                 </group>
               </group>
 
@@ -157,7 +145,7 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
                   castShadow
                   receiveShadow
                   geometry={cockpitGLTF.nodes.planeCockpit.geometry}
-                  material={cockpitGLTF.materials["Material.001"]}
+                  material={cockpitGLTF.materials.cockpitBlue}
                 />
               </group>
             </group>
