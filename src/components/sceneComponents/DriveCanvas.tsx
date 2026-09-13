@@ -24,6 +24,7 @@ import ChunkManager from "./proceduralCity/ChunkManager";
 import Player from "./Player";
 import { useMountSystem } from "../../hooks/useMountSystem";
 import MiniMap from "../MiniMap";
+import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 
 const DriveScene = () => {
   // initialize refs for all instantiated vehicles and player
@@ -37,6 +38,9 @@ const DriveScene = () => {
   // fetch active object (containing control type and entity id) and setter
   const active = useVehicleStore((state) => state.active);
   const setActive = useVehicleStore((state) => state.setActive);
+
+  // listen to active keyboard state for the camera effects
+  const controls = useAllVehicleInput();
 
   // determine active reference based on strict state mapping
   const activeTargetRef =
@@ -150,6 +154,12 @@ const DriveScene = () => {
     // pull speed/airspeed directly from your strict telemetry map
     if (activeControl === CONTROL_STATE.CAR) {
       currentSpeed = storeState.telemetry[ENTITY_ID.CAR_1].speed;
+
+      // strictly bind the camera warp effect to active engine thrust
+      // if we are not actively holding forward AND boost, immediately kill the fov stretch
+      if (!controls.current.forward || !controls.current.boost) {
+        currentSpeed = Math.min(currentSpeed, minSpeedThreshold as number);
+      }
     } else if (activeControl === CONTROL_STATE.PLANE) {
       currentSpeed = storeState.telemetry[ENTITY_ID.PLANE_1].airspeed;
       minSpeed = planeFovStartSpeed as number;
