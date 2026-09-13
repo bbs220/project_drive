@@ -327,15 +327,11 @@ export const useVehicleCarCreator = (
       const safeMaxSpeed = maxSpeedVal || 50;
       const safeMaxReverseSpeed = maxReverseSpeedVal || 10;
 
-      // engine governor overrides throttle if vehicle exceeds maximum procedural safe speed
-      if (currentSpeed >= safeMaxSpeed && controls.forward) {
-        currentEngineForce = 0;
-      }
+      // define cruising speed at 250 km/h converted to meters per second
+      const cruiseSpeedMs = 250 / 3.6;
 
-      // engine governor overrides throttle if vehicle exceeds maximum reverse speed
-      if (currentSpeed >= safeMaxReverseSpeed && controls.backward) {
-        currentEngineForce = 0;
-      }
+      // determine the active speed limit depending on if the boost key is held
+      const activeMaxSpeed = controls.boost ? safeMaxSpeed : cruiseSpeedMs;
 
       // calculate applied steering angle
       const currentSteering = controls.left
@@ -344,8 +340,23 @@ export const useVehicleCarCreator = (
           ? -steeringAngleVal
           : 0;
 
-      // calculate applied brake force
-      const currentBrake = controls.brake ? brakeForceVal : 0;
+      // calculate applied brake force, defaulting to manual brakes
+      let currentBrake = controls.brake ? brakeForceVal : 0;
+
+      // engine governor overrides throttle if vehicle exceeds maximum procedural safe speed
+      if (currentSpeed >= activeMaxSpeed && controls.forward) {
+        currentEngineForce = 0;
+      }
+
+      // smoothly auto decelerate back to cruising speed if boost is released, independent of forward key
+      if (!controls.boost && currentSpeed > cruiseSpeedMs + 1) {
+        currentBrake = Math.max(currentBrake, brakeForceVal * 0.5);
+      }
+
+      // engine governor overrides throttle if vehicle exceeds maximum reverse speed
+      if (currentSpeed >= safeMaxReverseSpeed && controls.backward) {
+        currentEngineForce = 0;
+      }
 
       // apply engine force to rear wheels
       controller.setWheelEngineForce(2, currentEngineForce);
