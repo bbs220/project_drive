@@ -74,20 +74,7 @@ const SideBar = () => {
             {/* max-width container keeps the grid perfectly proportioned on ultrawide monitors */}
             <div className="w-full max-w-7xl mx-auto">
               {activeScene === "garage" ? (
-                <div className="flex flex-col gap-3 items-center text-center">
-                  <h3 className="mb-2 text-lg font-bold text-tron-cyan">
-                    [ GARAGE PROTOCOLS ]
-                  </h3>
-                  <p>
-                    VEHICLE BAY: <span className="text-white">LOCKED</span>
-                  </p>
-                  <p>
-                    DIAGNOSTICS:{" "}
-                    <span className="animate-pulse text-yellow-400">
-                      RUNNING...
-                    </span>
-                  </p>
-                </div>
+                <div className="flex flex-col gap-3 items-center text-center"></div>
               ) : activeScene === "drive" ? (
                 // master grid container holding all categories
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
