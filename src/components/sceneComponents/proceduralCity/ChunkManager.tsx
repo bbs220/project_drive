@@ -11,6 +11,7 @@ import ProceduralStars from "./ProceduralStars";
 import ProceduralClouds from "./ProceduralClouds";
 import ChunkWorker from "./worker/chunk.worker?worker";
 import { useCityStore } from "../../../stores/useCItyStore";
+import ProceduralRain from "./ProceduralRain";
 
 type typeChunkManagerProps = {
   targetRef: React.RefObject<THREE.Group | null>;
@@ -106,6 +107,7 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
         chunkRadius={chunkRadius}
       />
       <ProceduralStars activeChunks={chunkData.skyChunks} />
+      <ProceduralRain />
     </group>
   );
 };
