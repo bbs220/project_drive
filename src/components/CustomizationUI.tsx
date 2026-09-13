@@ -53,8 +53,8 @@ const CustomizationUI = () => {
         }`}
       />
 
-      {/* centralized tab interface container - brought down for more breathing room */}
-      <div className="pointer-events-none absolute left-1/2 top-18 z-10 flex w-[95vw] -translate-x-1/2 flex-col items-center md:top-2 md:w-auto">
+      {/* centralized tab interface container - expanded width to utilize horizontal space */}
+      <div className="pointer-events-none absolute left-1/2 top-18 z-10 flex w-[95vw] -translate-x-1/2 flex-col items-center md:top-2 md:w-[90vw] lg:w-[80vw] max-w-7xl">
         {/* top navigation tabs */}
         <div className="flex w-full gap-1 overflow-x-auto md:w-auto md:gap-2 [&::-webkit-scrollbar]:hidden">
           {vehicles.map((v) => (
@@ -75,10 +75,10 @@ const CustomizationUI = () => {
           ))}
         </div>
 
-        {/* modular customization panel */}
-        <div className="pointer-events-auto relative z-0 flex w-full items-center justify-center rounded-md border border-tron-cyan px-2 py-3 font-telemetry text-sm text-gray-300 backdrop-blur-md md:w-2xl md:px-0 [box-shadow:0_5px_15px_rgba(0,243,255,0.2)]">
+        {/* modular customization panel - w-full ensures it stretches to fill the expanded parent */}
+        <div className="pointer-events-auto relative z-0 flex w-full items-center justify-center rounded-md border border-tron-cyan px-2 py-3 font-telemetry text-sm text-gray-300 backdrop-blur-md md:px-6 [box-shadow:0_5px_15px_rgba(0,243,255,0.2)]">
           {/* conditionally mount only the ui matching the active vehicle */}
-          <div className="flex w-full items-center justify-center overflow-x-auto md:w-fit [&::-webkit-scrollbar]:hidden">
+          <div className="flex w-full items-center justify-center overflow-x-auto [&::-webkit-scrollbar]:hidden">
             {activeGarageVehicle === "car" && <CustomizationVehicleCarUI />}
             {activeGarageVehicle === "plane" && <CustomizationVehiclePlaneUI />}
             {activeGarageVehicle === "helicopter" && (

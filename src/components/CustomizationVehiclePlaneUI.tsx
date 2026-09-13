@@ -8,7 +8,7 @@ const CustomizationVehiclePlaneUI = () => {
   );
 
   return (
-    <div className="flex w-full flex-col gap-6 overflow-y-auto overflow-x-hidden p-5">
+    <div className="flex w-full gap-6 overflow-y-auto overflow-x-hidden p-5">
       {/* --- airframe section --- */}
       <div className="flex flex-col gap-3 border-b border-white/10 pb-4">
         {/* airframe base color */}
