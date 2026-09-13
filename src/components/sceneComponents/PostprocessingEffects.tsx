@@ -6,10 +6,12 @@ import {
   DepthOfField,
   ChromaticAberration,
   SMAA,
+  Vignette,
 } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { SpeedLines } from "./SpeedLinesEffect";
+import { BlendFunction } from "postprocessing";
 
 // Import vehicle store for live speed telemetry
 import {
@@ -38,6 +40,7 @@ const PostprocessingEffects = () => {
     minPlaneSpeed,
     maxPlaneSpeed,
     enableSMAA,
+    enableVignette,
   } = useTweakpane(
     { title: "🌟 Post-Processing", expanded: false },
     {
@@ -156,8 +159,13 @@ const PostprocessingEffects = () => {
       },
       enableSMAA: {
         value: true,
-        label: "SMAA",
+        label: "smaa",
         folder: "Anti Aliasing",
+      },
+      enableVignette: {
+        value: true,
+        label: "vignette",
+        folder: "Vigenette",
       },
     },
   );
@@ -250,6 +258,14 @@ const PostprocessingEffects = () => {
       )}
 
       {enableSMAA && <SMAA />}
+      {enableVignette && (
+        <Vignette
+          offset={0.4}
+          darkness={0.4}
+          eskil={false}
+          blendFunction={BlendFunction.NORMAL}
+        />
+      )}
     </EffectComposer>
   );
 };
