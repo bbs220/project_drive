@@ -3,21 +3,29 @@ import { create } from "zustand";
 // strictly define all acceptable vehicle keys
 export type typeGarageVehicle = "car" | "plane" | "helicopter";
 
+// define the reusable advanced material properties
+export type typeMaterialProps = {
+  color: string;
+  metalness: number;
+  roughness: number;
+  emission: number;
+};
+
 // specific interfaces for each vehicle's unique composition
 export type typeCarMods = {
-  baseColor: string;
+  base: typeMaterialProps;
   trailColor: string;
 };
 
 export type typePlaneMods = {
-  baseColor: string;
-  stripeColor: string;
-  glassColor: string;
+  base: typeMaterialProps;
+  stripes: typeMaterialProps;
+  glass: typeMaterialProps;
   trailColor: string;
 };
 
 export type typeHelicopterMods = {
-  baseColor: string;
+  base: typeMaterialProps;
   trailColor: string;
 };
 
@@ -44,23 +52,42 @@ export type typeCustomizationStore = {
     key: K,
     value: typeVehicleModsMap[V][K],
   ) => void;
+
+  // setter for advanced nested material properties
+  setVehicleMaterial: <
+    V extends typeGarageVehicle,
+    K extends keyof typeVehicleModsMap[V],
+  >(
+    vehicle: V,
+    part: K,
+    prop: keyof typeMaterialProps,
+    value: string | number,
+  ) => void;
 };
+
+// helper to quickly generate default material states
+const defaultMat = (color: string, emission = 0): typeMaterialProps => ({
+  color,
+  metalness: 0.5,
+  roughness: 0.5,
+  emission,
+});
 
 // independent default states
 const defaultCarMods: typeCarMods = {
-  baseColor: "#404040",
+  base: defaultMat("#404040"),
   trailColor: "#ffffff",
 };
 
 const defaultPlaneMods: typePlaneMods = {
-  baseColor: "#404040",
-  stripeColor: "#ffffff",
-  glassColor: "#00f3ff",
+  base: defaultMat("#404040"),
+  stripes: defaultMat("#ffffff", 2),
+  glass: defaultMat("#00f3ff"),
   trailColor: "#ffffff",
 };
 
 const defaultHelicopterMods: typeHelicopterMods = {
-  baseColor: "#404040",
+  base: defaultMat("#404040"),
   trailColor: "#ffffff",
 };
 
@@ -87,6 +114,25 @@ export const useCustomizationStore = create<typeCustomizationStore>((set) => ({
           // generic function signature guarantees safety at the call-site
           ...state[targetModObj],
           [key]: value,
+        },
+      };
+    }),
+
+  // deep merge function to update specific material sliders without overwriting others
+  setVehicleMaterial: (vehicle, part, prop, value) =>
+    set((state) => {
+      const targetModObj = `${vehicle}Mods` as const;
+      const vehicleState = state[targetModObj];
+      return {
+        ...state,
+        [targetModObj]: {
+          ...vehicleState,
+          [part]: {
+            ...(vehicleState[
+              part as keyof typeof vehicleState
+            ] as typeMaterialProps),
+            [prop]: value,
+          },
         },
       };
     }),
