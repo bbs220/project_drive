@@ -5,6 +5,7 @@ import {
   EffectComposer,
   DepthOfField,
   ChromaticAberration,
+  SMAA,
 } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
@@ -36,6 +37,7 @@ const PostprocessingEffects = () => {
     maxCarSpeed,
     minPlaneSpeed,
     maxPlaneSpeed,
+    enableSMAA,
   } = useTweakpane(
     { title: "🌟 Post-Processing", expanded: false },
     {
@@ -152,6 +154,11 @@ const PostprocessingEffects = () => {
         folder: "Speed Thresholds",
         label: "plane max speed",
       },
+      enableSMAA: {
+        value: true,
+        label: "SMAA",
+        folder: "Anti Aliasing",
+      },
     },
   );
 
@@ -208,7 +215,7 @@ const PostprocessingEffects = () => {
   });
 
   return (
-    <EffectComposer enableNormalPass={false}>
+    <EffectComposer enableNormalPass={false} multisampling={0}>
       {enableBloom && (
         <Bloom
           mipmapBlur
@@ -241,6 +248,8 @@ const PostprocessingEffects = () => {
           maxPlaneSpeed={maxPlaneSpeed as number}
         />
       )}
+
+      {enableSMAA && <SMAA />}
     </EffectComposer>
   );
 };
