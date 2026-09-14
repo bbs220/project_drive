@@ -12,7 +12,6 @@ import rainVert from "../shaders/rainVert.glsl";
 const ProceduralRain = () => {
   const shaderRef = useRef<THREE.ShaderMaterial>(null);
   const rainGroupRef = useRef<THREE.Group>(null);
-
   const geometryRef = useRef<THREE.BufferGeometry>(null);
 
   const params = useTweakpane(
@@ -39,7 +38,7 @@ const ProceduralRain = () => {
         max: 1.0,
         label: "% of rain in center",
       },
-      color: { value: "#aaccff", label: "rain color" },
+      color: { value: "#ffffff", label: "rain color" },
       speedMultiplier: { value: 4.0, min: 0.1, max: 5.0, label: "fall speed" },
       dropSize: { value: 150.0, min: 10.0, max: 500.0, label: "drop scale" },
       thickness: {
@@ -48,6 +47,11 @@ const ProceduralRain = () => {
         max: 10.0,
         label: "thickness (squeeze)",
       },
+
+      // NEW: Wind and Turbulence controls
+      sway: { value: 1.5, min: 0.0, max: 10.0, label: "turbulence (sway)" },
+      windX: { value: 2.0, min: -10.0, max: 10.0, label: "wind X direction" },
+      windZ: { value: 1.0, min: -10.0, max: 10.0, label: "wind Z direction" },
     },
   );
 
@@ -114,9 +118,25 @@ const ProceduralRain = () => {
           uColor: { value: new THREE.Color(params.color as string) },
           uDropSize: { value: params.dropSize },
           uThickness: { value: params.thickness },
+          // Initialize new uniforms
+          uSway: { value: params.sway },
+          uWind: {
+            value: new THREE.Vector2(
+              params.windX as number,
+              params.windZ as number,
+            ),
+          },
         },
       ]),
-    [params.color, params.dropSize, params.height, params.thickness],
+    [
+      params.color,
+      params.dropSize,
+      params.height,
+      params.sway,
+      params.thickness,
+      params.windX,
+      params.windZ,
+    ],
   );
 
   useFrame((_, delta) => {
@@ -127,6 +147,13 @@ const ProceduralRain = () => {
       shaderRef.current.uniforms.uColor.value.set(params.color as string);
       shaderRef.current.uniforms.uDropSize.value = params.dropSize;
       shaderRef.current.uniforms.uThickness.value = params.thickness;
+
+      // Update wind/sway live without recompiling shaders
+      shaderRef.current.uniforms.uSway.value = params.sway;
+      shaderRef.current.uniforms.uWind.value.set(
+        params.windX as number,
+        params.windZ as number,
+      );
     }
 
     if (rainGroupRef.current) {
