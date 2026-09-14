@@ -38,7 +38,7 @@ const ProceduralRain = () => {
         max: 1.0,
         label: "% of rain in center",
       },
-      color: { value: "#ffffff", label: "rain color" },
+      color: { value: "#aaccff", label: "rain color" },
       speedMultiplier: { value: 4.0, min: 0.1, max: 5.0, label: "fall speed" },
       dropSize: { value: 150.0, min: 10.0, max: 500.0, label: "drop scale" },
       thickness: {
@@ -47,11 +47,9 @@ const ProceduralRain = () => {
         max: 10.0,
         label: "thickness (squeeze)",
       },
-
-      // NEW: Wind and Turbulence controls
-      sway: { value: 1.5, min: 0.0, max: 10.0, label: "turbulence (sway)" },
+      sway: { value: 2.0, min: 0.0, max: 10.0, label: "turbulence (sway)" },
       windX: { value: 2.0, min: -10.0, max: 10.0, label: "wind X direction" },
-      windZ: { value: 1.0, min: -10.0, max: 10.0, label: "wind Z direction" },
+      windZ: { value: 2.0, min: -10.0, max: 10.0, label: "wind Z direction" },
     },
   );
 
@@ -148,7 +146,7 @@ const ProceduralRain = () => {
       shaderRef.current.uniforms.uDropSize.value = params.dropSize;
       shaderRef.current.uniforms.uThickness.value = params.thickness;
 
-      // Update wind/sway live without recompiling shaders
+      // wind/sway live without recompiling shaders
       shaderRef.current.uniforms.uSway.value = params.sway;
       shaderRef.current.uniforms.uWind.value.set(
         params.windX as number,
