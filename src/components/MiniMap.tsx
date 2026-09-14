@@ -16,39 +16,38 @@ type ProceduralMapParams = {
   zoomLerpSpeed: number;
 };
 
-// define props to pass our refs and tweakpane parameters down into the canvas
 type typeProceduralMapProps = {
   isExpandedRef: React.RefObject<boolean>;
   params: ProceduralMapParams;
 };
 
-// inner R3F component to handle the shader and high-performance useFrame loop
 const ProceduralMapShader = ({
   isExpandedRef,
   params,
 }: typeProceduralMapProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
-  // memoize the uniforms to prevent unnecessary reallocation
   const uniforms = useMemo(
     () => ({
       uPlayerPos: { value: new THREE.Vector2(0, 0) },
+      uAspect: { value: 1.0 },
+      uMapZoom: { value: 4000.0 },
+      // Syncing all relevant generatorState variables
       uMacroFreq: { value: generatorState.macroFrequency },
-      uAspect: { value: 1.0 }, // added aspect ratio uniform
-      uMapZoom: { value: 4000.0 }, // dynamic zoom uniform
+      uUrbanFreq: { value: generatorState.urbanFrequency },
+      uUrbanSprawl: { value: generatorState.urbanSprawl },
+      uBlockSize: { value: generatorState.blockSize },
+      uRoadWidth: { value: generatorState.roadWidth },
     }),
     [],
   );
 
-  // poll the active vehicle's telemetry purely for the map offset
   useFrame((state) => {
     if (!materialRef.current) return;
 
-    // smoothly update the aspect ratio 120 times a second as GSAP resizes the container
     materialRef.current.uniforms.uAspect.value =
       state.size.width / state.size.height;
 
-    // smoothly lerp the map zoom based on whether it is expanded or collapsed
     const targetZoom = isExpandedRef.current
       ? (params.fullMapZoom as number)
       : (params.miniMapZoom as number);
@@ -63,7 +62,6 @@ const ProceduralMapShader = ({
     const currentTelemetry = telemetry[active.entity];
 
     if (currentTelemetry) {
-      // map 3D World X and Z to the 2D map X and Y coordinates
       materialRef.current.uniforms.uPlayerPos.value.set(
         currentTelemetry.position[0],
         currentTelemetry.position[2],
@@ -83,15 +81,20 @@ const ProceduralMapShader = ({
           varying vec2 vUv;
           void main() {
             vUv = uv;
-            // Bypass camera projections and strictly fill the viewport
             gl_Position = vec4(position, 1.0);
           }
         `}
         fragmentShader={`
           uniform vec2 uPlayerPos;
-          uniform float uMacroFreq;
           uniform float uAspect;
           uniform float uMapZoom;
+          
+          uniform float uMacroFreq;
+          uniform float uUrbanFreq;
+          uniform float uUrbanSprawl;
+          uniform float uBlockSize;
+          uniform float uRoadWidth;
+          
           varying vec2 vUv;
 
           // --- Ashima Simplex Noise 2D ---
@@ -120,7 +123,6 @@ const ProceduralMapShader = ({
             return 130.0 * dot(m, g);
           }
 
-          // Directly matches your JS fbm2D function
           float fbm2D(vec2 p, int octaves, float frequency, float persistence, float lacunarity) {
             float total = 0.0;
             float currentFreq = frequency;
@@ -137,22 +139,61 @@ const ProceduralMapShader = ({
           }
 
           void main() {
-            // Shift the UV to center (0.0), scale the X-axis by our aspect ratio, then shift back
             vec2 centeredUv = vUv - 0.5;
             centeredUv.x *= uAspect;
-
-            // Map the corrected UVs to physical world coordinates centering on the player
-            // uMapZoom replaces the hardcoded 4000.0 value
             vec2 worldPos = uPlayerPos + centeredUv * vec2(uMapZoom, -uMapZoom);
 
-            // Replicate macro biome generation
+            // 1. MACRO BIOME LOGIC (Matches JS exactly)
             float rawBiome = fbm2D(worldPos, 3, uMacroFreq, 0.5, 2.0);
-            
-            // Normalize -1 to 1 into 0 to 1
             float biomeScore = (rawBiome + 1.0) / 2.0;
+            float cityThreshold = 0.45;
+            
+            // Map outlands vs city
+            float isCity = step(cityThreshold, biomeScore);
+            float cityMask = clamp((biomeScore - cityThreshold) * 5.0, 0.0, 1.0);
 
-            // Render pure black and white data
-            gl_FragColor = vec4(vec3(biomeScore), 1.0);
+            vec3 emptyColor = mix(vec3(0.08, 0.12, 0.08), vec3(0.15, 0.22, 0.12), biomeScore);
+
+            // 2. CITY GRID MATH
+            // GLSL mod() handles negative coords correctly natively
+            vec2 localPos = mod(worldPos, uBlockSize);
+            
+            // Block origin for building frequency calculation
+            vec2 blockOrigin = floor(worldPos / uBlockSize) * uBlockSize;
+
+            // 3. ROADS
+            float isRoadX = step(localPos.x, uRoadWidth);
+            float isRoadZ = step(localPos.y, uRoadWidth);
+            float isRoad = clamp(isRoadX + isRoadZ, 0.0, 1.0);
+            
+            // Roads only exist inside the city mask (optional visually, but matches logic flow)
+            isRoad *= isCity; 
+            vec3 roadColor = vec3(0.2, 0.22, 0.25);
+
+            // 4. URBAN SPRAWL & BUILDINGS
+            float rawUrban = fbm2D(blockOrigin, 2, uUrbanFreq, 0.5, 2.0);
+            float urbanScore = ((rawUrban + 1.0) / 2.0) * cityMask;
+            
+            // Check if it passes the urbanSprawl threshold
+            float hasBuilding = step(uUrbanSprawl, urbanScore);
+            
+            // It is a building if it has a building flag, is NOT on a road, and is IN the city
+            float isBuilding = hasBuilding * (1.0 - isRoad) * isCity;
+            
+            // Color variation based on the block's urban score
+            vec3 buildingColor = mix(vec3(0.4, 0.45, 0.5), vec3(0.7, 0.75, 0.8), urbanScore);
+
+            // 5. BLENDING
+            vec3 mapColor = mix(emptyColor, buildingColor, isBuilding);
+            mapColor = mix(mapColor, roadColor, isRoad);
+
+            // 6. PLAYER DOT
+            float distToCenter = length(centeredUv);
+            float dotRadius = 0.02 * (1500.0 / uMapZoom); 
+            float isPlayer = smoothstep(dotRadius + 0.005, dotRadius, distToCenter);
+            vec3 playerColor = vec3(0.0, 1.0, 1.0); 
+            
+            gl_FragColor = vec4(mix(mapColor, playerColor, isPlayer), 1.0);
           }
         `}
       />
@@ -170,22 +211,15 @@ const MiniMap = () => {
   const isExpandedRef = useRef(false);
   const prevMapKeyRef = useRef(false);
 
-  // setup tweakpane parameters for dynamic zooming
   const params: ProceduralMapParams = useTweakpane(
     { title: "🗺️ Minimap", expanded: false },
     {
       miniMapZoom: { value: 1500, min: 50, max: 10000, label: "mini zoom" },
-      fullMapZoom: {
-        value: 3000,
-        min: 50,
-        max: 10000,
-        label: "full map zoom",
-      },
+      fullMapZoom: { value: 3000, min: 50, max: 10000, label: "full map zoom" },
       zoomLerpSpeed: { value: 0.1, min: 0.01, max: 1, label: "zoom speed" },
     },
   );
 
-  // setup the GSAP timeline
   useGSAP(
     () => {
       if (!wrapperRef.current) return;
@@ -195,21 +229,19 @@ const MiniMap = () => {
         height: "80vh",
         right: "50%",
         top: "48.5%",
-        xPercent: 50, // centers it horizontally against right: 50%
-        yPercent: -50, // centers it vertically against top: 45%
-        borderRadius: "16px", // smoothly rounds out more when expanded
+        xPercent: 50,
+        yPercent: -50,
+        borderRadius: "16px",
         pointerEvents: "auto",
         duration: 0.35,
         ease: "power3.inOut",
       });
 
-      // ensure state resets if unmounted/hidden
       isExpandedRef.current = false;
     },
     { scope: wrapperRef, dependencies: [showMap] },
   );
 
-  // minimal polling loop JUST for the map key toggle
   useEffect(() => {
     if (!showMap) return;
 
@@ -217,7 +249,6 @@ const MiniMap = () => {
 
     const checkInput = () => {
       animationFrameId = requestAnimationFrame(checkInput);
-
       const currentMapKey = controlsRef.current.map;
 
       if (currentMapKey && !prevMapKeyRef.current) {
