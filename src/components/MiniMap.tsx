@@ -204,20 +204,23 @@ const ProceduralMapShader = ({
             vec3 mapColor = mix(emptyColor, buildingColor, isBuilding);
             mapColor = mix(mapColor, roadColor, isRoad);
 
-            // RENDER ICON DIRECTLY
-            // Keep the size relative to zoom so it doesn't get massive when zoomed in
+            // RENDER ICON & BACKGROUND
             float iconScale = 0.04 * (1500.0 / uMapZoom); 
             
-            // Center the UVs for the texture map
+            // 1. Create a white circular background slightly larger than the icon
+            float bgRadius = iconScale * 0.55;
+            float isBg = 1.0 - smoothstep(bgRadius - 0.005, bgRadius, length(centeredUv));
+            
+            // 2. Prep the texture UVs
             vec2 iconUv = (centeredUv / iconScale) + 0.5;
-            
-            // Cut off the texture so it doesn't repeat infinitely
             float inIconBounds = step(0.0, iconUv.x) * step(iconUv.x, 1.0) * step(0.0, iconUv.y) * step(iconUv.y, 1.0);
-            
             vec4 iconTex = texture2D(uIconTexture, iconUv);
             
-            // Mix the icon directly onto the map using its alpha channel and bounds
-            vec3 finalColor = mix(mapColor, iconTex.rgb, iconTex.a * inIconBounds);
+            // 3. Blend the white circle onto the map first
+            vec3 finalColor = mix(mapColor, vec3(1.0), isBg);
+            
+            // 4. Blend the black icon onto the white background using its alpha channel
+            finalColor = mix(finalColor, iconTex.rgb, iconTex.a * inIconBounds);
             
             gl_FragColor = vec4(finalColor, 1.0);
           }
@@ -232,6 +235,7 @@ const MiniMap = () => {
   const controlsRef = useAllVehicleInput();
 
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const legendRef = useRef<HTMLDivElement>(null); // NEW: Track the legend UI
   const tl = useRef<gsap.core.Timeline | null>(null);
 
   const isExpandedRef = useRef(false);
@@ -240,7 +244,7 @@ const MiniMap = () => {
   const params: ProceduralMapParams = useTweakpane(
     { title: "🗺️ Minimap", expanded: false },
     {
-      miniMapZoom: { value: 1000, min: 50, max: 10000, label: "mini zoom" },
+      miniMapZoom: { value: 680, min: 50, max: 10000, label: "mini zoom" },
       fullMapZoom: { value: 3000, min: 50, max: 10000, label: "full map zoom" },
       zoomLerpSpeed: { value: 0.1, min: 0.01, max: 1, label: "zoom speed" },
     },
@@ -250,19 +254,40 @@ const MiniMap = () => {
     () => {
       if (!wrapperRef.current) return;
 
-      tl.current = gsap.timeline({ paused: true }).to(wrapperRef.current, {
-        width: "85vw",
-        height: "80vh",
-        right: "50%",
-        top: "48.5%",
-        xPercent: 50,
-        yPercent: -50,
-        borderRadius: "16px",
-        pointerEvents: "auto",
-        duration: 0.35,
-        ease: "power3.inOut",
-      });
+      const timeline = gsap.timeline({ paused: true });
 
+      // Animate the main wrapper
+      timeline.to(
+        wrapperRef.current,
+        {
+          width: "85vw",
+          height: "80vh",
+          right: "50%",
+          top: "48.5%",
+          xPercent: 50,
+          yPercent: -50,
+          borderRadius: "16px",
+          pointerEvents: "auto",
+          duration: 0.35,
+          ease: "power3.inOut",
+        },
+        0, // Start at timeline 0
+      );
+
+      // Only animate the legend if it's currently rendered in the DOM
+      if (legendRef.current) {
+        timeline.to(
+          legendRef.current,
+          {
+            opacity: 1,
+            duration: 0.25,
+            ease: "power2.out",
+          },
+          0.15, // Start fading in shortly after expansion begins
+        );
+      }
+
+      tl.current = timeline;
       isExpandedRef.current = false;
     },
     { scope: wrapperRef, dependencies: [showMap] },
@@ -301,12 +326,45 @@ const MiniMap = () => {
       } top-2 z-14 size-60 overflow-hidden pointer-events-none rounded-md border border-tron-cyan bg-black/40 backdrop-blur-md [box-shadow:0_0_15px_rgba(0,243,255,0.2)]`}
     >
       {showMap && (
-        <Canvas
-          gl={{ antialias: false, alpha: false }}
-          resize={{ debounce: 0 }}
-        >
-          <ProceduralMapShader isExpandedRef={isExpandedRef} params={params} />
-        </Canvas>
+        <>
+          <Canvas
+            gl={{ antialias: false, alpha: false }}
+            resize={{ debounce: 0 }}
+          >
+            <ProceduralMapShader
+              isExpandedRef={isExpandedRef}
+              params={params}
+            />
+          </Canvas>
+
+          {/* Non-interactable Legend: Matches shader colors exactly */}
+          <div
+            ref={legendRef}
+            className="absolute top-6 left-6 opacity-0 pointer-events-none flex flex-col gap-2.5 bg-black/60 backdrop-blur-md border border-tron-cyan/30 rounded-md p-4 text-xs text-white/80 font-mono shadow-[0_0_15px_rgba(0,243,255,0.1)]"
+          >
+            <div className="text-tron-cyan font-bold tracking-widest mb-1 border-b border-tron-cyan/30 pb-2">
+              MAP LEGEND
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-[#1a231a] border border-white/20 rounded-sm" />
+              <span>Outlands / Parks</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-[#333840] border border-white/20 rounded-sm" />
+              <span>Roads</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-[#8c95a1] border border-white/20 rounded-sm" />
+              <span>Buildings</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)]">
+                <div className="w-1.5 h-1.5 bg-black rounded-full" />
+              </div>
+              <span>Player / Vehicle</span>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
