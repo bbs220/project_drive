@@ -29,7 +29,7 @@ const ProceduralRain = () => {
       area: { value: 900, min: 300, max: 900, label: "volume area" },
       height: { value: 150, min: 50, max: 500, label: "volume height" },
       color: { value: "#aaccff", label: "rain color" },
-      speedMultiplier: { value: 1.0, min: 0.1, max: 5.0, label: "fall speed" },
+      speedMultiplier: { value: 4.0, min: 0.1, max: 5.0, label: "fall speed" },
       dropSize: { value: 150.0, min: 10.0, max: 500.0, label: "drop scale" },
       thickness: {
         value: 2.5,
@@ -78,13 +78,17 @@ const ProceduralRain = () => {
   }, [params.count, params.area, params.height]);
 
   const uniforms = useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uHeight: { value: params.height },
-      uColor: { value: new THREE.Color(params.color as string) },
-      uDropSize: { value: params.dropSize },
-      uThickness: { value: params.thickness },
-    }),
+    () =>
+      THREE.UniformsUtils.merge([
+        THREE.UniformsLib.fog,
+        {
+          uTime: { value: 0 },
+          uHeight: { value: params.height },
+          uColor: { value: new THREE.Color(params.color as string) },
+          uDropSize: { value: params.dropSize },
+          uThickness: { value: params.thickness },
+        },
+      ]),
     [params.color, params.dropSize, params.height, params.thickness],
   );
 
@@ -122,6 +126,7 @@ const ProceduralRain = () => {
           uniforms={uniforms}
           vertexShader={rainVert}
           fragmentShader={rainFrag}
+          fog={true}
         />
       </points>
     </group>

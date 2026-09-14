@@ -4,6 +4,7 @@ uniform float uDropSize;
 attribute float aSpeed;
 attribute float aOffset;
 varying float vAlpha;
+#include <fog_pars_vertex>
 
 void main() {
     float y = position.y - (uTime * aSpeed) + aOffset;
@@ -17,4 +18,5 @@ void main() {
     gl_PointSize = clamp(uDropSize / -mvPosition.z,3.0,30.0);
 
     vAlpha = smoothstep(-2.0,5.0,modY);
+    #include <fog_vertex>
 }

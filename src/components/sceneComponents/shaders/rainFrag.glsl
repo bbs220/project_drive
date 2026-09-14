@@ -1,6 +1,7 @@
 uniform vec3 uColor;
 uniform float uThickness;
 varying float vAlpha;
+#include <fog_pars_fragment>
 
 void main() {
     vec2 uv = gl_PointCoord.xy - 0.5;
@@ -11,4 +12,5 @@ void main() {
 
     float alpha = (0.5 - dist) * 2.0 * vAlpha;
     gl_FragColor = vec4(uColor,alpha * 0.9);
+    #include <fog_fragment>
 }
