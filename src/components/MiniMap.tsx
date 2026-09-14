@@ -6,9 +6,10 @@ import * as THREE from "three";
 import { useUIStore } from "../stores/useUIStore";
 import { useAllVehicleInput } from "../hooks/useAllVehicleInput";
 import { sceneConstants } from "../constants/otherConstants";
-import { useVehicleStore } from "../stores/useVehicleStore";
+import { useVehicleStore, ENTITY_ID } from "../stores/useVehicleStore";
 import { generatorState } from "../utils/worldGenerator";
 import { useTweakpane } from "../hooks/useTweakpane";
+import { iconsBank } from "../utils/assetpaths";
 
 type ProceduralMapParams = {
   fullMapZoom: number;
@@ -27,19 +28,30 @@ const ProceduralMapShader = ({
 }: typeProceduralMapProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
+  const icons = useMemo(() => {
+    const loader = new THREE.TextureLoader();
+
+    return Object.fromEntries(
+      Object.entries(iconsBank).map(([key, path]) => [
+        key,
+        loader.load(path as string),
+      ]),
+    );
+  }, []);
+
   const uniforms = useMemo(
     () => ({
       uPlayerPos: { value: new THREE.Vector2(0, 0) },
       uAspect: { value: 1.0 },
       uMapZoom: { value: 4000.0 },
-      // Syncing all relevant generatorState variables
       uMacroFreq: { value: generatorState.macroFrequency },
       uUrbanFreq: { value: generatorState.urbanFrequency },
       uUrbanSprawl: { value: generatorState.urbanSprawl },
       uBlockSize: { value: generatorState.blockSize },
       uRoadWidth: { value: generatorState.roadWidth },
+      uIconTexture: { value: icons.playerRadar },
     }),
-    [],
+    [icons],
   );
 
   useFrame((state) => {
@@ -61,6 +73,17 @@ const ProceduralMapShader = ({
     const { active, telemetry } = useVehicleStore.getState();
     const currentTelemetry = telemetry[active.entity];
 
+    // Switch the shader's active texture based on what entity we are driving
+    if (active.entity === ENTITY_ID.CAR_1) {
+      materialRef.current.uniforms.uIconTexture.value = icons.carRadar;
+    } else if (active.entity === ENTITY_ID.HELI_1) {
+      materialRef.current.uniforms.uIconTexture.value = icons.helicopterRadar;
+    } else if (active.entity === ENTITY_ID.PLANE_1) {
+      materialRef.current.uniforms.uIconTexture.value = icons.planeRadar;
+    } else {
+      materialRef.current.uniforms.uIconTexture.value = icons.playerRadar;
+    }
+
     if (currentTelemetry) {
       materialRef.current.uniforms.uPlayerPos.value.set(
         currentTelemetry.position[0],
@@ -77,6 +100,7 @@ const ProceduralMapShader = ({
         uniforms={uniforms}
         depthWrite={false}
         depthTest={false}
+        transparent={true}
         vertexShader={`
           varying vec2 vUv;
           void main() {
@@ -95,6 +119,8 @@ const ProceduralMapShader = ({
           uniform float uBlockSize;
           uniform float uRoadWidth;
           
+          uniform sampler2D uIconTexture;
+
           varying vec2 vUv;
 
           // --- Ashima Simplex Noise 2D ---
@@ -141,59 +167,59 @@ const ProceduralMapShader = ({
           void main() {
             vec2 centeredUv = vUv - 0.5;
             centeredUv.x *= uAspect;
+            
+            // Map uses original axes coordinates exactly as you had them
             vec2 worldPos = uPlayerPos + centeredUv * vec2(uMapZoom, -uMapZoom);
 
-            // 1. MACRO BIOME LOGIC (Matches JS exactly)
+            // MACRO BIOME LOGIC
             float rawBiome = fbm2D(worldPos, 3, uMacroFreq, 0.5, 2.0);
             float biomeScore = (rawBiome + 1.0) / 2.0;
             float cityThreshold = 0.45;
             
-            // Map outlands vs city
             float isCity = step(cityThreshold, biomeScore);
             float cityMask = clamp((biomeScore - cityThreshold) * 5.0, 0.0, 1.0);
 
             vec3 emptyColor = mix(vec3(0.08, 0.12, 0.08), vec3(0.15, 0.22, 0.12), biomeScore);
 
-            // 2. CITY GRID MATH
-            // GLSL mod() handles negative coords correctly natively
+            // CITY GRID MATH
             vec2 localPos = mod(worldPos, uBlockSize);
-            
-            // Block origin for building frequency calculation
             vec2 blockOrigin = floor(worldPos / uBlockSize) * uBlockSize;
 
-            // 3. ROADS
             float isRoadX = step(localPos.x, uRoadWidth);
             float isRoadZ = step(localPos.y, uRoadWidth);
             float isRoad = clamp(isRoadX + isRoadZ, 0.0, 1.0);
             
-            // Roads only exist inside the city mask (optional visually, but matches logic flow)
             isRoad *= isCity; 
             vec3 roadColor = vec3(0.2, 0.22, 0.25);
 
-            // 4. URBAN SPRAWL & BUILDINGS
+            // URBAN SPRAWL & BUILDINGS
             float rawUrban = fbm2D(blockOrigin, 2, uUrbanFreq, 0.5, 2.0);
             float urbanScore = ((rawUrban + 1.0) / 2.0) * cityMask;
             
-            // Check if it passes the urbanSprawl threshold
             float hasBuilding = step(uUrbanSprawl, urbanScore);
-            
-            // It is a building if it has a building flag, is NOT on a road, and is IN the city
             float isBuilding = hasBuilding * (1.0 - isRoad) * isCity;
             
-            // Color variation based on the block's urban score
             vec3 buildingColor = mix(vec3(0.4, 0.45, 0.5), vec3(0.7, 0.75, 0.8), urbanScore);
 
-            // 5. BLENDING
             vec3 mapColor = mix(emptyColor, buildingColor, isBuilding);
             mapColor = mix(mapColor, roadColor, isRoad);
 
-            // 6. PLAYER DOT
-            float distToCenter = length(centeredUv);
-            float dotRadius = 0.02 * (1500.0 / uMapZoom); 
-            float isPlayer = smoothstep(dotRadius + 0.005, dotRadius, distToCenter);
-            vec3 playerColor = vec3(0.0, 1.0, 1.0); 
+            // RENDER ICON DIRECTLY
+            // Keep the size relative to zoom so it doesn't get massive when zoomed in
+            float iconScale = 0.04 * (1500.0 / uMapZoom); 
             
-            gl_FragColor = vec4(mix(mapColor, playerColor, isPlayer), 1.0);
+            // Center the UVs for the texture map
+            vec2 iconUv = (centeredUv / iconScale) + 0.5;
+            
+            // Cut off the texture so it doesn't repeat infinitely
+            float inIconBounds = step(0.0, iconUv.x) * step(iconUv.x, 1.0) * step(0.0, iconUv.y) * step(iconUv.y, 1.0);
+            
+            vec4 iconTex = texture2D(uIconTexture, iconUv);
+            
+            // Mix the icon directly onto the map using its alpha channel and bounds
+            vec3 finalColor = mix(mapColor, iconTex.rgb, iconTex.a * inIconBounds);
+            
+            gl_FragColor = vec4(finalColor, 1.0);
           }
         `}
       />
@@ -214,7 +240,7 @@ const MiniMap = () => {
   const params: ProceduralMapParams = useTweakpane(
     { title: "🗺️ Minimap", expanded: false },
     {
-      miniMapZoom: { value: 1500, min: 50, max: 10000, label: "mini zoom" },
+      miniMapZoom: { value: 1000, min: 50, max: 10000, label: "mini zoom" },
       fullMapZoom: { value: 3000, min: 50, max: 10000, label: "full map zoom" },
       zoomLerpSpeed: { value: 0.1, min: 0.01, max: 1, label: "zoom speed" },
     },
