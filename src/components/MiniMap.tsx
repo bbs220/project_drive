@@ -51,7 +51,20 @@ const ProceduralMapShader = ({
       uUrbanSprawl: { value: generatorState.urbanSprawl },
       uBlockSize: { value: generatorState.blockSize },
       uRoadWidth: { value: generatorState.roadWidth },
+
       uIconTexture: { value: icons.playerRadar },
+
+      uPlayerTex: { value: icons.playerRadar },
+      uCarTex: { value: icons.carRadar },
+      uPlaneTex: { value: icons.planeRadar },
+      uHeliTex: { value: icons.helicopterRadar },
+
+      uCharPos: { value: new THREE.Vector2(0, 0) },
+      uCarPos: { value: new THREE.Vector2(0, 0) },
+      uPlanePos: { value: new THREE.Vector2(0, 0) },
+      uHeliPos: { value: new THREE.Vector2(0, 0) },
+
+      uActiveEntity: { value: 0 },
     }),
     [icons],
   );
@@ -77,12 +90,16 @@ const ProceduralMapShader = ({
 
     if (active.entity === ENTITY_ID.CAR_1) {
       materialRef.current.uniforms.uIconTexture.value = icons.carRadar;
+      materialRef.current.uniforms.uActiveEntity.value = 1;
     } else if (active.entity === ENTITY_ID.HELI_1) {
       materialRef.current.uniforms.uIconTexture.value = icons.helicopterRadar;
+      materialRef.current.uniforms.uActiveEntity.value = 3;
     } else if (active.entity === ENTITY_ID.PLANE_1) {
       materialRef.current.uniforms.uIconTexture.value = icons.planeRadar;
+      materialRef.current.uniforms.uActiveEntity.value = 2;
     } else {
       materialRef.current.uniforms.uIconTexture.value = icons.playerRadar;
+      materialRef.current.uniforms.uActiveEntity.value = 0;
     }
 
     if (currentTelemetry) {
@@ -91,6 +108,32 @@ const ProceduralMapShader = ({
         currentTelemetry.position[2],
       );
     }
+
+    const pTel = telemetry[ENTITY_ID.PLAYER_1];
+    const cTel = telemetry[ENTITY_ID.CAR_1];
+    const plTel = telemetry[ENTITY_ID.PLANE_1];
+    const hTel = telemetry[ENTITY_ID.HELI_1];
+
+    if (pTel)
+      materialRef.current.uniforms.uCharPos.value.set(
+        pTel.position[0],
+        pTel.position[2],
+      );
+    if (cTel)
+      materialRef.current.uniforms.uCarPos.value.set(
+        cTel.position[0],
+        cTel.position[2],
+      );
+    if (plTel)
+      materialRef.current.uniforms.uPlanePos.value.set(
+        plTel.position[0],
+        plTel.position[2],
+      );
+    if (hTel)
+      materialRef.current.uniforms.uHeliPos.value.set(
+        hTel.position[0],
+        hTel.position[2],
+      );
   });
 
   return (
@@ -124,7 +167,7 @@ const MiniMap = () => {
     { title: "🗺️ Minimap", expanded: false },
     {
       miniMapZoom: { value: 680, min: 50, max: 10000, label: "mini zoom" },
-      fullMapZoom: { value: 3000, min: 50, max: 10000, label: "full map zoom" },
+      fullMapZoom: { value: 1500, min: 50, max: 10000, label: "full map zoom" },
       zoomLerpSpeed: { value: 0.1, min: 0.01, max: 1, label: "zoom speed" },
     },
   );

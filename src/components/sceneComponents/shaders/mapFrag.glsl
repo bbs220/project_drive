@@ -10,6 +10,18 @@ uniform float uRoadWidth;
 
 uniform sampler2D uIconTexture;
 
+uniform sampler2D uPlayerTex;
+uniform sampler2D uCarTex;
+uniform sampler2D uPlaneTex;
+uniform sampler2D uHeliTex;
+
+uniform vec2 uCharPos;
+uniform vec2 uCarPos;
+uniform vec2 uPlanePos;
+uniform vec2 uHeliPos;
+
+uniform int uActiveEntity;
+
 varying vec2 vUv;
 
 vec3 permute(vec3 x) {
@@ -55,6 +67,20 @@ float fbm2D(vec2 p,int octaves,float frequency,float persistence,float lacunarit
     return total / maxValue;
 }
 
+vec3 stampIcon(vec3 baseColor,vec2 fragWorldPos,vec2 entityWorldPos,sampler2D tex,float mapZoom,float scale,float radius) {
+
+    vec2 entityUv = (fragWorldPos - entityWorldPos) / vec2(mapZoom,-mapZoom);
+
+    float isBg = 1.0 - smoothstep(radius - 0.005,radius,length(entityUv));
+
+    vec2 iconUv = (entityUv / scale) + 0.5;
+    float inIconBounds = step(0.0,iconUv.x) * step(iconUv.x,1.0) * step(0.0,iconUv.y) * step(iconUv.y,1.0);
+    vec4 iconTex = texture2D(tex,iconUv);
+
+    vec3 blended = mix(baseColor,vec3(1.0),isBg);
+    return mix(blended,iconTex.rgb,iconTex.a * inIconBounds);
+}
+
 void main() {
     vec2 centeredUv = vUv - 0.5;
     centeredUv.x *= uAspect;
@@ -67,7 +93,6 @@ void main() {
 
     float isCity = step(cityThreshold,biomeScore);
     float cityMask = clamp((biomeScore - cityThreshold) * 5.0,0.0,1.0);
-
     vec3 emptyColor = mix(vec3(0.08,0.12,0.08),vec3(0.15,0.22,0.12),biomeScore);
 
     vec2 localPos = mod(worldPos,uBlockSize);
@@ -76,8 +101,8 @@ void main() {
     float isRoadX = step(localPos.x,uRoadWidth);
     float isRoadZ = step(localPos.y,uRoadWidth);
     float isRoad = clamp(isRoadX + isRoadZ,0.0,1.0);
-
     isRoad *= isCity;
+
     vec3 roadColor = vec3(0.2,0.22,0.25);
 
     float rawUrban = fbm2D(blockOrigin,2,uUrbanFreq,0.5,2.0);
@@ -92,16 +117,29 @@ void main() {
     mapColor = mix(mapColor,roadColor,isRoad);
 
     float iconScale = 0.04 * (1500.0 / uMapZoom);
-
     float bgRadius = iconScale * 0.55;
-    float isBg = 1.0 - smoothstep(bgRadius - 0.005,bgRadius,length(centeredUv));
+    vec3 finalColor = mapColor;
 
-    vec2 iconUv = (centeredUv / iconScale) + 0.5;
-    float inIconBounds = step(0.0,iconUv.x) * step(iconUv.x,1.0) * step(0.0,iconUv.y) * step(iconUv.y,1.0);
-    vec4 iconTex = texture2D(uIconTexture,iconUv);
+    if (uActiveEntity != 0) {
+        finalColor = stampIcon(finalColor,worldPos,uCharPos,uPlayerTex,uMapZoom,iconScale,bgRadius);
+    }
+    if (uActiveEntity != 1) {
+        finalColor = stampIcon(finalColor,worldPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius);
+    }
+    if (uActiveEntity != 2) {
+        finalColor = stampIcon(finalColor,worldPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius);
+    }
+    if (uActiveEntity != 3) {
+        finalColor = stampIcon(finalColor,worldPos,uHeliPos,uHeliTex,uMapZoom,iconScale,bgRadius);
+    }
 
-    vec3 finalColor = mix(mapColor,vec3(1.0),isBg);
-    finalColor = mix(finalColor,iconTex.rgb,iconTex.a * inIconBounds);
+    float isCenterBg = 1.0 - smoothstep(bgRadius - 0.005,bgRadius,length(centeredUv));
+    vec2 centerIconUv = (centeredUv / iconScale) + 0.5;
+    float inCenterBounds = step(0.0,centerIconUv.x) * step(centerIconUv.x,1.0) * step(0.0,centerIconUv.y) * step(centerIconUv.y,1.0);
+    vec4 centerIconTex = texture2D(uIconTexture,centerIconUv);
+
+    finalColor = mix(finalColor,vec3(1.0),isCenterBg);
+    finalColor = mix(finalColor,centerIconTex.rgb,centerIconTex.a * inCenterBounds);
 
     gl_FragColor = vec4(finalColor,1.0);
 }
