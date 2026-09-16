@@ -1,4 +1,9 @@
-import { PerspectiveCamera, Stats } from "@react-three/drei";
+import {
+  GizmoHelper,
+  GizmoViewport,
+  PerspectiveCamera,
+  Stats,
+} from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { useEffect, useRef } from "react";
@@ -55,6 +60,7 @@ const DriveScene = () => {
   // configure debug tools and dynamic fov tuners
   const {
     showFPS,
+    showGizmo,
     cameraDebug,
     activeVehicle,
     fogNear,
@@ -70,6 +76,7 @@ const DriveScene = () => {
     { title: "☀️ Scene" },
     {
       showFPS: { value: false, label: "show fps" },
+      showGizmo: { value: false, label: "show gizmo" },
       cameraDebug: { value: sceneConstants.isDev, label: "camera debug" },
       activeVehicle: {
         value: active.control,
@@ -200,6 +207,15 @@ const DriveScene = () => {
       <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
       <Stats showPanel={showFPS ? 0 : 4} />
       <BackgroundLight />
+
+      <GizmoHelper
+        renderPriority={2}
+        alignment="top-left"
+        margin={[120, 60]}
+        visible={showGizmo}
+      >
+        <GizmoViewport disabled visible={showGizmo} />
+      </GizmoHelper>
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} spawnMode={"drive"} />
       <VehicleHelicopter ref={heliRef} spawnMode={"drive"} />
