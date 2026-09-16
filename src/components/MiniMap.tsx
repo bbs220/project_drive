@@ -172,17 +172,15 @@ const ProceduralMapShader = ({
       params.zoomLerpSpeed as number,
     );
 
+    materialRef.current.uniforms.uIconTexture.value = icons.playerRadar;
+
     if (active.entity === ENTITY_ID.CAR_1) {
-      materialRef.current.uniforms.uIconTexture.value = icons.carRadar;
       materialRef.current.uniforms.uActiveEntity.value = 1;
     } else if (active.entity === ENTITY_ID.HELI_1) {
-      materialRef.current.uniforms.uIconTexture.value = icons.helicopterRadar;
       materialRef.current.uniforms.uActiveEntity.value = 3;
     } else if (active.entity === ENTITY_ID.PLANE_1) {
-      materialRef.current.uniforms.uIconTexture.value = icons.planeRadar;
       materialRef.current.uniforms.uActiveEntity.value = 2;
     } else {
-      materialRef.current.uniforms.uIconTexture.value = icons.playerRadar;
       materialRef.current.uniforms.uActiveEntity.value = 0;
     }
 
@@ -404,11 +402,11 @@ const MiniMap = () => {
       ref={wrapperRef}
       className={`${showMap ? "block" : "hidden"} fixed ${
         sceneConstants.isDev ? "right-90" : "right-2"
-      } top-2 z-14 w-[280px] h-[280px] pointer-events-none`}
+      } top-2 z-14 w-70 h-70 pointer-events-none`}
     >
       {showMap && (
         <>
-          <div className="absolute inset-4 rounded-[16px] border border-tron-cyan bg-black/40 backdrop-blur-md shadow-[0_0_15px_rgba(0,243,255,0.2)] pointer-events-auto" />
+          <div className="absolute inset-4 rounded-2xl border border-tron-cyan bg-black/40 backdrop-blur-md shadow-[0_0_15px_rgba(0,243,255,0.2)] pointer-events-auto" />
 
           <Canvas
             gl={{ antialias: false, alpha: true }}
