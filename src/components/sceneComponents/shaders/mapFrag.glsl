@@ -3,6 +3,7 @@ uniform float uAspect;
 uniform float uMapZoom;
 uniform float uPitch;
 uniform float uLookAhead;
+uniform float uActiveYaw;
 
 uniform float uMacroFreq;
 uniform float uUrbanFreq;
@@ -21,6 +22,11 @@ uniform vec2 uCharPos;
 uniform vec2 uCarPos;
 uniform vec2 uPlanePos;
 uniform vec2 uHeliPos;
+
+uniform float uCharYaw;
+uniform float uCarYaw;
+uniform float uPlaneYaw;
+uniform float uHeliYaw;
 
 uniform int uActiveEntity;
 
@@ -68,9 +74,14 @@ float fbm2D(vec2 p,int octaves,float frequency,float persistence,float lacunarit
     return total / maxValue;
 }
 
-vec3 stampIcon(vec3 baseColor,vec2 flatUv,vec2 playerWorldPos,vec2 entityWorldPos,sampler2D tex,float mapZoom,float scale,float radius,float pitch,float aspect) {
+mat2 rotate2d(float angle) {
+    return mat2(cos(angle),-sin(angle),sin(angle),cos(angle));
+}
+
+vec3 stampIcon(vec3 baseColor,vec2 flatUv,vec2 playerWorldPos,vec2 entityWorldPos,sampler2D tex,float mapZoom,float scale,float radius,float pitch,float aspect,float entityYaw,float cameraYaw) {
     vec2 offsetWorld = entityWorldPos - playerWorldPos;
-    vec2 mapUv = offsetWorld / vec2(mapZoom,-mapZoom);
+    vec2 unrotatedMapUv = offsetWorld / vec2(mapZoom,-mapZoom);
+    vec2 mapUv = rotate2d(cameraYaw) * unrotatedMapUv;
 
     vec2 entityScreenUv;
     entityScreenUv.y = mapUv.y / (1.0 + mapUv.y * pitch);
@@ -80,7 +91,10 @@ vec3 stampIcon(vec3 baseColor,vec2 flatUv,vec2 playerWorldPos,vec2 entityWorldPo
     vec2 diff = flatUv - entityScreenUv;
     float isBg = 1.0 - smoothstep(radius - 0.005,radius,length(diff));
 
-    vec2 iconUv = (diff / scale) + 0.5;
+    vec2 iconUv = (diff / scale);
+    iconUv = rotate2d(-(entityYaw - cameraYaw)) * iconUv;
+    iconUv += 0.5;
+
     float inIconBounds = step(0.0,iconUv.x) * step(iconUv.x,1.0) * step(0.0,iconUv.y) * step(iconUv.y,1.0);
     vec4 iconTex = texture2D(tex,iconUv);
 
@@ -101,7 +115,8 @@ void main() {
     mapUv.y = screenUv.y / perspectiveDepth;
     mapUv.x *= uAspect;
 
-    vec2 worldPos = uPlayerPos + mapUv * vec2(uMapZoom,-uMapZoom);
+    vec2 rotatedMapUv = rotate2d(-uActiveYaw) * mapUv;
+    vec2 worldPos = uPlayerPos + rotatedMapUv * vec2(uMapZoom,-uMapZoom);
 
     float rawBiome = fbm2D(worldPos,3,uMacroFreq,0.5,2.0);
     float biomeScore = (rawBiome + 1.0) / 2.0;
@@ -128,7 +143,6 @@ void main() {
     float isBuilding = hasBuilding * (1.0 - isRoad) * isCity;
 
     vec3 buildingColor = mix(vec3(0.4,0.45,0.5),vec3(0.7,0.75,0.8),urbanScore);
-
     vec3 mapColor = mix(emptyColor,buildingColor,isBuilding);
     mapColor = mix(mapColor,roadColor,isRoad);
 
@@ -137,20 +151,33 @@ void main() {
     vec3 finalColor = mapColor;
 
     if (uActiveEntity != 0) {
-        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uCharPos,uPlayerTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect);
+        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uCharPos,uPlayerTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCharYaw,uActiveYaw);
     }
     if (uActiveEntity != 1) {
-        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect);
+        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCarYaw,uActiveYaw);
     }
     if (uActiveEntity != 2) {
-        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect);
+        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uPlaneYaw,uActiveYaw);
     }
     if (uActiveEntity != 3) {
-        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uHeliPos,uHeliTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect);
+        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uHeliPos,uHeliTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uHeliYaw,uActiveYaw);
     }
 
+    float activeYaw = 0.0;
+    if (uActiveEntity == 0)
+        activeYaw = uCharYaw;
+    if (uActiveEntity == 1)
+        activeYaw = uCarYaw;
+    if (uActiveEntity == 2)
+        activeYaw = uPlaneYaw;
+    if (uActiveEntity == 3)
+        activeYaw = uHeliYaw;
+
     float isCenterBg = 1.0 - smoothstep(bgRadius - 0.005,bgRadius,length(flatUv));
-    vec2 centerIconUv = (flatUv / iconScale) + 0.5;
+    vec2 centerIconUv = (flatUv / iconScale);
+    centerIconUv = rotate2d(-(activeYaw - uActiveYaw)) * centerIconUv;
+    centerIconUv += 0.5;
+
     float inCenterBounds = step(0.0,centerIconUv.x) * step(centerIconUv.x,1.0) * step(0.0,centerIconUv.y) * step(centerIconUv.y,1.0);
     vec4 centerIconTex = texture2D(uIconTexture,centerIconUv);
 

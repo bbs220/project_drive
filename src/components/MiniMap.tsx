@@ -34,6 +34,9 @@ const ProceduralMapShader = ({
 }: typeProceduralMapProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
+  const dummyQ = useMemo(() => new THREE.Quaternion(), []);
+  const dummyE = useMemo(() => new THREE.Euler(0, 0, 0, "YXZ"), []);
+
   const icons = useMemo(() => {
     const loader = new THREE.TextureLoader();
     return Object.fromEntries(
@@ -51,6 +54,7 @@ const ProceduralMapShader = ({
       uMapZoom: { value: 4000.0 },
       uPitch: { value: 0.0 },
       uLookAhead: { value: 0.0 },
+      uActiveYaw: { value: 0.0 },
       uMacroFreq: { value: generatorState.macroFrequency },
       uUrbanFreq: { value: generatorState.urbanFrequency },
       uUrbanSprawl: { value: generatorState.urbanSprawl },
@@ -65,6 +69,10 @@ const ProceduralMapShader = ({
       uCarPos: { value: new THREE.Vector2(0, 0) },
       uPlanePos: { value: new THREE.Vector2(0, 0) },
       uHeliPos: { value: new THREE.Vector2(0, 0) },
+      uCharYaw: { value: 0.0 },
+      uCarYaw: { value: 0.0 },
+      uPlaneYaw: { value: 0.0 },
+      uHeliYaw: { value: 0.0 },
       uActiveEntity: { value: 0 },
     }),
     [icons],
@@ -75,6 +83,9 @@ const ProceduralMapShader = ({
 
     materialRef.current.uniforms.uAspect.value =
       state.size.width / state.size.height;
+
+    dummyE.setFromQuaternion(state.camera.quaternion, "YXZ");
+    materialRef.current.uniforms.uActiveYaw.value = dummyE.y;
 
     const targetZoom = isExpandedRef.current
       ? (params.fullMapZoom as number)
@@ -126,31 +137,45 @@ const ProceduralMapShader = ({
       );
     }
 
+    const getYaw = (rot: [number, number, number, number]) => {
+      dummyQ.set(rot[0], rot[1], rot[2], rot[3]);
+      dummyE.setFromQuaternion(dummyQ, "YXZ");
+      return dummyE.y;
+    };
+
     const pTel = telemetry[ENTITY_ID.PLAYER_1];
     const cTel = telemetry[ENTITY_ID.CAR_1];
     const plTel = telemetry[ENTITY_ID.PLANE_1];
     const hTel = telemetry[ENTITY_ID.HELI_1];
 
-    if (pTel)
+    if (pTel) {
       materialRef.current.uniforms.uCharPos.value.set(
         pTel.position[0],
         pTel.position[2],
       );
-    if (cTel)
+      materialRef.current.uniforms.uCharYaw.value = getYaw(pTel.rotation);
+    }
+    if (cTel) {
       materialRef.current.uniforms.uCarPos.value.set(
         cTel.position[0],
         cTel.position[2],
       );
-    if (plTel)
+      materialRef.current.uniforms.uCarYaw.value = getYaw(cTel.rotation);
+    }
+    if (plTel) {
       materialRef.current.uniforms.uPlanePos.value.set(
         plTel.position[0],
         plTel.position[2],
       );
-    if (hTel)
+      materialRef.current.uniforms.uPlaneYaw.value = getYaw(plTel.rotation);
+    }
+    if (hTel) {
       materialRef.current.uniforms.uHeliPos.value.set(
         hTel.position[0],
         hTel.position[2],
       );
+      materialRef.current.uniforms.uHeliYaw.value = getYaw(hTel.rotation);
+    }
   });
 
   return (
