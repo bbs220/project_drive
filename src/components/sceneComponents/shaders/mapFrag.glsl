@@ -5,6 +5,7 @@ uniform float uMapZoom;
 uniform float uPitch;
 uniform float uLookAhead;
 uniform float uActiveYaw;
+uniform float uEdgeIconScale;
 
 uniform float uMacroFreq;
 uniform float uUrbanFreq;
@@ -79,7 +80,7 @@ mat2 rotate2d(float angle) {
     return mat2(cos(angle),-sin(angle),sin(angle),cos(angle));
 }
 
-vec4 stampIcon(vec4 baseColor,vec2 uv,vec2 playerWorldPos,vec2 entityWorldPos,sampler2D tex,float mapZoom,float scale,float radius,float pitch,float aspect,float entityYaw,float cameraYaw,vec2 margin,float lookAhead) {
+vec4 stampIcon(vec4 baseColor,vec2 uv,vec2 playerWorldPos,vec2 entityWorldPos,sampler2D tex,float mapZoom,float scale,float radius,float pitch,float aspect,float entityYaw,float cameraYaw,vec2 margin,float lookAhead,float edgeIconScale) {
     vec2 offsetWorld = entityWorldPos - playerWorldPos;
     vec2 unrotatedMapUv = offsetWorld / vec2(mapZoom,-mapZoom);
     vec2 mapUv = rotate2d(cameraYaw) * unrotatedMapUv;
@@ -98,8 +99,8 @@ vec4 stampIcon(vec4 baseColor,vec2 uv,vec2 playerWorldPos,vec2 entityWorldPos,sa
 
     entityPhys = mix(entityPhys,entityPhys / maxDist,isClamped);
 
-    float currentRadius = radius * mix(1.0,0.75,isClamped);
-    float currentScale = scale * mix(1.0,0.75,isClamped);
+    float currentRadius = radius * mix(1.0,edgeIconScale,isClamped);
+    float currentScale = scale * mix(1.0,edgeIconScale,isClamped);
 
     vec2 pixelPhys = uv - 0.5;
     pixelPhys.x *= aspect;
@@ -176,16 +177,16 @@ void main() {
     float bgRadius = iconScale * 0.55;
 
     if (uActiveEntity != 0) {
-        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCharPos,uPlayerTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCharYaw,uActiveYaw,margin,uLookAhead);
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCharPos,uPlayerTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCharYaw,uActiveYaw,margin,uLookAhead,uEdgeIconScale);
     }
     if (uActiveEntity != 1) {
-        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCarYaw,uActiveYaw,margin,uLookAhead);
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCarYaw,uActiveYaw,margin,uLookAhead,uEdgeIconScale);
     }
     if (uActiveEntity != 2) {
-        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uPlaneYaw,uActiveYaw,margin,uLookAhead);
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uPlaneYaw,uActiveYaw,margin,uLookAhead,uEdgeIconScale);
     }
     if (uActiveEntity != 3) {
-        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uHeliPos,uHeliTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uHeliYaw,uActiveYaw,margin,uLookAhead);
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uHeliPos,uHeliTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uHeliYaw,uActiveYaw,margin,uLookAhead,uEdgeIconScale);
     }
 
     float activeYaw = 0.0;

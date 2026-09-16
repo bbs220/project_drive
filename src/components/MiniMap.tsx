@@ -21,6 +21,14 @@ type ProceduralMapParams = {
   fullMapZoom: number;
   miniMapZoom: number;
   zoomLerpSpeed: number;
+  speedZoomMult: number;
+  carMinZoom: number;
+  carMaxZoom: number;
+  heliMinZoom: number;
+  heliMaxZoom: number;
+  planeMinZoom: number;
+  planeMaxZoom: number;
+  edgeIconScale: number;
 };
 
 type typeProceduralMapProps = {
@@ -58,6 +66,7 @@ const ProceduralMapShader = ({
       uPitch: { value: 0.0 },
       uLookAhead: { value: 0.0 },
       uActiveYaw: { value: 0.0 },
+      uEdgeIconScale: { value: 0.65 },
       uMacroFreq: { value: generatorState.macroFrequency },
       uUrbanFreq: { value: generatorState.urbanFrequency },
       uUrbanSprawl: { value: generatorState.urbanSprawl },
@@ -90,6 +99,7 @@ const ProceduralMapShader = ({
     );
     materialRef.current.uniforms.uAspect.value =
       state.size.width / state.size.height;
+    materialRef.current.uniforms.uEdgeIconScale.value = params.edgeIconScale;
 
     dummyE.setFromQuaternion(state.camera.quaternion, "YXZ");
     materialRef.current.uniforms.uActiveYaw.value = dummyE.y;
@@ -115,11 +125,30 @@ const ProceduralMapShader = ({
         0;
     }
 
-    const baseZoom = isExpandedRef.current
-      ? (params.fullMapZoom as number)
-      : (params.miniMapZoom as number);
+    let targetZoom = params.miniMapZoom;
+    if (active.entity === ENTITY_ID.CAR_1) {
+      targetZoom = THREE.MathUtils.clamp(
+        params.carMinZoom + currentSpeed * params.speedZoomMult,
+        params.carMinZoom,
+        params.carMaxZoom,
+      );
+    } else if (active.entity === ENTITY_ID.HELI_1) {
+      targetZoom = THREE.MathUtils.clamp(
+        params.heliMinZoom + currentSpeed * params.speedZoomMult,
+        params.heliMinZoom,
+        params.heliMaxZoom,
+      );
+    } else if (active.entity === ENTITY_ID.PLANE_1) {
+      targetZoom = THREE.MathUtils.clamp(
+        params.planeMinZoom + currentSpeed * params.speedZoomMult,
+        params.planeMinZoom,
+        params.planeMaxZoom,
+      );
+    }
 
-    const targetZoom = baseZoom + currentSpeed * 15.0;
+    if (isExpandedRef.current) {
+      targetZoom = params.fullMapZoom;
+    }
 
     materialRef.current.uniforms.uMapZoom.value = THREE.MathUtils.lerp(
       materialRef.current.uniforms.uMapZoom.value,
@@ -241,9 +270,22 @@ const MiniMap = () => {
   const params: ProceduralMapParams = useTweakpane(
     { title: "🗺️ Minimap", expanded: false },
     {
-      miniMapZoom: { value: 680, min: 50, max: 10000, label: "mini zoom" },
+      miniMapZoom: { value: 680, min: 50, max: 5000, label: "walk zoom" },
       fullMapZoom: { value: 1500, min: 50, max: 10000, label: "full map zoom" },
       zoomLerpSpeed: { value: 0.1, min: 0.01, max: 1, label: "zoom speed" },
+      speedZoomMult: { value: 8.0, min: 1, max: 50, label: "speed mult" },
+      carMinZoom: { value: 680, min: 50, max: 5000, label: "car min z" },
+      carMaxZoom: { value: 1000, min: 50, max: 10000, label: "car max z" },
+      heliMinZoom: { value: 680, min: 50, max: 8000, label: "heli min z" },
+      heliMaxZoom: { value: 1000, min: 50, max: 15000, label: "heli max z" },
+      planeMinZoom: { value: 680, min: 50, max: 10000, label: "plane min z" },
+      planeMaxZoom: { value: 1000, min: 50, max: 20000, label: "plane max z" },
+      edgeIconScale: {
+        value: 0.8,
+        min: 0.1,
+        max: 1.0,
+        label: "edge icon scale",
+      },
     },
   );
 
@@ -362,11 +404,11 @@ const MiniMap = () => {
       ref={wrapperRef}
       className={`${showMap ? "block" : "hidden"} fixed ${
         sceneConstants.isDev ? "right-90" : "right-2"
-      } top-2 z-14 w-70 h-70 pointer-events-none`}
+      } top-2 z-14 w-[280px] h-[280px] pointer-events-none`}
     >
       {showMap && (
         <>
-          <div className="absolute inset-4 rounded-2xl border border-tron-cyan bg-black/40 backdrop-blur-md shadow-[0_0_15px_rgba(0,243,255,0.2)] pointer-events-auto" />
+          <div className="absolute inset-4 rounded-[16px] border border-tron-cyan bg-black/40 backdrop-blur-md shadow-[0_0_15px_rgba(0,243,255,0.2)] pointer-events-auto" />
 
           <Canvas
             gl={{ antialias: false, alpha: true }}
