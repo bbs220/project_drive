@@ -6,7 +6,11 @@ import * as THREE from "three";
 import { useUIStore } from "../stores/useUIStore";
 import { useAllVehicleInput } from "../hooks/useAllVehicleInput";
 import { sceneConstants } from "../constants/otherConstants";
-import { useVehicleStore, ENTITY_ID } from "../stores/useVehicleStore";
+import {
+  useVehicleStore,
+  ENTITY_ID,
+  CONTROL_STATE,
+} from "../stores/useVehicleStore";
 import { generatorState } from "../utils/worldGenerator";
 import { useTweakpane } from "../hooks/useTweakpane";
 import { iconsBank } from "../utils/assetpaths";
@@ -32,7 +36,6 @@ const ProceduralMapShader = ({
 
   const icons = useMemo(() => {
     const loader = new THREE.TextureLoader();
-
     return Object.fromEntries(
       Object.entries(iconsBank).map(([key, path]) => [
         key,
@@ -46,24 +49,22 @@ const ProceduralMapShader = ({
       uPlayerPos: { value: new THREE.Vector2(0, 0) },
       uAspect: { value: 1.0 },
       uMapZoom: { value: 4000.0 },
+      uPitch: { value: 0.0 },
+      uLookAhead: { value: 0.0 },
       uMacroFreq: { value: generatorState.macroFrequency },
       uUrbanFreq: { value: generatorState.urbanFrequency },
       uUrbanSprawl: { value: generatorState.urbanSprawl },
       uBlockSize: { value: generatorState.blockSize },
       uRoadWidth: { value: generatorState.roadWidth },
-
       uIconTexture: { value: icons.playerRadar },
-
       uPlayerTex: { value: icons.playerRadar },
       uCarTex: { value: icons.carRadar },
       uPlaneTex: { value: icons.planeRadar },
       uHeliTex: { value: icons.helicopterRadar },
-
       uCharPos: { value: new THREE.Vector2(0, 0) },
       uCarPos: { value: new THREE.Vector2(0, 0) },
       uPlanePos: { value: new THREE.Vector2(0, 0) },
       uHeliPos: { value: new THREE.Vector2(0, 0) },
-
       uActiveEntity: { value: 0 },
     }),
     [icons],
@@ -87,6 +88,22 @@ const ProceduralMapShader = ({
 
     const { active, telemetry } = useVehicleStore.getState();
     const currentTelemetry = telemetry[active.entity];
+
+    const targetPitch = active.control === CONTROL_STATE.PLAYER ? 0.0 : 0.6;
+    const targetLookAhead =
+      active.control === CONTROL_STATE.PLAYER ? 0.0 : 0.15;
+
+    materialRef.current.uniforms.uPitch.value = THREE.MathUtils.lerp(
+      materialRef.current.uniforms.uPitch.value,
+      targetPitch,
+      params.zoomLerpSpeed as number,
+    );
+
+    materialRef.current.uniforms.uLookAhead.value = THREE.MathUtils.lerp(
+      materialRef.current.uniforms.uLookAhead.value,
+      targetLookAhead,
+      params.zoomLerpSpeed as number,
+    );
 
     if (active.entity === ENTITY_ID.CAR_1) {
       materialRef.current.uniforms.uIconTexture.value = icons.carRadar;
@@ -163,6 +180,11 @@ const MiniMap = () => {
   const isExpandedRef = useRef(false);
   const prevMapKeyRef = useRef(false);
 
+  const playerDistRef = useRef<HTMLSpanElement>(null);
+  const carDistRef = useRef<HTMLSpanElement>(null);
+  const planeDistRef = useRef<HTMLSpanElement>(null);
+  const heliDistRef = useRef<HTMLSpanElement>(null);
+
   const params: ProceduralMapParams = useTweakpane(
     { title: "🗺️ Minimap", expanded: false },
     {
@@ -232,6 +254,51 @@ const MiniMap = () => {
         }
       }
       prevMapKeyRef.current = currentMapKey;
+
+      if (isExpandedRef.current) {
+        const state = useVehicleStore.getState();
+        const activeId = state.active.entity;
+        const activeTel = state.telemetry[activeId];
+
+        if (activeTel) {
+          const tel = state.telemetry;
+
+          const calcDist = (t1: any, t2: any) => {
+            if (!t1 || !t2) return 0;
+            return Math.round(
+              Math.hypot(
+                t1.position[0] - t2.position[0],
+                t1.position[2] - t2.position[2],
+              ),
+            );
+          };
+
+          if (playerDistRef.current) {
+            playerDistRef.current.innerText =
+              activeId === ENTITY_ID.PLAYER_1
+                ? "ACTIVE"
+                : `${calcDist(activeTel, tel[ENTITY_ID.PLAYER_1])}m`;
+          }
+          if (carDistRef.current) {
+            carDistRef.current.innerText =
+              activeId === ENTITY_ID.CAR_1
+                ? "ACTIVE"
+                : `${calcDist(activeTel, tel[ENTITY_ID.CAR_1])}m`;
+          }
+          if (planeDistRef.current) {
+            planeDistRef.current.innerText =
+              activeId === ENTITY_ID.PLANE_1
+                ? "ACTIVE"
+                : `${calcDist(activeTel, tel[ENTITY_ID.PLANE_1])}m`;
+          }
+          if (heliDistRef.current) {
+            heliDistRef.current.innerText =
+              activeId === ENTITY_ID.HELI_1
+                ? "ACTIVE"
+                : `${calcDist(activeTel, tel[ENTITY_ID.HELI_1])}m`;
+          }
+        }
+      }
     };
 
     animationFrameId = requestAnimationFrame(checkInput);
@@ -259,9 +326,8 @@ const MiniMap = () => {
 
           <div
             ref={legendRef}
-            className="absolute top-6 left-6 opacity-0 pointer-events-none flex flex-col gap-5 bg-black/60 backdrop-blur-md border border-tron-cyan/30 rounded-md p-4 text-xs text-white/80 font-mono shadow-[0_0_15px_rgba(0,243,255,0.1)]"
+            className="absolute top-6 left-6 opacity-0 pointer-events-none flex flex-col gap-5 bg-black/60 backdrop-blur-md border border-tron-cyan/30 rounded-md p-4 text-xs text-white/80 font-mono shadow-[0_0_15px_rgba(0,243,255,0.1)] w-48"
           >
-            {/* ZONES SECTION */}
             <div className="flex flex-col gap-2.5">
               <div className="text-tron-cyan font-bold tracking-widest mb-1 border-b border-tron-cyan/30 pb-2">
                 ZONES
@@ -280,50 +346,77 @@ const MiniMap = () => {
               </div>
             </div>
 
-            {/* ICONS SECTION */}
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-2.5 w-full">
               <div className="text-tron-cyan font-bold tracking-widest mb-1 border-b border-tron-cyan/30 pb-2 mt-1">
                 ICONS
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
-                  <img
-                    src={iconsBank.playerRadar}
-                    alt=""
-                    className="w-full h-full object-contain"
-                  />
+
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
+                    <img
+                      src={iconsBank.playerRadar}
+                      alt=""
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span>Player</span>
                 </div>
-                <span>Player</span>
+                <span
+                  ref={playerDistRef}
+                  className="text-[10px] text-tron-cyan opacity-80"
+                />
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
-                  <img
-                    src={iconsBank.carRadar}
-                    alt=""
-                    className="w-full h-full object-contain"
-                  />
+
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
+                    <img
+                      src={iconsBank.carRadar}
+                      alt=""
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span>Car</span>
                 </div>
-                <span>Car</span>
+                <span
+                  ref={carDistRef}
+                  className="text-[10px] text-tron-cyan opacity-80"
+                />
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
-                  <img
-                    src={iconsBank.planeRadar}
-                    alt=""
-                    className="w-full h-full object-contain"
-                  />
+
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
+                    <img
+                      src={iconsBank.planeRadar}
+                      alt=""
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span>Plane</span>
                 </div>
-                <span>Plane</span>
+                <span
+                  ref={planeDistRef}
+                  className="text-[10px] text-tron-cyan opacity-80"
+                />
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
-                  <img
-                    src={iconsBank.helicopterRadar}
-                    alt=""
-                    className="w-full h-full object-contain"
-                  />
+
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
+                    <img
+                      src={iconsBank.helicopterRadar}
+                      alt=""
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span>Helicopter</span>
                 </div>
-                <span>Helicopter</span>
+                <span
+                  ref={heliDistRef}
+                  className="text-[10px] text-tron-cyan opacity-80"
+                />
               </div>
             </div>
           </div>

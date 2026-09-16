@@ -1,6 +1,8 @@
 uniform vec2 uPlayerPos;
 uniform float uAspect;
 uniform float uMapZoom;
+uniform float uPitch;
+uniform float uLookAhead;
 
 uniform float uMacroFreq;
 uniform float uUrbanFreq;
@@ -57,7 +59,6 @@ float fbm2D(vec2 p,int octaves,float frequency,float persistence,float lacunarit
     float currentFreq = frequency;
     float amplitude = 1.0;
     float maxValue = 0.0;
-
     for (int i = 0 ; i < octaves ; i++) {
         total += snoise(p * currentFreq) * amplitude;
         maxValue += amplitude;
@@ -67,13 +68,19 @@ float fbm2D(vec2 p,int octaves,float frequency,float persistence,float lacunarit
     return total / maxValue;
 }
 
-vec3 stampIcon(vec3 baseColor,vec2 fragWorldPos,vec2 entityWorldPos,sampler2D tex,float mapZoom,float scale,float radius) {
+vec3 stampIcon(vec3 baseColor,vec2 flatUv,vec2 playerWorldPos,vec2 entityWorldPos,sampler2D tex,float mapZoom,float scale,float radius,float pitch,float aspect) {
+    vec2 offsetWorld = entityWorldPos - playerWorldPos;
+    vec2 mapUv = offsetWorld / vec2(mapZoom,-mapZoom);
 
-    vec2 entityUv = (fragWorldPos - entityWorldPos) / vec2(mapZoom,-mapZoom);
+    vec2 entityScreenUv;
+    entityScreenUv.y = mapUv.y / (1.0 + mapUv.y * pitch);
+    entityScreenUv.x = mapUv.x * (1.0 - entityScreenUv.y * pitch);
+    entityScreenUv.x *= aspect;
 
-    float isBg = 1.0 - smoothstep(radius - 0.005,radius,length(entityUv));
+    vec2 diff = flatUv - entityScreenUv;
+    float isBg = 1.0 - smoothstep(radius - 0.005,radius,length(diff));
 
-    vec2 iconUv = (entityUv / scale) + 0.5;
+    vec2 iconUv = (diff / scale) + 0.5;
     float inIconBounds = step(0.0,iconUv.x) * step(iconUv.x,1.0) * step(0.0,iconUv.y) * step(iconUv.y,1.0);
     vec4 iconTex = texture2D(tex,iconUv);
 
@@ -82,10 +89,19 @@ vec3 stampIcon(vec3 baseColor,vec2 fragWorldPos,vec2 entityWorldPos,sampler2D te
 }
 
 void main() {
-    vec2 centeredUv = vUv - 0.5;
-    centeredUv.x *= uAspect;
+    vec2 screenUv = vUv - 0.5;
+    screenUv.y += uLookAhead;
 
-    vec2 worldPos = uPlayerPos + centeredUv * vec2(uMapZoom,-uMapZoom);
+    vec2 flatUv = screenUv;
+    flatUv.x *= uAspect;
+
+    float perspectiveDepth = 1.0 - (screenUv.y * uPitch);
+    vec2 mapUv;
+    mapUv.x = screenUv.x / perspectiveDepth;
+    mapUv.y = screenUv.y / perspectiveDepth;
+    mapUv.x *= uAspect;
+
+    vec2 worldPos = uPlayerPos + mapUv * vec2(uMapZoom,-uMapZoom);
 
     float rawBiome = fbm2D(worldPos,3,uMacroFreq,0.5,2.0);
     float biomeScore = (rawBiome + 1.0) / 2.0;
@@ -121,20 +137,20 @@ void main() {
     vec3 finalColor = mapColor;
 
     if (uActiveEntity != 0) {
-        finalColor = stampIcon(finalColor,worldPos,uCharPos,uPlayerTex,uMapZoom,iconScale,bgRadius);
+        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uCharPos,uPlayerTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect);
     }
     if (uActiveEntity != 1) {
-        finalColor = stampIcon(finalColor,worldPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius);
+        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect);
     }
     if (uActiveEntity != 2) {
-        finalColor = stampIcon(finalColor,worldPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius);
+        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect);
     }
     if (uActiveEntity != 3) {
-        finalColor = stampIcon(finalColor,worldPos,uHeliPos,uHeliTex,uMapZoom,iconScale,bgRadius);
+        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uHeliPos,uHeliTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect);
     }
 
-    float isCenterBg = 1.0 - smoothstep(bgRadius - 0.005,bgRadius,length(centeredUv));
-    vec2 centerIconUv = (centeredUv / iconScale) + 0.5;
+    float isCenterBg = 1.0 - smoothstep(bgRadius - 0.005,bgRadius,length(flatUv));
+    vec2 centerIconUv = (flatUv / iconScale) + 0.5;
     float inCenterBounds = step(0.0,centerIconUv.x) * step(centerIconUv.x,1.0) * step(0.0,centerIconUv.y) * step(centerIconUv.y,1.0);
     vec4 centerIconTex = texture2D(uIconTexture,centerIconUv);
 
