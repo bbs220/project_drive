@@ -406,11 +406,11 @@ const MiniMap = () => {
       ref={wrapperRef}
       className={`${showMap ? "block" : "hidden"} fixed ${
         sceneConstants.isDev ? "right-90" : "right-2"
-      } top-2 z-14 w-70 h-70 pointer-events-none rounded-2xl border backdrop-blur-xs border-tron-cyan shadow-[0_0_15px_rgba(0,243,255,0.2)]`}
+      } top-2 z-14 size-60 pointer-events-none`}
     >
       {showMap && (
         <>
-          <div className="absolute inset-4 rounded-2xl bg-black/40 backdrop-blur-md pointer-events-auto" />
+          <div className="absolute inset-1 rounded-2xl border overflow-hidden border-tron-cyan bg-black/10 backdrop-blur-xs pointer-events-auto" />
 
           <Canvas
             gl={{ antialias: false, alpha: true }}
