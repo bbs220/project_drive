@@ -119,10 +119,11 @@ const ProceduralMapShader = ({
 
     let currentSpeed = 0;
     if (currentTelemetry) {
-      currentSpeed =
-        (currentTelemetry as any).speed ||
-        (currentTelemetry as any).airspeed ||
-        0;
+      if ("speed" in currentTelemetry) {
+        currentSpeed = currentTelemetry.speed;
+      } else if ("airspeed" in currentTelemetry) {
+        currentSpeed = currentTelemetry.airspeed;
+      }
     }
 
     let targetZoom = params.miniMapZoom;
@@ -355,7 +356,10 @@ const MiniMap = () => {
         if (activeTel) {
           const tel = state.telemetry;
 
-          const calcDist = (t1: any, t2: any) => {
+          const calcDist = (
+            t1?: { position: [number, number, number] },
+            t2?: { position: [number, number, number] },
+          ) => {
             if (!t1 || !t2) return 0;
             return Math.round(
               Math.hypot(
