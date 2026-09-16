@@ -109,7 +109,7 @@ vec4 stampIcon(vec4 baseColor,vec2 uv,vec2 playerWorldPos,vec2 entityWorldPos,sa
     float isBg = 1.0 - smoothstep(currentRadius - 0.005,currentRadius,length(diff));
 
     vec2 iconUv = (diff / currentScale);
-    iconUv = rotate2d(-(entityYaw - cameraYaw)) * iconUv;
+    iconUv = rotate2d(entityYaw - cameraYaw) * iconUv;
     iconUv += 0.5;
 
     float inIconBounds = step(0.0,iconUv.x) * step(iconUv.x,1.0) * step(0.0,iconUv.y) * step(iconUv.y,1.0);
@@ -207,7 +207,7 @@ void main() {
     float isCenterBg = 1.0 - smoothstep(bgRadius - 0.005,bgRadius,length(diff));
 
     vec2 centerIconUv = (diff / iconScale);
-    centerIconUv = rotate2d(-(activeYaw - uActiveYaw)) * centerIconUv;
+    centerIconUv = rotate2d(activeYaw - uActiveYaw) * centerIconUv;
     centerIconUv += 0.5;
 
     float inCenterBounds = step(0.0,centerIconUv.x) * step(centerIconUv.x,1.0) * step(0.0,centerIconUv.y) * step(centerIconUv.y,1.0);
