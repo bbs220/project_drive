@@ -14,7 +14,6 @@ uniform float uBlockSize;
 uniform float uRoadWidth;
 
 uniform sampler2D uIconTexture;
-
 uniform sampler2D uPlayerTex;
 uniform sampler2D uCarTex;
 uniform sampler2D uPlaneTex;
@@ -86,7 +85,8 @@ vec4 stampIcon(vec4 baseColor,vec2 uv,vec2 playerWorldPos,vec2 entityWorldPos,sa
     vec2 mapUv = rotate2d(cameraYaw) * unrotatedMapUv;
 
     vec2 entityScreenUv;
-    entityScreenUv.y = mapUv.y / (1.0 + mapUv.y * pitch);
+    float denom = max(0.001,1.0 + mapUv.y * pitch);
+    entityScreenUv.y = mapUv.y / denom;
     entityScreenUv.x = mapUv.x * (1.0 - entityScreenUv.y * pitch);
     entityScreenUv.x *= aspect;
 
