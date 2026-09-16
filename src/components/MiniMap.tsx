@@ -26,11 +26,13 @@ type ProceduralMapParams = {
 type typeProceduralMapProps = {
   isExpandedRef: React.RefObject<boolean>;
   params: ProceduralMapParams;
+  northRef: React.RefObject<HTMLDivElement | null>;
 };
 
 const ProceduralMapShader = ({
   isExpandedRef,
   params,
+  northRef,
 }: typeProceduralMapProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
@@ -86,6 +88,16 @@ const ProceduralMapShader = ({
 
     dummyE.setFromQuaternion(state.camera.quaternion, "YXZ");
     materialRef.current.uniforms.uActiveYaw.value = dummyE.y;
+
+    if (northRef.current) {
+      const yaw = dummyE.y;
+      const nx = Math.sin(yaw);
+      const ny = -Math.cos(yaw);
+      const max = Math.max(Math.abs(nx), Math.abs(ny));
+
+      northRef.current.style.left = `${50 + (nx / max) * 46}%`;
+      northRef.current.style.top = `${50 + (ny / max) * 46}%`;
+    }
 
     const { active, telemetry } = useVehicleStore.getState();
     const currentTelemetry = telemetry[active.entity];
@@ -210,6 +222,7 @@ const MiniMap = () => {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const legendRef = useRef<HTMLDivElement>(null);
+  const northRef = useRef<HTMLDivElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
 
   const isExpandedRef = useRef(false);
@@ -356,8 +369,17 @@ const MiniMap = () => {
             <ProceduralMapShader
               isExpandedRef={isExpandedRef}
               params={params}
+              northRef={northRef}
             />
           </Canvas>
+
+          <div
+            ref={northRef}
+            className="absolute flex items-center justify-center w-6 h-6 text-sm font-bold text-black bg-white border-2 border-tron-cyan rounded-full shadow-[0_0_10px_rgba(0,243,255,0.8)] z-20 pointer-events-none"
+            style={{ transform: "translate(-50%, -50%)" }}
+          >
+            N
+          </div>
 
           <div
             ref={legendRef}
