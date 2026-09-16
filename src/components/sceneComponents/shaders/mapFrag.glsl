@@ -1,3 +1,4 @@
+uniform vec2 uResolution;
 uniform vec2 uPlayerPos;
 uniform float uAspect;
 uniform float uMapZoom;
@@ -78,7 +79,7 @@ mat2 rotate2d(float angle) {
     return mat2(cos(angle),-sin(angle),sin(angle),cos(angle));
 }
 
-vec3 stampIcon(vec3 baseColor,vec2 flatUv,vec2 playerWorldPos,vec2 entityWorldPos,sampler2D tex,float mapZoom,float scale,float radius,float pitch,float aspect,float entityYaw,float cameraYaw) {
+vec4 stampIcon(vec4 baseColor,vec2 uv,vec2 playerWorldPos,vec2 entityWorldPos,sampler2D tex,float mapZoom,float scale,float radius,float pitch,float aspect,float entityYaw,float cameraYaw,vec2 margin,float lookAhead) {
     vec2 offsetWorld = entityWorldPos - playerWorldPos;
     vec2 unrotatedMapUv = offsetWorld / vec2(mapZoom,-mapZoom);
     vec2 mapUv = rotate2d(cameraYaw) * unrotatedMapUv;
@@ -88,16 +89,22 @@ vec3 stampIcon(vec3 baseColor,vec2 flatUv,vec2 playerWorldPos,vec2 entityWorldPo
     entityScreenUv.x = mapUv.x * (1.0 - entityScreenUv.y * pitch);
     entityScreenUv.x *= aspect;
 
-    vec2 absUv = abs(entityScreenUv);
-    float maxDist = max(absUv.x / (0.43 * aspect),absUv.y / 0.43);
+    vec2 entityPhys = vec2(entityScreenUv.x,entityScreenUv.y - lookAhead);
+
+    vec2 bounds = vec2((0.5 - margin.x) * aspect,0.5 - margin.y);
+    vec2 absPhys = abs(entityPhys);
+    float maxDist = max(absPhys.x / bounds.x,absPhys.y / bounds.y);
     float isClamped = step(1.0,maxDist);
 
-    entityScreenUv = mix(entityScreenUv,entityScreenUv / maxDist,isClamped);
+    entityPhys = mix(entityPhys,entityPhys / maxDist,isClamped);
 
     float currentRadius = radius * mix(1.0,0.75,isClamped);
     float currentScale = scale * mix(1.0,0.75,isClamped);
 
-    vec2 diff = flatUv - entityScreenUv;
+    vec2 pixelPhys = uv - 0.5;
+    pixelPhys.x *= aspect;
+
+    vec2 diff = pixelPhys - entityPhys;
     float isBg = 1.0 - smoothstep(currentRadius - 0.005,currentRadius,length(diff));
 
     vec2 iconUv = (diff / currentScale);
@@ -107,21 +114,26 @@ vec3 stampIcon(vec3 baseColor,vec2 flatUv,vec2 playerWorldPos,vec2 entityWorldPo
     float inIconBounds = step(0.0,iconUv.x) * step(iconUv.x,1.0) * step(0.0,iconUv.y) * step(iconUv.y,1.0);
     vec4 iconTex = texture2D(tex,iconUv);
 
-    vec3 blended = mix(baseColor,vec3(1.0),isBg);
-    return mix(blended,iconTex.rgb,iconTex.a * inIconBounds);
+    float iconAlpha = max(isBg,iconTex.a * inIconBounds);
+    vec3 iconRGB = mix(vec3(1.0),iconTex.rgb,iconTex.a * inIconBounds);
+
+    vec3 blendedRGB = mix(baseColor.rgb,iconRGB,iconAlpha);
+    float blendedAlpha = max(baseColor.a,iconAlpha);
+
+    return vec4(blendedRGB,blendedAlpha);
 }
 
 void main() {
+    vec2 margin = 16.0 / uResolution;
+
     vec2 screenUv = vUv - 0.5;
-    screenUv.y += uLookAhead;
+    vec2 terrainUv = screenUv;
+    terrainUv.y += uLookAhead;
 
-    vec2 flatUv = screenUv;
-    flatUv.x *= uAspect;
-
-    float perspectiveDepth = 1.0 - (screenUv.y * uPitch);
+    float perspectiveDepth = 1.0 - (terrainUv.y * uPitch);
     vec2 mapUv;
-    mapUv.x = screenUv.x / perspectiveDepth;
-    mapUv.y = screenUv.y / perspectiveDepth;
+    mapUv.x = terrainUv.x / perspectiveDepth;
+    mapUv.y = terrainUv.y / perspectiveDepth;
     mapUv.x *= uAspect;
 
     vec2 rotatedMapUv = rotate2d(-uActiveYaw) * mapUv;
@@ -155,21 +167,25 @@ void main() {
     vec3 mapColor = mix(emptyColor,buildingColor,isBuilding);
     mapColor = mix(mapColor,roadColor,isRoad);
 
+    float isInsideMap = step(margin.x,vUv.x) * step(vUv.x,1.0 - margin.x) *
+        step(margin.y,vUv.y) * step(vUv.y,1.0 - margin.y);
+
+    vec4 finalColor = vec4(mapColor,isInsideMap);
+
     float iconScale = 0.04 * (1500.0 / uMapZoom);
     float bgRadius = iconScale * 0.55;
-    vec3 finalColor = mapColor;
 
     if (uActiveEntity != 0) {
-        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uCharPos,uPlayerTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCharYaw,uActiveYaw);
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCharPos,uPlayerTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCharYaw,uActiveYaw,margin,uLookAhead);
     }
     if (uActiveEntity != 1) {
-        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCarYaw,uActiveYaw);
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCarYaw,uActiveYaw,margin,uLookAhead);
     }
     if (uActiveEntity != 2) {
-        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uPlaneYaw,uActiveYaw);
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uPlaneYaw,uActiveYaw,margin,uLookAhead);
     }
     if (uActiveEntity != 3) {
-        finalColor = stampIcon(finalColor,flatUv,uPlayerPos,uHeliPos,uHeliTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uHeliYaw,uActiveYaw);
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uHeliPos,uHeliTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uHeliYaw,uActiveYaw,margin,uLookAhead);
     }
 
     float activeYaw = 0.0;
@@ -182,16 +198,25 @@ void main() {
     if (uActiveEntity == 3)
         activeYaw = uHeliYaw;
 
-    float isCenterBg = 1.0 - smoothstep(bgRadius - 0.005,bgRadius,length(flatUv));
-    vec2 centerIconUv = (flatUv / iconScale);
+    vec2 playerPhys = vec2(0.0,-uLookAhead);
+    vec2 pixelPhys = vUv - 0.5;
+    pixelPhys.x *= uAspect;
+
+    vec2 diff = pixelPhys - playerPhys;
+    float isCenterBg = 1.0 - smoothstep(bgRadius - 0.005,bgRadius,length(diff));
+
+    vec2 centerIconUv = (diff / iconScale);
     centerIconUv = rotate2d(-(activeYaw - uActiveYaw)) * centerIconUv;
     centerIconUv += 0.5;
 
     float inCenterBounds = step(0.0,centerIconUv.x) * step(centerIconUv.x,1.0) * step(0.0,centerIconUv.y) * step(centerIconUv.y,1.0);
     vec4 centerIconTex = texture2D(uIconTexture,centerIconUv);
 
-    finalColor = mix(finalColor,vec3(1.0),isCenterBg);
-    finalColor = mix(finalColor,centerIconTex.rgb,centerIconTex.a * inCenterBounds);
+    float centerAlpha = max(isCenterBg,centerIconTex.a * inCenterBounds);
+    vec3 centerRGB = mix(vec3(1.0),centerIconTex.rgb,centerIconTex.a * inCenterBounds);
 
-    gl_FragColor = vec4(finalColor,1.0);
+    finalColor.rgb = mix(finalColor.rgb,centerRGB,centerAlpha);
+    finalColor.a = max(finalColor.a,centerAlpha);
+
+    gl_FragColor = finalColor;
 }

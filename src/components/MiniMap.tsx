@@ -51,6 +51,7 @@ const ProceduralMapShader = ({
 
   const uniforms = useMemo(
     () => ({
+      uResolution: { value: new THREE.Vector2(0, 0) },
       uPlayerPos: { value: new THREE.Vector2(0, 0) },
       uAspect: { value: 1.0 },
       uMapZoom: { value: 4000.0 },
@@ -83,6 +84,10 @@ const ProceduralMapShader = ({
   useFrame((state) => {
     if (!materialRef.current) return;
 
+    materialRef.current.uniforms.uResolution.value.set(
+      state.size.width,
+      state.size.height,
+    );
     materialRef.current.uniforms.uAspect.value =
       state.size.width / state.size.height;
 
@@ -95,8 +100,8 @@ const ProceduralMapShader = ({
       const ny = -Math.cos(yaw);
       const max = Math.max(Math.abs(nx), Math.abs(ny));
 
-      northRef.current.style.left = `${50 + (nx / max) * 46}%`;
-      northRef.current.style.top = `${50 + (ny / max) * 46}%`;
+      northRef.current.style.left = `calc(50% + ${(nx / max) * 50}% - ${(nx / max) * 16}px)`;
+      northRef.current.style.top = `calc(50% + ${(ny / max) * 50}% - ${(ny / max) * 16}px)`;
     }
 
     const { active, telemetry } = useVehicleStore.getState();
@@ -257,7 +262,6 @@ const MiniMap = () => {
           top: "48.5%",
           xPercent: 50,
           yPercent: -55,
-          borderRadius: "16px",
           pointerEvents: "auto",
           duration: 0.35,
           ease: "power3.inOut",
@@ -358,13 +362,16 @@ const MiniMap = () => {
       ref={wrapperRef}
       className={`${showMap ? "block" : "hidden"} fixed ${
         sceneConstants.isDev ? "right-90" : "right-2"
-      } top-2 z-14 size-60 overflow-hidden pointer-events-none rounded-md border border-tron-cyan bg-black/40 backdrop-blur-md [box-shadow:0_0_15px_rgba(0,243,255,0.2)]`}
+      } top-2 z-14 w-70 h-70 pointer-events-none`}
     >
       {showMap && (
         <>
+          <div className="absolute inset-4 rounded-2xl border border-tron-cyan bg-black/40 backdrop-blur-md shadow-[0_0_15px_rgba(0,243,255,0.2)] pointer-events-auto" />
+
           <Canvas
-            gl={{ antialias: false, alpha: false }}
+            gl={{ antialias: false, alpha: true }}
             resize={{ debounce: 0 }}
+            className="absolute inset-0 pointer-events-none"
           >
             <ProceduralMapShader
               isExpandedRef={isExpandedRef}
@@ -375,15 +382,19 @@ const MiniMap = () => {
 
           <div
             ref={northRef}
-            className="absolute flex items-center justify-center w-6 h-6 text-sm font-bold text-black bg-white border-2 border-tron-cyan rounded-full shadow-[0_0_10px_rgba(0,243,255,0.8)] z-20 pointer-events-none"
-            style={{ transform: "translate(-50%, -50%)" }}
+            className="absolute flex items-center justify-center w-5 h-5 text-[10px] font-bold text-black bg-white border border-tron-cyan rounded-full shadow-[0_0_10px_rgba(0,243,255,0.8)] z-20 pointer-events-none"
+            style={{
+              transform: "translate(-50%, -50%)",
+              left: "50%",
+              top: "16px",
+            }}
           >
             N
           </div>
 
           <div
             ref={legendRef}
-            className="absolute top-6 left-6 opacity-0 pointer-events-none flex flex-col gap-5 bg-black/60 backdrop-blur-md border border-tron-cyan/30 rounded-md p-4 text-xs text-white/80 font-mono shadow-[0_0_15px_rgba(0,243,255,0.1)] w-48"
+            className="absolute top-8 left-8 opacity-0 pointer-events-none flex flex-col gap-5 bg-black/60 backdrop-blur-md border border-tron-cyan/30 rounded-md p-4 text-xs text-white/80 font-mono shadow-[0_0_15px_rgba(0,243,255,0.1)] w-48"
           >
             <div className="flex flex-col gap-2.5">
               <div className="text-tron-cyan font-bold tracking-widest mb-1 border-b border-tron-cyan/30 pb-2">
