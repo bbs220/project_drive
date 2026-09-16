@@ -88,10 +88,19 @@ vec3 stampIcon(vec3 baseColor,vec2 flatUv,vec2 playerWorldPos,vec2 entityWorldPo
     entityScreenUv.x = mapUv.x * (1.0 - entityScreenUv.y * pitch);
     entityScreenUv.x *= aspect;
 
-    vec2 diff = flatUv - entityScreenUv;
-    float isBg = 1.0 - smoothstep(radius - 0.005,radius,length(diff));
+    vec2 absUv = abs(entityScreenUv);
+    float maxDist = max(absUv.x / (0.43 * aspect),absUv.y / 0.43);
+    float isClamped = step(1.0,maxDist);
 
-    vec2 iconUv = (diff / scale);
+    entityScreenUv = mix(entityScreenUv,entityScreenUv / maxDist,isClamped);
+
+    float currentRadius = radius * mix(1.0,0.75,isClamped);
+    float currentScale = scale * mix(1.0,0.75,isClamped);
+
+    vec2 diff = flatUv - entityScreenUv;
+    float isBg = 1.0 - smoothstep(currentRadius - 0.005,currentRadius,length(diff));
+
+    vec2 iconUv = (diff / currentScale);
     iconUv = rotate2d(-(entityYaw - cameraYaw)) * iconUv;
     iconUv += 0.5;
 
