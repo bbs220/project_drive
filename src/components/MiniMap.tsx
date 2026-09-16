@@ -87,18 +87,28 @@ const ProceduralMapShader = ({
     dummyE.setFromQuaternion(state.camera.quaternion, "YXZ");
     materialRef.current.uniforms.uActiveYaw.value = dummyE.y;
 
-    const targetZoom = isExpandedRef.current
+    const { active, telemetry } = useVehicleStore.getState();
+    const currentTelemetry = telemetry[active.entity];
+
+    let currentSpeed = 0;
+    if (currentTelemetry) {
+      currentSpeed =
+        (currentTelemetry as any).speed ||
+        (currentTelemetry as any).airspeed ||
+        0;
+    }
+
+    const baseZoom = isExpandedRef.current
       ? (params.fullMapZoom as number)
       : (params.miniMapZoom as number);
+
+    const targetZoom = baseZoom + currentSpeed * 15.0;
 
     materialRef.current.uniforms.uMapZoom.value = THREE.MathUtils.lerp(
       materialRef.current.uniforms.uMapZoom.value,
       targetZoom,
       params.zoomLerpSpeed as number,
     );
-
-    const { active, telemetry } = useVehicleStore.getState();
-    const currentTelemetry = telemetry[active.entity];
 
     const targetPitch = active.control === CONTROL_STATE.PLAYER ? 0.0 : 0.6;
     const targetLookAhead =
