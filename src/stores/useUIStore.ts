@@ -34,7 +34,7 @@ export const useUIStore = create<UIState>((set) => ({
   // default hud state
   showControls: true,
   showSpeedometers: true,
-  showMap: true,
+  showMap: false,
 
   // audio actions
   setMasterVolume: (volume) => set({ masterVolume: volume }),
