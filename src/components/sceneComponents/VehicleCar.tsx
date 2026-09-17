@@ -29,11 +29,11 @@ type typeChassisGLTF = GLTF & {
     seats: THREE.Mesh;
   };
   materials: {
-    baseMetal_MAT: THREE.MeshStandardMaterial;
-    PaletteMaterial001: THREE.MeshStandardMaterial;
-    PaletteMaterial002: THREE.MeshStandardMaterial;
-    Screens: THREE.MeshStandardMaterial;
-    Seat: THREE.MeshStandardMaterial;
+    chromeshiny: THREE.MeshStandardMaterial;
+    emitwhite: THREE.MeshStandardMaterial;
+    screenyellow: THREE.MeshStandardMaterial;
+    seatblack: THREE.MeshStandardMaterial;
+    chassicblack: THREE.MeshStandardMaterial;
   };
 };
 
@@ -45,7 +45,7 @@ type typeFrontTyreGLTF = GLTF & {
   };
   materials: {
     ["Rubber.001"]: THREE.MeshStandardMaterial;
-    ["Glow.002"]: THREE.MeshStandardMaterial;
+    ["Glow.001"]: THREE.MeshStandardMaterial;
     ["Chrome.001"]: THREE.MeshStandardMaterial;
   };
 };
@@ -58,7 +58,7 @@ type typeRearTyreGLTF = GLTF & {
   };
   materials: {
     ["Rubber.002"]: THREE.MeshStandardMaterial;
-    ["Glow.001"]: THREE.MeshStandardMaterial;
+    ["Glow.002"]: THREE.MeshStandardMaterial;
     ["Chrome.002"]: THREE.MeshStandardMaterial;
   };
 };
@@ -114,32 +114,32 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
 
     // dynamically toggle wireframe directly on the shared materials
     useEffect(() => {
-      chassisGLTF.materials.baseMetal_MAT.wireframe = debugMesh;
-      chassisGLTF.materials.PaletteMaterial001.wireframe = debugMesh;
-      chassisGLTF.materials.PaletteMaterial002.wireframe = debugMesh;
-      chassisGLTF.materials.Screens.wireframe = debugMesh;
-      chassisGLTF.materials.Seat.wireframe = debugMesh;
+      chassisGLTF.materials.chassicblack.wireframe = debugMesh;
+      chassisGLTF.materials.chromeshiny.wireframe = debugMesh;
+      chassisGLTF.materials.emitwhite.wireframe = debugMesh;
+      chassisGLTF.materials.screenyellow.wireframe = debugMesh;
+      chassisGLTF.materials.seatblack.wireframe = debugMesh;
 
       frontTyreGLTF.materials["Rubber.001"].wireframe = debugMesh;
-      frontTyreGLTF.materials["Glow.002"].wireframe = debugMesh;
+      frontTyreGLTF.materials["Glow.001"].wireframe = debugMesh;
       frontTyreGLTF.materials["Chrome.001"].wireframe = debugMesh;
 
       rearTyreGLTF.materials["Rubber.002"].wireframe = debugMesh;
-      rearTyreGLTF.materials["Glow.001"].wireframe = debugMesh;
+      rearTyreGLTF.materials["Glow.002"].wireframe = debugMesh;
       rearTyreGLTF.materials["Chrome.002"].wireframe = debugMesh;
 
-      chassisGLTF.materials.baseMetal_MAT.needsUpdate = true;
-      chassisGLTF.materials.PaletteMaterial001.needsUpdate = true;
-      chassisGLTF.materials.PaletteMaterial002.needsUpdate = true;
-      chassisGLTF.materials.Screens.needsUpdate = true;
-      chassisGLTF.materials.Seat.needsUpdate = true;
+      chassisGLTF.materials.chassicblack.needsUpdate = true;
+      chassisGLTF.materials.chromeshiny.needsUpdate = true;
+      chassisGLTF.materials.emitwhite.needsUpdate = true;
+      chassisGLTF.materials.screenyellow.needsUpdate = true;
+      chassisGLTF.materials.seatblack.needsUpdate = true;
 
       frontTyreGLTF.materials["Rubber.001"].needsUpdate = true;
-      frontTyreGLTF.materials["Glow.002"].needsUpdate = true;
+      frontTyreGLTF.materials["Glow.001"].needsUpdate = true;
       frontTyreGLTF.materials["Chrome.001"].needsUpdate = true;
 
       rearTyreGLTF.materials["Rubber.002"].needsUpdate = true;
-      rearTyreGLTF.materials["Glow.001"].needsUpdate = true;
+      rearTyreGLTF.materials["Glow.002"].needsUpdate = true;
       rearTyreGLTF.materials["Chrome.002"].needsUpdate = true;
     }, [
       debugMesh,
@@ -190,31 +190,31 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                 castShadow
                 receiveShadow
                 geometry={chassisGLTF.nodes.chassis.geometry}
-                material={chassisGLTF.materials.baseMetal_MAT}
+                material={chassisGLTF.materials.chassicblack}
               />
               <mesh
                 castShadow
                 receiveShadow
                 geometry={chassisGLTF.nodes.chassisDisplayGlow.geometry}
-                material={chassisGLTF.materials.PaletteMaterial001}
+                material={chassisGLTF.materials.chromeshiny}
               />
               <mesh
                 castShadow
                 receiveShadow
                 geometry={chassisGLTF.nodes.chassisGlow.geometry}
-                material={chassisGLTF.materials.PaletteMaterial002}
+                material={chassisGLTF.materials.emitwhite}
               />
               <mesh
                 castShadow
                 receiveShadow
                 geometry={chassisGLTF.nodes.displayScreen.geometry}
-                material={chassisGLTF.materials.Screens}
+                material={chassisGLTF.materials.screenyellow}
               />
               <mesh
                 castShadow
                 receiveShadow
                 geometry={chassisGLTF.nodes.seats.geometry}
-                material={chassisGLTF.materials.Seat}
+                material={chassisGLTF.materials.seatblack}
               />
             </group>
 
@@ -241,7 +241,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                   castShadow
                   receiveShadow
                   geometry={frontTyreGLTF.nodes.frontLeftWheelGlow.geometry}
-                  material={frontTyreGLTF.materials["Glow.002"]}
+                  material={frontTyreGLTF.materials["Glow.001"]}
                 />
                 <mesh
                   castShadow
@@ -254,7 +254,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
               {debugMesh && (
                 <>
                   <mesh geometry={wheelGeo}>
-                    <meshStandardMaterial color="blue" wireframe />
+                    <meshStandardMaterial color="yellow" wireframe />
                   </mesh>
                   <Html center transform sprite position={[0, 0.5, 0]}>
                     <div style={labelStyle}>Front Left</div>
@@ -286,7 +286,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                   castShadow
                   receiveShadow
                   geometry={frontTyreGLTF.nodes.frontLeftWheelGlow.geometry}
-                  material={frontTyreGLTF.materials["Glow.002"]}
+                  material={frontTyreGLTF.materials["Glow.001"]}
                 />
                 <mesh
                   castShadow
@@ -331,7 +331,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                   castShadow
                   receiveShadow
                   geometry={rearTyreGLTF.nodes.rearLeftWheelGlow.geometry}
-                  material={rearTyreGLTF.materials["Glow.001"]}
+                  material={rearTyreGLTF.materials["Glow.002"]}
                 />
                 <mesh
                   castShadow
@@ -376,7 +376,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
                   castShadow
                   receiveShadow
                   geometry={rearTyreGLTF.nodes.rearLeftWheelGlow.geometry}
-                  material={rearTyreGLTF.materials["Glow.001"]}
+                  material={rearTyreGLTF.materials["Glow.002"]}
                 />
                 <mesh
                   castShadow
@@ -403,7 +403,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[0, 0.1, -2.3]}
-          color={"#ffffff"}
+          color={"#c9ffff"}
           height={0.8}
           width={0.05}
           length={80}
