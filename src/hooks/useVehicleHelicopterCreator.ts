@@ -192,9 +192,23 @@ export const useVehicleHelicopterCreator = (
       // multiply by RPM so movement completely dies if the engine is off
       moveDir.multiplyScalar(rpmRef.current);
 
-      // override Rapier Dynamics
+      // smooth inertia
+      // get the current physical velocity of the chassis
+      const currentRapierVel = chassis.linvel();
+      const currentVel = new THREE.Vector3(
+        currentRapierVel.x,
+        currentRapierVel.y,
+        currentRapierVel.z,
+      );
+
+      // lerp the current velocity toward the target input velocity (moveDir)
+      // the 2.5 multiplier dictates how "heavy" the helicopter feels when accelerating/decelerating
+      currentVel.lerp(moveDir, delta * 2.5);
+
+      // override rapier dynamics
       // setting linear velocity directly ignores mass and gravity entirely
-      chassis.setLinvel(moveDir, true);
+      chassis.setLinvel(currentVel, true);
+
       // zeroing out angular velocity kills any physics-induced spinning from collisions
       chassis.setAngvel({ x: 0, y: 0, z: 0 }, true);
     } else {
