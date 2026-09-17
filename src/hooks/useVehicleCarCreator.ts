@@ -371,6 +371,37 @@ export const useVehicleCarCreator = (
       controller.setWheelBrake(1, currentBrake);
       controller.setWheelBrake(2, currentBrake);
       controller.setWheelBrake(3, currentBrake);
+
+      // new anti-spin / parking logic
+      // rapier raycast vehicles suffer from phantom yaw torque when perfectly still
+      // due to asymmetrical wheel base distances (frontZ vs rearZ).
+      const isIdle =
+        !controls.forward &&
+        !controls.backward &&
+        !controls.left &&
+        !controls.right;
+      const isUnoccupied = active.control !== CONTROL_STATE.CAR;
+
+      // only damp if the vehicle has slowed down to a crawl.
+      // this ensures unoccupied cars still tumble/slide naturally if thrown off a cliff.
+      if (currentSpeed < 1.0 && (isUnoccupied || isIdle)) {
+        const aVel = chassis.angvel();
+
+        // actively kill rotational drifting (spinning in place)
+        chassis.setAngvel(
+          { x: aVel.x * 0.9, y: aVel.y * 0.9, z: aVel.z * 0.9 },
+          true,
+        );
+
+        // actively kill linear sliding to lock the car onto the pavement
+        if (currentSpeed < 0.5) {
+          const lVel = chassis.linvel();
+          chassis.setLinvel(
+            { x: lVel.x * 0.9, y: lVel.y, z: lVel.z * 0.9 },
+            true,
+          );
+        }
+      }
     }
 
     // update vehicle forces
