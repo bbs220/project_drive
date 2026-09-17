@@ -13,7 +13,7 @@ const grad3 = new Float32Array([
  */
 export class SimplexNoise {
   private p: Uint8Array;
-  private perm: Uint8Array;
+  public perm: Uint8Array;
   private permMod12: Uint8Array;
 
   /**

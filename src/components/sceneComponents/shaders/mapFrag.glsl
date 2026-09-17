@@ -18,6 +18,7 @@ uniform sampler2D uPlayerTex;
 uniform sampler2D uCarTex;
 uniform sampler2D uPlaneTex;
 uniform sampler2D uHeliTex;
+uniform sampler2D uPermTexture;
 
 uniform vec2 uCharPos;
 uniform vec2 uCarPos;
@@ -33,32 +34,109 @@ uniform int uActiveEntity;
 
 varying vec2 vUv;
 
-vec3 permute(vec3 x) {
-    return mod(((x * 34.0) + 1.0) * x,289.0);
+// reads from your exact JS perm array
+float getPerm(float i) {
+    return texture2D(uPermTexture,vec2((i + 0.5) / 512.0,0.5)).r * 255.0;
 }
 
+// maps exactly to your grad3 array logic
+vec2 getGrad2(float hash) {
+    int h = int(mod(hash,12.0));
+    if (h == 0)
+        return vec2(1.0,1.0);
+    if (h == 1)
+        return vec2(-1.0,1.0);
+    if (h == 2)
+        return vec2(1.0,-1.0);
+    if (h == 3)
+        return vec2(-1.0,-1.0);
+    if (h == 4)
+        return vec2(1.0,0.0);
+    if (h == 5)
+        return vec2(-1.0,0.0);
+    if (h == 6)
+        return vec2(1.0,0.0);
+    if (h == 7)
+        return vec2(-1.0,0.0);
+    if (h == 8)
+        return vec2(0.0,1.0);
+    if (h == 9)
+        return vec2(0.0,-1.0);
+    if (h == 10)
+        return vec2(0.0,1.0);
+    if (h == 11)
+        return vec2(0.0,-1.0);
+    return vec2(0.0);
+}
+
+// 1:1 Port of your SimplexNoise.ts noise2D
 float snoise(vec2 v) {
-    const vec4 C = vec4(0.211324865405187,0.366025403784439,-0.577350269189626,0.024390243902439);
-    vec2 i = floor(v + dot(v,C.yy));
-    vec2 x0 = v - i + dot(i,C.xx);
-    vec2 i1;
-    i1 = (x0.x > x0.y) ? vec2(1.0,0.0) : vec2(0.0,1.0);
-    vec4 x12 = x0.xyxy + C.xxzz;
-    x12.xy -= i1;
-    i = mod(i,289.0);
-    vec3 p = permute(permute(i.y + vec3(0.0,i1.y,1.0)) + i.x + vec3(0.0,i1.x,1.0));
-    vec3 m = max(0.5 - vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.0);
-    m = m * m;
-    m = m * m;
-    vec3 x = 2.0 * fract(p * C.www) - 1.0;
-    vec3 h = abs(x) - 0.5;
-    vec3 ox = floor(x + 0.5);
-    vec3 a0 = x - ox;
-    m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
-    vec3 g;
-    g.x = a0.x * x0.x + h.x * x0.y;
-    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-    return 130.0 * dot(m,g);
+    float F2 = 0.366025403784439; // 0.5 * (sqrt(3.0) - 1.0)
+    float G2 = 0.211324865405187; // (3.0 - sqrt(3.0)) / 6.0
+
+    float xin = v.x;
+    float yin = v.y;
+
+    float s = (xin + yin) * F2;
+    float i = floor(xin + s);
+    float j = floor(yin + s);
+    float t = (i + j) * G2;
+    float X0 = i - t;
+    float Y0 = j - t;
+    float x0 = xin - X0;
+    float y0 = yin - Y0;
+
+    float i1,j1;
+    if (x0 > y0) {
+        i1 = 1.0;
+        j1 = 0.0;
+    } else {
+        i1 = 0.0;
+        j1 = 1.0;
+    }
+
+    float x1 = x0 - i1 + G2;
+    float y1 = y0 - j1 + G2;
+    float x2 = x0 - 1.0 + 2.0 * G2;
+    float y2 = y0 - 1.0 + 2.0 * G2;
+
+    float ii = mod(i,256.0);
+    float jj = mod(j,256.0);
+
+    float perm_jj = floor(getPerm(jj) + 0.5);
+    float perm_jj_j1 = floor(getPerm(jj + j1) + 0.5);
+    float perm_jj_1 = floor(getPerm(jj + 1.0) + 0.5);
+
+    float gi0 = floor(getPerm(ii + perm_jj) + 0.5);
+    float gi1 = floor(getPerm(ii + i1 + perm_jj_j1) + 0.5);
+    float gi2 = floor(getPerm(ii + 1.0 + perm_jj_1) + 0.5);
+
+    vec2 g0 = getGrad2(gi0);
+    vec2 g1 = getGrad2(gi1);
+    vec2 g2 = getGrad2(gi2);
+
+    float t0 = 0.5 - x0 * x0 - y0 * y0;
+    float n0 = 0.0;
+    if (t0 >= 0.0) {
+        t0 *= t0;
+        n0 = t0 * t0 * dot(g0,vec2(x0,y0));
+    }
+
+    float t1 = 0.5 - x1 * x1 - y1 * y1;
+    float n1 = 0.0;
+    if (t1 >= 0.0) {
+        t1 *= t1;
+        n1 = t1 * t1 * dot(g1,vec2(x1,y1));
+    }
+
+    float t2 = 0.5 - x2 * x2 - y2 * y2;
+    float n2 = 0.0;
+    if (t2 >= 0.0) {
+        t2 *= t2;
+        n2 = t2 * t2 * dot(g2,vec2(x2,y2));
+    }
+
+    return 70.0 * (n0 + n1 + n2);
 }
 
 float fbm2D(vec2 p,int octaves,float frequency,float persistence,float lacunarity) {
@@ -125,7 +203,7 @@ vec4 stampIcon(vec4 baseColor,vec2 uv,vec2 playerWorldPos,vec2 entityWorldPos,sa
 }
 
 void main() {
-    vec2 margin = 16.0 / uResolution;
+    vec2 margin = vec2(6.0) / uResolution;
 
     vec2 screenUv = vUv - 0.5;
     vec2 terrainUv = screenUv;

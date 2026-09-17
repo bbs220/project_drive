@@ -25,7 +25,8 @@ export const generatorState = {
   maxBuildingHeight: 60,
 };
 
-let simplex = new SimplexNoise(generatorState.seed);
+// export this instance
+export let simplex = new SimplexNoise(generatorState.seed);
 
 const fbm2D = (
   x: number,

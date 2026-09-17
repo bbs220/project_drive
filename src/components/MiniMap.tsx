@@ -16,6 +16,8 @@ import { useTweakpane } from "../hooks/useTweakpane";
 import { iconsBank } from "../utils/assetpaths";
 import mapFrag from "./sceneComponents/shaders/mapFrag.glsl";
 import mapVert from "./sceneComponents/shaders/mapVert.glsl";
+import { useCityStore } from "../stores/useCItyStore";
+import { SimplexNoise } from "../utils/SimplexNoise";
 
 type ProceduralMapParams = {
   fullMapZoom: number;
@@ -35,12 +37,14 @@ type typeProceduralMapProps = {
   isExpandedRef: React.RefObject<boolean>;
   params: ProceduralMapParams;
   northRef: React.RefObject<HTMLDivElement | null>;
+  permTexture: THREE.DataTexture; // NEW PROP
 };
 
 const ProceduralMapShader = ({
   isExpandedRef,
   params,
   northRef,
+  permTexture,
 }: typeProceduralMapProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
@@ -67,6 +71,7 @@ const ProceduralMapShader = ({
       uLookAhead: { value: 0.0 },
       uActiveYaw: { value: 0.0 },
       uEdgeIconScale: { value: 0.65 },
+      uPermTexture: { value: permTexture },
       uMacroFreq: { value: generatorState.macroFrequency },
       uUrbanFreq: { value: generatorState.urbanFrequency },
       uUrbanSprawl: { value: generatorState.urbanSprawl },
@@ -87,7 +92,7 @@ const ProceduralMapShader = ({
       uHeliYaw: { value: 0.0 },
       uActiveEntity: { value: 0 },
     }),
-    [icons],
+    [icons, permTexture],
   );
 
   useFrame((state) => {
@@ -110,8 +115,8 @@ const ProceduralMapShader = ({
       const ny = -Math.cos(yaw);
       const max = Math.max(Math.abs(nx), Math.abs(ny));
 
-      northRef.current.style.left = `calc(50% + ${(nx / max) * 50}% - ${(nx / max) * 16}px)`;
-      northRef.current.style.top = `calc(50% + ${(ny / max) * 50}% - ${(ny / max) * 16}px)`;
+      northRef.current.style.left = `calc(50% + ${(nx / max) * 50}% - ${(nx / max) * 6}px)`;
+      northRef.current.style.top = `calc(50% + ${(ny / max) * 50}% - ${(ny / max) * 6}px)`;
     }
 
     const { active, telemetry } = useVehicleStore.getState();
@@ -251,6 +256,7 @@ const ProceduralMapShader = ({
 
 const MiniMap = () => {
   const showMap = useUIStore((state) => state.showMap);
+  const citySeed = useCityStore((state) => state.seed);
   const controlsRef = useAllVehicleInput();
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -270,7 +276,7 @@ const MiniMap = () => {
     { title: "🗺️ Minimap", expanded: false },
     {
       miniMapZoom: { value: 680, min: 50, max: 5000, label: "walk zoom" },
-      fullMapZoom: { value: 1500, min: 50, max: 10000, label: "full map zoom" },
+      fullMapZoom: { value: 2200, min: 50, max: 10000, label: "full map zoom" },
       zoomLerpSpeed: { value: 0.1, min: 0.01, max: 1, label: "zoom speed" },
       speedZoomMult: { value: 8.0, min: 1, max: 50, label: "speed mult" },
       carMinZoom: { value: 680, min: 50, max: 5000, label: "car min z" },
@@ -287,6 +293,28 @@ const MiniMap = () => {
       },
     },
   );
+
+  // pack perm array into texture
+  const permTexture = useMemo(() => {
+    // local instance guaranteed to match the global seed
+    const localSimplex = new SimplexNoise(citySeed);
+
+    const data = new Uint8Array(512 * 4);
+    for (let i = 0; i < 512; i++) {
+      // map from the local instance
+      data[i * 4] = localSimplex.perm[i];
+      data[i * 4 + 1] = 0;
+      data[i * 4 + 2] = 0;
+      data[i * 4 + 3] = 255;
+    }
+    const tex = new THREE.DataTexture(data, 512, 1, THREE.RGBAFormat);
+
+    // prevent WebGL from blurring the exact array values
+    tex.magFilter = THREE.NearestFilter;
+    tex.minFilter = THREE.NearestFilter;
+    tex.needsUpdate = true;
+    return tex;
+  }, [citySeed]); // re-run whenever the seed changes
 
   useGSAP(
     () => {
@@ -406,11 +434,11 @@ const MiniMap = () => {
       ref={wrapperRef}
       className={`${showMap ? "block" : "hidden"} fixed ${
         sceneConstants.isDev ? "right-90" : "right-2"
-      } top-2 z-14 size-60 pointer-events-none`}
+      } top-2 z-14 size-60 pointer-events-none rounded-2xl border backdrop-blur-xs border-tron-cyan shadow-[0_0_15px_rgba(0,243,255,0.2)]`}
     >
       {showMap && (
         <>
-          <div className="absolute inset-1 rounded-2xl border overflow-hidden border-tron-cyan bg-black/10 backdrop-blur-xs pointer-events-auto" />
+          <div className="absolute inset-1.5 rounded-2xl bg-black/40 backdrop-blur-md pointer-events-auto" />
 
           <Canvas
             gl={{ antialias: false, alpha: true }}
@@ -421,6 +449,7 @@ const MiniMap = () => {
               isExpandedRef={isExpandedRef}
               params={params}
               northRef={northRef}
+              permTexture={permTexture}
             />
           </Canvas>
 
@@ -430,7 +459,7 @@ const MiniMap = () => {
             style={{
               transform: "translate(-50%, -50%)",
               left: "50%",
-              top: "16px",
+              top: "6px",
             }}
           >
             N
@@ -438,7 +467,7 @@ const MiniMap = () => {
 
           <div
             ref={legendRef}
-            className="absolute top-8 left-8 opacity-0 pointer-events-none flex flex-col gap-5 bg-black/60 backdrop-blur-md border border-tron-cyan/30 rounded-md p-4 text-xs text-white/80 font-mono shadow-[0_0_15px_rgba(0,243,255,0.1)] w-48"
+            className="absolute top-4 left-4 opacity-0 pointer-events-none flex flex-col gap-5 bg-black/60 backdrop-blur-md border border-tron-cyan/30 rounded-md p-4 text-xs text-white/80 font-mono shadow-[0_0_15px_rgba(0,243,255,0.1)] w-48"
           >
             <div className="flex flex-col gap-2.5">
               <div className="text-tron-cyan font-bold tracking-widest mb-1 border-b border-tron-cyan/30 pb-2">
