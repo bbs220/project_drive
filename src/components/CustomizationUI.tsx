@@ -53,10 +53,23 @@ const CustomizationUI = () => {
         }`}
       />
 
-      {/* centralized tab interface container - expanded width to utilize horizontal space */}
-      <div className="pointer-events-none absolute left-1/2 top-18 z-10 flex w-[95vw] -translate-x-1/2 flex-col items-center md:top-2 md:w-[90vw] lg:w-[80vw] max-w-7xl">
-        {/* top navigation tabs */}
-        <div className="flex w-full gap-1 overflow-x-auto md:w-auto md:gap-2 [&::-webkit-scrollbar]:hidden">
+      {/* centralized tab interface container */}
+      <div className="pointer-events-none absolute left-0 top-0 z-10 flex h-full items-center pl-0">
+        {/* modular customization panel - acts as the main sidebar body */}
+        <div className="pointer-events-auto relative z-0 flex h-[90vh] w-88 flex-col rounded-r-2xl border border-l-0 border-tron-cyan bg-black/70 backdrop-blur-md [box-shadow:5px_0_20px_rgba(0,243,255,0.15)]">
+          {/* main scrollable container for the customization categories */}
+          <div className="flex h-full w-full flex-col overflow-y-auto overflow-x-hidden pt-4 pb-8 [&::-webkit-scrollbar]:hidden">
+            {/* conditionally mount only the ui matching the active vehicle */}
+            {activeGarageVehicle === "car" && <CustomizationVehicleCarUI />}
+            {activeGarageVehicle === "plane" && <CustomizationVehiclePlaneUI />}
+            {activeGarageVehicle === "helicopter" && (
+              <CustomizationVehicleHelicopterUI />
+            )}
+          </div>
+        </div>
+
+        {/* side navigation tabs - attached directly to the right edge of the sidebar */}
+        <div className="pointer-events-auto flex flex-col gap-2 pl-0 -ml-px">
           {vehicles.map((v) => (
             <button
               key={v.id}
@@ -64,27 +77,15 @@ const CustomizationUI = () => {
                 playToggle();
                 handleSwap(v.id);
               }}
-              className={`pointer-events-auto relative top-px flex-1 whitespace-nowrap rounded-t-md border border-b-0 px-4 py-2 font-telemetry text-xs uppercase tracking-wider backdrop-blur-md transition-all duration-200 hover:cursor-pointer md:flex-none md:px-8 md:py-2.5 md:text-sm ${
+              className={`relative flex items-center justify-start whitespace-nowrap rounded-r-lg border border-l-0 py-4 pl-4 pr-6 font-telemetry text-xs uppercase tracking-wider backdrop-blur-md transition-all duration-200 hover:cursor-pointer ${
                 activeGarageVehicle === v.id
-                  ? "border-tron-cyan text-tron-yellow [box-shadow:0_-5px_15px_rgba(0,243,255,0.15)] [text-shadow:0_0_8px_var(--color-tron-yellow)]"
-                  : "border-transparent bg-transparent text-gray-400 hover:text-tron-cyan hover:[text-shadow:0_0_8px_var(--color-tron-cyan)]"
+                  ? "border-tron-cyan bg-tron-cyan/15 text-tron-yellow [box-shadow:5px_0_15px_rgba(0,243,255,0.2)] [text-shadow:0_0_8px_var(--color-tron-yellow)]"
+                  : "border-white/10 bg-black/60 text-gray-400 hover:border-tron-cyan/50 hover:bg-black/80 hover:text-tron-cyan hover:[text-shadow:0_0_8px_var(--color-tron-cyan)]"
               }`}
             >
               {v.label}
             </button>
           ))}
-        </div>
-
-        {/* modular customization panel - w-full ensures it stretches to fill the expanded parent */}
-        <div className="pointer-events-auto relative z-0 flex w-full items-center justify-center rounded-md border border-tron-cyan px-2 py-3 font-telemetry text-sm text-gray-300 backdrop-blur-md md:px-6 [box-shadow:0_5px_15px_rgba(0,243,255,0.2)]">
-          {/* conditionally mount only the ui matching the active vehicle */}
-          <div className="flex w-full items-center justify-center overflow-x-auto [&::-webkit-scrollbar]:hidden">
-            {activeGarageVehicle === "car" && <CustomizationVehicleCarUI />}
-            {activeGarageVehicle === "plane" && <CustomizationVehiclePlaneUI />}
-            {activeGarageVehicle === "helicopter" && (
-              <CustomizationVehicleHelicopterUI />
-            )}
-          </div>
         </div>
       </div>
     </div>
