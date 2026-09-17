@@ -18,18 +18,17 @@ import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useVehiclePlaneCreator } from "../../hooks/useVehiclePlaneCreator";
 import type { VehicleProps } from "../../stores/useVehicleStore";
 import TrailEngine from "./TrailEngine";
+import { useCustomizationStore } from "../../stores/useCustomizationStore";
 
 // define strict types for the airframe geometry
 type typeAirframeGLTF = GLTF & {
   nodes: {
     planeBody: THREE.Mesh;
     planeStripes: THREE.Mesh;
-    planeThrusters: THREE.Mesh;
   };
   materials: {
-    ["black.001"]: THREE.MeshStandardMaterial;
-    ["tron.002"]: THREE.MeshStandardMaterial;
-    ["tron.003"]: THREE.MeshStandardMaterial;
+    bodyBlack: THREE.MeshStandardMaterial;
+    stripesWhite: THREE.MeshStandardMaterial;
   };
 };
 
@@ -39,7 +38,7 @@ type typeCockpitGLTF = GLTF & {
     planeCockpit: THREE.Mesh;
   };
   materials: {
-    ["Material.001"]: THREE.MeshStandardMaterial;
+    cockpitBlue: THREE.MeshStandardMaterial;
   };
 };
 
@@ -55,6 +54,9 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
 
     // initialize global input listener to capture flight controls and structural keys
     const controls = useAllVehicleInput();
+
+    // extract the live plane mods from the customization store
+    const planeMods = useCustomizationStore((state) => state.planeMods);
 
     // initialize tweakpane hook and store reactive parameters
     const params = useTweakpane(
@@ -76,17 +78,49 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
       modelsSeperatedBank.lightPlane01cockpit,
     ) as unknown as typeCockpitGLTF;
 
+    // dynamically apply custom paint jobs from store to the plane materials
+    useEffect(() => {
+      // apply base airframe properties
+      airframeGLTF.materials.bodyBlack.color.set(planeMods.base.color);
+      airframeGLTF.materials.bodyBlack.metalness = planeMods.base.metalness;
+      airframeGLTF.materials.bodyBlack.roughness = planeMods.base.roughness;
+      airframeGLTF.materials.bodyBlack.emissive.set(planeMods.base.color);
+      airframeGLTF.materials.bodyBlack.emissiveIntensity =
+        planeMods.base.emission;
+
+      // apply emissive stripes properties
+      airframeGLTF.materials.stripesWhite.color.set(planeMods.stripes.color);
+      airframeGLTF.materials.stripesWhite.metalness =
+        planeMods.stripes.metalness;
+      airframeGLTF.materials.stripesWhite.roughness =
+        planeMods.stripes.roughness;
+      airframeGLTF.materials.stripesWhite.emissive.set(planeMods.stripes.color);
+      airframeGLTF.materials.stripesWhite.emissiveIntensity =
+        planeMods.stripes.emission;
+
+      // apply cockpit glass properties
+      cockpitGLTF.materials.cockpitBlue.color.set(planeMods.glass.color);
+      cockpitGLTF.materials.cockpitBlue.metalness = planeMods.glass.metalness;
+      cockpitGLTF.materials.cockpitBlue.roughness = planeMods.glass.roughness;
+      cockpitGLTF.materials.cockpitBlue.emissive.set(planeMods.glass.color);
+      cockpitGLTF.materials.cockpitBlue.emissiveIntensity =
+        planeMods.glass.emission;
+
+      // manually flag shaders for update in case properties changed drastically
+      airframeGLTF.materials.bodyBlack.needsUpdate = true;
+      airframeGLTF.materials.stripesWhite.needsUpdate = true;
+      cockpitGLTF.materials.cockpitBlue.needsUpdate = true;
+    }, [planeMods, airframeGLTF.materials, cockpitGLTF.materials]);
+
     // dynamically toggle wireframe directly on the shared materials
     useEffect(() => {
-      airframeGLTF.materials["black.001"].wireframe = debugMesh;
-      airframeGLTF.materials["tron.002"].wireframe = debugMesh;
-      airframeGLTF.materials["tron.003"].wireframe = debugMesh;
-      cockpitGLTF.materials["Material.001"].wireframe = debugMesh;
+      airframeGLTF.materials.bodyBlack.wireframe = debugMesh;
+      airframeGLTF.materials.stripesWhite.wireframe = debugMesh;
+      cockpitGLTF.materials.cockpitBlue.wireframe = debugMesh;
 
-      airframeGLTF.materials["black.001"].needsUpdate = true;
-      airframeGLTF.materials["tron.002"].needsUpdate = true;
-      airframeGLTF.materials["tron.003"].needsUpdate = true;
-      cockpitGLTF.materials["Material.001"].needsUpdate = true;
+      airframeGLTF.materials.bodyBlack.needsUpdate = true;
+      airframeGLTF.materials.stripesWhite.needsUpdate = true;
+      cockpitGLTF.materials.cockpitBlue.needsUpdate = true;
     }, [debugMesh, airframeGLTF.materials, cockpitGLTF.materials]);
 
     // extract visual offsets
@@ -130,23 +164,15 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
                     castShadow
                     receiveShadow
                     geometry={airframeGLTF.nodes.planeBody.geometry}
-                    material={airframeGLTF.materials["black.001"]}
-                  >
-                    <mesh
-                      name="planeStripes"
-                      castShadow
-                      receiveShadow
-                      geometry={airframeGLTF.nodes.planeStripes.geometry}
-                      material={airframeGLTF.materials["tron.002"]}
-                    />
-                    <mesh
-                      name="planeThrusters"
-                      castShadow
-                      receiveShadow
-                      geometry={airframeGLTF.nodes.planeThrusters.geometry}
-                      material={airframeGLTF.materials["tron.003"]}
-                    />
-                  </mesh>
+                    material={airframeGLTF.materials.bodyBlack}
+                  />
+                  <mesh
+                    name="planeStripes"
+                    castShadow
+                    receiveShadow
+                    geometry={airframeGLTF.nodes.planeStripes.geometry}
+                    material={airframeGLTF.materials.stripesWhite}
+                  />
                 </group>
               </group>
 
@@ -157,7 +183,7 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
                   castShadow
                   receiveShadow
                   geometry={cockpitGLTF.nodes.planeCockpit.geometry}
-                  material={cockpitGLTF.materials["Material.001"]}
+                  material={cockpitGLTF.materials.cockpitBlue}
                 />
               </group>
             </group>
@@ -166,16 +192,16 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
         {/* side trails */}
         <TrailEngine
           targetRef={visualRef}
-          offset={[-13.65, 0.4, -5]}
-          color={"#ffffff"}
+          offset={[-13.65, 0.4, -3.2]}
+          color={planeMods.trailColor}
           height={0.1}
           width={0.1}
           length={100}
         />
         <TrailEngine
           targetRef={visualRef}
-          offset={[13.65, 0.4, -5]}
-          color={"#ffffff"}
+          offset={[13.65, 0.4, -3.2]}
+          color={planeMods.trailColor}
           height={0.1}
           width={0.1}
           length={100}
@@ -184,7 +210,7 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[-0.5, 0, 12.3]}
-          color={"#ffffff"}
+          color={planeMods.trailColor}
           height={0.1}
           width={0.1}
           length={200}
@@ -192,7 +218,7 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[0.5, 0, 12.3]}
-          color={"#ffffff"}
+          color={planeMods.trailColor}
           height={0.1}
           width={0.1}
           length={200}

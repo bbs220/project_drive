@@ -16,7 +16,7 @@ export const useAppStore = create<typeAppStore>()(
       setActiveScene: (scene) => set({ activeScene: scene }),
     }),
     {
-      name: "projectDrive",
+      name: "neonDrives",
     },
   ),
 );

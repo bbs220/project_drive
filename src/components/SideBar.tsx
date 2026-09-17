@@ -10,6 +10,7 @@ const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const activeScene = useAppStore((state) => state.activeScene);
   const appVersion = useAppStore((state) => state.appVersion);
+  const seed = useCityStore((state) => state.seed);
 
   const { playClick, playToggle, playSlider } = useUISounds();
 
@@ -54,7 +55,7 @@ const SideBar = () => {
   return (
     <>
       <aside
-        className={`fixed top-0 left-0 w-full h-screen bg-black/40 border-b-2 border-tron-cyan p-4 font-inter text-tron-cyan z-15 pointer-events-auto backdrop-blur-md shadow-[0_4px_20px_rgba(0,243,255,0.2),inset_0_-4px_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed top-0 select-none left-0 w-full h-screen bg-black/40 border-b-2 border-tron-cyan p-0.5 font-inter text-tron-cyan z-40 pointer-events-auto backdrop-blur-md shadow-[0_4px_20px_rgba(0,243,255,0.2),inset_0_-4px_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen ? "translate-y-0" : "-translate-y-full"
         }`}
       >
@@ -73,20 +74,7 @@ const SideBar = () => {
             {/* max-width container keeps the grid perfectly proportioned on ultrawide monitors */}
             <div className="w-full max-w-7xl mx-auto">
               {activeScene === "garage" ? (
-                <div className="flex flex-col gap-3 items-center text-center">
-                  <h3 className="mb-2 text-lg font-bold text-tron-cyan">
-                    [ GARAGE PROTOCOLS ]
-                  </h3>
-                  <p>
-                    VEHICLE BAY: <span className="text-white">LOCKED</span>
-                  </p>
-                  <p>
-                    DIAGNOSTICS:{" "}
-                    <span className="animate-pulse text-yellow-400">
-                      RUNNING...
-                    </span>
-                  </p>
-                </div>
+                <div className="flex flex-col gap-3 items-center text-center"></div>
               ) : activeScene === "drive" ? (
                 // master grid container holding all categories
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -253,12 +241,29 @@ const SideBar = () => {
                     </div>
                   </div>
 
-                  {/* --- RADIO SECTION --- */}
+                  {/* --- radio section --- */}
                   <div className="flex flex-col gap-4">
                     <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1">
                       COMMUNICATIONS
                     </h3>
                     <RadioHUD />
+                  </div>
+
+                  {/* ---information section--- */}
+                  <div className="flex flex-col gap-4">
+                    <h3 className="border-b border-tron-cyan/30 pb-1 text-lg font-bold text-tron-cyan">
+                      INFORMATION
+                    </h3>
+
+                    {/* Consistent Seed Display */}
+                    <div className="flex items-center justify-between pr-3 text-xs tracking-wider">
+                      <span className="text-white/80">WORLD SEED</span>
+                      <div className="flex h-5 items-center border border-tron-cyan/40 bg-black/50 px-3 skew-x-[-15deg] shadow-[0_0_10px_rgba(0,243,255,0.1)]">
+                        <span className="skew-x-15 font-mono text-tron-cyan drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]">
+                          {seed}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -277,7 +282,7 @@ const SideBar = () => {
           playClick();
           setIsOpen(!isOpen);
         }}
-        className="fixed top-4 left-4 flex cursor-pointer items-center justify-center rounded-md border-2 border-tron-cyan p-2 text-tron-cyan z-15 backdrop-blur-sm shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:bg-tron-cyan hover:text-black transition-colors"
+        className="fixed top-2 left-2 flex cursor-pointer items-center justify-center rounded-md border-2 border-tron-cyan p-2 text-tron-cyan z-45 backdrop-blur-sm shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:bg-tron-cyan hover:text-black transition-colors"
         aria-label="toggle settings menu"
       >
         {isOpen ? (

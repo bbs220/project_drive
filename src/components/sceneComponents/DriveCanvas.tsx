@@ -1,4 +1,9 @@
-import { PerspectiveCamera, Stats } from "@react-three/drei";
+import {
+  GizmoHelper,
+  GizmoViewport,
+  PerspectiveCamera,
+  Stats,
+} from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { useEffect, useRef } from "react";
@@ -24,6 +29,7 @@ import ChunkManager from "./proceduralCity/ChunkManager";
 import Player from "./Player";
 import { useMountSystem } from "../../hooks/useMountSystem";
 import MiniMap from "../MiniMap";
+import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 
 const DriveScene = () => {
   // initialize refs for all instantiated vehicles and player
@@ -38,6 +44,9 @@ const DriveScene = () => {
   const active = useVehicleStore((state) => state.active);
   const setActive = useVehicleStore((state) => state.setActive);
 
+  // listen to active keyboard state for the camera effects
+  const controls = useAllVehicleInput();
+
   // determine active reference based on strict state mapping
   const activeTargetRef =
     active.control === CONTROL_STATE.HELICOPTER
@@ -51,6 +60,7 @@ const DriveScene = () => {
   // configure debug tools and dynamic fov tuners
   const {
     showFPS,
+    showGizmo,
     cameraDebug,
     activeVehicle,
     fogNear,
@@ -66,6 +76,7 @@ const DriveScene = () => {
     { title: "☀️ Scene" },
     {
       showFPS: { value: false, label: "show fps" },
+      showGizmo: { value: false, label: "show gizmo" },
       cameraDebug: { value: sceneConstants.isDev, label: "camera debug" },
       activeVehicle: {
         value: active.control,
@@ -150,6 +161,12 @@ const DriveScene = () => {
     // pull speed/airspeed directly from your strict telemetry map
     if (activeControl === CONTROL_STATE.CAR) {
       currentSpeed = storeState.telemetry[ENTITY_ID.CAR_1].speed;
+
+      // strictly bind the camera warp effect to active engine thrust
+      // if we are not actively holding forward AND boost, immediately kill the fov stretch
+      if (!controls.current.forward || !controls.current.boost) {
+        currentSpeed = Math.min(currentSpeed, minSpeedThreshold as number);
+      }
     } else if (activeControl === CONTROL_STATE.PLANE) {
       currentSpeed = storeState.telemetry[ENTITY_ID.PLANE_1].airspeed;
       minSpeed = planeFovStartSpeed as number;
@@ -190,6 +207,15 @@ const DriveScene = () => {
       <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
       <Stats showPanel={showFPS ? 0 : 4} />
       <BackgroundLight />
+
+      <GizmoHelper
+        renderPriority={2}
+        alignment="top-left"
+        margin={[120, 60]}
+        visible={showGizmo}
+      >
+        <GizmoViewport disabled visible={showGizmo} />
+      </GizmoHelper>
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} spawnMode={"drive"} />
       <VehicleHelicopter ref={heliRef} spawnMode={"drive"} />

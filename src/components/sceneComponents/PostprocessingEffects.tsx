@@ -5,10 +5,13 @@ import {
   EffectComposer,
   DepthOfField,
   ChromaticAberration,
+  SMAA,
+  Vignette,
 } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { SpeedLines } from "./SpeedLinesEffect";
+import { BlendFunction } from "postprocessing";
 
 // Import vehicle store for live speed telemetry
 import {
@@ -36,6 +39,8 @@ const PostprocessingEffects = () => {
     maxCarSpeed,
     minPlaneSpeed,
     maxPlaneSpeed,
+    enableSMAA,
+    enableVignette,
   } = useTweakpane(
     { title: "🌟 Post-Processing", expanded: false },
     {
@@ -152,6 +157,16 @@ const PostprocessingEffects = () => {
         folder: "Speed Thresholds",
         label: "plane max speed",
       },
+      enableSMAA: {
+        value: true,
+        label: "smaa",
+        folder: "Anti Aliasing",
+      },
+      enableVignette: {
+        value: true,
+        label: "vignette",
+        folder: "Vigenette",
+      },
     },
   );
 
@@ -208,7 +223,7 @@ const PostprocessingEffects = () => {
   });
 
   return (
-    <EffectComposer enableNormalPass={false}>
+    <EffectComposer enableNormalPass={false} multisampling={0}>
       {enableBloom && (
         <Bloom
           mipmapBlur
@@ -239,6 +254,16 @@ const PostprocessingEffects = () => {
           maxCarSpeed={maxCarSpeed as number}
           minPlaneSpeed={minPlaneSpeed as number}
           maxPlaneSpeed={maxPlaneSpeed as number}
+        />
+      )}
+
+      {enableSMAA && <SMAA />}
+      {enableVignette && (
+        <Vignette
+          offset={0.4}
+          darkness={0.4}
+          eskil={false}
+          blendFunction={BlendFunction.NORMAL}
         />
       )}
     </EffectComposer>

@@ -26,7 +26,7 @@ const ProceduralClouds = ({ centerChunk, chunkRadius }: typeStormProps) => {
           segments={230} // Detail of the cloud texture
           bounds={[stormSize, 20, stormSize]} // One massive bounding box
           volume={180} // High volume to create a thick, unbroken blanket
-          color="#0000ff" // Dark, stormy grey
+          color="#003535" // Dark, stormy grey
           speed={0.8} // Howling wind speed
           opacity={0.6}
         />

@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { worldConstants } from "../../../utils/worldGenerator";
 import starsVert from "../shaders/starsVert.glsl";
 import starsFrag from "../shaders/starsFrag.glsl";
+import { useCityStore } from "../../../stores/useCItyStore";
 
 type ProceduralSkyProps = {
   activeChunks: Array<{ chunkX: number; chunkZ: number }>;
@@ -32,12 +33,20 @@ const sharedStarMaterial = new THREE.ShaderMaterial({
   fog: true,
 });
 
-const StarChunk = ({ chunkX, chunkZ }: { chunkX: number; chunkZ: number }) => {
+const StarChunk = ({
+  chunkX,
+  chunkZ,
+  globalSeed,
+}: {
+  chunkX: number;
+  chunkZ: number;
+  globalSeed: number;
+}) => {
   const { positions, offsets, colors } = useMemo(() => {
     // simple deterministic pseudo-random generator
-    // given the same chunkX and chunkZ, it will ALWAYS return the same sequence
-    // making this function 100% pure and react-safe
-    let seed = chunkX * 73856 + chunkZ * 19284;
+    // Now incorporating the global world seed so the sky matches the city!
+    let seed = globalSeed + chunkX * 73856 + chunkZ * 19284;
+
     const rand = () => {
       seed += 1;
       const x = Math.sin(seed) * 10000;
@@ -77,7 +86,7 @@ const StarChunk = ({ chunkX, chunkZ }: { chunkX: number; chunkZ: number }) => {
     }
 
     return { positions: pos, offsets: offs, colors: cols };
-  }, [chunkX, chunkZ]);
+  }, [chunkX, chunkZ, globalSeed]); // Added globalSeed to dependency array
 
   return (
     <points material={sharedStarMaterial}>
@@ -94,6 +103,9 @@ const StarChunk = ({ chunkX, chunkZ }: { chunkX: number; chunkZ: number }) => {
 };
 
 const ProceduralStars = ({ activeChunks }: ProceduralSkyProps) => {
+  // Grab the global seed from your store
+  const globalSeed = useCityStore((state) => state.seed);
+
   useFrame((state) => {
     sharedStarMaterial.uniforms.uTime.value = state.clock.elapsedTime;
   });
@@ -102,9 +114,10 @@ const ProceduralStars = ({ activeChunks }: ProceduralSkyProps) => {
     <group>
       {activeChunks.map((c) => (
         <StarChunk
-          key={`sky_${c.chunkX}_${c.chunkZ}`}
+          key={`sky_${c.chunkX}_${c.chunkZ}_${globalSeed}`}
           chunkX={c.chunkX}
           chunkZ={c.chunkZ}
+          globalSeed={globalSeed}
         />
       ))}
     </group>

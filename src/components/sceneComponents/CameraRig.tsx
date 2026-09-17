@@ -132,8 +132,12 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
     );
 
     // lerp the BOOST offset separately using its own slower cinematic speed
+    // strictly require both the forward key and the boost key to trigger the cinematic camera pullback
     const isBoosting =
-      active.control === CONTROL_STATE.CAR && controls.current.boost;
+      active.control === CONTROL_STATE.CAR &&
+      controls.current.boost &&
+      controls.current.forward;
+
     const targetBoostOffset = isBoosting
       ? (params.boostLagOffset as number)
       : 0;

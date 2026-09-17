@@ -39,7 +39,7 @@ const SharedControlsDisplay = ({
 
   return (
     // container automatically flexes to the narrower content width with flex col
-    <div className="pointer-events-none absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1.5 whitespace-nowrap rounded-md border border-tron-cyan px-8 py-2 z-10 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md">
+    <div className="pointer-events-none absolute bottom-2 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1.5 whitespace-nowrap rounded-md border border-tron-cyan px-8 py-2 z-10 font-label text-xs [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md select-none">
       {/* primary row specific vehicle and character controls */}
       <div className="flex items-center gap-4">
         {controls.map((ctrl, index) => (
@@ -74,7 +74,7 @@ const SharedControlsDisplay = ({
             </span>
             {/* render the divider dot on everything except the final item */}
             {index < universalControls.length - 1 && (
-              <span className="h-1 w-1 rounded-full bg-tron-cyan/50"></span>
+              <span className="h-1 w-1 rounded-full bg-tron-cyan/50" />
             )}
           </Fragment>
         ))}
@@ -340,7 +340,7 @@ const AllVehiclesHUD = () => {
 
           {/* inline speedometer */}
           {showSpeedometers && (
-            <div className="absolute bottom-6 right-8 flex items-baseline">
+            <div className="absolute bottom-2 right-4 flex items-baseline">
               {/* inject live padded speed value with tabular mono font to prevent jumping */}
               <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
                 {displayCarSpeed}
@@ -371,7 +371,7 @@ const AllVehiclesHUD = () => {
           {showSpeedometers && (
             <>
               {/* advanced aviation instruments container anchored to bottom left */}
-              <div className="absolute bottom-6 left-8 flex items-end gap-6">
+              <div className="absolute bottom-2 left-2 flex items-end gap-6">
                 {/* dynamic artificial horizon with compass bezel */}
                 <AttitudeIndicator
                   pitch={currentHeliPitch}
@@ -384,7 +384,7 @@ const AllVehiclesHUD = () => {
               </div>
 
               {/* inline helicopter airspeed anchored to bottom right */}
-              <div className="absolute bottom-6 right-8 flex items-baseline">
+              <div className="absolute bottom-2 right-4 flex items-baseline">
                 <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
                   {displayHeliSpeed}
                 </span>
@@ -413,7 +413,7 @@ const AllVehiclesHUD = () => {
           {showSpeedometers && (
             <>
               {/* advanced aviation instruments container anchored to bottom left */}
-              <div className="absolute bottom-6 left-8 flex items-end gap-6">
+              <div className="absolute bottom-2 left-2 flex items-end gap-6">
                 {/* dynamic artificial horizon with compass bezel */}
                 <AttitudeIndicator
                   pitch={currentPlanePitch}
@@ -426,7 +426,7 @@ const AllVehiclesHUD = () => {
               </div>
 
               {/* inline plane airspeed anchored to bottom right */}
-              <div className="absolute bottom-6 right-8 flex items-baseline">
+              <div className="absolute bottom-2 right-4 flex items-baseline">
                 <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
                   {displayPlaneSpeed}
                 </span>
