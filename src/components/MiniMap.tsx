@@ -467,21 +467,21 @@ const MiniMap = () => {
 
           <div
             ref={legendRef}
-            className="absolute top-4 left-4 opacity-0 pointer-events-none flex flex-col gap-5 bg-black/60 backdrop-blur-md border border-tron-cyan/30 rounded-md p-4 text-xs text-white/80 font-mono shadow-[0_0_15px_rgba(0,243,255,0.1)] w-48"
+            className="absolute top-4 left-4 opacity-0 pointer-events-none flex flex-col gap-5 bg-black/60 backdrop-blur-md border border-tron-cyan/30 rounded-md p-4 text-xs text-white/80 shadow-[0_0_15px_rgba(0,243,255,0.1)] w-48 font-telemetry"
           >
             <div className="flex flex-col gap-2.5">
               <div className="text-tron-cyan font-bold tracking-widest mb-1 border-b border-tron-cyan/30 pb-2">
                 ZONES
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 uppercase">
                 <div className="w-3 h-3 bg-[#1a231a] border border-white/20 rounded-sm" />
                 <span>Outlands</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 uppercase">
                 <div className="w-3 h-3 bg-[#333840] border border-white/20 rounded-sm" />
                 <span>Roads</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 uppercase">
                 <div className="w-3 h-3 bg-[#8c95a1] border border-white/20 rounded-sm" />
                 <span>Buildings</span>
               </div>
@@ -501,7 +501,7 @@ const MiniMap = () => {
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <span>Player</span>
+                  <span className="uppercase">User</span>
                 </div>
                 <span
                   ref={playerDistRef}
@@ -518,7 +518,7 @@ const MiniMap = () => {
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <span>Car</span>
+                  <span className="uppercase">Grid Runner</span>
                 </div>
                 <span
                   ref={carDistRef}
@@ -535,7 +535,7 @@ const MiniMap = () => {
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <span>Plane</span>
+                  <span className="uppercase">Aero Synth</span>
                 </div>
                 <span
                   ref={planeDistRef}
@@ -552,7 +552,7 @@ const MiniMap = () => {
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <span>Helicopter</span>
+                  <span className="uppercase">Neon Vortex</span>
                 </div>
                 <span
                   ref={heliDistRef}
