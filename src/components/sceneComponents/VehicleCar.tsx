@@ -18,6 +18,7 @@ import { modelsSeperatedBank } from "../../utils/assetpaths";
 import { unwrapParam } from "../../utils/unwrapParam";
 import type { VehicleProps } from "../../stores/useVehicleStore";
 import TrailEngine from "./TrailEngine";
+import { useCustomizationStore } from "../../stores/useCustomizationStore";
 
 // type definitions for the cleaned up gltf models
 type typeChassisGLTF = GLTF & {
@@ -82,6 +83,9 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
     const wheelsRef = useRef<THREE.Object3D[]>([]);
     const controlsRef = useAllVehicleInput();
 
+    // fetch customization values
+    const carMods = useCustomizationStore((state) => state.carMods);
+
     // initialize tweakpane hook using only the tuning object
     const tuningParams = useTweakpane(
       { title: "🚗 Car Tuning", expanded: false },
@@ -112,8 +116,61 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
     // extract the debug wireframe toggle
     const debugMesh = unwrapParam(tuningParams.debugMesh, false);
 
-    // dynamically toggle wireframe directly on the shared materials
+    // hook customization to materials
     useEffect(() => {
+      // Body Paint (chassicblack)
+      chassisGLTF.materials.chassicblack.color.set(carMods.base.color);
+      chassisGLTF.materials.chassicblack.metalness = carMods.base.metalness;
+      chassisGLTF.materials.chassicblack.roughness = carMods.base.roughness;
+      chassisGLTF.materials.chassicblack.emissive.set(carMods.base.color);
+      chassisGLTF.materials.chassicblack.emissiveIntensity =
+        carMods.base.emission;
+
+      // Chrome Trim (chromeshiny, Chrome.001, Chrome.002)
+      const applyChrome = (mat: THREE.MeshStandardMaterial) => {
+        mat.color.set(carMods.chrome.color);
+        mat.metalness = carMods.chrome.metalness;
+        mat.roughness = carMods.chrome.roughness;
+        mat.emissive.set(carMods.chrome.color);
+        mat.emissiveIntensity = carMods.chrome.emission;
+      };
+      applyChrome(chassisGLTF.materials.chromeshiny);
+      applyChrome(frontTyreGLTF.materials["Chrome.001"]);
+      applyChrome(rearTyreGLTF.materials["Chrome.002"]);
+
+      // Neon Glow (emitwhite, screenyellow, Glow.001, Glow.002)
+      const applyNeon = (mat: THREE.MeshStandardMaterial) => {
+        mat.color.set(carMods.neon.color);
+        mat.metalness = carMods.neon.metalness;
+        mat.roughness = carMods.neon.roughness;
+        mat.emissive.set(carMods.neon.color);
+        mat.emissiveIntensity = carMods.neon.emission;
+      };
+      applyNeon(chassisGLTF.materials.emitwhite);
+      applyNeon(chassisGLTF.materials.screenyellow);
+      applyNeon(frontTyreGLTF.materials["Glow.001"]);
+      applyNeon(rearTyreGLTF.materials["Glow.002"]);
+
+      // Interior (seatblack)
+      chassisGLTF.materials.seatblack.color.set(carMods.interior.color);
+      chassisGLTF.materials.seatblack.metalness = carMods.interior.metalness;
+      chassisGLTF.materials.seatblack.roughness = carMods.interior.roughness;
+      chassisGLTF.materials.seatblack.emissive.set(carMods.interior.color);
+      chassisGLTF.materials.seatblack.emissiveIntensity =
+        carMods.interior.emission;
+
+      // Rubber/Tires (Rubber.001, Rubber.002)
+      const applyRubber = (mat: THREE.MeshStandardMaterial) => {
+        mat.color.set(carMods.rubber.color);
+        mat.metalness = carMods.rubber.metalness;
+        mat.roughness = carMods.rubber.roughness;
+        mat.emissive.set(carMods.rubber.color);
+        mat.emissiveIntensity = carMods.rubber.emission;
+      };
+      applyRubber(frontTyreGLTF.materials["Rubber.001"]);
+      applyRubber(rearTyreGLTF.materials["Rubber.002"]);
+
+      // dynamically toggle wireframe directly on the shared materials
       chassisGLTF.materials.chassicblack.wireframe = debugMesh;
       chassisGLTF.materials.chromeshiny.wireframe = debugMesh;
       chassisGLTF.materials.emitwhite.wireframe = debugMesh;
@@ -128,6 +185,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
       rearTyreGLTF.materials["Glow.002"].wireframe = debugMesh;
       rearTyreGLTF.materials["Chrome.002"].wireframe = debugMesh;
 
+      // Flag materials for update
       chassisGLTF.materials.chassicblack.needsUpdate = true;
       chassisGLTF.materials.chromeshiny.needsUpdate = true;
       chassisGLTF.materials.emitwhite.needsUpdate = true;
@@ -142,6 +200,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
       rearTyreGLTF.materials["Glow.002"].needsUpdate = true;
       rearTyreGLTF.materials["Chrome.002"].needsUpdate = true;
     }, [
+      carMods,
       debugMesh,
       chassisGLTF.materials,
       frontTyreGLTF.materials,
@@ -403,7 +462,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[0, 0.1, -2.3]}
-          color={"#c9ffff"}
+          color={carMods.trailColor}
           height={0.8}
           width={0.05}
           length={80}
