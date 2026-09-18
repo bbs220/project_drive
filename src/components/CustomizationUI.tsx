@@ -69,7 +69,7 @@ const CustomizationUI = () => {
         </div>
 
         {/* side navigation tabs - attached directly to the right edge of the sidebar */}
-        <div className="pointer-events-auto flex flex-col gap-2 pl-0 -ml-px">
+        <div className="pointer-events-auto flex flex-col gap-2 pl-0 -ml-px mt-32">
           {vehicles.map((v) => (
             <button
               key={v.id}
@@ -77,10 +77,10 @@ const CustomizationUI = () => {
                 playToggle();
                 handleSwap(v.id);
               }}
-              className={`relative flex items-center justify-start whitespace-nowrap rounded-r-lg border border-l-0 py-4 pl-4 pr-6 font-telemetry text-xs uppercase tracking-wider backdrop-blur-md transition-all duration-200 hover:cursor-pointer ${
+              className={`relative flex items-center justify-center whitespace-nowrap rounded-r-lg border border-l-0 py-2 px-3 font-telemetry text-xs uppercase tracking-wider backdrop-blur-md transition-all duration-200 hover:cursor-pointer [writing-mode:vertical-rl] ${
                 activeGarageVehicle === v.id
                   ? "border-tron-cyan bg-tron-cyan/15 text-tron-yellow [box-shadow:5px_0_15px_rgba(0,243,255,0.2)] [text-shadow:0_0_8px_var(--color-tron-yellow)]"
-                  : "border-white/10 bg-black/60 text-gray-400 hover:border-tron-cyan/50 hover:bg-black/80 hover:text-tron-cyan hover:[text-shadow:0_0_8px_var(--color-tron-cyan)]"
+                  : "border-white/10 bg-black/10 text-gray-400 hover:border-tron-cyan/50 hover:bg-black/40 hover:text-tron-cyan hover:[text-shadow:0_0_8px_var(--color-tron-cyan)]"
               }`}
             >
               {v.label}
