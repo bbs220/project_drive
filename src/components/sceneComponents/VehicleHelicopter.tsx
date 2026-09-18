@@ -29,7 +29,7 @@ type typeCabinGLTF = GLTF & {
     heliBarrel: THREE.Mesh;
     heliTailWingRight: THREE.Mesh;
   };
-  materials: { Chopper_material: THREE.MeshPhysicalMaterial };
+  materials: { heliMat: THREE.MeshPhysicalMaterial };
 };
 
 // define strict types for the top rotor geometry
@@ -40,16 +40,16 @@ type typeTopRotorGLTF = GLTF & {
     heliTopRotorDisc: THREE.Mesh;
   };
   materials: {
-    ["Chopper_material.002"]: THREE.MeshPhysicalMaterial;
-    ["rotor_blades_material.001"]: THREE.MeshPhysicalMaterial;
-    ["chopper_rotors.001"]: THREE.MeshPhysicalMaterial;
+    topRotorCenter: THREE.MeshPhysicalMaterial;
+    topRotorBladesAlpha: THREE.MeshPhysicalMaterial;
+    topRotorDisc: THREE.MeshPhysicalMaterial;
   };
 };
 
 // define strict types for the tail rotor geometry
 type typeTailRotorGLTF = GLTF & {
   nodes: { heliTailRotor: THREE.Mesh };
-  materials: { ["rear_rotors.002"]: THREE.MeshPhysicalMaterial };
+  materials: { rearRotorBladesAlpha: THREE.MeshPhysicalMaterial };
 };
 
 // main vehicle component updated with custom six point spherical physics
@@ -100,17 +100,17 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
 
     // dynamically toggle wireframe directly on the shared materials
     useEffect(() => {
-      cabinGLTF.materials.Chopper_material.wireframe = debugMesh;
-      topRotorGLTF.materials["Chopper_material.002"].wireframe = debugMesh;
-      topRotorGLTF.materials["rotor_blades_material.001"].wireframe = debugMesh;
-      topRotorGLTF.materials["chopper_rotors.001"].wireframe = debugMesh;
-      tailRotorGLTF.materials["rear_rotors.002"].wireframe = debugMesh;
+      cabinGLTF.materials.heliMat.wireframe = debugMesh;
+      topRotorGLTF.materials.topRotorCenter.wireframe = debugMesh;
+      topRotorGLTF.materials.topRotorBladesAlpha.wireframe = debugMesh;
+      topRotorGLTF.materials.topRotorDisc.wireframe = debugMesh;
+      tailRotorGLTF.materials.rearRotorBladesAlpha.wireframe = debugMesh;
 
-      cabinGLTF.materials.Chopper_material.needsUpdate = true;
-      topRotorGLTF.materials["Chopper_material.002"].needsUpdate = true;
-      topRotorGLTF.materials["rotor_blades_material.001"].needsUpdate = true;
-      topRotorGLTF.materials["chopper_rotors.001"].needsUpdate = true;
-      tailRotorGLTF.materials["rear_rotors.002"].needsUpdate = true;
+      cabinGLTF.materials.heliMat.needsUpdate = true;
+      topRotorGLTF.materials.topRotorCenter.needsUpdate = true;
+      topRotorGLTF.materials.topRotorBladesAlpha.needsUpdate = true;
+      topRotorGLTF.materials.topRotorDisc.needsUpdate = true;
+      tailRotorGLTF.materials.rearRotorBladesAlpha.needsUpdate = true;
     }, [
       debugMesh,
       cabinGLTF.materials,
@@ -157,55 +157,50 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
             <group ref={ref}>
               {/* core cabin hierarchy mapped directly from blender export */}
               <group name="Scene">
-                <group name="origin">
+                <mesh
+                  name="heliBody"
+                  castShadow
+                  receiveShadow
+                  geometry={cabinGLTF.nodes.heliBody.geometry}
+                  material={cabinGLTF.materials.heliMat}
+                />
+                <mesh
+                  name="heilTailWingLeft"
+                  castShadow
+                  receiveShadow
+                  geometry={cabinGLTF.nodes.heilTailWingLeft.geometry}
+                  material={cabinGLTF.materials.heliMat}
+                />
+                <mesh
+                  name="heliBarrelSupport"
+                  castShadow
+                  receiveShadow
+                  geometry={cabinGLTF.nodes.heliBarrelSupport.geometry}
+                  material={cabinGLTF.materials.heliMat}
+                >
                   <mesh
-                    name="heliBody"
+                    name="heliBarrelSupportMini"
                     castShadow
                     receiveShadow
-                    geometry={cabinGLTF.nodes.heliBody.geometry}
-                    material={cabinGLTF.materials.Chopper_material}
+                    geometry={cabinGLTF.nodes.heliBarrelSupportMini.geometry}
+                    material={cabinGLTF.materials.heliMat}
                   >
                     <mesh
-                      name="heilTailWingLeft"
+                      name="heliBarrel"
                       castShadow
                       receiveShadow
-                      geometry={cabinGLTF.nodes.heilTailWingLeft.geometry}
-                      material={cabinGLTF.materials.Chopper_material}
-                    />
-                    <mesh
-                      name="heliBarrelSupport"
-                      castShadow
-                      receiveShadow
-                      geometry={cabinGLTF.nodes.heliBarrelSupport.geometry}
-                      material={cabinGLTF.materials.Chopper_material}
-                    >
-                      <mesh
-                        name="heliBarrelSupportMini"
-                        castShadow
-                        receiveShadow
-                        geometry={
-                          cabinGLTF.nodes.heliBarrelSupportMini.geometry
-                        }
-                        material={cabinGLTF.materials.Chopper_material}
-                      >
-                        <mesh
-                          name="heliBarrel"
-                          castShadow
-                          receiveShadow
-                          geometry={cabinGLTF.nodes.heliBarrel.geometry}
-                          material={cabinGLTF.materials.Chopper_material}
-                        />
-                      </mesh>
-                    </mesh>
-                    <mesh
-                      name="heliTailWingRight"
-                      castShadow
-                      receiveShadow
-                      geometry={cabinGLTF.nodes.heliTailWingRight.geometry}
-                      material={cabinGLTF.materials.Chopper_material}
+                      geometry={cabinGLTF.nodes.heliBarrel.geometry}
+                      material={cabinGLTF.materials.heliMat}
                     />
                   </mesh>
-                </group>
+                </mesh>
+                <mesh
+                  name="heliTailWingRight"
+                  castShadow
+                  receiveShadow
+                  geometry={cabinGLTF.nodes.heliTailWingRight.geometry}
+                  material={cabinGLTF.materials.heliMat}
+                />
               </group>
 
               {/* main top rotor attached with dialable anchor */}
@@ -215,23 +210,21 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
                   castShadow
                   receiveShadow
                   geometry={topRotorGLTF.nodes.heliTopRotorCenter.geometry}
-                  material={topRotorGLTF.materials["Chopper_material.002"]}
+                  material={topRotorGLTF.materials.topRotorCenter}
                 >
                   <mesh
                     name="heliTopRotor"
                     castShadow
                     receiveShadow
                     geometry={topRotorGLTF.nodes.heliTopRotor.geometry}
-                    material={
-                      topRotorGLTF.materials["rotor_blades_material.001"]
-                    }
+                    material={topRotorGLTF.materials.topRotorBladesAlpha}
                   />
                   <mesh
                     name="heliTopRotorDisc"
                     castShadow
                     receiveShadow
                     geometry={topRotorGLTF.nodes.heliTopRotorDisc.geometry}
-                    material={topRotorGLTF.materials["chopper_rotors.001"]}
+                    material={topRotorGLTF.materials.topRotorDisc}
                   />
                 </mesh>
               </group>
@@ -243,7 +236,7 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
                   castShadow
                   receiveShadow
                   geometry={tailRotorGLTF.nodes.heliTailRotor.geometry}
-                  material={tailRotorGLTF.materials["rear_rotors.002"]}
+                  material={tailRotorGLTF.materials.rearRotorBladesAlpha}
                 />
               </group>
             </group>
