@@ -56,7 +56,7 @@ const CustomizationUI = () => {
       {/* centralized tab interface container */}
       <div className="pointer-events-none absolute left-0 top-0 z-10 flex h-full items-center pl-0">
         {/* modular customization panel - acts as the main sidebar body */}
-        <div className="pointer-events-auto relative z-0 flex h-[90vh] w-88 flex-col rounded-r-2xl border border-l-0 border-tron-cyan bg-black/70 backdrop-blur-md [box-shadow:5px_0_20px_rgba(0,243,255,0.15)]">
+        <div className="pointer-events-auto relative z-0 flex mt-32 h-full w-60 flex-col border-r border-t rounded-tr-lg border-tron-cyan backdrop-blur-xs [box-shadow:5px_0_20px_rgba(0,243,255,0.15)]">
           {/* main scrollable container for the customization categories */}
           <div className="flex h-full w-full flex-col overflow-y-auto overflow-x-hidden pt-4 pb-8 [&::-webkit-scrollbar]:hidden">
             {/* conditionally mount only the ui matching the active vehicle */}

@@ -73,7 +73,7 @@ export type typeCustomizationStore = {
 const defaultMat = (color: string, emission = 0): typeMaterialProps => ({
   color,
   metalness: 0.5,
-  roughness: 0.5,
+  roughness: 0.2,
   emission,
 });
 

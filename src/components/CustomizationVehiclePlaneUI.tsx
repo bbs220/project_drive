@@ -22,7 +22,7 @@ const CustomizationVehiclePlaneUI = () => {
       {/* airframe section */}
       <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
-          label="Airframe"
+          label="Fuselage"
           color={planeMods.base.color}
           onChange={(newColor) =>
             setVehicleMaterial("plane", "base", "color", newColor)
@@ -97,7 +97,7 @@ const CustomizationVehiclePlaneUI = () => {
       {/* circuit/stripes section */}
       <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
-          label="Circuit"
+          label="Circuits"
           color={planeMods.stripes.color}
           onChange={(newColor) =>
             setVehicleMaterial("plane", "stripes", "color", newColor)
@@ -271,7 +271,7 @@ const CustomizationVehiclePlaneUI = () => {
                 : "bg-white/20"
             }`}
           />
-          Sync to Circuit
+          Sync to Circuits
         </button>
       </div>
     </div>

@@ -22,7 +22,7 @@ const CustomizationVehicleCarUI = () => {
       {/* body paint section */}
       <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
-          label="Body Paint"
+          label="Chassis"
           color={carMods.base.color}
           onChange={(newColor) =>
             setVehicleMaterial("car", "base", "color", newColor)
@@ -97,7 +97,7 @@ const CustomizationVehicleCarUI = () => {
       {/* neon / glow section */}
       <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
-          label="Neon Glow"
+          label="Circuits"
           color={carMods.neon.color}
           onChange={(newColor) =>
             setVehicleMaterial("car", "neon", "color", newColor)
@@ -172,7 +172,7 @@ const CustomizationVehicleCarUI = () => {
       {/* chrome section */}
       <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
-          label="Chrome Trim"
+          label="Axels"
           color={carMods.chrome.color}
           onChange={(newColor) =>
             setVehicleMaterial("car", "chrome", "color", newColor)
@@ -247,7 +247,7 @@ const CustomizationVehicleCarUI = () => {
       {/* interior section */}
       <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
-          label="Interior"
+          label="Seats"
           color={carMods.interior.color}
           onChange={(newColor) =>
             setVehicleMaterial("car", "interior", "color", newColor)
@@ -422,7 +422,7 @@ const CustomizationVehicleCarUI = () => {
                 : "bg-white/20"
             }`}
           />
-          Sync to Neon
+          Sync to Circuits
         </button>
       </div>
     </div>
