@@ -18,7 +18,7 @@ const CustomizationVehiclePlaneUI = () => {
   }, [syncTrails, planeMods.stripes.color, setVehicleMod]);
 
   return (
-    <div className="flex w-full flex-col gap-5 px-6 pb-12">
+    <div className="flex w-full flex-col gap-2">
       {/* airframe section */}
       <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
