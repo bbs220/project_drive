@@ -53,12 +53,12 @@ const CustomizationUI = () => {
         }`}
       />
 
-      {/* centralized tab interface container */}
-      <div className="pointer-events-none absolute left-0 top-0 z-10 flex h-full items-center pl-0">
+      {/* centralized tab interface container - Locked to bottom-0 to prevent scroll cut-off */}
+      <div className="pointer-events-none absolute bottom-0 left-0 top-16 z-10 flex pl-0">
         {/* modular customization panel - acts as the main sidebar body */}
-        <div className="pointer-events-auto relative z-0 flex mt-32 h-full w-60 flex-col border-r border-t rounded-tr-lg border-tron-cyan backdrop-blur-xs [box-shadow:5px_0_20px_rgba(0,243,255,0.15)]">
+        <div className="pointer-events-auto relative z-0 flex h-full w-60 flex-col rounded-tr-lg border-r border-t border-tron-cyan backdrop-blur-xs [box-shadow:5px_0_20px_rgba(0,243,255,0.15)]">
           {/* main scrollable container for the customization categories */}
-          <div className="flex h-full w-full flex-col overflow-y-auto overflow-x-hidden p-2 [&::-webkit-scrollbar]:hidden">
+          <div className="flex h-full w-full flex-col overflow-y-auto overflow-x-hidden p-2 pb-2 [&::-webkit-scrollbar]:hidden">
             {/* conditionally mount only the ui matching the active vehicle */}
             {activeGarageVehicle === "car" && <CustomizationVehicleCarUI />}
             {activeGarageVehicle === "plane" && <CustomizationVehiclePlaneUI />}
@@ -69,7 +69,7 @@ const CustomizationUI = () => {
         </div>
 
         {/* side navigation tabs - attached directly to the right edge of the sidebar */}
-        <div className="pointer-events-auto flex flex-col gap-2 pl-0 -ml-px mt-32">
+        <div className="pointer-events-auto mt-8 flex flex-col gap-2 pl-0 -ml-px">
           {vehicles.map((v) => (
             <button
               key={v.id}
