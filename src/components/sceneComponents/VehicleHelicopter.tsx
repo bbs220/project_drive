@@ -18,6 +18,7 @@ import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useVehicleHelicopterCreator } from "../../hooks/useVehicleHelicopterCreator";
 import type { VehicleProps } from "../../stores/useVehicleStore";
 import TrailEngine from "./TrailEngine";
+import { useCustomizationStore } from "../../stores/useCustomizationStore";
 
 // define strict types for the cabin geometry
 type typeCabinGLTF = GLTF & {
@@ -69,6 +70,11 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
     // initialize global input listener to capture flight controls and structural keys
     const controls = useAllVehicleInput();
 
+    // fetch customization values
+    const helicopterMods = useCustomizationStore(
+      (state) => state.helicopterMods,
+    );
+
     // initialize tweakpane hook and store reactive parameters
     const params = useTweakpane(
       { title: "🚁 Helicopter Tuning", expanded: false },
@@ -98,20 +104,48 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
       modelsSeperatedBank.helicopter01tailRotor,
     ) as unknown as typeTailRotorGLTF;
 
-    // dynamically toggle wireframe directly on the shared materials
+    // dynamically tint materials and toggle wireframes
     useEffect(() => {
-      cabinGLTF.materials.heliMat.wireframe = debugMesh;
-      topRotorGLTF.materials.topRotorCenter.wireframe = debugMesh;
-      topRotorGLTF.materials.topRotorBladesAlpha.wireframe = debugMesh;
-      topRotorGLTF.materials.topRotorDisc.wireframe = debugMesh;
-      tailRotorGLTF.materials.rearRotorBladesAlpha.wireframe = debugMesh;
+      // --- 1. Main Hull Base & Emissive Mask ---
+      const hullMat = cabinGLTF.materials.heliMat;
+      hullMat.color.set(helicopterMods.base.color);
+      hullMat.metalness = helicopterMods.base.metalness;
+      hullMat.roughness = helicopterMods.base.roughness;
+      // The hull relies on its baked emissiveMap to mask this glow
+      hullMat.emissive.set(helicopterMods.neon.color);
+      hullMat.emissiveIntensity = helicopterMods.neon.emission;
 
-      cabinGLTF.materials.heliMat.needsUpdate = true;
+      // --- 2. Rotor Blades Alpha Glow ---
+      const applyRotorGlow = (mat: THREE.MeshPhysicalMaterial) => {
+        mat.color.set(helicopterMods.neon.color);
+        mat.emissive.set(helicopterMods.neon.color);
+        mat.emissiveIntensity = helicopterMods.neon.emission * 0.8;
+        mat.transparent = true;
+      };
+
+      const topRotorMat = topRotorGLTF.materials.topRotorBladesAlpha;
+      const topDiscMat = topRotorGLTF.materials.topRotorDisc;
+      const tailRotorMat = tailRotorGLTF.materials.rearRotorBladesAlpha;
+
+      applyRotorGlow(topRotorMat);
+      applyRotorGlow(topDiscMat);
+      applyRotorGlow(tailRotorMat);
+
+      // --- 3. Debug Wireframes ---
+      hullMat.wireframe = debugMesh;
+      topRotorGLTF.materials.topRotorCenter.wireframe = debugMesh;
+      topRotorMat.wireframe = debugMesh;
+      topDiscMat.wireframe = debugMesh;
+      tailRotorMat.wireframe = debugMesh;
+
+      // --- 4. Flag Updates ---
+      hullMat.needsUpdate = true;
       topRotorGLTF.materials.topRotorCenter.needsUpdate = true;
-      topRotorGLTF.materials.topRotorBladesAlpha.needsUpdate = true;
-      topRotorGLTF.materials.topRotorDisc.needsUpdate = true;
-      tailRotorGLTF.materials.rearRotorBladesAlpha.needsUpdate = true;
+      topRotorMat.needsUpdate = true;
+      topDiscMat.needsUpdate = true;
+      tailRotorMat.needsUpdate = true;
     }, [
+      helicopterMods,
       debugMesh,
       cabinGLTF.materials,
       topRotorGLTF.materials,
@@ -246,7 +280,7 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[1.4, 0.55, 5]}
-          color={"#E86B2C"}
+          color={helicopterMods.trailColor}
           width={0.1}
           height={0.1}
           length={60}
@@ -254,7 +288,7 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[-1.4, 0.55, 5]}
-          color={"#E86B2C"}
+          color={helicopterMods.trailColor}
           width={0.1}
           height={0.1}
           length={60}
@@ -263,7 +297,7 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[-1.45, -0.58, -0.5]}
-          color={"#E86B2C"}
+          color={helicopterMods.trailColor}
           width={0.1}
           height={0.1}
           length={30}
@@ -271,7 +305,7 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
         <TrailEngine
           targetRef={visualRef}
           offset={[1.45, -0.58, -0.5]}
-          color={"#E86B2C"}
+          color={helicopterMods.trailColor}
           width={0.1}
           height={0.1}
           length={30}
