@@ -30,6 +30,7 @@ export type typePlaneMods = {
 
 export type typeHelicopterMods = {
   base: typeMaterialProps;
+  neon: typeMaterialProps;
   trailColor: string;
 };
 
@@ -95,7 +96,8 @@ const defaultPlaneMods: typePlaneMods = {
 };
 
 const defaultHelicopterMods: typeHelicopterMods = {
-  base: defaultMat("#404040"),
+  base: defaultMat("#000000"),
+  neon: defaultMat("#00f3ff", 2),
   trailColor: "#ffffff",
 };
 
