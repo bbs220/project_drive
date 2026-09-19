@@ -23,7 +23,7 @@ export type typeCarMods = {
 
 export type typePlaneMods = {
   base: typeMaterialProps;
-  stripes: typeMaterialProps;
+  neon: typeMaterialProps;
   glass: typeMaterialProps;
   trailColor: string;
 };
@@ -81,16 +81,16 @@ const defaultMat = (color: string, emission = 0): typeMaterialProps => ({
 // independent default states
 const defaultCarMods: typeCarMods = {
   base: defaultMat("#000000"),
-  neon: defaultMat("#00f3ff", 1.5),
+  neon: defaultMat("#ffffff", 1.5),
   chrome: defaultMat("#ffffff"),
   interior: defaultMat("#1a1a1a"),
   rubber: defaultMat("#111111"),
-  trailColor: "#00f3ff",
+  trailColor: "#ffffff",
 };
 
 const defaultPlaneMods: typePlaneMods = {
   base: defaultMat("#000000"),
-  stripes: defaultMat("#ffffff", 1.5),
+  neon: defaultMat("#ffffff", 1.5),
   glass: defaultMat("#00f3ff"),
   trailColor: "#ffffff",
 };

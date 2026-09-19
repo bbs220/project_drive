@@ -89,14 +89,12 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
         planeMods.base.emission;
 
       // apply emissive stripes properties
-      airframeGLTF.materials.stripesWhite.color.set(planeMods.stripes.color);
-      airframeGLTF.materials.stripesWhite.metalness =
-        planeMods.stripes.metalness;
-      airframeGLTF.materials.stripesWhite.roughness =
-        planeMods.stripes.roughness;
-      airframeGLTF.materials.stripesWhite.emissive.set(planeMods.stripes.color);
+      airframeGLTF.materials.stripesWhite.color.set(planeMods.neon.color);
+      airframeGLTF.materials.stripesWhite.metalness = planeMods.neon.metalness;
+      airframeGLTF.materials.stripesWhite.roughness = planeMods.neon.roughness;
+      airframeGLTF.materials.stripesWhite.emissive.set(planeMods.neon.color);
       airframeGLTF.materials.stripesWhite.emissiveIntensity =
-        planeMods.stripes.emission;
+        planeMods.neon.emission;
 
       // apply cockpit glass properties
       cockpitGLTF.materials.cockpitBlue.color.set(planeMods.glass.color);

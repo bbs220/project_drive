@@ -13,9 +13,9 @@ const CustomizationVehiclePlaneUI = () => {
 
   useEffect(() => {
     if (syncTrails) {
-      setVehicleMod("plane", "trailColor", planeMods.stripes.color);
+      setVehicleMod("plane", "trailColor", planeMods.neon.color);
     }
-  }, [syncTrails, planeMods.stripes.color, setVehicleMod]);
+  }, [syncTrails, planeMods.neon.color, setVehicleMod]);
 
   return (
     <div className="flex w-full flex-col gap-2">
@@ -98,9 +98,9 @@ const CustomizationVehiclePlaneUI = () => {
       <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
           label="Circuits"
-          color={planeMods.stripes.color}
+          color={planeMods.neon.color}
           onChange={(newColor) =>
-            setVehicleMaterial("plane", "stripes", "color", newColor)
+            setVehicleMaterial("plane", "neon", "color", newColor)
           }
         />
 
@@ -113,11 +113,11 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="1"
             step="0.05"
-            value={planeMods.stripes.metalness}
+            value={planeMods.neon.metalness}
             onChange={(e) =>
               setVehicleMaterial(
                 "plane",
-                "stripes",
+                "neon",
                 "metalness",
                 parseFloat(e.target.value),
               )
@@ -134,11 +134,11 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="1"
             step="0.05"
-            value={planeMods.stripes.roughness}
+            value={planeMods.neon.roughness}
             onChange={(e) =>
               setVehicleMaterial(
                 "plane",
-                "stripes",
+                "neon",
                 "roughness",
                 parseFloat(e.target.value),
               )
@@ -155,11 +155,11 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="5"
             step="0.1"
-            value={planeMods.stripes.emission}
+            value={planeMods.neon.emission}
             onChange={(e) =>
               setVehicleMaterial(
                 "plane",
-                "stripes",
+                "neon",
                 "emission",
                 parseFloat(e.target.value),
               )
