@@ -14,18 +14,23 @@ export type typeMaterialProps = {
 // specific interfaces for each vehicle's unique composition
 export type typeCarMods = {
   base: typeMaterialProps;
+  neon: typeMaterialProps;
+  chrome: typeMaterialProps;
+  interior: typeMaterialProps;
+  rubber: typeMaterialProps;
   trailColor: string;
 };
 
 export type typePlaneMods = {
   base: typeMaterialProps;
-  stripes: typeMaterialProps;
+  neon: typeMaterialProps;
   glass: typeMaterialProps;
   trailColor: string;
 };
 
 export type typeHelicopterMods = {
   base: typeMaterialProps;
+  neon: typeMaterialProps;
   trailColor: string;
 };
 
@@ -69,25 +74,30 @@ export type typeCustomizationStore = {
 const defaultMat = (color: string, emission = 0): typeMaterialProps => ({
   color,
   metalness: 0.5,
-  roughness: 0.5,
+  roughness: 0.2,
   emission,
 });
 
 // independent default states
 const defaultCarMods: typeCarMods = {
-  base: defaultMat("#404040"),
+  base: defaultMat("#000000"),
+  neon: defaultMat("#ffffff", 1.5),
+  chrome: defaultMat("#ffffff"),
+  interior: defaultMat("#1a1a1a"),
+  rubber: defaultMat("#111111"),
   trailColor: "#ffffff",
 };
 
 const defaultPlaneMods: typePlaneMods = {
-  base: defaultMat("#404040"),
-  stripes: defaultMat("#ffffff", 2),
+  base: defaultMat("#000000"),
+  neon: defaultMat("#ffffff", 1.5),
   glass: defaultMat("#00f3ff"),
   trailColor: "#ffffff",
 };
 
 const defaultHelicopterMods: typeHelicopterMods = {
-  base: defaultMat("#404040"),
+  base: defaultMat("#000000"),
+  neon: defaultMat("#ffffff", 1.5),
   trailColor: "#ffffff",
 };
 

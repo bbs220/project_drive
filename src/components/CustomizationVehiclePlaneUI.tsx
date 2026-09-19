@@ -13,22 +13,23 @@ const CustomizationVehiclePlaneUI = () => {
 
   useEffect(() => {
     if (syncTrails) {
-      setVehicleMod("plane", "trailColor", planeMods.stripes.color);
+      setVehicleMod("plane", "trailColor", planeMods.neon.color);
     }
-  }, [syncTrails, planeMods.stripes.color, setVehicleMod]);
+  }, [syncTrails, planeMods.neon.color, setVehicleMod]);
 
   return (
-    <div className="grid w-full grid-cols-2 xl:grid-cols-4 gap-6 overflow-y-auto overflow-x-hidden p-2 max-h-[30vh]">
-      <div className="flex flex-col gap-3">
+    <div className="flex w-full flex-col gap-2">
+      {/* airframe section */}
+      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
-          label="Airframe"
+          label="Fuselage"
           color={planeMods.base.color}
           onChange={(newColor) =>
             setVehicleMaterial("plane", "base", "color", newColor)
           }
         />
 
-        <div className="flex w-full items-center gap-3">
+        <div className="mt-1 flex w-full items-center gap-3">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Metal
           </span>
@@ -93,16 +94,17 @@ const CustomizationVehiclePlaneUI = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      {/* circuit/stripes section */}
+      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
-          label="Circuit"
-          color={planeMods.stripes.color}
+          label="Circuits"
+          color={planeMods.neon.color}
           onChange={(newColor) =>
-            setVehicleMaterial("plane", "stripes", "color", newColor)
+            setVehicleMaterial("plane", "neon", "color", newColor)
           }
         />
 
-        <div className="flex w-full items-center gap-3">
+        <div className="mt-1 flex w-full items-center gap-3">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Metal
           </span>
@@ -111,11 +113,11 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="1"
             step="0.05"
-            value={planeMods.stripes.metalness}
+            value={planeMods.neon.metalness}
             onChange={(e) =>
               setVehicleMaterial(
                 "plane",
-                "stripes",
+                "neon",
                 "metalness",
                 parseFloat(e.target.value),
               )
@@ -132,11 +134,11 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="1"
             step="0.05"
-            value={planeMods.stripes.roughness}
+            value={planeMods.neon.roughness}
             onChange={(e) =>
               setVehicleMaterial(
                 "plane",
-                "stripes",
+                "neon",
                 "roughness",
                 parseFloat(e.target.value),
               )
@@ -153,11 +155,11 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="5"
             step="0.1"
-            value={planeMods.stripes.emission}
+            value={planeMods.neon.emission}
             onChange={(e) =>
               setVehicleMaterial(
                 "plane",
-                "stripes",
+                "neon",
                 "emission",
                 parseFloat(e.target.value),
               )
@@ -167,7 +169,8 @@ const CustomizationVehiclePlaneUI = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      {/* cockpit section */}
+      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
           label="Cockpit"
           color={planeMods.glass.color}
@@ -176,7 +179,7 @@ const CustomizationVehiclePlaneUI = () => {
           }
         />
 
-        <div className="flex w-full items-center gap-3">
+        <div className="mt-1 flex w-full items-center gap-3">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Metal
           </span>
@@ -241,11 +244,12 @@ const CustomizationVehiclePlaneUI = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      {/* trails section */}
+      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
           label="Trails"
           color={planeMods.trailColor}
-          disabled={syncTrails} // PASS DISABLED PROP
+          disabled={syncTrails}
           onChange={(newColor) => {
             if (syncTrails) setSyncTrails(false);
             setVehicleMod("plane", "trailColor", newColor);
@@ -254,7 +258,7 @@ const CustomizationVehiclePlaneUI = () => {
 
         <button
           onClick={() => setSyncTrails(!syncTrails)}
-          className={`mt-1 flex w-full items-center justify-center gap-2 rounded border py-1.5 text-[9px] font-bold tracking-widest uppercase transition-all hover:cursor-pointer duration-200 ${
+          className={`mt-2 flex w-full items-center justify-center gap-2 rounded border py-1.5 text-[9px] font-bold tracking-widest uppercase transition-all hover:cursor-pointer duration-200 ${
             syncTrails
               ? "border-tron-cyan bg-tron-cyan/10 text-tron-cyan shadow-[0_0_8px_rgba(0,243,255,0.2)]"
               : "border-white/10 bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/80"
@@ -267,7 +271,7 @@ const CustomizationVehiclePlaneUI = () => {
                 : "bg-white/20"
             }`}
           />
-          Sync to Circuit
+          Sync to Circuits
         </button>
       </div>
     </div>

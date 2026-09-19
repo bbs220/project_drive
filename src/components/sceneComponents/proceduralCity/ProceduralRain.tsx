@@ -48,8 +48,8 @@ const ProceduralRain = () => {
         label: "thickness (squeeze)",
       },
       sway: { value: 2.0, min: 0.0, max: 10.0, label: "turbulence (sway)" },
-      windX: { value: 2.0, min: -10.0, max: 10.0, label: "wind X direction" },
-      windZ: { value: 2.0, min: -10.0, max: 10.0, label: "wind Z direction" },
+      windX: { value: 0, min: -10.0, max: 10.0, label: "wind X direction" },
+      windZ: { value: 0, min: -10.0, max: 10.0, label: "wind Z direction" },
     },
   );
 
