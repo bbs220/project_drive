@@ -85,7 +85,7 @@ const defaultCarMods: typeCarMods = {
   chrome: defaultMat("#ffffff"),
   interior: defaultMat("#1a1a1a"),
   rubber: defaultMat("#111111"),
-  trailColor: "#ffffff",
+  trailColor: "#00f3ff",
 };
 
 const defaultPlaneMods: typePlaneMods = {
