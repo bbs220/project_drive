@@ -81,7 +81,7 @@ const defaultMat = (color: string, emission = 0): typeMaterialProps => ({
 // independent default states
 const defaultCarMods: typeCarMods = {
   base: defaultMat("#000000"),
-  neon: defaultMat("#00f3ff", 2),
+  neon: defaultMat("#00f3ff", 1.5),
   chrome: defaultMat("#ffffff"),
   interior: defaultMat("#1a1a1a"),
   rubber: defaultMat("#111111"),
@@ -90,14 +90,14 @@ const defaultCarMods: typeCarMods = {
 
 const defaultPlaneMods: typePlaneMods = {
   base: defaultMat("#000000"),
-  stripes: defaultMat("#ffffff", 2),
+  stripes: defaultMat("#ffffff", 1.5),
   glass: defaultMat("#00f3ff"),
   trailColor: "#ffffff",
 };
 
 const defaultHelicopterMods: typeHelicopterMods = {
   base: defaultMat("#000000"),
-  neon: defaultMat("#00f3ff", 2),
+  neon: defaultMat("#ffffff", 1.5),
   trailColor: "#ffffff",
 };
 
