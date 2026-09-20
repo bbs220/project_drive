@@ -350,7 +350,7 @@ export const useVehicleCarCreator = (
 
       // smoothly auto decelerate back to cruising speed if boost is released, independent of forward key
       if (!controls.boost && currentSpeed > cruiseSpeedMs + 1) {
-        currentBrake = Math.max(currentBrake, brakeForceVal * 0.5);
+        currentBrake = Math.max(currentBrake, brakeForceVal * 0.05);
       }
 
       // engine governor overrides throttle if vehicle exceeds maximum reverse speed
