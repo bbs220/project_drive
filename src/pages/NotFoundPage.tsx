@@ -25,7 +25,7 @@ const NotFoundPage = () => {
           <span className="absolute left-0 top-0 w-2 h-full bg-tron-warn z-20 group-hover:bg-tron-bg transition-colors duration-500"></span>
           {/* // button text tracking out and inverting on hover */}
           <span className="relative z-10 font-telemetry font-black text-lg tracking-[0.3em] text-tron-cyan group-hover:text-tron-bg transition-colors duration-500 uppercase">
-            [ return to home ]
+            [ Home ]
           </span>
           {/* // tech ui decal in the corner */}
           <span className="absolute right-3 top-3 w-2 h-2 bg-tron-warn group-hover:bg-tron-bg transition-colors duration-500 z-20"></span>
