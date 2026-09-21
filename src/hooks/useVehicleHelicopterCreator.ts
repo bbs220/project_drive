@@ -133,7 +133,7 @@ export const useVehicleHelicopterCreator = (
 
     if (rpmRef.current > 0.1) {
       // lock all cyclic and pedal controls at low altitudes to prevent ground spins and sliding
-      const controlsLocked = pos.y < 30;
+      const controlsLocked = pos.y < 10; // altitude limit
 
       // raw Input Mapping, factoring in the control locks
       const pitchInput = controlsLocked
