@@ -118,7 +118,7 @@ type typeGroundProps = {
 const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
   // grid Shader Tweakpane
   const gridParams = useTweakpane(
-    { title: "➕ Grid Shader", expanded: false },
+    { title: "➕ Ground Grid Shader", expanded: false },
     {
       showChunkBoundary: { value: false, label: "chunk boundary" },
       gridSize: { value: 10.0, min: 5.0, max: 50.0, step: 5 },

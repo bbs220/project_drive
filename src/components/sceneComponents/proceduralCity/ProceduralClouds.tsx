@@ -1,6 +1,7 @@
 import { Clouds, Cloud } from "@react-three/drei";
 import * as THREE from "three";
 import { worldConstants } from "../../../utils/worldGenerator";
+import { useTweakpane } from "../../../hooks/useTweakpane";
 
 type typeStormProps = {
   centerChunk: { x: number; z: number };
@@ -13,6 +14,13 @@ const ProceduralClouds = ({ centerChunk, chunkRadius }: typeStormProps) => {
   const gridSpan = chunkRadius * 2 + 1;
   const stormSize = worldConstants.chunkSize * gridSpan;
 
+  const params = useTweakpane(
+    { title: "☁️ Procedural Clouds", expanded: false },
+    {
+      showClouds: { value: false, label: "enable clouds" },
+    },
+  );
+
   return (
     <group
       position={[
@@ -20,6 +28,7 @@ const ProceduralClouds = ({ centerChunk, chunkRadius }: typeStormProps) => {
         MIN_Y,
         centerChunk.z * worldConstants.chunkSize,
       ]}
+      visible={params.showClouds}
     >
       <Clouds material={THREE.MeshBasicMaterial}>
         <Cloud

@@ -5,6 +5,7 @@ import { worldConstants } from "../../../utils/worldGenerator";
 import starsVert from "../shaders/starsVert.glsl";
 import starsFrag from "../shaders/starsFrag.glsl";
 import { useCityStore } from "../../../stores/useCItyStore";
+import { useTweakpane } from "../../../hooks/useTweakpane";
 
 type ProceduralSkyProps = {
   activeChunks: Array<{ chunkX: number; chunkZ: number }>;
@@ -106,12 +107,19 @@ const ProceduralStars = ({ activeChunks }: ProceduralSkyProps) => {
   // Grab the global seed from your store
   const globalSeed = useCityStore((state) => state.seed);
 
+  const params = useTweakpane(
+    { title: "⭐ Procedural Stars", expanded: false },
+    {
+      enableStars: { value: false, label: "enable stars" },
+    },
+  );
+
   useFrame((state) => {
     sharedStarMaterial.uniforms.uTime.value = state.clock.elapsedTime;
   });
 
   return (
-    <group>
+    <group visible={params.enableStars}>
       {activeChunks.map((c) => (
         <StarChunk
           key={`sky_${c.chunkX}_${c.chunkZ}_${globalSeed}`}

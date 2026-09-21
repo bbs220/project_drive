@@ -17,6 +17,7 @@ const ProceduralRain = () => {
   const params = useTweakpane(
     { title: "🌧️ Procedural Rain", expanded: false },
     {
+      showRain: { value: false, label: "enable rain" },
       count: {
         value: 50000,
         min: 1000,
@@ -167,7 +168,7 @@ const ProceduralRain = () => {
   });
 
   return (
-    <group ref={rainGroupRef}>
+    <group ref={rainGroupRef} visible={params.showRain}>
       <points renderOrder={1}>
         <bufferGeometry ref={geometryRef} />
         <shaderMaterial
