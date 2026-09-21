@@ -63,6 +63,7 @@ const DriveScene = () => {
     showGizmo,
     cameraDebug,
     activeVehicle,
+    enableFog,
     fogNear,
     fogFar,
     fogColor,
@@ -73,7 +74,7 @@ const DriveScene = () => {
     planeFovStartSpeed,
     planeFovMaxSpeed,
   } = useTweakpane(
-    { title: "☀️ Scene" },
+    { title: "☀️ Scene", expanded: false },
     {
       showFPS: { value: false, label: "show fps" },
       showGizmo: { value: false, label: "show gizmo" },
@@ -88,6 +89,7 @@ const DriveScene = () => {
           plane: CONTROL_STATE.PLANE,
         },
       },
+      enableFog: { value: false, label: "enable fog" },
       fogNear: { value: 80, min: 0, max: 500, label: "fog near" },
       fogFar: { value: 270, min: 0, max: 10000, label: "fog far" },
       fogColor: { value: "#003535", label: "fog color" },
@@ -204,7 +206,7 @@ const DriveScene = () => {
         near={0.01}
         far={50000}
       />
-      <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
+      {enableFog && <fog attach="fog" args={[fogColor, fogNear, fogFar]} />}
       <Stats showPanel={showFPS ? 0 : 4} />
       <BackgroundLight />
 
