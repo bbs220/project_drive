@@ -77,10 +77,10 @@ const SideBar = () => {
                 <div className="flex flex-col gap-3 items-center text-center"></div>
               ) : activeScene === "drive" ? (
                 // master grid container holding all categories
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {/* --- AUDIO SECTION --- */}
-                  <div className="flex flex-col gap-4">
-                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1">
+                  <div className="flex flex-col gap-4 p-4 rounded-2xl h-65 bg-black/20">
+                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1 text-center">
                       AUDIO
                     </h3>
 
@@ -152,8 +152,8 @@ const SideBar = () => {
                   </div>
 
                   {/* --- WORLD SECTION --- */}
-                  <div className="flex flex-col gap-4">
-                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1">
+                  <div className="flex flex-col gap-4 p-4 rounded-2xl h-65 bg-black/20">
+                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1 text-center">
                       WORLD
                     </h3>
 
@@ -174,7 +174,7 @@ const SideBar = () => {
                     </div>
 
                     <div className="flex items-center justify-between pr-3 mt-2 text-xs tracking-wider">
-                      <span className="text-white/80">WORLD SEED</span>
+                      <span className="text-tron-cyan">WORLD SEED</span>
                       <div className="flex h-5 items-center">
                         <span className="font-telemetry text-xl">{seed}</span>
                       </div>
@@ -182,8 +182,8 @@ const SideBar = () => {
                   </div>
 
                   {/* --- HEADS UP DISPLAY SECTION --- */}
-                  <div className="flex flex-col gap-4">
-                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1">
+                  <div className="flex flex-col gap-4 p-4 rounded-2xl h-65 bg-black/20">
+                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1 text-center">
                       INTERFACE
                     </h3>
 
@@ -249,8 +249,8 @@ const SideBar = () => {
                   </div>
 
                   {/* --- radio section --- */}
-                  <div className="flex flex-col gap-4">
-                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30">
+                  <div className="flex flex-col gap-4 p-4 rounded-2xl h-65 bg-black/20">
+                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 text-center">
                       SOUNDTRACK
                     </h3>
                     <RadioHUD />
