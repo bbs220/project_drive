@@ -74,12 +74,7 @@ export const getTerrainData = (x: number, z: number): typeTerrainData => {
 
   if (biomeScore < cityThreshold) {
     // outlands / grasslands zone
-    const rawTerrain = fbm2D(x, z, 4, 0.002, 0.5, 2.0);
-    // taper the rolling hills near the city borders to keep transitions smooth
-    const borderBlend = Math.min(1.0, (cityThreshold - biomeScore) * 5.0);
-    const outlandElevation = ((rawTerrain + 1) / 2) * 120 * borderBlend;
-
-    return { type: "empty", elevation: Math.max(0, outlandElevation) };
+    return { type: "empty", elevation: 0 };
   }
 
   // infinite city zone
