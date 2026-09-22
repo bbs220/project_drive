@@ -110,7 +110,7 @@ const ProceduralStars = ({ activeChunks }: ProceduralSkyProps) => {
   const params = useTweakpane(
     { title: "☁️ Weather System", expanded: false },
     {
-      enableStars: { value: false, label: "enable stars", folder: "Stars" },
+      enableStars: { value: true, label: "enable stars", folder: "Stars" },
     },
   );
 

@@ -17,7 +17,7 @@ const ProceduralClouds = ({ centerChunk, chunkRadius }: typeStormProps) => {
   const params = useTweakpane(
     { title: "☁️ Weather System", expanded: false },
     {
-      showClouds: { value: false, label: "enable clouds", folder: "Clouds" },
+      showClouds: { value: true, label: "enable clouds", folder: "Clouds" },
     },
   );
 

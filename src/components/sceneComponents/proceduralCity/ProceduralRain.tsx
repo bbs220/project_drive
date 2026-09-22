@@ -17,7 +17,7 @@ const ProceduralRain = () => {
   const params = useTweakpane(
     { title: "☁️ Weather System", expanded: false },
     {
-      showRain: { value: false, label: "enable rain", folder: "Rain" },
+      showRain: { value: true, label: "enable rain", folder: "Rain" },
       count: {
         value: 50000,
         min: 1000,

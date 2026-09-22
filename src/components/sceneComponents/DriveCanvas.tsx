@@ -89,7 +89,7 @@ const DriveScene = () => {
           plane: CONTROL_STATE.PLANE,
         },
       },
-      enableFog: { value: false, label: "enable fog", folder: "Fog" },
+      enableFog: { value: true, label: "enable fog", folder: "Fog" },
       fogNear: {
         value: 80,
         min: 0,
