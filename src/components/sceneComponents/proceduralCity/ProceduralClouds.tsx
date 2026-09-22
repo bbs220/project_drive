@@ -15,9 +15,9 @@ const ProceduralClouds = ({ centerChunk, chunkRadius }: typeStormProps) => {
   const stormSize = worldConstants.chunkSize * gridSpan;
 
   const params = useTweakpane(
-    { title: "☁️ Procedural Clouds", expanded: false },
+    { title: "☁️ Weather System", expanded: false },
     {
-      showClouds: { value: false, label: "enable clouds" },
+      showClouds: { value: false, label: "enable clouds", folder: "Clouds" },
     },
   );
 

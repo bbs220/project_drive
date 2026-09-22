@@ -88,7 +88,7 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
 
   // initialize tweakpane hook and store reactive parameters
   const params = useTweakpane(
-    { title: "🚶 Player Tuning", expanded: false },
+    { title: "⚙️ Vehicle Tuning", expanded: false },
     playerConstants.tuning,
   );
 

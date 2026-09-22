@@ -118,33 +118,79 @@ type typeGroundProps = {
 const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
   // grid Shader Tweakpane
   const gridParams = useTweakpane(
-    { title: "➕ Ground Grid Shader", expanded: false },
+    { title: "📔 Shaders", expanded: false },
     {
-      showChunkBoundary: { value: false, label: "chunk boundary" },
-      gridSize: { value: 10.0, min: 5.0, max: 50.0, step: 5 },
-      subGridSize: { value: 2.5, min: 0.5, max: 2.5, step: 0.5 },
-      crossSize: { value: 0.08, min: 0.01, max: 0.5 },
-      crossOpacity: { value: 0.2, min: 0.0, max: 1.0 },
-      gridThickness: { value: 0.1, min: 0.1, max: 5.0, step: 0.1 },
-      lineColor: { value: "#666666" },
-      crossColor: { value: "#00f3ff" },
-      bgColor: { value: "#050505" },
+      showChunkBoundary: {
+        value: false,
+        label: "chunk boundary",
+        folder: "Ground Grid",
+      },
+      gridSize: {
+        value: 10.0,
+        min: 5.0,
+        max: 50.0,
+        step: 5,
+        folder: "Ground Grid",
+      },
+      subGridSize: {
+        value: 2.5,
+        min: 0.5,
+        max: 2.5,
+        step: 0.5,
+        folder: "Ground Grid",
+      },
+      crossSize: { value: 0.08, min: 0.01, max: 0.5, folder: "Ground Grid" },
+      crossOpacity: { value: 0.2, min: 0.0, max: 1.0, folder: "Ground Grid" },
+      gridThickness: {
+        value: 0.1,
+        min: 0.1,
+        max: 5.0,
+        step: 0.1,
+        folder: "Ground Grid",
+      },
+      lineColor: { value: "#666666", folder: "Ground Grid" },
+      crossColor: { value: "#00f3ff", folder: "Ground Grid" },
+      bgColor: { value: "#050505", folder: "Ground Grid" },
     },
   );
 
   // road Shader Tweakpane
   const roadParams = useTweakpane(
-    { title: "🛣️ Road Shader", expanded: false },
+    { title: "📔 Shaders", expanded: false },
     {
-      bgColor: { value: "#010102" },
-      edgeColor: { value: "#00f3ff" },
-      centerColor: { value: "#00f3ff" },
-      edgeDist: { value: 0.49, min: 0.2, max: 0.49, step: 0.01 },
-      centerDist: { value: 0.02, min: 0.0, max: 0.2, step: 0.01 },
-      edgeWidth: { value: 0.001, min: 0.001, max: 0.1, step: 0.001 },
-      centerWidth: { value: 0.001, min: 0.001, max: 0.05, step: 0.001 },
-      edgeGlow: { value: 1.5, min: 0.1, max: 5.0 },
-      centerGlow: { value: 1.4, min: 0.1, max: 5.0 },
+      bgColor: { value: "#010102", folder: "Road" },
+      edgeColor: { value: "#00f3ff", folder: "Road" },
+      centerColor: { value: "#00f3ff", folder: "Road" },
+      edgeDist: {
+        value: 0.49,
+        min: 0.2,
+        max: 0.49,
+        step: 0.01,
+        folder: "Road",
+      },
+      centerDist: {
+        value: 0.02,
+        min: 0.0,
+        max: 0.2,
+        step: 0.01,
+        folder: "Road",
+      },
+      edgeWidth: {
+        value: 0.001,
+        min: 0.001,
+        max: 0.1,
+        step: 0.001,
+        folder: "Road",
+      },
+      centerWidth: {
+        value: 0.001,
+        min: 0.001,
+        max: 0.05,
+        step: 0.001,
+        folder: "Road",
+      },
+      edgeGlow: { value: 1.5, min: 0.1, max: 5.0, folder: "Road" },
+      centerGlow: { value: 1.4, min: 0.1, max: 5.0, folder: "Road" },
     },
   );
 

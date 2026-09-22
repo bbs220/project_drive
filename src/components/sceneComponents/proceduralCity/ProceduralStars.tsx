@@ -108,9 +108,9 @@ const ProceduralStars = ({ activeChunks }: ProceduralSkyProps) => {
   const globalSeed = useCityStore((state) => state.seed);
 
   const params = useTweakpane(
-    { title: "⭐ Procedural Stars", expanded: false },
+    { title: "☁️ Weather System", expanded: false },
     {
-      enableStars: { value: false, label: "enable stars" },
+      enableStars: { value: false, label: "enable stars", folder: "Stars" },
     },
   );
 

@@ -88,7 +88,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
 
     // initialize tweakpane hook using only the tuning object
     const tuningParams = useTweakpane(
-      { title: "🚗 Car Tuning", expanded: false },
+      { title: "⚙️ Vehicle Tuning", expanded: false },
       vehicleCarConstants.tuning,
     );
 
@@ -231,7 +231,7 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
         <RigidBody
           ref={chassisRef}
           colliders={false}
-          friction={friction}
+          friction={friction.value}
           position={initialSpawn.position}
           rotation={initialSpawn.rotation}
           mass={mass}

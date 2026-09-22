@@ -77,7 +77,7 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
 
     // initialize tweakpane hook and store reactive parameters
     const params = useTweakpane(
-      { title: "🚁 Helicopter Tuning", expanded: false },
+      { title: "⚙️ Vehicle Tuning", expanded: false },
       vehicleHelicopterConstants.tuning,
     );
 
