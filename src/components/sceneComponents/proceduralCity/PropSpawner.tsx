@@ -101,10 +101,12 @@ const InstancedProp = ({
 const PropSpawner = ({ roads }: PropSpawnerProps) => {
   const { scene: fenceLargeScene } = useGLTF(propSet.fenceLarge);
   const { scene: fenceSmallScene } = useGLTF(propSet.fenceSmall);
+  const { scene: archScene } = useGLTF(propSet.roadsideArch);
 
-  const { largeFences, smallFences } = useMemo(() => {
+  const { largeFences, smallFences, arches } = useMemo(() => {
     const tempLarge: typeInstanceConfig[] = [];
     const tempSmall: typeInstanceConfig[] = [];
+    const tempArches: typeInstanceConfig[] = [];
 
     const halfCell = worldConstants.cellSize / 2;
 
@@ -120,9 +122,23 @@ const PropSpawner = ({ roads }: PropSpawnerProps) => {
     });
 
     roads.forEach((road) => {
-      // The physical 3D center of the road cell
+      // physical 3D center of the road cell
       const physX = road.position[0] - halfCell;
       const physZ = road.position[2] - halfCell;
+
+      if (road.isDeadEnd) {
+        tempArches.push({
+          key: `arch_${road.key}`,
+
+          position: [
+            road.position[0] - halfCell,
+            4,
+            road.position[2] - halfCell,
+          ],
+          scale: [1, 1, 1],
+          rotation: road.archRotation || [0, 0, 0],
+        });
+      }
 
       if (road.roadType === 1.0) {
         // large fences intersections
@@ -202,7 +218,11 @@ const PropSpawner = ({ roads }: PropSpawnerProps) => {
       }
     });
 
-    return { largeFences: tempLarge, smallFences: tempSmall };
+    return {
+      largeFences: tempLarge,
+      smallFences: tempSmall,
+      arches: tempArches,
+    };
   }, [roads]);
 
   return (
@@ -213,11 +233,13 @@ const PropSpawner = ({ roads }: PropSpawnerProps) => {
       {fenceSmallScene && (
         <InstancedProp scene={fenceSmallScene} instances={smallFences} />
       )}
+      {archScene && <InstancedProp scene={archScene} instances={arches} />}
     </group>
   );
 };
 
 useGLTF.preload(propSet.fenceLarge);
 useGLTF.preload(propSet.fenceSmall);
+useGLTF.preload(propSet.roadsideArch);
 
 export default PropSpawner;

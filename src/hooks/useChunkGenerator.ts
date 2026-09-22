@@ -13,6 +13,8 @@ export type typeInstanceConfig = {
   rotation?: [number, number, number];
   roadType?: number;
   colorIndex?: number;
+  isDeadEnd?: boolean;
+  archRotation?: [number, number, number];
 };
 
 const getPseudoRandom = (x: number, z: number) => {
@@ -137,6 +139,8 @@ export const useChunkGenerator = (
         } else if (data.type === "road") {
           let roadType = 0.0;
           let rotation: [number, number, number] = [0, 0, 0];
+          let isDeadEnd = false;
+          let archRotation: [number, number, number] = [0, 0, 0];
 
           const n = getTerrainData(worldX, worldZ - cellSize).type === "road";
           const s = getTerrainData(worldX, worldZ + cellSize).type === "road";
@@ -145,6 +149,19 @@ export const useChunkGenerator = (
 
           const hasVerticalNeighbor = n || s;
           const hasHorizontalNeighbor = e || w;
+
+          // dead end road calculation
+          const neighborCount =
+            (n ? 1 : 0) + (s ? 1 : 0) + (e ? 1 : 0) + (w ? 1 : 0);
+
+          if (neighborCount === 1) {
+            isDeadEnd = true;
+            // face the arch perpendicularly toward the connecting road
+            if (n) archRotation = [0, 0, 0];
+            else if (s) archRotation = [0, Math.PI, 0];
+            else if (e) archRotation = [0, -Math.PI / 2, 0];
+            else if (w) archRotation = [0, Math.PI / 2, 0];
+          }
 
           if (hasVerticalNeighbor && hasHorizontalNeighbor) {
             roadType = 1.0;
@@ -158,6 +175,8 @@ export const useChunkGenerator = (
             scale: [10, 0.1, 10],
             rotation,
             roadType,
+            isDeadEnd,
+            archRotation,
           });
         }
       }

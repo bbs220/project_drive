@@ -42,15 +42,15 @@
 }
 
 .tp-dfwv::-webkit-scrollbar-track {
-  background: rgba(5, 5, 5, 0.8); /* tron-bg */
+  background: rgba(5, 5, 5, 0.8);
   border-left: 1px solid rgba(0, 243, 255, 0.2);
 }
 
 .tp-dfwv::-webkit-scrollbar-thumb {
-  background: #00f3ff; /* tron-cyan */
+  background: #344448;
   border-radius: 4px;
 }
 
 .tp-dfwv::-webkit-scrollbar-thumb:hover {
-  background: #ff00ff; /* tron-magenta on hover */
+  background: #546d74;
 }
