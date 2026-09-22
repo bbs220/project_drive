@@ -61,7 +61,7 @@ const WelcomePage = () => {
           </button>
           {/* subtle info text */}
           <p className="font-label text-[10px] md:text-xs tracking-[0.2em] text-tron-magenta/70 uppercase">
-            deploy to open world
+            explore the open world
           </p>
         </div>
 
@@ -82,7 +82,7 @@ const WelcomePage = () => {
           </button>
           {/* subtle info text */}
           <p className="font-label text-[10px] md:text-xs tracking-[0.2em] text-tron-cyan/70 uppercase">
-            configure & tune vehicles
+            customize your vehicles
           </p>
         </div>
       </div>

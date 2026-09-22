@@ -1,10 +1,13 @@
 varying vec2 vUv;
 varying float vHeight;
+varying vec3 vNormal; 
 #include <fog_pars_fragment>
 
 void main() {
     vec3 obsidian = vec3(0.005,0.01,0.015);
     vec3 neonCyan = vec3(0.0,1.0,1.0) * 3.0;
+
+    float isRoof = step(0.9,vNormal.y);
 
     float thicknessX = 0.008;
     float thicknessY = 0.008 / (vHeight / 8.0);
@@ -21,7 +24,9 @@ void main() {
     float facadeGlow = stripes * dashes;
 
     float interiorMask = (1.0 - edgeX) * (1.0 - edgeY);
-    facadeGlow *= interiorMask;
+
+    // mask out the windows on the roof, but keep the edges
+    facadeGlow *= interiorMask * (1.0 - isRoof);
 
     float finalGlowIntensity = max(edges,facadeGlow * 0.15);
 
