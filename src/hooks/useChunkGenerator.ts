@@ -30,6 +30,7 @@ export const useChunkGenerator = (
     const tempBuildings: typeInstanceConfig[] = [];
     const tempRoads: typeInstanceConfig[] = [];
     const tempGrass: typeInstanceConfig[] = [];
+    const tempParking: typeInstanceConfig[] = [];
 
     const chunkSize = worldConstants.chunkSize;
     const halfChunk = chunkSize / 2;
@@ -41,6 +42,11 @@ export const useChunkGenerator = (
 
     const blockSize = generatorState.blockSize;
     const roadWidth = generatorState.roadWidth;
+
+    // all of this just to not rely on a magic number
+    const buildableCells = (blockSize - roadWidth) / cellSize;
+    const centerCellIndex = Math.floor(buildableCells / 2);
+    const centerOffset = roadWidth + centerCellIndex * cellSize + cellSize / 2;
 
     // tweakable grass parameters
     const GRASS_PARAMS = {
@@ -130,6 +136,10 @@ export const useChunkGenerator = (
         const data = getTerrainData(worldX, worldZ);
         const key = `v${version}_${worldX}_${worldZ}`;
 
+        // modulus math to find good lots
+        const modX = ((worldX % blockSize) + blockSize) % blockSize;
+        const modZ = ((worldZ % blockSize) + blockSize) % blockSize;
+
         if (data.type === "building") {
           tempBuildings.push({
             key: `b_${key}`,
@@ -178,6 +188,27 @@ export const useChunkGenerator = (
             isDeadEnd,
             archRotation,
           });
+        } else if (data.type === "empty") {
+          // parking lot math
+          if (modX === centerOffset && modZ === centerOffset) {
+            const nBlock =
+              getTerrainData(worldX, worldZ - blockSize).type === "building";
+            const sBlock =
+              getTerrainData(worldX, worldZ + blockSize).type === "building";
+            const eBlock =
+              getTerrainData(worldX + blockSize, worldZ).type === "building";
+            const wBlock =
+              getTerrainData(worldX - blockSize, worldZ).type === "building";
+
+            if (nBlock && sBlock && eBlock && wBlock) {
+              tempParking.push({
+                key: `park_${key}`,
+                position: [x, 0, z],
+                scale: [1, 1, 1],
+                rotation: [0, 0, 0],
+              });
+            }
+          }
         }
       }
     }
@@ -186,6 +217,7 @@ export const useChunkGenerator = (
       buildings: tempBuildings,
       roads: tempRoads,
       grass: tempGrass,
+      parkingLots: tempParking,
     };
   }, [version, chunkX, chunkZ]);
 };
