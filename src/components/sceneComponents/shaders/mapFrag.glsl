@@ -160,6 +160,9 @@ mat2 rotate2d(float angle) {
 vec4 stampIcon(vec4 baseColor,vec2 uv,vec2 playerWorldPos,vec2 entityWorldPos,sampler2D tex,float mapZoom,float scale,float radius,float pitch,float aspect,float entityYaw,float cameraYaw,vec2 margin,float lookAhead,float edgeIconScale) {
     vec2 offsetWorld = entityWorldPos - playerWorldPos;
     vec2 unrotatedMapUv = offsetWorld / vec2(mapZoom,-mapZoom);
+
+    // cameraYaw here is now the active vehicle yaw
+    // perfectly tracks the edge icons alongside the rotating map
     vec2 mapUv = rotate2d(cameraYaw) * unrotatedMapUv;
 
     vec2 entityScreenUv;
@@ -203,6 +206,17 @@ vec4 stampIcon(vec4 baseColor,vec2 uv,vec2 playerWorldPos,vec2 entityWorldPos,sa
 }
 
 void main() {
+    // rotation dynamically per active vehicle
+    float activeYaw = 0.0;
+    if (uActiveEntity == 0)
+        activeYaw = uCharYaw;
+    else if (uActiveEntity == 1)
+        activeYaw = uCarYaw;
+    else if (uActiveEntity == 2)
+        activeYaw = uPlaneYaw;
+    else if (uActiveEntity == 3)
+        activeYaw = uHeliYaw;
+
     vec2 margin = vec2(6.0) / uResolution;
 
     vec2 screenUv = vUv - 0.5;
@@ -215,7 +229,8 @@ void main() {
     mapUv.y = terrainUv.y / perspectiveDepth;
     mapUv.x *= uAspect;
 
-    vec2 rotatedMapUv = rotate2d(-uActiveYaw) * mapUv;
+    // negative activeYaw rotates the map oppositely so the vehicle always faces purely UP
+    vec2 rotatedMapUv = rotate2d(-activeYaw) * mapUv;
     vec2 worldPos = uPlayerPos + rotatedMapUv * vec2(uMapZoom,-uMapZoom);
 
     float rawBiome = fbm2D(worldPos,3,uMacroFreq,0.5,2.0);
@@ -254,28 +269,19 @@ void main() {
     float iconScale = 0.04 * (1500.0 / uMapZoom);
     float bgRadius = iconScale * 0.55;
 
+    // activeYaw allows the offset coords to correctly trace the spinning border
     if (uActiveEntity != 0) {
-        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCharPos,uPlayerTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCharYaw,uActiveYaw,margin,uLookAhead,uEdgeIconScale);
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCharPos,uPlayerTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCharYaw,activeYaw,margin,uLookAhead,uEdgeIconScale);
     }
     if (uActiveEntity != 1) {
-        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCarYaw,uActiveYaw,margin,uLookAhead,uEdgeIconScale);
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCarYaw,activeYaw,margin,uLookAhead,uEdgeIconScale);
     }
     if (uActiveEntity != 2) {
-        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uPlaneYaw,uActiveYaw,margin,uLookAhead,uEdgeIconScale);
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uPlaneYaw,activeYaw,margin,uLookAhead,uEdgeIconScale);
     }
     if (uActiveEntity != 3) {
-        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uHeliPos,uHeliTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uHeliYaw,uActiveYaw,margin,uLookAhead,uEdgeIconScale);
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uHeliPos,uHeliTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uHeliYaw,activeYaw,margin,uLookAhead,uEdgeIconScale);
     }
-
-    float activeYaw = 0.0;
-    if (uActiveEntity == 0)
-        activeYaw = uCharYaw;
-    if (uActiveEntity == 1)
-        activeYaw = uCarYaw;
-    if (uActiveEntity == 2)
-        activeYaw = uPlaneYaw;
-    if (uActiveEntity == 3)
-        activeYaw = uHeliYaw;
 
     vec2 playerPhys = vec2(0.0,-uLookAhead);
     vec2 pixelPhys = vUv - 0.5;
@@ -284,8 +290,8 @@ void main() {
     vec2 diff = pixelPhys - playerPhys;
     float isCenterBg = 1.0 - smoothstep(bgRadius - 0.005,bgRadius,length(diff));
 
+    // map is rotating underneath us now, so the center icon does not need to mathematically rotate at all
     vec2 centerIconUv = (diff / iconScale);
-    centerIconUv = rotate2d(activeYaw - uActiveYaw) * centerIconUv;
     centerIconUv += 0.5;
 
     float inCenterBounds = step(0.0,centerIconUv.x) * step(centerIconUv.x,1.0) * step(0.0,centerIconUv.y) * step(centerIconUv.y,1.0);
