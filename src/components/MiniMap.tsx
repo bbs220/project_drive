@@ -37,7 +37,7 @@ type typeProceduralMapProps = {
   isExpandedRef: React.RefObject<boolean>;
   params: ProceduralMapParams;
   northRef: React.RefObject<HTMLDivElement | null>;
-  permTexture: THREE.DataTexture; // NEW PROP
+  permTexture: THREE.DataTexture;
 };
 
 const ProceduralMapShader = ({
@@ -109,26 +109,37 @@ const ProceduralMapShader = ({
     dummyE.setFromQuaternion(state.camera.quaternion, "YXZ");
     materialRef.current.uniforms.uActiveYaw.value = dummyE.y;
 
-    if (northRef.current) {
-      const yaw = dummyE.y;
-      const nx = Math.sin(yaw);
-      const ny = -Math.cos(yaw);
-      const max = Math.max(Math.abs(nx), Math.abs(ny));
-
-      northRef.current.style.left = `calc(50% + ${(nx / max) * 50}% - ${(nx / max) * 6}px)`;
-      northRef.current.style.top = `calc(50% + ${(ny / max) * 50}% - ${(ny / max) * 6}px)`;
-    }
-
     const { active, telemetry } = useVehicleStore.getState();
     const currentTelemetry = telemetry[active.entity];
 
+    const getYaw = (rot: [number, number, number, number]) => {
+      dummyQ.set(rot[0], rot[1], rot[2], rot[3]);
+      dummyE.setFromQuaternion(dummyQ, "YXZ");
+      return dummyE.y;
+    };
+
+    let activeYaw = dummyE.y;
     let currentSpeed = 0;
+
     if (currentTelemetry) {
+      activeYaw = getYaw(currentTelemetry.rotation);
+
       if ("speed" in currentTelemetry) {
         currentSpeed = currentTelemetry.speed;
       } else if ("airspeed" in currentTelemetry) {
         currentSpeed = currentTelemetry.airspeed;
       }
+    }
+
+    // north indicator logic
+    // orbits the N marker around the border natively based on active vehicle yaw
+    if (northRef.current) {
+      const nx = Math.sin(activeYaw);
+      const ny = -Math.cos(activeYaw);
+      const max = Math.max(Math.abs(nx), Math.abs(ny));
+
+      northRef.current.style.left = `calc(50% + ${(nx / max) * 50}% - ${(nx / max) * 12}px)`;
+      northRef.current.style.top = `calc(50% + ${(ny / max) * 50}% - ${(ny / max) * 12}px)`;
     }
 
     let targetZoom = params.miniMapZoom;
@@ -196,12 +207,6 @@ const ProceduralMapShader = ({
         currentTelemetry.position[2],
       );
     }
-
-    const getYaw = (rot: [number, number, number, number]) => {
-      dummyQ.set(rot[0], rot[1], rot[2], rot[3]);
-      dummyE.setFromQuaternion(dummyQ, "YXZ");
-      return dummyE.y;
-    };
 
     const pTel = telemetry[ENTITY_ID.PLAYER_1];
     const cTel = telemetry[ENTITY_ID.CAR_1];
@@ -455,11 +460,11 @@ const MiniMap = () => {
 
           <div
             ref={northRef}
-            className="absolute flex items-center justify-center w-5 h-5 text-[10px] font-bold text-black bg-white border border-tron-cyan rounded-full shadow-[0_0_10px_rgba(0,243,255,0.8)] z-20 pointer-events-none"
+            className="absolute flex items-center justify-center w-5 h-5 text-[10px] font-bold text-black bg-white border border-tron-cyan rounded-full shadow-[0_0_10px_rgba(0,243,255,0.8)] z-20 pointer-events-none transition-transform duration-75"
             style={{
               transform: "translate(-50%, -50%)",
               left: "50%",
-              top: "6px",
+              top: "12px",
             }}
           >
             N
