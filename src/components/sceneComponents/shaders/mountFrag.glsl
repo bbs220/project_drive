@@ -19,5 +19,8 @@ void main() {
     float wipe = smoothstep(0.0,0.2,uProgress - vUv.y * 0.5);
     intensity *= wipe;
 
+    float edgeFade = smoothstep(0.0,0.15,vUv.y) * smoothstep(1.0,0.85,vUv.y);
+    intensity *= edgeFade;
+
     gl_FragColor = vec4(uColor,intensity);
 }
