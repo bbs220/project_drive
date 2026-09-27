@@ -2,7 +2,7 @@ import {
   GizmoHelper,
   GizmoViewport,
   PerspectiveCamera,
-  Stats,
+  StatsGl,
 } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
@@ -229,13 +229,15 @@ const DriveScene = () => {
         far={50000}
       />
       {enableFog && <fog attach="fog" args={[fogColor, fogNear, fogFar]} />}
-      <Stats showPanel={showFPS ? 0 : 4} />
+      <StatsGl
+        className={`${showFPS ? "block" : "hidden"} fixed top-15`}
+        horizontal={false}
+      />
       <BackgroundLight />
-
       <GizmoHelper
         renderPriority={2}
         alignment="top-left"
-        margin={[120, 60]}
+        margin={[60, 220]}
         visible={showGizmo}
       >
         <GizmoViewport disabled visible={showGizmo} />

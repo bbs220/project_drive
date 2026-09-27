@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { Canvas, useThree } from "@react-three/fiber";
-import { PerspectiveCamera, Stats, OrbitControls } from "@react-three/drei";
+import { PerspectiveCamera, OrbitControls, StatsGl } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import Floor from "./Floor";
 import PostprocessingEffects from "./PostprocessingEffects";
@@ -108,7 +108,10 @@ const GarageScene = () => {
   return (
     <>
       <PerspectiveCamera makeDefault fov={35} position={[0, 3, 8]} />
-      <Stats showPanel={showFPS ? 0 : 4} />
+      <StatsGl
+        className={`${showFPS ? "block" : "hidden"} fixed top-1 left-16`}
+        horizontal={true}
+      />
       <fogExp2 attach="fog" args={[fogColor as string, fogValue as number]} />
       <color attach="background" args={[fogColor as string]} />
 
