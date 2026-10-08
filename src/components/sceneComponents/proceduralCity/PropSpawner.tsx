@@ -5,8 +5,14 @@ import { propSet } from "../../../utils/assetpaths";
 import { worldConstants } from "../../../utils/worldGenerator";
 import type { typeInstanceConfig } from "../../../hooks/useChunkGenerator";
 
+// stable randomizer
+const getPseudoRandom = (x: number, z: number) => {
+  return Math.abs(Math.sin(x * 12.9898 + z * 78.233) * 43758.5453) % 1;
+};
+
 type PropSpawnerProps = {
   roads: typeInstanceConfig[];
+  parkingLots?: typeInstanceConfig[];
 };
 
 const InstancedSubMesh = ({
@@ -98,13 +104,16 @@ const InstancedProp = ({
   );
 };
 
-const PropSpawner = ({ roads }: PropSpawnerProps) => {
+const PropSpawner = ({ roads, parkingLots = [] }: PropSpawnerProps) => {
   const { scene: fenceLargeScene } = useGLTF(propSet.fenceLarge);
   const { scene: fenceSmallScene } = useGLTF(propSet.fenceSmall);
+  const { scene: archScene } = useGLTF(propSet.roadsideArch);
+  const { scene: shrineScene } = useGLTF(propSet.shrine);
 
-  const { largeFences, smallFences } = useMemo(() => {
+  const { largeFences, smallFences, arches } = useMemo(() => {
     const tempLarge: typeInstanceConfig[] = [];
     const tempSmall: typeInstanceConfig[] = [];
+    const tempArches: typeInstanceConfig[] = [];
 
     const halfCell = worldConstants.cellSize / 2;
 
@@ -120,9 +129,23 @@ const PropSpawner = ({ roads }: PropSpawnerProps) => {
     });
 
     roads.forEach((road) => {
-      // The physical 3D center of the road cell
+      // physical 3D center of the road cell
       const physX = road.position[0] - halfCell;
       const physZ = road.position[2] - halfCell;
+
+      if (road.isDeadEnd) {
+        tempArches.push({
+          key: `arch_${road.key}`,
+
+          position: [
+            road.position[0] - halfCell,
+            4,
+            road.position[2] - halfCell,
+          ],
+          scale: [1, 1, 1],
+          rotation: road.archRotation || [0, 0, 0],
+        });
+      }
 
       if (road.roadType === 1.0) {
         // large fences intersections
@@ -202,8 +225,37 @@ const PropSpawner = ({ roads }: PropSpawnerProps) => {
       }
     });
 
-    return { largeFences: tempLarge, smallFences: tempSmall };
+    return {
+      largeFences: tempLarge,
+      smallFences: tempSmall,
+      arches: tempArches,
+    };
   }, [roads]);
+
+  const shrines = useMemo(() => {
+    const tempShrines: typeInstanceConfig[] = [];
+    const halfCell = worldConstants.cellSize / 2;
+
+    parkingLots.forEach((lot) => {
+      // calculate true visual center
+      const cx = lot.position[0] - halfCell;
+      const cz = lot.position[2] - halfCell;
+
+      const hash = getPseudoRandom(cx, cz);
+
+      // shrines in half the parking lots
+      if (hash > 0.5) return;
+
+      tempShrines.push({
+        key: `shrine_${lot.key}`,
+        position: [cx, 2.4, cz],
+        scale: [4, 4, 4],
+        rotation: lot.rotation || [0, 0, 0],
+      });
+    });
+
+    return tempShrines;
+  }, [parkingLots]);
 
   return (
     <group>
@@ -213,11 +265,15 @@ const PropSpawner = ({ roads }: PropSpawnerProps) => {
       {fenceSmallScene && (
         <InstancedProp scene={fenceSmallScene} instances={smallFences} />
       )}
+      {archScene && <InstancedProp scene={archScene} instances={arches} />}
+      {shrineScene && <InstancedProp scene={shrineScene} instances={shrines} />}
     </group>
   );
 };
 
 useGLTF.preload(propSet.fenceLarge);
 useGLTF.preload(propSet.fenceSmall);
+useGLTF.preload(propSet.roadsideArch);
+useGLTF.preload(propSet.shrine);
 
 export default PropSpawner;

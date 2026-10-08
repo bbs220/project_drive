@@ -15,41 +15,88 @@ const ProceduralRain = () => {
   const geometryRef = useRef<THREE.BufferGeometry>(null);
 
   const params = useTweakpane(
-    { title: "🌧️ Procedural Rain", expanded: false },
+    { title: "☁️ Weather System", expanded: false },
     {
+      showRain: { value: true, label: "enable rain", folder: "Rain" },
       count: {
         value: 50000,
         min: 1000,
         max: 100000,
         step: 1000,
         label: "drop count",
+        folder: "Rain",
       },
-      area: { value: 900, min: 300, max: 2000, label: "global square area" },
-      height: { value: 150, min: 50, max: 500, label: "volume height" },
+      area: {
+        value: 900,
+        min: 300,
+        max: 2000,
+        label: "global square area",
+        folder: "Rain",
+      },
+      height: {
+        value: 150,
+        min: 50,
+        max: 500,
+        label: "volume height",
+        folder: "Rain",
+      },
       innerRadius: {
         value: 150,
         min: 10,
         max: 500,
         label: "center circle radius",
+        folder: "Rain",
       },
       innerDensity: {
         value: 0.6,
         min: 0.0,
         max: 1.0,
         label: "% of rain in center",
+        folder: "Rain",
       },
-      color: { value: "#aaccff", label: "rain color" },
-      speedMultiplier: { value: 4.0, min: 0.1, max: 5.0, label: "fall speed" },
-      dropSize: { value: 150.0, min: 10.0, max: 500.0, label: "drop scale" },
+      color: { value: "#aaccff", label: "rain color", folder: "Rain" },
+      speedMultiplier: {
+        value: 4.0,
+        min: 0.1,
+        max: 5.0,
+        label: "fall speed",
+        folder: "Rain",
+      },
+      dropSize: {
+        value: 150.0,
+        min: 10.0,
+        max: 500.0,
+        label: "drop scale",
+        folder: "Rain",
+      },
       thickness: {
         value: 2.5,
         min: 0.5,
         max: 10.0,
         label: "thickness (squeeze)",
+        folder: "Rain",
       },
-      sway: { value: 2.0, min: 0.0, max: 10.0, label: "turbulence (sway)" },
-      windX: { value: 0, min: -10.0, max: 10.0, label: "wind X direction" },
-      windZ: { value: 0, min: -10.0, max: 10.0, label: "wind Z direction" },
+      sway: {
+        value: 2.0,
+        min: 0.0,
+        max: 10.0,
+        label: "turbulence (sway)",
+        folder: "Rain",
+      },
+      windX: {
+        value: 0,
+        min: -10.0,
+        max: 10.0,
+        label: "wind X direction",
+        folder: "Rain",
+      },
+      windZ: {
+        value: 0,
+        min: -10.0,
+        max: 10.0,
+        label: "wind Z direction",
+        folder: "Rain",
+      },
     },
   );
 
@@ -167,7 +214,7 @@ const ProceduralRain = () => {
   });
 
   return (
-    <group ref={rainGroupRef}>
+    <group ref={rainGroupRef} visible={params.showRain}>
       <points renderOrder={1}>
         <bufferGeometry ref={geometryRef} />
         <shaderMaterial

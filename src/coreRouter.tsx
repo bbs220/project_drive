@@ -6,6 +6,7 @@ import LayoutState from "./layout/LayoutState";
 import NotFoundPage from "./pages/NotFoundPage";
 import ErrorBoundary from "./components/ErrorBoundary";
 import GaragePage from "./pages/GaragePage";
+import Copyright from "./pages/Copyright";
 
 export const coreRouter = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ export const coreRouter = createBrowserRouter([
             <GaragePage />
           </LayoutState>
         ),
+      },
+      {
+        path: "/copyright",
+        element: <Copyright />,
       },
       {
         path: "*",

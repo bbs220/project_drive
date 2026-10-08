@@ -27,7 +27,7 @@ const EQ_BARS = [
 
 const RadioHUD = () => {
   const [trackIndex, setTrackIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
 
   // bring in the ui sound hook for our media buttons
   const { playClick } = useUISounds();
@@ -89,7 +89,7 @@ const RadioHUD = () => {
   }, [trackIndex, sound, isPlaying, play, stop]);
 
   return (
-    <div className="relative mt-4 flex w-full shrink-0 flex-col border border-tron-cyan/40 bg-[#00050a]/80 p-4 font-mono text-tron-cyan backdrop-blur-md shadow-[4px_0_20px_rgba(0,243,255,0.15),inset_-4px_0_20px_rgba(0,243,255,0.05)] select-none z-10">
+    <div className="relative flex w-full shrink-0 flex-col border border-tron-cyan/40 bg-[#00050a]/80 p-4 font-mono text-tron-cyan backdrop-blur-md shadow-[4px_0_20px_rgba(0,243,255,0.15),inset_-4px_0_20px_rgba(0,243,255,0.05)] select-none z-10">
       {/* header and animated equalizer */}
       <div className="mb-3 flex items-center justify-between border-b border-tron-cyan/30 pb-2">
         <div className="flex items-center gap-2">
@@ -100,7 +100,7 @@ const RadioHUD = () => {
             }
           />
           <span className="text-xs font-bold tracking-[3px] [text-shadow:0_0_5px_#00f3ff] uppercase">
-            {`Radio`}
+            {`Music Player`}
           </span>
         </div>
 

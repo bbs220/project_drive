@@ -2,7 +2,7 @@ import {
   GizmoHelper,
   GizmoViewport,
   PerspectiveCamera,
-  Stats,
+  StatsGl,
 } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
@@ -63,6 +63,7 @@ const DriveScene = () => {
     showGizmo,
     cameraDebug,
     activeVehicle,
+    enableFog,
     fogNear,
     fogFar,
     fogColor,
@@ -73,7 +74,7 @@ const DriveScene = () => {
     planeFovStartSpeed,
     planeFovMaxSpeed,
   } = useTweakpane(
-    { title: "☀️ Scene" },
+    { title: "☀️ Scene", expanded: false },
     {
       showFPS: { value: false, label: "show fps" },
       showGizmo: { value: false, label: "show gizmo" },
@@ -88,24 +89,45 @@ const DriveScene = () => {
           plane: CONTROL_STATE.PLANE,
         },
       },
-      fogNear: { value: 80, min: 0, max: 500, label: "fog near" },
-      fogFar: { value: 270, min: 0, max: 10000, label: "fog far" },
-      fogColor: { value: "#003535", label: "fog color" },
+      enableFog: { value: true, label: "enable fog", folder: "Fog" },
+      fogNear: {
+        value: 80,
+        min: 0,
+        max: 500,
+        label: "fog near",
+        folder: "Fog",
+      },
+      fogFar: {
+        value: 270,
+        min: 0,
+        max: 10000,
+        label: "fog far",
+        folder: "Fog",
+      },
+      fogColor: { value: "#003535", label: "fog color", folder: "Fog" },
 
       // tuning parameters for camera warp speed
-      dynamicFov: { value: true, label: "dynamic fov" },
-      maxFovValue: { value: 80, min: 60, max: 120, label: "max warp fov" },
+      dynamicFov: { value: true, label: "dynamic fov", folder: "FOV" },
+      maxFovValue: {
+        value: 80,
+        min: 60,
+        max: 120,
+        label: "max warp fov",
+        folder: "FOV",
+      },
       minSpeedThreshold: {
         value: 250,
         min: 0,
         max: 500,
         label: "car fov start",
+        folder: "FOV",
       },
       topSpeedThreshold: {
         value: 317,
         min: 50,
         max: 500,
         label: "car fov max",
+        folder: "FOV",
       },
       // specific thresholds for the plane
       planeFovStartSpeed: {
@@ -113,12 +135,14 @@ const DriveScene = () => {
         min: 0,
         max: 300,
         label: "plane fov start",
+        folder: "FOV",
       },
       planeFovMaxSpeed: {
         value: 200,
         min: 50,
         max: 300,
         label: "plane fov max",
+        folder: "FOV",
       },
     },
   );
@@ -204,14 +228,16 @@ const DriveScene = () => {
         near={0.01}
         far={50000}
       />
-      <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
-      <Stats showPanel={showFPS ? 0 : 4} />
+      {enableFog && <fog attach="fog" args={[fogColor, fogNear, fogFar]} />}
+      <StatsGl
+        className={`${showFPS ? "block" : "hidden"} fixed top-15`}
+        horizontal={false}
+      />
       <BackgroundLight />
-
       <GizmoHelper
         renderPriority={2}
         alignment="top-left"
-        margin={[120, 60]}
+        margin={[60, 220]}
         visible={showGizmo}
       >
         <GizmoViewport disabled visible={showGizmo} />

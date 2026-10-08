@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useEffect, useState } from "react";
+import { forwardRef, useRef, useEffect, useState, useMemo } from "react";
 import * as THREE from "three";
 import {
   RigidBody,
@@ -19,6 +19,8 @@ import {
   ENTITY_ID,
   CONTROL_STATE,
 } from "../../stores/useVehicleStore";
+import mountFrag from "./shaders/mountFrag.glsl";
+import mountVert from "./shaders/mountVert.glsl";
 
 // action names exported from blender
 type ActionName =
@@ -70,6 +72,7 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
 
   // dedicated reference purely for spinning the visual mesh independent of physics
   const visualRef = useRef<THREE.Group>(null);
+  const holoMeshRef = useRef<THREE.Mesh>(null);
 
   // load the model and typed animations directly inside the player component
   const { nodes, materials, animations } = useGLTF(
@@ -86,9 +89,11 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   const activeControl = useVehicleStore((state) => state.active.control);
   const isMounted = activeControl !== CONTROL_STATE.PLAYER;
 
-  // initialize tweakpane hook and store reactive parameters
+  // transition from 0.0 (on foot) to 1.0 (fully digitized into car)
+  const holoProgress = useRef(0.0);
+
   const params = useTweakpane(
-    { title: "🚶 Player Tuning", expanded: false },
+    { title: "⚙️ Vehicle Tuning", expanded: false },
     playerConstants.tuning,
   );
 
@@ -113,6 +118,22 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   usePlayerCreator(playerBodyRef, visualRef, controls, params);
 
   // dynamically enable or disable the collider based on mounted state as the primary safeguard
+  const holoMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uProgress: { value: 0 },
+        uColor: { value: new THREE.Color("#00f3ff") },
+      },
+      vertexShader: mountVert,
+      fragmentShader: mountFrag,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+    });
+  }, []);
+
   useEffect(() => {
     if (isMounted) {
       colliderRef.current?.setEnabled(false);
@@ -133,7 +154,39 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
   }, [actions]);
 
   // high-performance loop to poll telemetry and switch animations
-  useFrame(() => {
+  useFrame((state, delta) => {
+    if (isMounted) {
+      // digitizing away (0 to 1) over ~0.66 seconds
+      holoProgress.current = Math.min(1.0, holoProgress.current + delta * 1.5);
+    } else {
+      // materializing back (1 to 0)
+      holoProgress.current = Math.max(0.0, holoProgress.current - delta * 1.5);
+    }
+
+    // sine wave creates a "flash": Peaks at 1.0 when halfway through the transition, 0 when solid or invisible
+    const transitionPulse = Math.sin(holoProgress.current * Math.PI);
+
+    if (holoMeshRef.current) {
+      // only render the cylinder while actively transitioning to save performance
+      holoMeshRef.current.visible = transitionPulse > 0.01;
+    }
+
+    holoMaterial.uniforms.uTime.value = state.clock.elapsedTime;
+    holoMaterial.uniforms.uProgress.value = transitionPulse;
+
+    // dissolve the player mesh
+    const playerOpacity = 1.0 - holoProgress.current;
+    const isSolid = playerOpacity > 0.99; // prevent transparency sorting bugs when fully on foot
+
+    materials.Albedo.transparent = !isSolid;
+    materials.Albedo.depthWrite = isSolid;
+    materials.Albedo.opacity = playerOpacity;
+
+    materials.EmmissiveParts.transparent = !isSolid;
+    materials.EmmissiveParts.depthWrite = isSolid;
+    materials.EmmissiveParts.opacity = playerOpacity;
+
+    // telemetry & animation logic
     const telemetry = useVehicleStore.getState().telemetry[ENTITY_ID.PLAYER_1];
     if (!telemetry) return;
 
@@ -201,6 +254,8 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
     };
   }, [debugBones, nodes.mixamorigHips]);
 
+  const totalHeight = capsuleHalfHeight * 2 + capsuleRadius * 2;
+
   return (
     <group>
       {/* physics body with locked rotations and isolated respawn coordinates */}
@@ -232,6 +287,25 @@ const Player = forwardRef<THREE.Group>((_props, ref) => {
               rotation={[0, Math.PI, 0]}
               dispose={null}
             >
+              {/* holographic scanner mesh */}
+              <mesh
+                ref={holoMeshRef}
+                material={holoMaterial}
+                position={[0, totalHeight / 2, 0]}
+                visible={false}
+              >
+                <cylinderGeometry
+                  args={[
+                    capsuleRadius + 0.3,
+                    capsuleRadius + 0.3,
+                    totalHeight + 0.2,
+                    24,
+                    1,
+                    true,
+                  ]}
+                />
+              </mesh>
+
               <group name="Scene">
                 {/* scale mixamo rigs down to match standard blender units */}
                 <group name="Armature" scale={0.01}>

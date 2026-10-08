@@ -60,7 +60,7 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
 
     // initialize tweakpane hook and store reactive parameters
     const params = useTweakpane(
-      { title: "✈️ Plane Tuning", expanded: false },
+      { title: "⚙️ Vehicle Tuning", expanded: false },
       vehiclePlaneConstants.tuning,
     );
 

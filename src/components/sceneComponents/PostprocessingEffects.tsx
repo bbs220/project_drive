@@ -3,7 +3,6 @@ import { useFrame } from "@react-three/fiber";
 import {
   Bloom,
   EffectComposer,
-  DepthOfField,
   ChromaticAberration,
   SMAA,
   Vignette,
@@ -26,10 +25,6 @@ const PostprocessingEffects = () => {
     bloomIntensity,
     luminanceThreshold,
     luminanceSmoothing,
-    enableDoF,
-    focusDistance,
-    focalLength,
-    bokehScale,
     enableCA,
     caOffsetX,
     caOffsetY,
@@ -70,32 +65,6 @@ const PostprocessingEffects = () => {
         label: "smoothing",
       },
 
-      enableDoF: { value: false, folder: "Depth of Field", label: "enable" },
-      focusDistance: {
-        value: 0.0,
-        min: 0.0,
-        max: 1.0,
-        step: 0.001,
-        folder: "Depth of Field",
-        label: "focus distance",
-      },
-      focalLength: {
-        value: 0.02,
-        min: 0.0,
-        max: 1.0,
-        step: 0.001,
-        folder: "Depth of Field",
-        label: "focal length",
-      },
-      bokehScale: {
-        value: 2.0,
-        min: 0.0,
-        max: 10.0,
-        step: 0.1,
-        folder: "Depth of Field",
-        label: "bokeh scale",
-      },
-
       enableCA: {
         value: true,
         folder: "Chromatic Aberration",
@@ -133,28 +102,28 @@ const PostprocessingEffects = () => {
         value: 250,
         min: 0,
         max: 500,
-        folder: "Speed Thresholds",
+        folder: "Speedlines",
         label: "car min speed",
       },
       maxCarSpeed: {
         value: 317,
         min: 50,
         max: 500,
-        folder: "Speed Thresholds",
+        folder: "Speedlines",
         label: "car max speed",
       },
       minPlaneSpeed: {
         value: 160,
         min: 0,
         max: 300,
-        folder: "Speed Thresholds",
+        folder: "Speedlines",
         label: "plane min speed",
       },
       maxPlaneSpeed: {
         value: 200,
         min: 50,
         max: 300,
-        folder: "Speed Thresholds",
+        folder: "Speedlines",
         label: "plane max speed",
       },
       enableSMAA: {
@@ -230,14 +199,6 @@ const PostprocessingEffects = () => {
           intensity={bloomIntensity as number}
           luminanceThreshold={luminanceThreshold as number}
           luminanceSmoothing={luminanceSmoothing as number}
-        />
-      )}
-
-      {enableDoF && (
-        <DepthOfField
-          focusDistance={focusDistance as number}
-          focalLength={focalLength as number}
-          bokehScale={bokehScale as number}
         />
       )}
 

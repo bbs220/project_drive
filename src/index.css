@@ -28,3 +28,29 @@
     width: 340px !important;
   }
 }
+
+/* constrain Tweakpane height to the canvas and enable vertical scrolling */
+.tp-dfwv {
+  max-height: 85vh !important; /* little breathing room at the top and bottom */
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* scrollbar to match the neon/tron UI */
+.tp-dfwv::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tp-dfwv::-webkit-scrollbar-track {
+  background: rgba(5, 5, 5, 0.8);
+  border-left: 1px solid rgba(0, 243, 255, 0.2);
+}
+
+.tp-dfwv::-webkit-scrollbar-thumb {
+  background: #344448;
+  border-radius: 4px;
+}
+
+.tp-dfwv::-webkit-scrollbar-thumb:hover {
+  background: #546d74;
+}

@@ -17,7 +17,7 @@ const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
   const version = useCityStore((state) => state.version);
 
   // all the heavy math is cleanly abstracted away
-  const { buildings, roads, grass } = useChunkGenerator(
+  const { buildings, roads, grass, parkingLots } = useChunkGenerator(
     chunkX,
     chunkZ,
     version,
@@ -35,7 +35,7 @@ const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
       <ProceduralBuildings buildings={buildings} />
       <ProceduralRoads roads={roads} params={roadParams} />
       <ProceduralGrass grass={grass} />
-      <PropSpawner roads={roads} />
+      <PropSpawner roads={roads} parkingLots={parkingLots} />
     </group>
   );
 };

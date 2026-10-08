@@ -77,10 +77,10 @@ const SideBar = () => {
                 <div className="flex flex-col gap-3 items-center text-center"></div>
               ) : activeScene === "drive" ? (
                 // master grid container holding all categories
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {/* --- AUDIO SECTION --- */}
-                  <div className="flex flex-col gap-4">
-                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1">
+                  <div className="flex flex-col gap-4 p-4 rounded-2xl h-65 bg-black/20">
+                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1 text-center">
                       AUDIO
                     </h3>
 
@@ -137,7 +137,7 @@ const SideBar = () => {
                     {/* radio volume */}
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between text-xs tracking-wider">
-                        <span>RADIO</span>
+                        <span>SOUNDTRACK</span>
                         <span className="text-white">{radioVolume}%</span>
                       </div>
                       <input
@@ -152,8 +152,8 @@ const SideBar = () => {
                   </div>
 
                   {/* --- WORLD SECTION --- */}
-                  <div className="flex flex-col gap-4">
-                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1">
+                  <div className="flex flex-col gap-4 p-4 rounded-2xl h-65 bg-black/20">
+                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1 text-center">
                       WORLD
                     </h3>
 
@@ -172,11 +172,18 @@ const SideBar = () => {
                         className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
                     </div>
+
+                    <div className="flex items-center justify-between pr-3 mt-2 text-xs tracking-wider">
+                      <span className="text-tron-cyan">WORLD SEED</span>
+                      <div className="flex h-5 items-center">
+                        <span className="font-telemetry text-xl">{seed}</span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* --- HEADS UP DISPLAY SECTION --- */}
-                  <div className="flex flex-col gap-4">
-                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1">
+                  <div className="flex flex-col gap-4 p-4 rounded-2xl h-65 bg-black/20">
+                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1 text-center">
                       INTERFACE
                     </h3>
 
@@ -242,28 +249,11 @@ const SideBar = () => {
                   </div>
 
                   {/* --- radio section --- */}
-                  <div className="flex flex-col gap-4">
-                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 pb-1">
-                      COMMUNICATIONS
+                  <div className="flex flex-col gap-4 p-4 rounded-2xl h-65 bg-black/20">
+                    <h3 className="text-lg font-bold text-tron-cyan border-b border-tron-cyan/30 text-center">
+                      SOUNDTRACK
                     </h3>
                     <RadioHUD />
-                  </div>
-
-                  {/* ---information section--- */}
-                  <div className="flex flex-col gap-4">
-                    <h3 className="border-b border-tron-cyan/30 pb-1 text-lg font-bold text-tron-cyan">
-                      INFORMATION
-                    </h3>
-
-                    {/* Consistent Seed Display */}
-                    <div className="flex items-center justify-between pr-3 text-xs tracking-wider">
-                      <span className="text-white/80">WORLD SEED</span>
-                      <div className="flex h-5 items-center border border-tron-cyan/40 bg-black/50 px-3 skew-x-[-15deg] shadow-[0_0_10px_rgba(0,243,255,0.1)]">
-                        <span className="skew-x-15 font-mono text-tron-cyan drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]">
-                          {seed}
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               ) : (

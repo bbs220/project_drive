@@ -1,8 +1,8 @@
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useEffect } from "react";
 import { useAppStore } from "../stores/useAppStore";
 import { useUISounds } from "../hooks/useUISounds";
-import { TriangleAlert } from "lucide-react";
+import { Copyright, TriangleAlert } from "lucide-react";
 
 const WelcomePage = () => {
   const setActiveScene = useAppStore((state) => state.setActiveScene);
@@ -61,7 +61,7 @@ const WelcomePage = () => {
           </button>
           {/* subtle info text */}
           <p className="font-label text-[10px] md:text-xs tracking-[0.2em] text-tron-magenta/70 uppercase">
-            deploy to open world
+            explore the open world
           </p>
         </div>
 
@@ -82,7 +82,7 @@ const WelcomePage = () => {
           </button>
           {/* subtle info text */}
           <p className="font-label text-[10px] md:text-xs tracking-[0.2em] text-tron-cyan/70 uppercase">
-            configure & tune vehicles
+            customize your vehicles
           </p>
         </div>
       </div>
@@ -107,6 +107,15 @@ const WelcomePage = () => {
         <div className="font-telemetry text-[10px] md:text-xs tracking-widest text-white">
           {`( v ${appVersion}.alpha )`}
         </div>
+        {/* divider */}
+        <div className="h-6 w-0.5 bg-tron-lime/70" />
+        <Link
+          to={"/copyright"}
+          className="font-telemetry text-[10px] md:text-xs tracking-widest text-white flex justify-center items-center"
+        >
+          <Copyright className="text-yellow-300 mr-2 size-4" />
+          Copyright
+        </Link>
       </div>
     </div>
   );

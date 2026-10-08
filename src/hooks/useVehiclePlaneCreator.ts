@@ -199,7 +199,7 @@ export const useVehiclePlaneCreator = (
       // strictly lock flight controls if the plane is stationary
       const speedZero = currentSpeedRef.current === 0;
       // lock roll and yaw at low altitudes to prevent ground spins, but allow pitch so the plane can take off
-      const rollYawLocked = speedZero || pos.y < 30;
+      const rollYawLocked = speedZero || pos.y < 10; // altitude limit
       const pitchLocked = speedZero;
 
       // phase 2 map keyboard inputs exactly to unity axis inputs, factoring in the control locks
