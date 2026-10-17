@@ -8,21 +8,21 @@ Source: https://specification.website/checklist/ · Licensed CC BY 4.0
 
 The HTML, head, and document basics every page needs.
 
-- [ ] [The HTML doctype](https://specification.website/spec/foundations/doctype/) — Required
+- [x] [The HTML doctype](https://specification.website/spec/foundations/doctype/) — Required
       Every HTML document must start with \<!doctype html\> as its first line. This opts the browser into standards mode; without it, you get quirks mode and broken layout.
-- [ ] [The lang attribute on \<html\>](https://specification.website/spec/foundations/html-lang/) — Required
+- [x] [The lang attribute on \<html\>](https://specification.website/spec/foundations/html-lang/) — Required
       Set a valid BCP 47 language tag on the \<html\> element so screen readers, translators, search engines, and browsers know what language the page is in.
-- [ ] [\<meta charset\>](https://specification.website/spec/foundations/meta-charset/) — Required
+- [x] [\<meta charset\>](https://specification.website/spec/foundations/meta-charset/) — Required
       Declare UTF-8 as the document character encoding in the first 1024 bytes of the HTML, so browsers parse text correctly before they hit any non-ASCII content.
-- [ ] [\<meta viewport\>](https://specification.website/spec/foundations/meta-viewport/) — Required
+- [x] [\<meta viewport\>](https://specification.website/spec/foundations/meta-viewport/) — Required
       Tell mobile browsers to render the page at the device's actual width instead of pretending to be a 980-pixel desktop. One line, and never disable user scaling.
-- [ ] [The \<title\> element](https://specification.website/spec/foundations/title/) — Required
+- [x] [The \<title\> element](https://specification.website/spec/foundations/title/) — Required
       Every HTML document must have exactly one non-empty \<title\> element inside \<head\>. It names the page for browsers, search engines, screen readers, social previews, and AI agents. It is not the same thing as the page's \<h1\>.
-- [ ] [\<meta name="description"\>](https://specification.website/spec/foundations/meta-description/) — Recommended
+- [x] [\<meta name="description"\>](https://specification.website/spec/foundations/meta-description/) — Recommended
       A short, unique summary of the page used by search engines and social platforms as a snippet. Google may rewrite it, but a good one is rewritten less often.
-- [ ] [Canonical URL (rel="canonical")](https://specification.website/spec/foundations/canonical-url/) — Recommended
+- [x] [Canonical URL (rel="canonical")](https://specification.website/spec/foundations/canonical-url/) — Recommended
       Declare the preferred URL for a page so search engines and crawlers consolidate ranking signals on one address, even when several URLs serve the same content.
-- [ ] [Favicons and app icons](https://specification.website/spec/foundations/favicons/) — Recommended
+- [x] [Favicons and app icons](https://specification.website/spec/foundations/favicons/) — Recommended
       Ship an SVG favicon, an ICO fallback at /favicon.ico, an apple-touch-icon, and a maskable PWA icon. Five files cover every browser and home-screen surface.
 - [x] [\<meta name="theme-color"\>](https://specification.website/spec/foundations/theme-color/) — Recommended
       Tints the browser chrome and OS surfaces to match your brand. Use the media attribute to ship one colour for light mode and another for dark mode.
@@ -40,7 +40,7 @@ The HTML, head, and document basics every page needs.
       If you publish a feed, advertise a WebSub hub with rel="hub" and rel="self" so subscribers are pushed each update instead of polling for it. Cuts latency to seconds and removes most of the crawl traffic your feed attracts.
 - [ ] [CSS anchor positioning](https://specification.website/spec/foundations/anchor-positioning/) — Recommended
       Tether tooltips, menus, and popovers to the element that triggers them with pure CSS — no JavaScript positioning library, and it works across overflow and stacking boundaries.
-- [ ] [Balanced text wrapping](https://specification.website/spec/foundations/text-wrap/) — Recommended
+- [x] [Balanced text wrapping](https://specification.website/spec/foundations/text-wrap/) — Recommended
       Let the browser break headings and body copy intelligently with text-wrap: balance and pretty — no orphaned words, no manual line breaks, no layout shift.
 - [ ] [CSS container queries](https://specification.website/spec/foundations/container-queries/) — Recommended
       Style a component by the space it is actually given with container-type and @container — responsive design that follows the container, not the viewport — and test a container's own custom properties with style queries.
@@ -55,27 +55,27 @@ Search visibility — robots.txt, sitemaps, canonicals, structured data.
 
 - [x] [robots.txt](https://specification.website/spec/seo/robots-txt/) — Recommended
       A plain-text file at the site root that tells crawlers which paths they may or may not fetch. Standardised in RFC 9309 and supported by every major search engine.
-- [ ] [XML sitemaps](https://specification.website/spec/seo/xml-sitemaps/) — Recommended
+- [x] [XML sitemaps](https://specification.website/spec/seo/xml-sitemaps/) — Recommended
       An XML file listing the canonical URLs of a site, with optional metadata about when each was last changed. The fastest way to tell a search engine what exists.
 - [ ] [Sitemap index files](https://specification.website/spec/seo/sitemap-index/) — Recommended
       A sitemap of sitemaps. Used when a site has more than 50,000 URLs or wants to split sitemaps by content type for cleaner reporting.
 - [ ] [Image and video sitemap extensions](https://specification.website/spec/seo/image-sitemaps/) — Optional
       Optional XML extensions that add image and video metadata to sitemap entries. Useful when media is loaded by JavaScript or hosted on a CDN that crawlers cannot reach by following links.
-- [ ] [URL structure](https://specification.website/spec/seo/url-structure/) — Recommended
+- [x] [URL structure](https://specification.website/spec/seo/url-structure/) — Recommended
       URLs are the most stable identifier on the web. Keep them lowercase, hyphenated, descriptive, and shallow. Treat them as a public API for your content.
 - [ ] [Redirects (301/302/308)](https://specification.website/spec/seo/redirects/) — Required
       HTTP redirects send a client from one URL to another. Use 301 or 308 for permanent moves, 302 or 307 for temporary ones, and never chain more than necessary.
-- [ ] [Server-side rendering](https://specification.website/spec/seo/server-side-rendering/) — Recommended
+- [x] [Server-side rendering](https://specification.website/spec/seo/server-side-rendering/) — Recommended
       Crawlers, social scrapers, and AI agents index the HTML your server returns. Render your primary content and metadata server-side — via SSR, static generation, or prerendering — so it is in the initial response, not assembled later by client-side JavaScript.
-- [ ] [Soft 404s](https://specification.website/spec/seo/soft-404/) — Avoid
+- [x] [Soft 404s](https://specification.website/spec/seo/soft-404/) — Avoid
       A page that looks like a 'not found' message to a user but returns 200 OK to a crawler. Search engines treat soft 404s as a quality problem and often refuse to index them.
-- [ ] [Meta robots and X-Robots-Tag](https://specification.website/spec/seo/meta-robots/) — Required
+- [x] [Meta robots and X-Robots-Tag](https://specification.website/spec/seo/meta-robots/) — Required
       Every page must have an explicit, correct indexing policy — either implicit (default index, follow) on public pages, or an explicit noindex / X-Robots-Tag on staging, admin, thin, or private content. Get this wrong and you either disappear from search or expose what you didn't mean to.
-- [ ] [Heading hierarchy](https://specification.website/spec/seo/heading-hierarchy/) — Required
+- [x] [Heading hierarchy](https://specification.website/spec/seo/heading-hierarchy/) — Required
       Headings describe the sections of a page. They must form a nested outline, never be used for visual styling alone, and never skip levels.
-- [ ] [Internal linking](https://specification.website/spec/seo/internal-linking/) — Recommended
+- [x] [Internal linking](https://specification.website/spec/seo/internal-linking/) — Recommended
       Links from one page on a site to another. The strongest signal you control for telling crawlers and AI agents what a page is about and how important it is.
-- [ ] [Structured data (JSON-LD)](https://specification.website/spec/seo/structured-data/) — Recommended
+- [x] [Structured data (JSON-LD)](https://specification.website/spec/seo/structured-data/) — Recommended
       Machine-readable annotations that describe the content of a page using the schema.org vocabulary. JSON-LD is the format search engines and AI agents expect.
 - [ ] [Breadcrumbs](https://specification.website/spec/seo/breadcrumbs/) — Recommended
       A short trail showing the page's position in the site hierarchy. Visible in the UI for users, marked up as BreadcrumbList JSON-LD for search engines.
@@ -86,33 +86,33 @@ Search visibility — robots.txt, sitemaps, canonicals, structured data.
 
 WCAG-aligned rules so people of all abilities can use the site.
 
-- [ ] [Colour contrast](https://specification.website/spec/accessibility/color-contrast/) — Required
+- [x] [Colour contrast](https://specification.website/spec/accessibility/color-contrast/) — Required
       Text and meaningful non-text elements must have enough contrast against their background so people with low vision and people in harsh light can read them.
 - [ ] [Automatic contrasting colour](https://specification.website/spec/accessibility/contrast-color/) — Optional
       Let the browser pick a legible black or white foreground for a dynamic background with the CSS contrast-color() function, instead of hard-coding colour pairs or computing luminance in JavaScript.
 - [ ] [Forced colours mode](https://specification.website/spec/accessibility/forced-colors/) — Recommended
       Respect forced colours mode (Windows High Contrast and similar). The `forced-colors` media feature lets you repair UI the user's palette would otherwise flatten — without overriding their choice.
-- [ ] [Image alt text](https://specification.website/spec/accessibility/image-alt-text/) — Required
+- [x] [Image alt text](https://specification.website/spec/accessibility/image-alt-text/) — Required
       Every \<img\> element must have an alt attribute. The value describes the image's purpose to screen readers, search engines, and anyone whose image fails to load.
-- [ ] [Form labels](https://specification.website/spec/accessibility/form-labels/) — Required
+- [x] [Form labels](https://specification.website/spec/accessibility/form-labels/) — Required
       Every form control needs a programmatically associated label. A placeholder is not a label, and an unlabelled input is unusable for screen-reader and voice-control users.
-- [ ] [Keyboard navigation](https://specification.website/spec/accessibility/keyboard-navigation/) — Required
+- [x] [Keyboard navigation](https://specification.website/spec/accessibility/keyboard-navigation/) — Required
       Every interactive element on the page must be reachable and operable with a keyboard alone, in a logical order, with no traps that hold focus.
 - [ ] [Visible focus indicators](https://specification.website/spec/accessibility/focus-indicators/) — Required
       Whenever a control receives keyboard focus, the page must show a clear, high-contrast indicator. Removing focus outlines without a replacement is a top accessibility failure.
 - [ ] [Focus not obscured](https://specification.website/spec/accessibility/focus-not-obscured/) — Recommended
       A focused control must not be hidden behind a sticky header, cookie banner, or chat widget. WCAG 2.2 added this as a separate criterion because a perfect focus ring is worthless if something is sitting on top of it.
-- [ ] [Skip links](https://specification.website/spec/accessibility/skip-links/) — Required
+- [x] [Skip links](https://specification.website/spec/accessibility/skip-links/) — Required
       A 'skip to main content' link as the first focusable element lets keyboard and screen-reader users jump past repeated navigation on every page.
 - [ ] [The inert attribute](https://specification.website/spec/accessibility/inert-attribute/) — Recommended
       When an overlay is open, the content behind it should be unreachable — not just dimmed. The inert attribute removes a subtree from tab order and the accessibility tree at once, replacing fragile focus-trap JavaScript.
-- [ ] [Semantic HTML and landmarks](https://specification.website/spec/accessibility/semantic-html/) — Required
+- [x] [Semantic HTML and landmarks](https://specification.website/spec/accessibility/semantic-html/) — Required
       Use the right HTML element for the job. Landmarks like \<header\>, \<nav\>, \<main\>, and \<footer\> let assistive technologies announce structure and skip between regions.
 - [ ] [ARIA — first rule of ARIA](https://specification.website/spec/accessibility/aria-usage/) — Recommended
       ARIA can make custom widgets accessible, but the first rule of ARIA is don't use ARIA. Reach for a native HTML element first; add ARIA only when nothing native fits.
-- [ ] [Descriptive link text](https://specification.website/spec/accessibility/link-text/) — Required
+- [x] [Descriptive link text](https://specification.website/spec/accessibility/link-text/) — Required
       Every link's text must describe where it goes. 'Click here' and 'read more' fail screen-reader users who scan a page by jumping from link to link.
-- [ ] [Empty links and buttons](https://specification.website/spec/accessibility/empty-links-buttons/) — Avoid
+- [x] [Empty links and buttons](https://specification.website/spec/accessibility/empty-links-buttons/) — Avoid
       A link or button with no accessible name is invisible to screen readers and unreachable for voice control. Icon-only controls without a label are the usual culprit.
 - [ ] [Accessible form errors](https://specification.website/spec/accessibility/form-errors/) — Required
       When a form submission fails, errors must be identified in text, associated with the input that caused them, and announced to assistive technology.
@@ -124,15 +124,15 @@ WCAG-aligned rules so people of all abilities can use the site.
       Don't make people re-type information they already gave you in the same process. Auto-populate it, or let them pick it from what they entered a step ago.
 - [ ] [Consistent help](https://specification.website/spec/accessibility/consistent-help/) — Recommended
       If you offer help — a contact link, a phone number, a chat widget, an FAQ — put it in the same relative place on every page that has it. Moving it around is the failure.
-- [ ] [Document and parts language](https://specification.website/spec/accessibility/document-language/) — Required
+- [x] [Document and parts language](https://specification.website/spec/accessibility/document-language/) — Required
       Set the page's primary language on \<html lang\> and mark any inline content in a different language with its own lang attribute, so screen readers pronounce it correctly.
 - [ ] [Reduced motion](https://specification.website/spec/accessibility/reduced-motion/) — Required
       Respect the user's `prefers-reduced-motion` setting. Decorative animation, parallax, and autoplay can trigger vestibular distress, migraines, and seizures.
-- [ ] [Accessibility overlays](https://specification.website/spec/accessibility/accessibility-overlays/) — Avoid
+- [x] [Accessibility overlays](https://specification.website/spec/accessibility/accessibility-overlays/) — Avoid
       Third-party JavaScript widgets that claim to make a site WCAG-compliant at runtime. They do not work, often harm screen-reader users, and attract lawsuits.
 - [ ] [Captions and transcripts](https://specification.website/spec/accessibility/captions-and-transcripts/) — Required
       Video needs synchronised captions, audio-only content needs a transcript, and visuals that carry meaning need audio description. Auto-captions alone are not enough.
-- [ ] [Accessible data tables](https://specification.website/spec/accessibility/data-tables/) — Required
+- [x] [Accessible data tables](https://specification.website/spec/accessibility/data-tables/) — Required
       Tabular data must use real \<table\> markup with a caption, header cells, and scope attributes so screen readers can announce row and column relationships.
 - [ ] [Touch target size](https://specification.website/spec/accessibility/touch-target-size/) — Required
       Interactive controls must be large enough to tap or click reliably. WCAG 2.2 sets a 24×24 CSS px minimum, with 44×44 CSS px as the enhanced target.
@@ -142,7 +142,7 @@ WCAG-aligned rules so people of all abilities can use the site.
       Use hidden="until-found" for collapsible content so that browser find-in-page, assistive tech, and search engines can still reach the text and auto-expand it.
 - [ ] [Mobile-friendly form inputs](https://specification.website/spec/accessibility/mobile-form-inputs/) — Recommended
       On a phone, the right input type, inputmode, and enterkeyhint summon the correct on-screen keyboard and a useful Enter key. Keep input text at 16px or larger so iOS Safari doesn't zoom on focus.
-- [ ] [Native interactive elements](https://specification.website/spec/accessibility/native-interactive-elements/) — Recommended
+- [x] [Native interactive elements](https://specification.website/spec/accessibility/native-interactive-elements/) — Recommended
       Prefer native HTML interactive elements — \<button\>, \<a\>, \<details\>/\<summary\>, \<dialog\> — over divs with click handlers. You get keyboard support, focus management, and assistive-tech semantics for free.
 - [ ] [CSS state and relational selectors](https://specification.website/spec/accessibility/css-state-selectors/) — Recommended
       Use `:has()` together with `:user-invalid`, `:user-valid`, `:placeholder-shown` and `:focus-within` to express form and component state in CSS, removing the JavaScript class-toggling pattern and the race conditions it brings.
@@ -151,11 +151,11 @@ WCAG-aligned rules so people of all abilities can use the site.
 
 Headers, transport, and policies that keep visitors safe.
 
-- [ ] [HTTPS and TLS](https://specification.website/spec/security/https-tls/) — Required
+- [x] [HTTPS and TLS](https://specification.website/spec/security/https-tls/) — Required
       Serve every page over HTTPS using TLS 1.2 or 1.3, redirect plain HTTP to HTTPS, and disable obsolete SSL and early TLS versions on every host you control.
-- [ ] [HSTS (Strict-Transport-Security)](https://specification.website/spec/security/hsts/) — Required
+- [x] [HSTS (Strict-Transport-Security)](https://specification.website/spec/security/hsts/) — Required
       HSTS tells browsers to only ever use HTTPS for your domain. Send max-age with includeSubDomains — but skip the preload list, which its own operator now discourages.
-- [ ] [Mixed content and upgrade-insecure-requests](https://specification.website/spec/security/mixed-content/) — Recommended
+- [x] [Mixed content and upgrade-insecure-requests](https://specification.website/spec/security/mixed-content/) — Recommended
       An HTTPS page that loads any subresource over HTTP is mixed content. Serve every subresource over HTTPS, and send the upgrade-insecure-requests CSP directive as a safety net.
 - [ ] [Content Security Policy (CSP)](https://specification.website/spec/security/content-security-policy/) — Recommended
       A CSP tells browsers which sources of script, style, image, and frame content to trust. A good policy stops most XSS and data-exfiltration attacks dead.
@@ -163,17 +163,17 @@ Headers, transport, and policies that keep visitors safe.
       A response header that names HTTP endpoints to which the browser POSTs structured violation reports — CSP and COOP breaches, permissions-policy violations, deprecations, interventions, and crashes — so you learn what is breaking in the field.
 - [x] [/.well-known/security.txt](https://specification.website/spec/security/security-txt/) — Recommended
       A standard text file at /.well-known/security.txt tells security researchers how to report vulnerabilities. It is cheap to publish and dramatically lowers the bar for responsible disclosure.
-- [ ] [X-Content-Type-Options: nosniff](https://specification.website/spec/security/x-content-type-options/) — Required
+- [x] [X-Content-Type-Options: nosniff](https://specification.website/spec/security/x-content-type-options/) — Required
       The nosniff header stops browsers from guessing a response's content type. It blocks a class of attacks where a benign-looking file is interpreted as script or stylesheet.
-- [ ] [Clickjacking protection (frame-ancestors / X-Frame-Options)](https://specification.website/spec/security/frame-ancestors/) — Required
+- [x] [Clickjacking protection (frame-ancestors / X-Frame-Options)](https://specification.website/spec/security/frame-ancestors/) — Required
       Tell browsers who is allowed to embed your pages in an iframe. Use CSP frame-ancestors. X-Frame-Options is the legacy fallback.
 - [ ] [Fetch Metadata request headers](https://specification.website/spec/security/fetch-metadata/) — Recommended
       Read Sec-Fetch-Site, Sec-Fetch-Mode and Sec-Fetch-Dest to reject unwanted cross-site browser requests before a handler runs. Keep ordinary inbound links working and retain other CSRF defences.
 - [ ] [Cross-origin isolation (COOP / COEP / CORP)](https://specification.website/spec/security/cross-origin-isolation/) — Recommended
       Three response headers — Cross-Origin-Opener-Policy, Cross-Origin-Embedder-Policy, and Cross-Origin-Resource-Policy — that sever risky cross-window and cross-origin links and defend against side-channel leaks.
-- [ ] [Referrer-Policy](https://specification.website/spec/security/referrer-policy/) — Recommended
+- [x] [Referrer-Policy](https://specification.website/spec/security/referrer-policy/) — Recommended
       Referrer-Policy controls how much URL information your site leaks when users follow a link or load a subresource. strict-origin-when-cross-origin is the sensible default.
-- [ ] [Permissions-Policy](https://specification.website/spec/security/permissions-policy/) — Recommended
+- [x] [Permissions-Policy](https://specification.website/spec/security/permissions-policy/) — Recommended
       Permissions-Policy lets you turn off powerful browser features — camera, microphone, geolocation, payment, USB — for your own pages and for any iframes you embed.
 - [ ] [Subresource Integrity (SRI)](https://specification.website/spec/security/subresource-integrity/) — Recommended
       SRI adds a cryptographic hash to every third-party script and stylesheet so the browser refuses to run modified files. Essential for any external JS or CSS you depend on.
@@ -245,13 +245,13 @@ Things that make a site legible to AI agents and crawlers.
       Web Bot Auth lets a bot prove who it is by signing each HTTP request with a key it controls. Sites can then allow or block specific bots without IP allow-lists, user-agent strings, or guesswork. Built on RFC 9421 HTTP Message Signatures.
 - [ ] [auth.md — agent registration instructions](https://specification.website/spec/agent-readiness/auth-md/) — Optional
       An auth.md file tells agents how to register with a service and obtain scoped API access. An emerging convention for services that support agent registration, backed by OAuth metadata and server-enforced permissions.
-- [ ] [Stable URLs](https://specification.website/spec/agent-readiness/stable-urls/) — Required
+- [x] [Stable URLs](https://specification.website/spec/agent-readiness/stable-urls/) — Required
       URLs are public contracts. Once published, they should keep working. Breaking them invalidates citations, bookmarks, links, and agent caches — and is almost always avoidable.
-- [ ] [Structured data for agents](https://specification.website/spec/agent-readiness/structured-data-for-agents/) — Recommended
+- [x] [Structured data for agents](https://specification.website/spec/agent-readiness/structured-data-for-agents/) — Recommended
       JSON-LD with schema.org types gives agents typed facts about your page. It is the same markup search engines use, and agents lean on it just as heavily.
 - [ ] [Machine-readable formats](https://specification.website/spec/agent-readiness/machine-readable-formats/) — Recommended
       Offer JSON, RSS, or plain markdown endpoints alongside HTML where it makes sense. Agents and feed readers prefer typed data over scraped HTML.
-- [ ] [HTTP Link headers for discovery](https://specification.website/spec/agent-readiness/link-headers/) — Recommended
+- [x] [HTTP Link headers for discovery](https://specification.website/spec/agent-readiness/link-headers/) — Recommended
       Use the HTTP Link header to advertise machine-readable resources — llms.txt, sitemap, api-catalog, RSS — directly in the response. Agents that never parse your HTML can still find what they need.
 - [ ] [MCP and tool discovery](https://specification.website/spec/agent-readiness/mcp-and-tool-discovery/) — Optional
       The Model Context Protocol is an emerging way for sites to expose queryable tools to agents over JSON-RPC. Relevant whenever your content has structure worth filtering — even for a static reference site like this one.
@@ -280,7 +280,7 @@ Core Web Vitals, caching, images, fonts, network behaviour.
       Core Web Vitals measure loading, responsiveness, and visual stability. Hit LCP ≤ 2.5s, INP ≤ 200ms, and CLS ≤ 0.1 at the 75th percentile of real users.
 - [ ] [Image optimisation](https://specification.website/spec/performance/image-optimization/) — Required
       Serve images in modern formats (AVIF, WebP), at the right size for the viewport, with explicit dimensions. Images are the largest payload on most pages.
-- [ ] [Lazy loading images, iframes, and video](https://specification.website/spec/performance/lazy-loading/) — Recommended
+- [x] [Lazy loading images, iframes, and video](https://specification.website/spec/performance/lazy-loading/) — Recommended
       Native lazy loading defers off-screen images, iframes, and (recently) video until the user scrolls near them. Use loading="lazy" — but never on the LCP element.
 - [ ] [Preload, prefetch, preconnect](https://specification.website/spec/performance/preload-prefetch-preconnect/) — Recommended
       Resource hints let you tell the browser what is coming. Preload the LCP image and critical fonts, preconnect to third-party origins, prefetch the next navigation.
@@ -296,7 +296,7 @@ Core Web Vitals, caching, images, fonts, network behaviour.
       The `No-Vary-Search` response header tells browsers and caches that some URL query parameters (tracking, UTM, sort order) do not change the response. The cached entry for the canonical URL is reused for variants — fewer fetches, better prefetch hits, less duplicate work.
 - [ ] [Compression (gzip, brotli, zstd)](https://specification.website/spec/performance/compression/) — Required
       Compress text responses with brotli where supported, gzip everywhere else. zstd is emerging. Don't compress already-compressed media.
-- [ ] [Web font loading](https://specification.website/spec/performance/font-loading/) — Recommended
+- [x] [Web font loading](https://specification.website/spec/performance/font-loading/) — Recommended
       Self-host WOFF2 fonts, subset them, set font-display: swap so text is readable while the font loads, and preload the critical face only when it styles above-the-fold content.
 - [ ] [Critical CSS and render-blocking resources](https://specification.website/spec/performance/critical-css/) — Recommended
       Inline the CSS needed for above-the-fold content and defer the rest. Render-blocking resources in \<head\> are the single biggest cause of slow first paint.
@@ -312,7 +312,7 @@ Core Web Vitals, caching, images, fonts, network behaviour.
       Five resource hints — dns-prefetch, preconnect, preload, modulepreload, prefetch — cover every stage of the request lifecycle. Pick the right one for the job.
 - [ ] [View Transitions](https://specification.website/spec/performance/view-transitions/) — Optional
       Animate between states (same-document) or between pages (cross-document) with a single CSS opt-in. Replaces ad-hoc SPA animation libraries with a platform primitive.
-- [ ] [Back/forward cache (BFCache)](https://specification.website/spec/performance/bfcache/) — Recommended
+- [x] [Back/forward cache (BFCache)](https://specification.website/spec/performance/bfcache/) — Recommended
       Keep pages BFCache-eligible so back/forward navigation restores them instantly from memory, with no reload, no hydration, and no repaint.
 - [ ] [Visibility-aware rendering](https://specification.website/spec/performance/visibility-aware-rendering/) — Optional
       Use `content-visibility` with `contain-intrinsic-size` to skip layout and paint for off-screen content, and Intersection Observer to drive lazy behaviour, instead of scroll and resize listeners.
@@ -320,9 +320,9 @@ Core Web Vitals, caching, images, fonts, network behaviour.
       Use `contain: layout paint style` (or the `contain: content` shorthand) to tell the browser that an element's internals cannot affect the rest of the page, so reflow and repaint stay isolated to that subtree.
 - [ ] [Scroll-driven animations](https://specification.website/spec/performance/scroll-driven-animations/) — Optional
       Drive CSS animations from scroll position or element visibility with `scroll-timeline` and `view-timeline`, replacing JS scroll-listener libraries with compositor-thread animation.
-- [ ] [Scrollbar gutter](https://specification.website/spec/performance/scrollbar-gutter/) — Recommended
+- [x] [Scrollbar gutter](https://specification.website/spec/performance/scrollbar-gutter/) — Recommended
       Use scrollbar-gutter: stable to reserve scrollbar space and stop horizontal layout shift between pages or states that overflow vs. don't.
-- [ ] [Dynamic viewport units (dvh, svh, lvh)](https://specification.website/spec/performance/dynamic-viewport-units/) — Recommended
+- [x] [Dynamic viewport units (dvh, svh, lvh)](https://specification.website/spec/performance/dynamic-viewport-units/) — Recommended
       On mobile, 100vh is taller than the screen because it ignores the browser's collapsing toolbar. Use dvh, svh, and lvh to size full-height elements to the viewport that is actually visible.
 - [ ] [Compression Dictionary Transport](https://specification.website/spec/performance/compression-dictionary-transport/) — Optional
       Use a previously served response, or a dedicated dictionary, as a Brotli/Zstandard dictionary so updated assets compress to a fraction of their size. Pure progressive enhancement over ordinary compression.
@@ -352,7 +352,7 @@ Consent, signals, and respecting visitor choice.
 
 Graceful failure — error pages, offline, redirects.
 
-- [ ] [Custom error pages (404, 500)](https://specification.website/spec/resilience/error-pages/) — Required
+- [x] [Custom error pages (404, 500)](https://specification.website/spec/resilience/error-pages/) — Required
       Custom error pages must return the correct HTTP status code, explain what went wrong in plain language, and offer the user a way forward without leaking implementation details.
 - [ ] [Maintenance pages and 503](https://specification.website/spec/resilience/maintenance-pages/) — Recommended
       When the site is intentionally offline, return HTTP 503 with a Retry-After header and a page that tells users what is happening and when to come back.
@@ -399,4 +399,3 @@ Language, locale, direction, and translated content.
       Most languages don't pluralise like English. Use CLDR plural categories — zero, one, two, few, many, other — via Intl.PluralRules instead of hard-coded 'item' vs 'items' logic.
 - [ ] [Internationalised Domain Names (IDN)](https://specification.website/spec/i18n/idn-support/) — Optional
       IDNs let domain names contain non-ASCII characters. They are encoded as Punycode on the wire and rendered as Unicode in the browser, subject to anti-spoofing rules.
-
