@@ -1,0 +1,20 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</llms.txt>; rel=\"describedby\"; type=\"text/markdown\"; title=\"Site index for LLMs\", </.well-known/security.txt>; rel=\"security\""
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/((?!assets/|models/|sounds/|tracks/|icons/|thumbnails/|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+
