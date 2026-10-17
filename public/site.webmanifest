@@ -1,0 +1,24 @@
+{
+  "name": "Neon Drives",
+  "short_name": "Neon Drives",
+  "description": "Modern, web-based 3D multi-vehicle simulation sandbox.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/drive.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
+

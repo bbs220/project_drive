@@ -29,6 +29,20 @@
   }
 }
 
+/* typographic balanced text wrapping */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
 /* constrain Tweakpane height to the canvas and enable vertical scrolling */
 .tp-dfwv {
   max-height: 85vh !important; /* little breathing room at the top and bottom */
