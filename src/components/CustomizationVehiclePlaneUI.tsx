@@ -29,7 +29,7 @@ const CustomizationVehiclePlaneUI = () => {
           }
         />
 
-        <div className="mt-1 flex w-full items-center gap-3">
+        <label className="mt-1 flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Metal
           </span>
@@ -38,6 +38,7 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="1"
             step="0.05"
+            aria-label="Fuselage Metalness"
             value={planeMods.base.metalness}
             onChange={(e) =>
               setVehicleMaterial(
@@ -49,8 +50,8 @@ const CustomizationVehiclePlaneUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
-        <div className="flex w-full items-center gap-3">
+        </label>
+        <label className="flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Rough
           </span>
@@ -59,6 +60,7 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="1"
             step="0.05"
+            aria-label="Fuselage Roughness"
             value={planeMods.base.roughness}
             onChange={(e) =>
               setVehicleMaterial(
@@ -70,8 +72,8 @@ const CustomizationVehiclePlaneUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
-        <div className="flex w-full items-center gap-3">
+        </label>
+        <label className="flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Glow
           </span>
@@ -80,6 +82,7 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="5"
             step="0.1"
+            aria-label="Fuselage Glow"
             value={planeMods.base.emission}
             onChange={(e) =>
               setVehicleMaterial(
@@ -91,7 +94,7 @@ const CustomizationVehiclePlaneUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
+        </label>
       </div>
 
       {/* circuit/stripes section */}
@@ -104,7 +107,7 @@ const CustomizationVehiclePlaneUI = () => {
           }
         />
 
-        <div className="mt-1 flex w-full items-center gap-3">
+        <label className="mt-1 flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Metal
           </span>
@@ -113,6 +116,7 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="1"
             step="0.05"
+            aria-label="Circuits Metalness"
             value={planeMods.neon.metalness}
             onChange={(e) =>
               setVehicleMaterial(
@@ -124,8 +128,8 @@ const CustomizationVehiclePlaneUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
-        <div className="flex w-full items-center gap-3">
+        </label>
+        <label className="flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Rough
           </span>
@@ -134,6 +138,7 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="1"
             step="0.05"
+            aria-label="Circuits Roughness"
             value={planeMods.neon.roughness}
             onChange={(e) =>
               setVehicleMaterial(
@@ -145,8 +150,8 @@ const CustomizationVehiclePlaneUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
-        <div className="flex w-full items-center gap-3">
+        </label>
+        <label className="flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Glow
           </span>
@@ -155,6 +160,7 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="5"
             step="0.1"
+            aria-label="Circuits Glow"
             value={planeMods.neon.emission}
             onChange={(e) =>
               setVehicleMaterial(
@@ -166,7 +172,7 @@ const CustomizationVehiclePlaneUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
+        </label>
       </div>
 
       {/* cockpit section */}
@@ -179,7 +185,7 @@ const CustomizationVehiclePlaneUI = () => {
           }
         />
 
-        <div className="mt-1 flex w-full items-center gap-3">
+        <label className="mt-1 flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Metal
           </span>
@@ -188,6 +194,7 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="1"
             step="0.05"
+            aria-label="Cockpit Metalness"
             value={planeMods.glass.metalness}
             onChange={(e) =>
               setVehicleMaterial(
@@ -199,8 +206,8 @@ const CustomizationVehiclePlaneUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
-        <div className="flex w-full items-center gap-3">
+        </label>
+        <label className="flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Rough
           </span>
@@ -209,6 +216,7 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="1"
             step="0.05"
+            aria-label="Cockpit Roughness"
             value={planeMods.glass.roughness}
             onChange={(e) =>
               setVehicleMaterial(
@@ -220,8 +228,8 @@ const CustomizationVehiclePlaneUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
-        <div className="flex w-full items-center gap-3">
+        </label>
+        <label className="flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Glow
           </span>
@@ -230,6 +238,7 @@ const CustomizationVehiclePlaneUI = () => {
             min="0"
             max="5"
             step="0.1"
+            aria-label="Cockpit Glow"
             value={planeMods.glass.emission}
             onChange={(e) =>
               setVehicleMaterial(
@@ -241,7 +250,7 @@ const CustomizationVehiclePlaneUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
+        </label>
       </div>
 
       {/* trails section */}
@@ -257,6 +266,9 @@ const CustomizationVehiclePlaneUI = () => {
         />
 
         <button
+          type="button"
+          aria-pressed={syncTrails}
+          aria-label="Sync trails to circuits color"
           onClick={() => setSyncTrails(!syncTrails)}
           className={`mt-2 flex w-full items-center justify-center gap-2 rounded border py-1.5 text-[9px] font-bold tracking-widest uppercase transition-all hover:cursor-pointer duration-200 ${
             syncTrails

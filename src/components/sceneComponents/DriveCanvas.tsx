@@ -272,7 +272,12 @@ const DriveCanvas = () => {
     <>
       <AllVehiclesHUD />
       <MiniMap />
-      <Canvas shadows={"soft"} dpr={setDpr}>
+      <Canvas
+        aria-label="3D Cyberpunk City Simulation"
+        role="img"
+        shadows={"soft"}
+        dpr={setDpr}
+      >
         <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>
           <DriveScene />
         </Physics>

@@ -13,6 +13,7 @@ const GaragePage = () => {
 
   return (
     <div className="relative w-full h-full">
+      <h1 className="sr-only">Neon Drives - Vehicle Garage Showroom</h1>
       {/* dynamic garage loader */}
       <SceneLoader title="ACCESSING GARAGE" />
       <GarageCanvas />

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useUIStore } from "../stores/useUIStore";
@@ -16,6 +16,23 @@ const SideBar = () => {
 
   // ref to track the last time the slider sound played
   const lastPlayed = useRef(0);
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Close sidebar on Escape key press and restore focus to trigger button
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+        playClick();
+        toggleButtonRef.current?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, playClick]);
 
   // pull all settings and setters from the updated ui store
   const {
@@ -55,7 +72,11 @@ const SideBar = () => {
   return (
     <>
       <aside
-        className={`fixed top-0 select-none left-0 w-full h-screen bg-black/40 border-b-2 border-tron-cyan p-0.5 font-inter text-tron-cyan z-40 pointer-events-auto backdrop-blur-md shadow-[0_4px_20px_rgba(0,243,255,0.2),inset_0_-4px_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        id="settings-menu"
+        aria-label="Settings"
+        aria-hidden={!isOpen}
+        inert={!isOpen ? true : undefined}
+        className={`fixed top-0 select-none left-0 w-full h-dvh bg-black/40 border-b-2 border-tron-cyan p-0.5 font-inter text-tron-cyan z-40 pointer-events-auto backdrop-blur-md shadow-[0_4px_20px_rgba(0,243,255,0.2),inset_0_-4px_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen ? "translate-y-0" : "-translate-y-full"
         }`}
       >
@@ -74,7 +95,152 @@ const SideBar = () => {
             {/* max-width container keeps the grid perfectly proportioned on ultrawide monitors */}
             <div className="w-full max-w-7xl mx-auto">
               {activeScene === "garage" ? (
-                <div className="flex flex-col gap-3 items-center text-center"></div>
+                // Open 3-column garage reference guide separated by sleek dividers (no enclosed boxes)
+                <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-white/10 my-auto py-6">
+                  {/* --- COLUMN 1: SURFACE SHADERS --- */}
+                  <section
+                    aria-labelledby="garage-surface-shaders-title"
+                    className="flex flex-col gap-6 pb-8 lg:pb-0 lg:pr-10"
+                  >
+                    <div className="flex items-center gap-3 pb-3 border-b border-white/10">
+                      <div
+                        aria-hidden="true"
+                        className="size-2 rounded-full bg-tron-cyan shadow-[0_0_8px_#00f3ff]"
+                      />
+                      <h3
+                        id="garage-surface-shaders-title"
+                        className="text-lg md:text-xl font-bold font-telemetry tracking-[0.2em] text-tron-cyan uppercase"
+                      >
+                        SURFACE SHADERS
+                      </h3>
+                    </div>
+
+                    <div className="flex flex-col gap-5 divide-y divide-white/5">
+                      <div className="pt-0">
+                        <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-yellow uppercase mb-1">
+                          METAL <span className="text-white/60 font-mono text-xs">[ 0.0 — 1.0 ]</span>
+                        </h4>
+                        <p className="text-sm text-gray-300 leading-relaxed font-label">
+                          Controls electrical conductivity. Set to <strong className="text-white font-semibold">1.0</strong> for <strong className="text-tron-cyan font-semibold">polished cyber chrome</strong>, or down to <strong className="text-white font-semibold">0.0</strong> for non-metallic matte composite bodywork.
+                        </p>
+                      </div>
+
+                      <div className="pt-4">
+                        <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-yellow uppercase mb-1">
+                          ROUGH <span className="text-white/60 font-mono text-xs">[ 0.0 — 1.0 ]</span>
+                        </h4>
+                        <p className="text-sm text-gray-300 leading-relaxed font-label">
+                          Governs micro-facet scattering. Lower values produce <strong className="text-white font-semibold">razor-sharp specular reflections</strong>; higher values soften and diffuse light into a <strong className="text-tron-cyan font-semibold">smooth satin sheen</strong>.
+                        </p>
+                      </div>
+
+                      <div className="pt-4">
+                        <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-yellow uppercase mb-1">
+                          GLOW <span className="text-white/60 font-mono text-xs">[ 0.0 — 5.0 ]</span>
+                        </h4>
+                        <p className="text-sm text-gray-300 leading-relaxed font-label">
+                          Multiplies HDR radiative luminance, driving the post-processing pipeline to project <strong className="text-tron-cyan font-semibold">volumetric neon bloom</strong> across circuit lines and engine exhausts.
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* --- COLUMN 2: COLOR ENGINE --- */}
+                  <section
+                    aria-labelledby="garage-color-engine-title"
+                    className="flex flex-col gap-6 py-8 lg:py-0 lg:px-10"
+                  >
+                    <div className="flex items-center gap-3 pb-3 border-b border-white/10">
+                      <div
+                        aria-hidden="true"
+                        className="size-2 rounded-full bg-tron-lime shadow-[0_0_8px_#39ff14]"
+                      />
+                      <h3
+                        id="garage-color-engine-title"
+                        className="text-lg md:text-xl font-bold font-telemetry tracking-[0.2em] text-tron-lime uppercase"
+                      >
+                        COLOR ENGINE
+                      </h3>
+                    </div>
+
+                    <div className="flex flex-col gap-5 divide-y divide-white/5">
+                      <div className="pt-0">
+                        <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-lime uppercase mb-1">
+                          HUE SPECTRUM <span className="text-white/60 font-mono text-xs">[ 0° — 360° ]</span>
+                        </h4>
+                        <p className="text-sm text-gray-300 leading-relaxed font-label">
+                          Sweeps through the full <strong className="text-white font-semibold">360-degree rainbow spectrum</strong>. Each vehicle material zone (<strong className="text-white font-semibold">Chassis, Circuits, Axels, Cockpit, Tires</strong>) can be assigned an independent wavelength.
+                        </p>
+                      </div>
+
+                      <div className="pt-4">
+                        <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-lime uppercase mb-1">
+                          SATURATION & LIGHTNESS
+                        </h4>
+                        <p className="text-sm text-gray-300 leading-relaxed font-label">
+                          <strong className="text-white font-semibold">Saturation</strong> shifts between monochromatic stealth titanium and hyper-vivid laser tones. <strong className="text-white font-semibold">Lightness</strong> shifts from deep void black to high-voltage white.
+                        </p>
+                      </div>
+
+                      <div className="pt-4">
+                        <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-lime uppercase mb-1">
+                          TRAIL SYNCHRONIZATION
+                        </h4>
+                        <p className="text-sm text-gray-300 leading-relaxed font-label">
+                          Engage <strong className="text-tron-cyan font-semibold">"Sync to Circuits"</strong> to automatically slave aerodynamic engine exhaust particles to match your vehicle's circuit neon hue.
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* --- COLUMN 3: SHOWROOM CONTROLS --- */}
+                  <section
+                    aria-labelledby="garage-showroom-controls-title"
+                    className="flex flex-col gap-6 pt-8 lg:pt-0 lg:pl-10"
+                  >
+                    <div className="flex items-center gap-3 pb-3 border-b border-white/10">
+                      <div
+                        aria-hidden="true"
+                        className="size-2 rounded-full bg-tron-magenta shadow-[0_0_8px_#ff00ff]"
+                      />
+                      <h3
+                        id="garage-showroom-controls-title"
+                        className="text-lg md:text-xl font-bold font-telemetry tracking-[0.2em] text-tron-magenta uppercase"
+                      >
+                        SHOWROOM CONTROLS
+                      </h3>
+                    </div>
+
+                    <div className="flex flex-col gap-5 divide-y divide-white/5">
+                      <div className="pt-0">
+                        <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-magenta uppercase mb-1">
+                          ORBIT TUMBLE
+                        </h4>
+                        <p className="text-sm text-gray-300 leading-relaxed font-label">
+                          <strong className="text-white font-semibold">Left Click + Drag</strong> outside the sidebar to rotate <strong className="text-white font-semibold">360°</strong> around the vehicle's center of mass.
+                        </p>
+                      </div>
+
+                      <div className="pt-4">
+                        <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-magenta uppercase mb-1">
+                          PAN & ZOOM
+                        </h4>
+                        <p className="text-sm text-gray-300 leading-relaxed font-label">
+                          <strong className="text-white font-semibold">Right Click + Drag</strong> to pan camera focal point. Use the <strong className="text-white font-semibold">Scroll Wheel</strong> to zoom with vehicle-clamped distance bounds.
+                        </p>
+                      </div>
+
+                      <div className="pt-4">
+                        <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-magenta uppercase mb-1">
+                          DRAWER ACCORDION
+                        </h4>
+                        <p className="text-sm text-gray-300 leading-relaxed font-label">
+                          Click the <strong className="text-tron-yellow font-semibold">active vehicle tab</strong> on the left edge to collapse or re-expand the customization drawer for clean, unobstructed viewing.
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+                </div>
               ) : activeScene === "drive" ? (
                 // master grid container holding all categories
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -95,8 +261,9 @@ const SideBar = () => {
                         min="0"
                         max="100"
                         value={masterVolume}
+                        aria-label="Master volume"
                         onChange={(e) => handleSliderChange(e, setMasterVolume)}
-                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
+                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none focus-visible:ring-1 focus-visible:ring-tron-cyan [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
                     </div>
 
@@ -111,8 +278,9 @@ const SideBar = () => {
                         min="0"
                         max="100"
                         value={uiVolume}
+                        aria-label="Interface volume"
                         onChange={(e) => handleSliderChange(e, setUiVolume)}
-                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
+                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none focus-visible:ring-1 focus-visible:ring-tron-cyan [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
                     </div>
 
@@ -127,10 +295,11 @@ const SideBar = () => {
                         min="0"
                         max="100"
                         value={ambienceVolume}
+                        aria-label="Ambience volume"
                         onChange={(e) =>
                           handleSliderChange(e, setAmbienceVolume)
                         }
-                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
+                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none focus-visible:ring-1 focus-visible:ring-tron-cyan [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
                     </div>
 
@@ -145,8 +314,9 @@ const SideBar = () => {
                         min="0"
                         max="100"
                         value={radioVolume}
+                        aria-label="Soundtrack volume"
                         onChange={(e) => handleSliderChange(e, setRadioVolume)}
-                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
+                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none focus-visible:ring-1 focus-visible:ring-tron-cyan [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
                     </div>
                   </div>
@@ -168,8 +338,9 @@ const SideBar = () => {
                         min="1"
                         max="8"
                         value={chunkRadius}
+                        aria-label="Render distance"
                         onChange={(e) => handleSliderChange(e, setChunkRadius)}
-                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
+                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none focus-visible:ring-1 focus-visible:ring-tron-cyan [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
                     </div>
 
@@ -191,11 +362,15 @@ const SideBar = () => {
                     <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                       <span>SHOW CONTROLS</span>
                       <button
+                        type="button"
+                        role="switch"
+                        aria-checked={showControls}
+                        aria-label="Toggle show controls"
                         onClick={() => {
                           playToggle();
                           setShowControls(!showControls);
                         }}
-                        className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
+                        className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-black transition-colors"
                       >
                         <div
                           className={`h-full w-1/2 bg-tron-cyan transition-all duration-300 ease-out ${
@@ -211,11 +386,15 @@ const SideBar = () => {
                     <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                       <span>SPEEDOMETERS</span>
                       <button
+                        type="button"
+                        role="switch"
+                        aria-checked={showSpeedometers}
+                        aria-label="Toggle show speedometers"
                         onClick={() => {
                           playToggle();
                           setShowSpeedometers(!showSpeedometers);
                         }}
-                        className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
+                        className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-black transition-colors"
                       >
                         <div
                           className={`h-full w-1/2 bg-tron-cyan transition-all duration-300 ease-out ${
@@ -231,11 +410,15 @@ const SideBar = () => {
                     <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                       <span>MAP</span>
                       <button
+                        type="button"
+                        role="switch"
+                        aria-checked={showMap}
+                        aria-label="Toggle show map"
                         onClick={() => {
                           playToggle();
                           setShowMap(!showMap);
                         }}
-                        className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
+                        className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-black transition-colors"
                       >
                         <div
                           className={`h-full w-1/2 bg-tron-cyan transition-all duration-300 ease-out ${
@@ -268,12 +451,16 @@ const SideBar = () => {
 
       {/* top-left fixed toggle button (hamburger / cross switcher) */}
       <button
+        ref={toggleButtonRef}
+        type="button"
         onClick={() => {
           playClick();
           setIsOpen(!isOpen);
         }}
-        className="fixed top-2 left-2 flex cursor-pointer items-center justify-center rounded-md border-2 border-tron-cyan p-2 text-tron-cyan z-45 backdrop-blur-sm shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:bg-tron-cyan hover:text-black transition-colors"
-        aria-label="toggle settings menu"
+        className="fixed top-2 left-2 flex cursor-pointer items-center justify-center rounded-md border-2 border-tron-cyan p-2 text-tron-cyan z-45 backdrop-blur-sm shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:bg-tron-cyan hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black transition-colors"
+        aria-label={isOpen ? "Close settings menu" : "Open settings menu"}
+        aria-expanded={isOpen}
+        aria-controls="settings-menu"
       >
         {isOpen ? (
           <X
