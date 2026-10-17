@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useUISounds } from "../hooks/useUISounds";
 import {
   Scale,
@@ -12,7 +12,8 @@ const Copyright = () => {
   const { playClick } = useUISounds();
 
   // intercept click to play sound before routing back to the menu
-  const handleReturn = () => {
+  const handleReturn = (e: React.MouseEvent) => {
+    e.preventDefault();
     playClick();
     setTimeout(() => {
       navigate("/");
@@ -21,7 +22,7 @@ const Copyright = () => {
 
   return (
     // main container matching the welcome page grid background
-    <div className="relative flex min-h-screen min-h-dvh w-screen flex-col items-center justify-center p-4 bg-tron-bg bg-[linear-gradient(rgba(0,243,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,243,255,0.03)_1px,transparent_1px)] bg-size-[40px_40px] select-none overflow-hidden">
+    <main id="main-content" className="relative flex min-h-screen min-h-dvh w-screen flex-col items-center justify-center p-4 bg-tron-bg bg-[linear-gradient(rgba(0,243,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,243,255,0.03)_1px,transparent_1px)] bg-size-[40px_40px] select-none overflow-hidden">
       {/* background ambient magenta glow */}
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-72 w-72 md:h-125 md:w-125 -translate-x-1/2 -translate-y-1/2 bg-tron-magenta/10 blur-[90px] md:blur-[120px]" />
 
@@ -87,9 +88,11 @@ const Copyright = () => {
           </p>
         </div>
 
-        {/* back button */}
-        <button
+        {/* back link */}
+        <Link
+          to="/"
           onClick={handleReturn}
+          aria-label="Return to home page"
           className="group relative flex w-48 sm:w-56 cursor-pointer items-center justify-center overflow-hidden border border-tron-cyan bg-transparent py-3 md:py-4 shadow-neon-cyan transition-all duration-500 ease-out hover:scale-105 hover:bg-tron-cyan"
         >
           {/* magenta bar on the left edge */}
@@ -102,9 +105,9 @@ const Copyright = () => {
 
           {/* magenta decal in the corner */}
           <span className="absolute right-3 top-3 z-20 h-2 w-2 bg-tron-magenta transition-colors duration-500 group-hover:bg-tron-bg"></span>
-        </button>
+        </Link>
       </div>
-    </div>
+    </main>
   );
 };
 

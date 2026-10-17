@@ -161,7 +161,12 @@ const GarageCanvas = () => {
   return (
     // enabling shadows is critical for the showroom aesthetic
     <>
-      <Canvas shadows={"variance"} dpr={setDpr as number}>
+      <Canvas
+        aria-label="3D Vehicle Customization Showroom"
+        role="img"
+        shadows={"variance"}
+        dpr={setDpr as number}
+      >
         <Physics>
           <GarageScene />
         </Physics>

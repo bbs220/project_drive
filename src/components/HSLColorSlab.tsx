@@ -38,6 +38,7 @@ const HSLColorSlab = ({
           max="360"
           value={h}
           title="Hue"
+          aria-label={`${label} Hue`}
           disabled={disabled}
           onChange={(e) => {
             const newH = Number(e.target.value);
@@ -59,6 +60,7 @@ const HSLColorSlab = ({
           max="100"
           value={s}
           title="Saturation"
+          aria-label={`${label} Saturation`}
           disabled={disabled}
           onChange={(e) => onChange(hslToHex(h, Number(e.target.value), l))}
           className="h-1.5 w-full cursor-pointer appearance-none rounded-full outline-none [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
@@ -74,6 +76,7 @@ const HSLColorSlab = ({
           max="100"
           value={l}
           title="Lightness"
+          aria-label={`${label} Lightness`}
           disabled={disabled}
           onChange={(e) => onChange(hslToHex(h, s, Number(e.target.value)))}
           className="h-1.5 w-full cursor-pointer appearance-none rounded-full outline-none [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"

@@ -69,10 +69,14 @@ const CustomizationUI = () => {
         </div>
 
         {/* side navigation tabs - attached directly to the right edge of the sidebar */}
-        <div className="pointer-events-auto mt-8 flex flex-col gap-2 pl-0 -ml-px">
+        <div role="tablist" aria-label="Vehicle selection" className="pointer-events-auto mt-8 flex flex-col gap-2 pl-0 -ml-px">
           {vehicles.map((v) => (
             <button
               key={v.id}
+              type="button"
+              role="tab"
+              aria-selected={activeGarageVehicle === v.id}
+              aria-label={`Select vehicle ${v.label}`}
               onClick={() => {
                 playToggle();
                 handleSwap(v.id);

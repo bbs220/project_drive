@@ -55,6 +55,10 @@ const SideBar = () => {
   return (
     <>
       <aside
+        id="settings-menu"
+        aria-label="Settings"
+        aria-hidden={!isOpen}
+        inert={!isOpen ? true : undefined}
         className={`fixed top-0 select-none left-0 w-full h-screen h-dvh bg-black/40 border-b-2 border-tron-cyan p-0.5 font-inter text-tron-cyan z-40 pointer-events-auto backdrop-blur-md shadow-[0_4px_20px_rgba(0,243,255,0.2),inset_0_-4px_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen ? "translate-y-0" : "-translate-y-full"
         }`}
@@ -95,6 +99,7 @@ const SideBar = () => {
                         min="0"
                         max="100"
                         value={masterVolume}
+                        aria-label="Master volume"
                         onChange={(e) => handleSliderChange(e, setMasterVolume)}
                         className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
@@ -111,6 +116,7 @@ const SideBar = () => {
                         min="0"
                         max="100"
                         value={uiVolume}
+                        aria-label="Interface volume"
                         onChange={(e) => handleSliderChange(e, setUiVolume)}
                         className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
@@ -127,6 +133,7 @@ const SideBar = () => {
                         min="0"
                         max="100"
                         value={ambienceVolume}
+                        aria-label="Ambience volume"
                         onChange={(e) =>
                           handleSliderChange(e, setAmbienceVolume)
                         }
@@ -145,6 +152,7 @@ const SideBar = () => {
                         min="0"
                         max="100"
                         value={radioVolume}
+                        aria-label="Soundtrack volume"
                         onChange={(e) => handleSliderChange(e, setRadioVolume)}
                         className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
@@ -168,6 +176,7 @@ const SideBar = () => {
                         min="1"
                         max="8"
                         value={chunkRadius}
+                        aria-label="Render distance"
                         onChange={(e) => handleSliderChange(e, setChunkRadius)}
                         className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
@@ -191,6 +200,10 @@ const SideBar = () => {
                     <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                       <span>SHOW CONTROLS</span>
                       <button
+                        type="button"
+                        role="switch"
+                        aria-checked={showControls}
+                        aria-label="Toggle show controls"
                         onClick={() => {
                           playToggle();
                           setShowControls(!showControls);
@@ -211,6 +224,10 @@ const SideBar = () => {
                     <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                       <span>SPEEDOMETERS</span>
                       <button
+                        type="button"
+                        role="switch"
+                        aria-checked={showSpeedometers}
+                        aria-label="Toggle show speedometers"
                         onClick={() => {
                           playToggle();
                           setShowSpeedometers(!showSpeedometers);
@@ -231,6 +248,10 @@ const SideBar = () => {
                     <div className="flex items-center justify-between text-xs tracking-wider pr-3">
                       <span>MAP</span>
                       <button
+                        type="button"
+                        role="switch"
+                        aria-checked={showMap}
+                        aria-label="Toggle show map"
                         onClick={() => {
                           playToggle();
                           setShowMap(!showMap);
@@ -268,12 +289,15 @@ const SideBar = () => {
 
       {/* top-left fixed toggle button (hamburger / cross switcher) */}
       <button
+        type="button"
         onClick={() => {
           playClick();
           setIsOpen(!isOpen);
         }}
         className="fixed top-2 left-2 flex cursor-pointer items-center justify-center rounded-md border-2 border-tron-cyan p-2 text-tron-cyan z-45 backdrop-blur-sm shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:bg-tron-cyan hover:text-black transition-colors"
-        aria-label="toggle settings menu"
+        aria-label={isOpen ? "Close settings menu" : "Open settings menu"}
+        aria-expanded={isOpen}
+        aria-controls="settings-menu"
       >
         {isOpen ? (
           <X

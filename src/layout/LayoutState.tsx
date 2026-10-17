@@ -10,7 +10,9 @@ const LayoutState = ({ children }: typeLayoutState) => {
     <div className="w-full h-screen h-dvh flex flex-col">
       <div className="flex flex-1 overflow-hidden">
         <SideBar />
-        <main className="flex-1 relative w-full h-full">{children}</main>
+        <main id="main-content" className="flex-1 relative w-full h-full">
+          {children}
+        </main>
       </div>
     </div>
   );

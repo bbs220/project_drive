@@ -135,6 +135,7 @@ const RadioHUD = () => {
       <div className="flex items-center justify-between gap-4">
         <button
           onClick={handlePrev}
+          aria-label="Previous track"
           className="flex h-8 w-12 skew-x-[-15deg] cursor-pointer items-center justify-center border border-tron-cyan/40 bg-black/50 transition-all hover:border-tron-cyan hover:bg-tron-cyan/10 hover:shadow-[0_0_10px_#00f3ff]"
         >
           <SkipBack size={16} className="skew-x-15" />
@@ -142,6 +143,7 @@ const RadioHUD = () => {
 
         <button
           onClick={togglePlay}
+          aria-label={isPlaying ? "Pause track" : "Play track"}
           className="flex h-10 w-16 skew-x-[-15deg] cursor-pointer items-center justify-center border border-tron-cyan bg-tron-cyan/10 shadow-[0_0_10px_rgba(0,243,255,0.2)] transition-all hover:bg-tron-cyan hover:text-black hover:shadow-[0_0_15px_#00f3ff]"
         >
           <div className="skew-x-15">
@@ -155,6 +157,7 @@ const RadioHUD = () => {
 
         <button
           onClick={() => handleNext(true)}
+          aria-label="Next track"
           className="flex h-8 w-12 skew-x-[-15deg] cursor-pointer items-center justify-center border border-tron-cyan/40 bg-black/50 transition-all hover:border-tron-cyan hover:bg-tron-cyan/10 hover:shadow-[0_0_10px_#00f3ff]"
         >
           <SkipForward size={16} className="skew-x-15" />

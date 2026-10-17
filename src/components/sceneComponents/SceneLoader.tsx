@@ -33,6 +33,12 @@ const SceneLoader = ({ title = "INITIALIZING..." }: typeLoaderProps) => {
 
   return (
     <div
+      role="progressbar"
+      aria-label={title}
+      aria-valuenow={Math.round(progress)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-live="polite"
       className={`absolute inset-0 z-50 flex flex-col items-center justify-center bg-tron-bg transition-opacity duration-700 pointer-events-none select-none ${
         isFading ? "opacity-0" : "opacity-100"
       }`}

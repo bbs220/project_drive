@@ -106,3 +106,28 @@ p {
 .tp-dfwv::-webkit-scrollbar-thumb:hover {
   background: #546d74;
 }
+
+/* Accessible focus indicators (WCAG 2.2 AA) */
+:focus-visible {
+  outline: 2px solid var(--color-tron-cyan, #00f3ff) !important;
+  outline-offset: 2px !important;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Forced colours mode (Windows High Contrast support) */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid Highlight !important;
+  }
+}

@@ -29,7 +29,7 @@ const CustomizationVehicleHelicopterUI = () => {
           }
         />
 
-        <div className="mt-1 flex w-full items-center gap-3">
+        <label className="mt-1 flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Metal
           </span>
@@ -38,6 +38,7 @@ const CustomizationVehicleHelicopterUI = () => {
             min="0"
             max="1"
             step="0.05"
+            aria-label="Fuselage Metalness"
             value={helicopterMods.base.metalness}
             onChange={(e) =>
               setVehicleMaterial(
@@ -49,8 +50,8 @@ const CustomizationVehicleHelicopterUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
-        <div className="flex w-full items-center gap-3">
+        </label>
+        <label className="flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Rough
           </span>
@@ -59,6 +60,7 @@ const CustomizationVehicleHelicopterUI = () => {
             min="0"
             max="1"
             step="0.05"
+            aria-label="Fuselage Roughness"
             value={helicopterMods.base.roughness}
             onChange={(e) =>
               setVehicleMaterial(
@@ -70,8 +72,8 @@ const CustomizationVehicleHelicopterUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
-        <div className="flex w-full items-center gap-3">
+        </label>
+        <label className="flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Glow
           </span>
@@ -80,6 +82,7 @@ const CustomizationVehicleHelicopterUI = () => {
             min="0"
             max="5"
             step="0.1"
+            aria-label="Fuselage Glow"
             value={helicopterMods.base.emission}
             onChange={(e) =>
               setVehicleMaterial(
@@ -91,7 +94,7 @@ const CustomizationVehicleHelicopterUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
+        </label>
       </div>
 
       {/* neon / glow section */}
@@ -104,7 +107,7 @@ const CustomizationVehicleHelicopterUI = () => {
           }
         />
 
-        <div className="mt-1 flex w-full items-center gap-3">
+        <label className="mt-1 flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Metal
           </span>
@@ -113,6 +116,7 @@ const CustomizationVehicleHelicopterUI = () => {
             min="0"
             max="1"
             step="0.05"
+            aria-label="Circuits Metalness"
             value={helicopterMods.neon.metalness}
             onChange={(e) =>
               setVehicleMaterial(
@@ -124,8 +128,8 @@ const CustomizationVehicleHelicopterUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
-        <div className="flex w-full items-center gap-3">
+        </label>
+        <label className="flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Rough
           </span>
@@ -134,6 +138,7 @@ const CustomizationVehicleHelicopterUI = () => {
             min="0"
             max="1"
             step="0.05"
+            aria-label="Circuits Roughness"
             value={helicopterMods.neon.roughness}
             onChange={(e) =>
               setVehicleMaterial(
@@ -145,8 +150,8 @@ const CustomizationVehicleHelicopterUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
-        <div className="flex w-full items-center gap-3">
+        </label>
+        <label className="flex w-full items-center gap-3 cursor-pointer">
           <span className="w-8 text-[9px] font-bold tracking-widest text-tron-cyan/60 uppercase">
             Glow
           </span>
@@ -155,6 +160,7 @@ const CustomizationVehicleHelicopterUI = () => {
             min="0"
             max="5"
             step="0.1"
+            aria-label="Circuits Glow"
             value={helicopterMods.neon.emission}
             onChange={(e) =>
               setVehicleMaterial(
@@ -166,7 +172,7 @@ const CustomizationVehicleHelicopterUI = () => {
             }
             className="flex-1 accent-tron-cyan"
           />
-        </div>
+        </label>
       </div>
 
       {/* engine trails section */}
@@ -183,6 +189,9 @@ const CustomizationVehicleHelicopterUI = () => {
 
         {/* toggle sync button */}
         <button
+          type="button"
+          aria-pressed={syncTrails}
+          aria-label="Sync trails to circuits color"
           onClick={() => setSyncTrails(!syncTrails)}
           className={`mt-2 flex w-full items-center justify-center gap-2 rounded border py-1.5 text-[9px] font-bold tracking-widest uppercase transition-all hover:cursor-pointer duration-200 ${
             syncTrails
