@@ -7,7 +7,7 @@ type typeLayoutState = {
 
 const LayoutState = ({ children }: typeLayoutState) => {
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full h-screen h-dvh flex flex-col">
       <div className="flex flex-1 overflow-hidden">
         <SideBar />
         <main className="flex-1 relative w-full h-full">{children}</main>

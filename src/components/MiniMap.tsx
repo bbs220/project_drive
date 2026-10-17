@@ -503,6 +503,8 @@ const MiniMap = () => {
                     <img
                       src={iconsBank.playerRadar}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-contain"
                     />
                   </div>
@@ -520,6 +522,8 @@ const MiniMap = () => {
                     <img
                       src={iconsBank.carRadar}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-contain"
                     />
                   </div>
@@ -537,6 +541,8 @@ const MiniMap = () => {
                     <img
                       src={iconsBank.planeRadar}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-contain"
                     />
                   </div>
@@ -554,6 +560,8 @@ const MiniMap = () => {
                     <img
                       src={iconsBank.helicopterRadar}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-contain"
                     />
                   </div>

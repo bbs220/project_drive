@@ -3,7 +3,7 @@ import { Link } from "react-router";
 const NotFoundPage = () => {
   return (
     // main container with deep void background and faint cyan grid
-    <div className="relative flex flex-col items-center justify-center min-h-screen w-screen bg-tron-bg bg-[linear-gradient(rgba(0,243,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,243,255,0.03)_1px,transparent_1px)] bg-size-[40px_40px]">
+    <div className="relative flex flex-col items-center justify-center min-h-screen min-h-dvh w-screen bg-tron-bg bg-[linear-gradient(rgba(0,243,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,243,255,0.03)_1px,transparent_1px)] bg-size-[40px_40px]">
       {/* // ambient warning glow in the background */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-tron-warn/10 blur-[120px] pointer-events-none"></div>
       {/* // error text section */}
