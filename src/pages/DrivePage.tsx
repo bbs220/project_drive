@@ -13,6 +13,7 @@ const DrivePage = () => {
 
   return (
     <div className="relative w-full h-full">
+      <h1 className="sr-only">Neon Drives - Open World Simulation</h1>
       {/* dynamic simulation loader */}
       <SceneLoader title="INITIALIZING SIMULATION" />
       <DriveCanvas />

@@ -46,8 +46,12 @@ const WelcomePage = () => {
       <div className="relative z-10 flex flex-col items-center gap-6 sm:gap-8 md:flex-row md:gap-16 w-full max-w-xl justify-center">
         {/* DRIVE BLOCK */}
         <div className="flex flex-col items-center gap-2 md:gap-4 w-full sm:w-auto">
-          <button
-            onClick={() => handleNavigate("/drive")}
+          <Link
+            to="/drive"
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavigate("/drive");
+            }}
             className="group relative flex w-56 sm:w-64 cursor-pointer items-center justify-center overflow-hidden border border-tron-magenta bg-transparent py-4 md:py-5 shadow-neon-magenta transition-all duration-500 ease-out hover:scale-105 hover:bg-tron-magenta"
           >
             {/* stark utilitarian cyan bar on the left edge */}
@@ -58,7 +62,7 @@ const WelcomePage = () => {
             </span>
             {/* tech ui decal in the corner */}
             <span className="absolute right-3 top-3 z-20 h-2 w-2 bg-tron-cyan transition-colors duration-500 group-hover:bg-tron-bg"></span>
-          </button>
+          </Link>
           {/* subtle info text */}
           <p className="font-label text-[10px] md:text-xs tracking-[0.2em] text-tron-magenta/70 uppercase">
             explore the open world
@@ -67,8 +71,12 @@ const WelcomePage = () => {
 
         {/* GARAGE BLOCK */}
         <div className="flex flex-col items-center gap-2 md:gap-4 w-full sm:w-auto">
-          <button
-            onClick={() => handleNavigate("/garage")}
+          <Link
+            to="/garage"
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavigate("/garage");
+            }}
             className="group relative flex w-56 sm:w-64 cursor-pointer items-center justify-center overflow-hidden border border-tron-cyan bg-transparent py-4 md:py-5 shadow-neon-cyan transition-all duration-500 ease-out hover:scale-105 hover:bg-tron-cyan"
           >
             {/* magenta bar on the left edge */}
@@ -79,7 +87,7 @@ const WelcomePage = () => {
             </span>
             {/* magenta decal in the corner */}
             <span className="absolute right-3 top-3 z-20 h-2 w-2 bg-tron-magenta transition-colors duration-500 group-hover:bg-tron-bg"></span>
-          </button>
+          </Link>
           {/* subtle info text */}
           <p className="font-label text-[10px] md:text-xs tracking-[0.2em] text-tron-cyan/70 uppercase">
             customize your vehicles
