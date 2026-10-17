@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useUIStore } from "../stores/useUIStore";
@@ -16,6 +16,23 @@ const SideBar = () => {
 
   // ref to track the last time the slider sound played
   const lastPlayed = useRef(0);
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Close sidebar on Escape key press and restore focus to trigger button
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+        playClick();
+        toggleButtonRef.current?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, playClick]);
 
   // pull all settings and setters from the updated ui store
   const {
@@ -81,10 +98,19 @@ const SideBar = () => {
                 // Open 3-column garage reference guide separated by sleek dividers (no enclosed boxes)
                 <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-white/10 my-auto py-6">
                   {/* --- COLUMN 1: SURFACE SHADERS --- */}
-                  <div className="flex flex-col gap-6 pb-8 lg:pb-0 lg:pr-10">
+                  <section
+                    aria-labelledby="garage-surface-shaders-title"
+                    className="flex flex-col gap-6 pb-8 lg:pb-0 lg:pr-10"
+                  >
                     <div className="flex items-center gap-3 pb-3 border-b border-white/10">
-                      <div className="size-2 rounded-full bg-tron-cyan shadow-[0_0_8px_#00f3ff]" />
-                      <h3 className="text-lg md:text-xl font-bold font-telemetry tracking-[0.2em] text-tron-cyan uppercase">
+                      <div
+                        aria-hidden="true"
+                        className="size-2 rounded-full bg-tron-cyan shadow-[0_0_8px_#00f3ff]"
+                      />
+                      <h3
+                        id="garage-surface-shaders-title"
+                        className="text-lg md:text-xl font-bold font-telemetry tracking-[0.2em] text-tron-cyan uppercase"
+                      >
                         SURFACE SHADERS
                       </h3>
                     </div>
@@ -117,13 +143,22 @@ const SideBar = () => {
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </section>
 
                   {/* --- COLUMN 2: COLOR ENGINE --- */}
-                  <div className="flex flex-col gap-6 py-8 lg:py-0 lg:px-10">
+                  <section
+                    aria-labelledby="garage-color-engine-title"
+                    className="flex flex-col gap-6 py-8 lg:py-0 lg:px-10"
+                  >
                     <div className="flex items-center gap-3 pb-3 border-b border-white/10">
-                      <div className="size-2 rounded-full bg-tron-lime shadow-[0_0_8px_#39ff14]" />
-                      <h3 className="text-lg md:text-xl font-bold font-telemetry tracking-[0.2em] text-tron-lime uppercase">
+                      <div
+                        aria-hidden="true"
+                        className="size-2 rounded-full bg-tron-lime shadow-[0_0_8px_#39ff14]"
+                      />
+                      <h3
+                        id="garage-color-engine-title"
+                        className="text-lg md:text-xl font-bold font-telemetry tracking-[0.2em] text-tron-lime uppercase"
+                      >
                         COLOR ENGINE
                       </h3>
                     </div>
@@ -156,13 +191,22 @@ const SideBar = () => {
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </section>
 
                   {/* --- COLUMN 3: SHOWROOM CONTROLS --- */}
-                  <div className="flex flex-col gap-6 pt-8 lg:pt-0 lg:pl-10">
+                  <section
+                    aria-labelledby="garage-showroom-controls-title"
+                    className="flex flex-col gap-6 pt-8 lg:pt-0 lg:pl-10"
+                  >
                     <div className="flex items-center gap-3 pb-3 border-b border-white/10">
-                      <div className="size-2 rounded-full bg-tron-magenta shadow-[0_0_8px_#ff00ff]" />
-                      <h3 className="text-lg md:text-xl font-bold font-telemetry tracking-[0.2em] text-tron-magenta uppercase">
+                      <div
+                        aria-hidden="true"
+                        className="size-2 rounded-full bg-tron-magenta shadow-[0_0_8px_#ff00ff]"
+                      />
+                      <h3
+                        id="garage-showroom-controls-title"
+                        className="text-lg md:text-xl font-bold font-telemetry tracking-[0.2em] text-tron-magenta uppercase"
+                      >
                         SHOWROOM CONTROLS
                       </h3>
                     </div>
@@ -195,7 +239,7 @@ const SideBar = () => {
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </section>
                 </div>
               ) : activeScene === "drive" ? (
                 // master grid container holding all categories
@@ -219,7 +263,7 @@ const SideBar = () => {
                         value={masterVolume}
                         aria-label="Master volume"
                         onChange={(e) => handleSliderChange(e, setMasterVolume)}
-                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
+                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none focus-visible:ring-1 focus-visible:ring-tron-cyan [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
                     </div>
 
@@ -236,7 +280,7 @@ const SideBar = () => {
                         value={uiVolume}
                         aria-label="Interface volume"
                         onChange={(e) => handleSliderChange(e, setUiVolume)}
-                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
+                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none focus-visible:ring-1 focus-visible:ring-tron-cyan [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
                     </div>
 
@@ -255,7 +299,7 @@ const SideBar = () => {
                         onChange={(e) =>
                           handleSliderChange(e, setAmbienceVolume)
                         }
-                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
+                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none focus-visible:ring-1 focus-visible:ring-tron-cyan [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
                     </div>
 
@@ -272,7 +316,7 @@ const SideBar = () => {
                         value={radioVolume}
                         aria-label="Soundtrack volume"
                         onChange={(e) => handleSliderChange(e, setRadioVolume)}
-                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
+                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none focus-visible:ring-1 focus-visible:ring-tron-cyan [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
                     </div>
                   </div>
@@ -296,7 +340,7 @@ const SideBar = () => {
                         value={chunkRadius}
                         aria-label="Render distance"
                         onChange={(e) => handleSliderChange(e, setChunkRadius)}
-                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
+                        className="h-0.5 w-full cursor-pointer appearance-none bg-tron-cyan/20 outline-none focus-visible:ring-1 focus-visible:ring-tron-cyan [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:bg-tron-cyan [&::-webkit-slider-thumb]:shadow-[0_0_10px_#00f3ff] hover:[&::-webkit-slider-thumb]:w-2 hover:[&::-webkit-slider-thumb]:bg-white transition-all"
                       />
                     </div>
 
@@ -326,7 +370,7 @@ const SideBar = () => {
                           playToggle();
                           setShowControls(!showControls);
                         }}
-                        className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
+                        className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-black transition-colors"
                       >
                         <div
                           className={`h-full w-1/2 bg-tron-cyan transition-all duration-300 ease-out ${
@@ -350,7 +394,7 @@ const SideBar = () => {
                           playToggle();
                           setShowSpeedometers(!showSpeedometers);
                         }}
-                        className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
+                        className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-black transition-colors"
                       >
                         <div
                           className={`h-full w-1/2 bg-tron-cyan transition-all duration-300 ease-out ${
@@ -374,7 +418,7 @@ const SideBar = () => {
                           playToggle();
                           setShowMap(!showMap);
                         }}
-                        className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan transition-colors"
+                        className="relative flex h-4 w-10 cursor-pointer items-center border border-tron-cyan/40 bg-black/50 p-0.5 skew-x-[-15deg] hover:border-tron-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-black transition-colors"
                       >
                         <div
                           className={`h-full w-1/2 bg-tron-cyan transition-all duration-300 ease-out ${
@@ -407,12 +451,13 @@ const SideBar = () => {
 
       {/* top-left fixed toggle button (hamburger / cross switcher) */}
       <button
+        ref={toggleButtonRef}
         type="button"
         onClick={() => {
           playClick();
           setIsOpen(!isOpen);
         }}
-        className="fixed top-2 left-2 flex cursor-pointer items-center justify-center rounded-md border-2 border-tron-cyan p-2 text-tron-cyan z-45 backdrop-blur-sm shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:bg-tron-cyan hover:text-black transition-colors"
+        className="fixed top-2 left-2 flex cursor-pointer items-center justify-center rounded-md border-2 border-tron-cyan p-2 text-tron-cyan z-45 backdrop-blur-sm shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:bg-tron-cyan hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black transition-colors"
         aria-label={isOpen ? "Close settings menu" : "Open settings menu"}
         aria-expanded={isOpen}
         aria-controls="settings-menu"
