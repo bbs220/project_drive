@@ -70,10 +70,21 @@
         ]
       }
     </script>
+    <meta name="robots" content="index, follow" />
     <title>Neon Drives</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main style="background-color: #050505; color: #00f3ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: sans-serif; padding: 2rem;">
+        <h1 style="font-size: 2.5rem; letter-spacing: 0.15em; margin-bottom: 0.75rem;">NEON DRIVES</h1>
+        <p style="color: #39ff14; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 2rem;">Procedural City &amp; Multi-Vehicle Sandbox</p>
+        <nav style="display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;">
+          <a href="/drive" style="color: #ff00ff; border: 1px solid #ff00ff; padding: 0.75rem 1.5rem; text-decoration: none; font-weight: bold;">[ DRIVE ]</a>
+          <a href="/garage" style="color: #00f3ff; border: 1px solid #00f3ff; padding: 0.75rem 1.5rem; text-decoration: none; font-weight: bold;">[ GARAGE ]</a>
+          <a href="/copyright" style="color: #fff; padding: 0.75rem; text-decoration: underline;">Copyright</a>
+        </nav>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

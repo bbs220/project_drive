@@ -29,7 +29,7 @@
         },
         {
           "key": "Link",
-          "value": "</llms.txt>; rel=\"describedby\"; type=\"text/markdown\"; title=\"Site index for LLMs\", </.well-known/security.txt>; rel=\"security\""
+          "value": "</llms.txt>; rel=\"describedby\"; type=\"text/markdown\"; title=\"Site index for LLMs\", </sitemap.xml>; rel=\"sitemap\"; type=\"application/xml\", </.well-known/security.txt>; rel=\"security\""
         }
       ]
     }
