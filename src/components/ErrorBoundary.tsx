@@ -1,4 +1,22 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { useRouteError } from "react-router";
+
+// route error element for react router
+export const RouteErrorBoundary = () => {
+  const error = useRouteError();
+  console.error("route error caught", error);
+
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center bg-zinc-900 text-white">
+      <h2 className="font-inter text-2xl font-bold">
+        engine fault detected
+      </h2>
+      <p className="font-inter mt-2 text-zinc-400">
+        check the console for telemetry
+      </p>
+    </div>
+  );
+};
 
 // define props
 type Props = {

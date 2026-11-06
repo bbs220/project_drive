@@ -1,17 +1,20 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createBrowserRouter } from "react-router";
+import { lazy, Suspense } from "react";
 import App from "./App";
 import WelcomePage from "./pages/WelcomePage";
-import DrivePage from "./pages/DrivePage";
 import LayoutState from "./layout/LayoutState";
-import NotFoundPage from "./pages/NotFoundPage";
-import ErrorBoundary from "./components/ErrorBoundary";
-import GaragePage from "./pages/GaragePage";
-import Copyright from "./pages/Copyright";
+import { RouteErrorBoundary } from "./components/ErrorBoundary";
+
+const DrivePage = lazy(() => import("./pages/DrivePage"));
+const GaragePage = lazy(() => import("./pages/GaragePage"));
+const Copyright = lazy(() => import("./pages/Copyright"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 export const coreRouter = createBrowserRouter([
   {
     element: <App />,
-    errorElement: <ErrorBoundary />,
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
         path: "/",
@@ -21,7 +24,9 @@ export const coreRouter = createBrowserRouter([
         path: "/drive",
         element: (
           <LayoutState>
-            <DrivePage />
+            <Suspense fallback={<div className="h-full w-full bg-tron-bg" />}>
+              <DrivePage />
+            </Suspense>
           </LayoutState>
         ),
       },
@@ -29,17 +34,27 @@ export const coreRouter = createBrowserRouter([
         path: "/garage",
         element: (
           <LayoutState>
-            <GaragePage />
+            <Suspense fallback={<div className="h-full w-full bg-tron-bg" />}>
+              <GaragePage />
+            </Suspense>
           </LayoutState>
         ),
       },
       {
         path: "/copyright",
-        element: <Copyright />,
+        element: (
+          <Suspense fallback={<div className="h-full w-full bg-tron-bg" />}>
+            <Copyright />
+          </Suspense>
+        ),
       },
       {
         path: "*",
-        element: <NotFoundPage />,
+        element: (
+          <Suspense fallback={<div className="h-full w-full bg-tron-bg" />}>
+            <NotFoundPage />
+          </Suspense>
+        ),
       },
     ],
   },
