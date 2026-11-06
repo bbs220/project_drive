@@ -1,15 +1,12 @@
-/* eslint-disable react-refresh/only-export-components */
 import { createBrowserRouter } from "react-router";
-import { lazy, Suspense } from "react";
 import App from "./App";
 import WelcomePage from "./pages/WelcomePage";
+import DrivePage from "./pages/DrivePage";
+import GaragePage from "./pages/GaragePage";
+import Copyright from "./pages/Copyright";
+import NotFoundPage from "./pages/NotFoundPage";
 import LayoutState from "./layout/LayoutState";
 import { RouteErrorBoundary } from "./components/ErrorBoundary";
-
-const DrivePage = lazy(() => import("./pages/DrivePage"));
-const GaragePage = lazy(() => import("./pages/GaragePage"));
-const Copyright = lazy(() => import("./pages/Copyright"));
-const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 export const coreRouter = createBrowserRouter([
   {
@@ -24,9 +21,7 @@ export const coreRouter = createBrowserRouter([
         path: "/drive",
         element: (
           <LayoutState>
-            <Suspense fallback={<div className="h-full w-full bg-tron-bg" />}>
-              <DrivePage />
-            </Suspense>
+            <DrivePage />
           </LayoutState>
         ),
       },
@@ -34,27 +29,17 @@ export const coreRouter = createBrowserRouter([
         path: "/garage",
         element: (
           <LayoutState>
-            <Suspense fallback={<div className="h-full w-full bg-tron-bg" />}>
-              <GaragePage />
-            </Suspense>
+            <GaragePage />
           </LayoutState>
         ),
       },
       {
         path: "/copyright",
-        element: (
-          <Suspense fallback={<div className="h-full w-full bg-tron-bg" />}>
-            <Copyright />
-          </Suspense>
-        ),
+        element: <Copyright />,
       },
       {
         path: "*",
-        element: (
-          <Suspense fallback={<div className="h-full w-full bg-tron-bg" />}>
-            <NotFoundPage />
-          </Suspense>
-        ),
+        element: <NotFoundPage />,
       },
     ],
   },

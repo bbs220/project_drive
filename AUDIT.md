@@ -134,14 +134,14 @@ All files in `public/` are copied to `dist/` on build. The following files are u
 - [x] Prevented WebGL buffer disposal on chunk unmount (local chunk-owned geometries in `ProceduralGrass` and `ProceduralGround`, `dispose={null}` in `PropSpawner`, and protected `sharedStarMaterial` in `ProceduralStars`).
 
 ### Phase 2: Asset & Bundle Cleanup (Completed)
-- [x] Implemented route-level code splitting using `React.lazy()` and `Suspense` in `coreRouter.tsx` (initial bundle down from 4.2 MB to 317 kB).
+- [x] Restored direct page imports in `coreRouter.tsx` to prevent outer React Suspense boundaries from unmounting and thrashing WebGL Canvases during asset loads.
 - [x] Retained all 3D assets and GLB models in `public/` per user request (no assets deleted).
 - [x] Renamed `useCItyStore.ts` to `useCityStore.ts` and updated all import references.
 - [x] Fixed `RadioHUD.tsx` autoplay rejection by defaulting initial playback state to `false`.
 - [x] Replaced class-based router error element with `RouteErrorBoundary` using `useRouteError()`.
 
 ### Phase 3: Persistence & Gameplay Polish (Completed)
-- [x] Enabled Zustand `persist` middleware on `useCustomizationStore` and `useUIStore`.
+- [x] Kept stores non-persistent to avoid stale/corrupted localStorage rehydration.
 - [x] Reverted `InstancedRigidBodies` from dynamic chunk buildings to eliminate Rapier physics churn and WASM memory stress.
 - [x] Removed `blobTree` and `lampPost` from `PropSpawner.tsx` per user instruction.
 
