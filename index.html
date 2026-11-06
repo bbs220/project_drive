@@ -24,6 +24,7 @@
       type="font/woff2"
       crossorigin
     />
+    <link rel="stylesheet" href="/src/index.css" />
     <meta
       name="description"
       content="Modern, web-based 3D multi-vehicle simulation."
@@ -72,92 +73,63 @@
     </script>
     <meta name="robots" content="index, follow" />
     <title>Neon Drives</title>
-    <style>
-      @font-face {
-        font-family: 'Inter';
-        font-style: normal;
-        font-weight: 100 900;
-        font-display: swap;
-        src: url('/fonts/inter-latin.woff2') format('woff2');
-      }
-      @font-face {
-        font-family: 'Share Tech Mono';
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-        src: url('/fonts/share-tech-mono-latin.woff2') format('woff2');
-      }
-      body {
-        margin: 0;
-        background-color: #050505;
-        overflow-x: hidden;
-      }
-      .drive-btn:hover {
-        background-color: #ff00ff !important;
-        transform: scale(1.05);
-      }
-      .drive-btn:hover .drive-text {
-        color: #050505 !important;
-      }
-      .drive-btn:hover .drive-accent {
-        background-color: #050505 !important;
-      }
-      .garage-btn:hover {
-        background-color: #00f3ff !important;
-        transform: scale(1.05);
-      }
-      .garage-btn:hover .garage-text {
-        color: #050505 !important;
-      }
-      .garage-btn:hover .garage-accent {
-        background-color: #050505 !important;
-      }
-      .footer-link:hover {
-        color: #ffea00 !important;
-        text-decoration: underline !important;
-      }
-    </style>
   </head>
   <body>
     <div id="root">
-      <main id="main-content" style="position: relative; display: flex; min-height: 100vh; min-height: 100dvh; width: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; box-sizing: border-box; background-color: #050505; background-image: linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px); background-size: 40px 40px; user-select: none; overflow: hidden; font-family: 'Share Tech Mono', 'Inter', monospace, sans-serif;">
-        <div style="pointer-events: none; position: absolute; left: 50%; top: 50%; width: 380px; height: 380px; transform: translate(-50%, -50%); background: rgba(255, 0, 255, 0.1); filter: blur(100px); border-radius: 50%;"></div>
-        <header style="position: relative; z-index: 10; margin-bottom: 2.5rem; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 1rem;">
-          <h1 style="font-family: 'Share Tech Mono', monospace; font-size: clamp(2.5rem, 7vw, 5rem); font-weight: bold; letter-spacing: 0.15em; color: #00f3ff; text-shadow: 0 0 15px #00f3ff, 0 0 30px rgba(0, 243, 255, 0.5); margin: 0 0 1rem 0;">NEON DRIVES</h1>
-          <p style="font-family: 'Inter', sans-serif; font-size: clamp(0.75rem, 1.8vw, 1.25rem); letter-spacing: 0.25em; color: #39ff14; text-transform: uppercase; text-shadow: 0 0 8px #39ff14; margin: 0;">procedural city &amp; multi-vehicle sandbox</p>
+      <main id="main-content" class="relative flex min-h-dvh w-screen flex-col items-center justify-center p-6 bg-tron-bg bg-[linear-gradient(rgba(0,243,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,243,255,0.03)_1px,transparent_1px)] bg-size-[40px_40px] select-none overflow-hidden">
+        <div class="pointer-events-none absolute left-1/2 top-1/2 h-72 w-72 md:h-125 md:w-125 -translate-x-1/2 -translate-y-1/2 bg-tron-magenta/10 blur-[90px] md:blur-[120px]"></div>
+
+        <header class="relative z-10 mb-10 md:mb-16 flex flex-col items-center text-center px-4">
+          <h1 class="mb-3 md:mb-4 font-telemetry text-4xl sm:text-6xl md:text-8xl font-bold tracking-widest text-tron-cyan [text-shadow:0_0_15px_var(--color-tron-cyan)]">
+            NEON DRIVES
+          </h1>
+          <p class="font-label text-xs sm:text-base md:text-2xl tracking-[0.2em] md:tracking-[0.3em] text-tron-lime uppercase [text-shadow:0_0_8px_var(--color-tron-lime)]">
+            procedural city &amp; multi-vehicle sandbox
+          </p>
         </header>
-        <nav aria-label="Main navigation" style="position: relative; z-index: 10; display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2.5rem; width: 100%; max-width: 36rem;">
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
-            <a href="/drive" class="drive-btn" style="position: relative; display: flex; width: 15rem; height: 3.75rem; cursor: pointer; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #ff00ff; background: transparent; text-decoration: none; box-shadow: 0 0 5px #ff00ff, 0 0 20px rgba(255, 0, 255, 0.4); transition: transform 0.4s ease, background-color 0.4s ease;">
-              <span class="drive-accent" style="position: absolute; left: 0; top: 0; z-index: 20; width: 8px; height: 100%; background-color: #00f3ff; transition: background-color 0.4s ease;"></span>
-              <span class="drive-text" style="position: relative; z-index: 10; font-family: 'Share Tech Mono', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.4em; color: #ff00ff; transition: color 0.4s ease;">[ DRIVE ]</span>
-              <span class="drive-accent" style="position: absolute; right: 10px; top: 10px; z-index: 20; width: 8px; height: 8px; background-color: #00f3ff; transition: background-color 0.4s ease;"></span>
+
+        <nav aria-label="Main navigation" class="relative z-10 flex flex-col items-center gap-6 sm:gap-8 md:flex-row md:gap-16 w-full max-w-xl justify-center">
+          <div class="flex flex-col items-center gap-2 md:gap-4 w-full sm:w-auto">
+            <a href="/drive" class="group relative flex w-56 sm:w-64 cursor-pointer items-center justify-center overflow-hidden border border-tron-magenta bg-transparent py-4 md:py-5 shadow-neon-magenta transition-all duration-500 ease-out hover:scale-105 hover:bg-tron-magenta">
+              <span class="absolute left-0 top-0 z-20 h-full w-2 bg-tron-cyan transition-colors duration-500 group-hover:bg-tron-bg"></span>
+              <span class="relative z-10 font-telemetry text-lg md:text-xl font-black tracking-[0.4em] text-tron-magenta transition-colors duration-500 group-hover:text-tron-bg">[ DRIVE ]</span>
+              <span class="absolute right-3 top-3 z-20 h-2 w-2 bg-tron-cyan transition-colors duration-500 group-hover:bg-tron-bg"></span>
             </a>
-            <p style="font-family: 'Inter', sans-serif; font-size: 0.75rem; letter-spacing: 0.2em; color: rgba(255, 0, 255, 0.7); text-transform: uppercase; margin: 0;">explore the open world</p>
+            <p class="font-label text-[10px] md:text-xs tracking-[0.2em] text-tron-magenta/70 uppercase">
+              explore the open world
+            </p>
           </div>
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
-            <a href="/garage" class="garage-btn" style="position: relative; display: flex; width: 15rem; height: 3.75rem; cursor: pointer; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #00f3ff; background: transparent; text-decoration: none; box-shadow: 0 0 5px #00f3ff, 0 0 20px rgba(0, 243, 255, 0.4); transition: transform 0.4s ease, background-color 0.4s ease;">
-              <span class="garage-accent" style="position: absolute; left: 0; top: 0; z-index: 20; width: 8px; height: 100%; background-color: #ff00ff; transition: background-color 0.4s ease;"></span>
-              <span class="garage-text" style="position: relative; z-index: 10; font-family: 'Share Tech Mono', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.4em; color: #00f3ff; transition: color 0.4s ease;">[ GARAGE ]</span>
-              <span class="garage-accent" style="position: absolute; right: 10px; top: 10px; z-index: 20; width: 8px; height: 8px; background-color: #ff00ff; transition: background-color 0.4s ease;"></span>
+
+          <div class="flex flex-col items-center gap-2 md:gap-4 w-full sm:w-auto">
+            <a href="/garage" class="group relative flex w-56 sm:w-64 cursor-pointer items-center justify-center overflow-hidden border border-tron-cyan bg-transparent py-4 md:py-5 shadow-neon-cyan transition-all duration-500 ease-out hover:scale-105 hover:bg-tron-cyan">
+              <span class="absolute left-0 top-0 z-20 h-full w-2 bg-tron-magenta transition-colors duration-500 group-hover:bg-tron-bg"></span>
+              <span class="relative z-10 font-telemetry text-lg md:text-xl font-black tracking-[0.4em] text-tron-cyan transition-colors duration-500 group-hover:text-tron-bg">[ GARAGE ]</span>
+              <span class="absolute right-3 top-3 z-20 h-2 w-2 bg-tron-magenta transition-colors duration-500 group-hover:bg-tron-bg"></span>
             </a>
-            <p style="font-family: 'Inter', sans-serif; font-size: 0.75rem; letter-spacing: 0.2em; color: rgba(0, 243, 255, 0.7); text-transform: uppercase; margin: 0;">customize your vehicles</p>
+            <p class="font-label text-[10px] md:text-xs tracking-[0.2em] text-tron-cyan/70 uppercase">
+              customize your vehicles
+            </p>
           </div>
         </nav>
-        <footer style="position: fixed; bottom: 1rem; display: flex; width: 100%; align-items: center; justify-content: center; gap: 1rem; padding: 0 1rem; box-sizing: border-box; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; user-select: none;">
-          <div style="display: flex; align-items: center; gap: 0.35rem; color: #39ff14;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            Note: <span style="color: #ffffff; font-weight: 300;">Desktop only</span>
+
+        <footer class="fixed bottom-4 flex w-full items-center justify-center gap-4 px-4 select-none">
+          <div class="flex items-center gap-1 text-tron-lime font-telemetry text-[10px] md:text-xs">
+            <svg class="h-4 w-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Note: <span class="text-white font-thin">Desktop only</span>
           </div>
-          <div style="width: 2px; height: 1.25rem; background-color: rgba(57, 255, 20, 0.7);"></div>
-          <div style="letter-spacing: 0.1em; color: #ffffff;">
-            <a href="https://github.com/bbs220/project_drive" target="_blank" rel="noopener noreferrer" class="footer-link" style="color: #ffffff; text-decoration: none;">Source Code</a>
+          <div class="h-6 w-0.5 bg-tron-lime/70"></div>
+          <div class="font-telemetry text-[10px] md:text-xs tracking-widest text-white hover:text-tron-yellow">
+            <a href="https://github.com/bbs220/project_drive" target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub (opens in a new tab)" class="hover:underline focus:outline-none">
+              Source Code
+            </a>
           </div>
-          <div style="width: 2px; height: 1.25rem; background-color: rgba(57, 255, 20, 0.7);"></div>
-          <div style="letter-spacing: 0.1em; color: #ffffff;">( v 0.1.alpha )</div>
-          <div style="width: 2px; height: 1.25rem; background-color: rgba(57, 255, 20, 0.7);"></div>
-          <a href="/copyright" class="footer-link" style="display: flex; align-items: center; color: #ffffff; text-decoration: none; letter-spacing: 0.1em;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffea00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.35rem;"><circle cx="12" cy="12" r="10"/><path d="M14.83 14.83a4 4 0 1 1 0-5.66"/></svg>
+          <div class="h-6 w-0.5 bg-tron-lime/70"></div>
+          <div class="font-telemetry text-[10px] md:text-xs tracking-widest text-white">
+            ( v 0.1.alpha )
+          </div>
+          <div class="h-6 w-0.5 bg-tron-lime/70"></div>
+          <a href="/copyright" class="font-telemetry text-[10px] md:text-xs tracking-widest text-white flex justify-center items-center">
+            <svg class="text-yellow-300 mr-2 size-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M14.83 14.83a4 4 0 1 1 0-5.66"/></svg>
             Copyright
           </a>
         </footer>
