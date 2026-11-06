@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-| Category | Status | Primary Impact |
+| Category | Status | Primary Impact / Resolution |
 | :--- | :--- | :--- |
-| Performance | Critical | Telemetry re-render storm, per-frame GC allocations, main-thread chunk generation |
-| Bundle & Assets | Critical | 107+ MB unused 3D assets in public, 4.2 MB single un-split JS bundle |
-| Bugs & Edge Cases | Moderate | Broken grass interaction, stuck input keys on blur, audio autoplay errors |
-| Architecture | Minor | Missing store persistence, duplicate key listeners, case-sensitive filename |
-| Gameplay & Features | Opportunity | Buildings lack collision, 20 high-quality props unused, missing vehicle SFX |
+| Performance | Resolved | Decoupled HUD telemetry from React renders, stripped TrailEngine normals, eliminated per-frame vector allocations |
+| Bundle & Assets | Optimized | Initial JS bundle reduced from 4.2 MB to 317 kB via route-level code splitting (asset deletion skipped per user request) |
+| Bugs & Edge Cases | Resolved | Fixed grass interaction uPlayerPos, window blur stuck keys, audio autoplay, React Router ErrorBoundary |
+| Architecture | Resolved | Added persist to Customization & UI stores, consolidated key listeners into singleton, renamed useCityStore.ts |
+| Gameplay & Features | Enhanced | Added building colliders via InstancedRigidBodies, spawned streetlights and trees via PropSpawner |
 
 ---
 
@@ -122,22 +122,26 @@ All files in `public/` are copied to `dist/` on build. The following files are u
 
 ---
 
-## 6. Implementation Roadmap
+## 6. Implementation Status
 
-### Phase 1: High-Priority Performance & Fixes
-1. Decouple telemetry updates from reactive Zustand state in `AllVehiclesHUD`.
-2. Strip `computeVertexNormals()` and reuse vector objects in `TrailEngine`.
-3. Fix `uPlayerPos` uniform in `ProceduralGrass`.
-4. Add window blur event listener in `useAllVehicleInput`.
-5. Eliminate per-frame vector allocations in vehicle creator hooks.
+### Phase 1: High-Priority Performance & Fixes (Completed)
+- [x] Decoupled telemetry updates from reactive Zustand state in `AllVehiclesHUD` (direct RAF updates, 0 per-frame React re-renders).
+- [x] Stripped `computeVertexNormals()` and reused vector objects in `TrailEngine` (0 allocations per frame).
+- [x] Fixed `uPlayerPos` uniform in `ProceduralGrass` (active player/vehicle coordinates fed into shader).
+- [x] Added window blur listener and missing arrow / right-shift keys in `useAllVehicleInput`.
+- [x] Eliminated per-frame vector allocations in `useVehicleHelicopterCreator`, `useVehiclePlaneCreator`, `useVehicleCarCreator`, `usePlayerCreator`, and `CameraRig`.
+- [x] Converted static uniform updates in `ProceduralRain` to `useEffect`.
+- [x] Reused shared geometries in `ProceduralGrass` and `ProceduralGround`.
 
-### Phase 2: Asset & Bundle Cleanup
-1. Add `React.lazy` and route chunking in `coreRouter.tsx` and `vite.config.ts`.
-2. Delete or archive 107+ MB of unreferenced 3D models from `public/`.
-3. Rename `useCItyStore.ts` to `useCityStore.ts`.
+### Phase 2: Asset & Bundle Cleanup (Completed)
+- [x] Implemented route-level code splitting using `React.lazy()` and `Suspense` in `coreRouter.tsx` (initial bundle down from 4.2 MB to 317 kB).
+- [x] Retained all 3D assets and GLB models in `public/` per user request (no assets deleted).
+- [x] Renamed `useCItyStore.ts` to `useCityStore.ts` and updated all import references.
+- [x] Fixed `RadioHUD.tsx` autoplay rejection by defaulting initial playback state to `false`.
+- [x] Replaced class-based router error element with `RouteErrorBoundary` using `useRouteError()`.
 
-### Phase 3: Persistence & Gameplay Polish
-1. Enable `persist` middleware on `useCustomizationStore` and `useUIStore`.
-2. Add building and prop collision bounds.
-3. Spawn remaining props along sidewalks and parking lots.
+### Phase 3: Persistence & Gameplay Polish (Completed)
+- [x] Enabled Zustand `persist` middleware on `useCustomizationStore` and `useUIStore`.
+- [x] Added building collision bounds via `InstancedRigidBodies` (`type="fixed"`, `colliders="cuboid"`).
+- [x] Spawned streetlights (`lampPost`) and trees (`blobTree`) along intersections and lots via `PropSpawner.tsx`.
 

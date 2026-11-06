@@ -10,7 +10,7 @@ import {
 import ProceduralStars from "./ProceduralStars";
 import ProceduralClouds from "./ProceduralClouds";
 import ChunkWorker from "./worker/chunk.worker?worker";
-import { useCityStore } from "../../../stores/useCItyStore";
+import { useCityStore } from "../../../stores/useCityStore";
 import ProceduralRain from "./ProceduralRain";
 
 type typeChunkManagerProps = {
