@@ -254,16 +254,34 @@ export const useVehiclePlaneCreator = (
 
       // strict angle limiters prevent mid air flips and barrel rolls
       // rubber band wall if the plane exceeds the 20 degree limit actively force the angular velocity backward
-      if (euler.x > maxPitchRad && pitchRad >= 0) {
-        pitchRad = -(euler.x - maxPitchRad) * 10;
-      } else if (euler.x < -maxPitchRad && pitchRad <= 0) {
-        pitchRad = -(euler.x + maxPitchRad) * 10;
+      const maxPitchRateRad = activePitchSpeed * (Math.PI / 180);
+      const maxAllowedPitch = Math.max(
+        -maxPitchRateRad,
+        (maxPitchRad - euler.x) / delta,
+      );
+      const minAllowedPitch = Math.min(
+        maxPitchRateRad,
+        (-maxPitchRad - euler.x) / delta,
+      );
+      if (pitchRad > maxAllowedPitch) {
+        pitchRad = maxAllowedPitch;
+      } else if (pitchRad < minAllowedPitch) {
+        pitchRad = minAllowedPitch;
       }
 
-      if (euler.z > maxRollRad && rollRad >= 0) {
-        rollRad = -(euler.z - maxRollRad) * 10;
-      } else if (euler.z < -maxRollRad && rollRad <= 0) {
-        rollRad = -(euler.z + maxRollRad) * 10;
+      const maxRollRateRad = activeRollSpeed * (Math.PI / 180);
+      const maxAllowedRoll = Math.max(
+        -maxRollRateRad,
+        (maxRollRad - euler.z) / delta,
+      );
+      const minAllowedRoll = Math.min(
+        maxRollRateRad,
+        (-maxRollRad - euler.z) / delta,
+      );
+      if (rollRad > maxAllowedRoll) {
+        rollRad = maxAllowedRoll;
+      } else if (rollRad < minAllowedRoll) {
+        rollRad = minAllowedRoll;
       }
 
       // zero out angular velocity accumulator
