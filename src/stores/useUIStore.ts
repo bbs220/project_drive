@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 type UIState = {
   // audio settings
@@ -24,26 +25,33 @@ type UIState = {
   setShowMap: (show: boolean) => void;
 };
 
-export const useUIStore = create<UIState>((set) => ({
-  // default audio state
-  masterVolume: 50,
-  uiVolume: 50,
-  ambienceVolume: 50,
-  radioVolume: 50,
+export const useUIStore = create<UIState>()(
+  persist(
+    (set) => ({
+      // default audio state
+      masterVolume: 50,
+      uiVolume: 50,
+      ambienceVolume: 50,
+      radioVolume: 50,
 
-  // default hud state
-  showControls: true,
-  showSpeedometers: true,
-  showMap: true,
+      // default hud state
+      showControls: true,
+      showSpeedometers: true,
+      showMap: true,
 
-  // audio actions
-  setMasterVolume: (volume) => set({ masterVolume: volume }),
-  setUiVolume: (volume) => set({ uiVolume: volume }),
-  setAmbienceVolume: (volume) => set({ ambienceVolume: volume }),
-  setRadioVolume: (volume) => set({ radioVolume: volume }),
+      // audio actions
+      setMasterVolume: (volume) => set({ masterVolume: volume }),
+      setUiVolume: (volume) => set({ uiVolume: volume }),
+      setAmbienceVolume: (volume) => set({ ambienceVolume: volume }),
+      setRadioVolume: (volume) => set({ radioVolume: volume }),
 
-  // hud actions
-  setShowControls: (show) => set({ showControls: show }),
-  setShowSpeedometers: (show) => set({ showSpeedometers: show }),
-  setShowMap: (show) => set({ showMap: show }),
-}));
+      // hud actions
+      setShowControls: (show) => set({ showControls: show }),
+      setShowSpeedometers: (show) => set({ showSpeedometers: show }),
+      setShowMap: (show) => set({ showMap: show }),
+    }),
+    {
+      name: "neon_ui_settings",
+    },
+  ),
+);
