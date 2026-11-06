@@ -184,21 +184,34 @@ const ProceduralRain = () => {
     ],
   );
 
+  // sync tweakpane uniforms only when parameters update
+  useEffect(() => {
+    if (!shaderRef.current) return;
+    shaderRef.current.uniforms.uHeight.value = params.height;
+    shaderRef.current.uniforms.uColor.value.set(params.color as string);
+    shaderRef.current.uniforms.uDropSize.value = params.dropSize;
+    shaderRef.current.uniforms.uThickness.value = params.thickness;
+
+    // wind/sway live without recompiling shaders
+    shaderRef.current.uniforms.uSway.value = params.sway;
+    shaderRef.current.uniforms.uWind.value.set(
+      params.windX as number,
+      params.windZ as number,
+    );
+  }, [
+    params.color,
+    params.dropSize,
+    params.height,
+    params.sway,
+    params.thickness,
+    params.windX,
+    params.windZ,
+  ]);
+
   useFrame((_, delta) => {
     if (shaderRef.current) {
       shaderRef.current.uniforms.uTime.value +=
         delta * (params.speedMultiplier as number);
-      shaderRef.current.uniforms.uHeight.value = params.height;
-      shaderRef.current.uniforms.uColor.value.set(params.color as string);
-      shaderRef.current.uniforms.uDropSize.value = params.dropSize;
-      shaderRef.current.uniforms.uThickness.value = params.thickness;
-
-      // wind/sway live without recompiling shaders
-      shaderRef.current.uniforms.uSway.value = params.sway;
-      shaderRef.current.uniforms.uWind.value.set(
-        params.windX as number,
-        params.windZ as number,
-      );
     }
 
     if (rainGroupRef.current) {

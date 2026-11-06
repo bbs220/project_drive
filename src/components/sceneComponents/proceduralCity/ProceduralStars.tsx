@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { worldConstants } from "../../../utils/worldGenerator";
 import starsVert from "../shaders/starsVert.glsl";
 import starsFrag from "../shaders/starsFrag.glsl";
-import { useCityStore } from "../../../stores/useCItyStore";
+import { useCityStore } from "../../../stores/useCityStore";
 import { useTweakpane } from "../../../hooks/useTweakpane";
 
 type ProceduralSkyProps = {
