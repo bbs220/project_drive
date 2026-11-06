@@ -105,6 +105,8 @@ const TrailEngine = ({
   const dummyVec = useRef(new THREE.Vector3());
   const dummyRight = useRef(new THREE.Vector3());
   const worldQuat = useRef(new THREE.Quaternion());
+  const moveDeltaVec = useRef(new THREE.Vector3());
+  const invWorldQuat = useRef(new THREE.Quaternion());
 
   const lastPos = useRef(new THREE.Vector3());
   const isInitialized = useRef(false);
@@ -130,26 +132,25 @@ const TrailEngine = ({
       .multiplyScalar(width / 2);
 
     // reverse detection math
-    const moveDelta = dummyVec.current.clone().sub(lastPos.current);
+    moveDeltaVec.current.copy(dummyVec.current).sub(lastPos.current);
     lastPos.current.copy(dummyVec.current);
 
-    const localMove = moveDelta.applyQuaternion(
-      worldQuat.current.clone().invert(),
-    );
+    invWorldQuat.current.copy(worldQuat.current).invert();
+    const localMoveZ = moveDeltaVec.current.applyQuaternion(invWorldQuat.current).z;
 
     // only detect reversing if this trail actually belongs to a car
-    const isReversing = isCar && localMove.z < -0.01;
+    const isReversing = isCar && localMoveZ < -0.01;
 
     // emission logic
     if (!isReversing) {
-      history.current.unshift({
-        pos: dummyVec.current.clone(),
-        right: dummyRight.current.clone(),
-      });
-
-      if (history.current.length > length) {
-        history.current.pop();
+      let segment =
+        history.current.length >= length ? history.current.pop() : null;
+      if (!segment) {
+        segment = { pos: new THREE.Vector3(), right: new THREE.Vector3() };
       }
+      segment.pos.copy(dummyVec.current);
+      segment.right.copy(dummyRight.current);
+      history.current.unshift(segment);
     } else {
       if (history.current.length > 0) {
         history.current.pop();
@@ -188,7 +189,6 @@ const TrailEngine = ({
 
     posAttr.needsUpdate = true;
     geoRef.current.computeBoundingSphere();
-    geoRef.current.computeVertexNormals();
   });
 
   return (

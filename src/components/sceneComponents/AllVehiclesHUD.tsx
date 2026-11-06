@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useState, useEffect, useRef } from "react";
 import {
   useVehicleStore,
   CONTROL_STATE,
@@ -248,6 +248,170 @@ const AltimeterTape = ({ altitude }: { altitude: number }) => {
   );
 };
 
+// car speedometer with zero react rerenders
+const CarSpeedometer = () => {
+  const speedRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    let animId: number;
+    const update = () => {
+      animId = requestAnimationFrame(update);
+      const speed = useVehicleStore.getState().telemetry[ENTITY_ID.CAR_1].speed;
+      if (speedRef.current) {
+        speedRef.current.innerText = String(speed).padStart(3, "0");
+      }
+    };
+    animId = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
+  return (
+    // inline speedometer
+    <div className="absolute bottom-2 right-4 flex items-baseline">
+      {/* inject live padded speed value with tabular mono font to prevent jumping */}
+      <span
+        ref={speedRef}
+        className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]"
+      >
+        000
+      </span>
+
+      {/* speed unit using strict width to prevent container shifting */}
+      <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
+        KM/H
+      </span>
+    </div>
+  );
+};
+
+// helicopter instrument cluster with throttled telemetry
+const HeliInstruments = () => {
+  const speedRef = useRef<HTMLSpanElement>(null);
+  const [telemetry, setTelemetry] = useState(() => ({
+    pitch: 0,
+    roll: 0,
+    yaw: 0,
+    altitude: 0,
+  }));
+
+  useEffect(() => {
+    let animId: number;
+    let lastTime = 0;
+    const update = (time: number) => {
+      animId = requestAnimationFrame(update);
+      const heli = useVehicleStore.getState().telemetry[ENTITY_ID.HELI_1];
+      if (speedRef.current) {
+        speedRef.current.innerText = String(heli.airspeed).padStart(3, "0");
+      }
+      if (time - lastTime >= 33) {
+        lastTime = time;
+        setTelemetry({
+          pitch: heli.pitch,
+          roll: heli.roll,
+          yaw: heli.yaw,
+          altitude: heli.altitude,
+        });
+      }
+    };
+    animId = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
+  return (
+    <>
+      {/* advanced aviation instruments container anchored to bottom left */}
+      <div className="absolute bottom-2 left-2 flex items-end gap-6">
+        {/* dynamic artificial horizon with compass bezel */}
+        <AttitudeIndicator
+          pitch={telemetry.pitch}
+          roll={telemetry.roll}
+          yaw={telemetry.yaw}
+        />
+
+        {/* scrolling altimeter tape */}
+        <AltimeterTape altitude={telemetry.altitude} />
+      </div>
+
+      {/* inline helicopter airspeed anchored to bottom right */}
+      <div className="absolute bottom-2 right-4 flex items-baseline">
+        <span
+          ref={speedRef}
+          className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]"
+        >
+          000
+        </span>
+        <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
+          KTS
+        </span>
+      </div>
+    </>
+  );
+};
+
+// plane instrument cluster with throttled telemetry
+const PlaneInstruments = () => {
+  const speedRef = useRef<HTMLSpanElement>(null);
+  const [telemetry, setTelemetry] = useState(() => ({
+    pitch: 0,
+    roll: 0,
+    yaw: 0,
+    altitude: 0,
+  }));
+
+  useEffect(() => {
+    let animId: number;
+    let lastTime = 0;
+    const update = (time: number) => {
+      animId = requestAnimationFrame(update);
+      const plane = useVehicleStore.getState().telemetry[ENTITY_ID.PLANE_1];
+      if (speedRef.current) {
+        speedRef.current.innerText = String(plane.airspeed).padStart(3, "0");
+      }
+      if (time - lastTime >= 33) {
+        lastTime = time;
+        setTelemetry({
+          pitch: plane.pitch,
+          roll: plane.roll,
+          yaw: plane.yaw,
+          altitude: plane.altitude,
+        });
+      }
+    };
+    animId = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
+  return (
+    <>
+      {/* advanced aviation instruments container anchored to bottom left */}
+      <div className="absolute bottom-2 left-2 flex items-end gap-6">
+        {/* dynamic artificial horizon with compass bezel */}
+        <AttitudeIndicator
+          pitch={telemetry.pitch}
+          roll={telemetry.roll}
+          yaw={telemetry.yaw}
+        />
+
+        {/* scrolling altimeter tape */}
+        <AltimeterTape altitude={telemetry.altitude} />
+      </div>
+
+      {/* inline plane airspeed anchored to bottom right */}
+      <div className="absolute bottom-2 right-4 flex items-baseline">
+        <span
+          ref={speedRef}
+          className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]"
+        >
+          000
+        </span>
+        <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
+          KTS
+        </span>
+      </div>
+    </>
+  );
+};
+
 // main heads up display wrapper
 const AllVehiclesHUD = () => {
   // subscribe to active control state to conditionally render ui
@@ -255,58 +419,6 @@ const AllVehiclesHUD = () => {
 
   // subscribe to ui store to control speedometer/instrument visibility
   const showSpeedometers = useUIStore((state) => state.showSpeedometers);
-
-  // subscribe to strict car telemetry from global store via exact entity ID
-  const currentCarSpeed = useVehicleStore(
-    (state) => state.telemetry[ENTITY_ID.CAR_1].speed,
-  );
-
-  // subscribe to strict helicopter telemetry from global store via exact entity ID
-  const currentHeliAltitude = useVehicleStore(
-    (state) => state.telemetry[ENTITY_ID.HELI_1].altitude,
-  );
-
-  const currentHeliAirspeed = useVehicleStore(
-    (state) => state.telemetry[ENTITY_ID.HELI_1].airspeed,
-  );
-
-  const currentHeliPitch = useVehicleStore(
-    (state) => state.telemetry[ENTITY_ID.HELI_1].pitch,
-  );
-
-  const currentHeliRoll = useVehicleStore(
-    (state) => state.telemetry[ENTITY_ID.HELI_1].roll,
-  );
-
-  const currentHeliYaw = useVehicleStore(
-    (state) => state.telemetry[ENTITY_ID.HELI_1].yaw,
-  );
-
-  // subscribe to strict plane telemetry from global store via exact entity ID
-  const currentPlaneAirspeed = useVehicleStore(
-    (state) => state.telemetry[ENTITY_ID.PLANE_1].airspeed,
-  );
-
-  const currentPlaneAltitude = useVehicleStore(
-    (state) => state.telemetry[ENTITY_ID.PLANE_1].altitude,
-  );
-
-  const currentPlanePitch = useVehicleStore(
-    (state) => state.telemetry[ENTITY_ID.PLANE_1].pitch,
-  );
-
-  const currentPlaneRoll = useVehicleStore(
-    (state) => state.telemetry[ENTITY_ID.PLANE_1].roll,
-  );
-
-  const currentPlaneYaw = useVehicleStore(
-    (state) => state.telemetry[ENTITY_ID.PLANE_1].yaw,
-  );
-
-  // pad speed strings for arcade styling
-  const displayCarSpeed = String(currentCarSpeed).padStart(3, "0");
-  const displayHeliSpeed = String(currentHeliAirspeed).padStart(3, "0");
-  const displayPlaneSpeed = String(currentPlaneAirspeed).padStart(3, "0");
 
   return (
     // full screen non interactive overlay
@@ -338,20 +450,7 @@ const AllVehiclesHUD = () => {
             ]}
           />
 
-          {/* inline speedometer */}
-          {showSpeedometers && (
-            <div className="absolute bottom-2 right-4 flex items-baseline">
-              {/* inject live padded speed value with tabular mono font to prevent jumping */}
-              <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
-                {displayCarSpeed}
-              </span>
-
-              {/* speed unit using strict width to prevent container shifting */}
-              <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
-                KM/H
-              </span>
-            </div>
-          )}
+          {showSpeedometers && <CarSpeedometer />}
         </>
       )}
 
@@ -368,32 +467,7 @@ const AllVehiclesHUD = () => {
             ]}
           />
 
-          {showSpeedometers && (
-            <>
-              {/* advanced aviation instruments container anchored to bottom left */}
-              <div className="absolute bottom-2 left-2 flex items-end gap-6">
-                {/* dynamic artificial horizon with compass bezel */}
-                <AttitudeIndicator
-                  pitch={currentHeliPitch}
-                  roll={currentHeliRoll}
-                  yaw={currentHeliYaw}
-                />
-
-                {/* scrolling altimeter tape */}
-                <AltimeterTape altitude={currentHeliAltitude} />
-              </div>
-
-              {/* inline helicopter airspeed anchored to bottom right */}
-              <div className="absolute bottom-2 right-4 flex items-baseline">
-                <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
-                  {displayHeliSpeed}
-                </span>
-                <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
-                  KTS
-                </span>
-              </div>
-            </>
-          )}
+          {showSpeedometers && <HeliInstruments />}
         </>
       )}
 
@@ -410,32 +484,7 @@ const AllVehiclesHUD = () => {
             ]}
           />
 
-          {showSpeedometers && (
-            <>
-              {/* advanced aviation instruments container anchored to bottom left */}
-              <div className="absolute bottom-2 left-2 flex items-end gap-6">
-                {/* dynamic artificial horizon with compass bezel */}
-                <AttitudeIndicator
-                  pitch={currentPlanePitch}
-                  roll={currentPlaneRoll}
-                  yaw={currentPlaneYaw}
-                />
-
-                {/* scrolling altimeter tape */}
-                <AltimeterTape altitude={currentPlaneAltitude} />
-              </div>
-
-              {/* inline plane airspeed anchored to bottom right */}
-              <div className="absolute bottom-2 right-4 flex items-baseline">
-                <span className="tabular-nums font-telemetry text-6xl font-black italic tracking-tighter text-tron-cyan [text-shadow:0_0_20px_var(--color-tron-cyan)]">
-                  {displayPlaneSpeed}
-                </span>
-                <span className="ml-2 inline-block w-14 text-xl font-label font-bold text-tron-cyan/70 [text-shadow:0_0_8px_var(--color-tron-cyan)]">
-                  KTS
-                </span>
-              </div>
-            </>
-          )}
+          {showSpeedometers && <PlaneInstruments />}
         </>
       )}
     </div>
