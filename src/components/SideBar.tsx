@@ -4,7 +4,7 @@ import { useAppStore } from "../stores/useAppStore";
 import { useUIStore } from "../stores/useUIStore";
 import RadioHUD from "./RadioHUD";
 import { useUISounds } from "../hooks/useUISounds";
-import { useCityStore } from "../stores/useCItyStore";
+import { useCityStore } from "../stores/useCityStore";
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);

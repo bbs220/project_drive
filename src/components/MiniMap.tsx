@@ -16,7 +16,7 @@ import { useTweakpane } from "../hooks/useTweakpane";
 import { iconsBank } from "../utils/assetpaths";
 import mapFrag from "./sceneComponents/shaders/mapFrag.glsl";
 import mapVert from "./sceneComponents/shaders/mapVert.glsl";
-import { useCityStore } from "../stores/useCItyStore";
+import { useCityStore } from "../stores/useCityStore";
 import { SimplexNoise } from "../utils/SimplexNoise";
 
 type ProceduralMapParams = {
