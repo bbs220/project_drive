@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 // strictly define all acceptable vehicle keys
 export type typeGarageVehicle = "car" | "plane" | "helicopter";
@@ -101,49 +102,56 @@ const defaultHelicopterMods: typeHelicopterMods = {
   trailColor: "#ffffff",
 };
 
-export const useCustomizationStore = create<typeCustomizationStore>((set) => ({
-  activeGarageVehicle: "car",
+export const useCustomizationStore = create<typeCustomizationStore>()(
+  persist(
+    (set) => ({
+      activeGarageVehicle: "car",
 
-  // initialize each vehicle with its own independent memory bank
-  carMods: { ...defaultCarMods },
-  planeMods: { ...defaultPlaneMods },
-  helicopterMods: { ...defaultHelicopterMods },
+      // initialize each vehicle with its own independent memory bank
+      carMods: { ...defaultCarMods },
+      planeMods: { ...defaultPlaneMods },
+      helicopterMods: { ...defaultHelicopterMods },
 
-  // action to swap the currently viewed vehicle
-  setActiveGarageVehicle: (vehicle) => set({ activeGarageVehicle: vehicle }),
+      // action to swap the currently viewed vehicle
+      setActiveGarageVehicle: (vehicle) => set({ activeGarageVehicle: vehicle }),
 
-  // dynamic action to safely update a single property on a specific vehicle
-  setVehicleMod: (vehicle, key, value) =>
-    set((state) => {
-      // strictly cast the dynamic string so typescript knows it maps to a valid store key
-      const targetModObj = `${vehicle}Mods` as const;
+      // dynamic action to safely update a single property on a specific vehicle
+      setVehicleMod: (vehicle, key, value) =>
+        set((state) => {
+          // strictly cast the dynamic string so typescript knows it maps to a valid store key
+          const targetModObj = `${vehicle}Mods` as const;
 
-      return {
-        ...state,
-        [targetModObj]: {
-          // generic function signature guarantees safety at the call-site
-          ...state[targetModObj],
-          [key]: value,
-        },
-      };
+          return {
+            ...state,
+            [targetModObj]: {
+              // generic function signature guarantees safety at the call-site
+              ...state[targetModObj],
+              [key]: value,
+            },
+          };
+        }),
+
+      // deep merge function to update specific material sliders without overwriting others
+      setVehicleMaterial: (vehicle, part, prop, value) =>
+        set((state) => {
+          const targetModObj = `${vehicle}Mods` as const;
+          const vehicleState = state[targetModObj];
+          return {
+            ...state,
+            [targetModObj]: {
+              ...vehicleState,
+              [part]: {
+                ...(vehicleState[
+                  part as keyof typeof vehicleState
+                ] as typeMaterialProps),
+                [prop]: value,
+              },
+            },
+          };
+        }),
     }),
-
-  // deep merge function to update specific material sliders without overwriting others
-  setVehicleMaterial: (vehicle, part, prop, value) =>
-    set((state) => {
-      const targetModObj = `${vehicle}Mods` as const;
-      const vehicleState = state[targetModObj];
-      return {
-        ...state,
-        [targetModObj]: {
-          ...vehicleState,
-          [part]: {
-            ...(vehicleState[
-              part as keyof typeof vehicleState
-            ] as typeMaterialProps),
-            [prop]: value,
-          },
-        },
-      };
-    }),
-}));
+    {
+      name: "neon_customization",
+    },
+  ),
+);
