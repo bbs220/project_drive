@@ -6,6 +6,7 @@ import { useTweakpane } from "../../../hooks/useTweakpane";
 import { RigidBody } from "@react-three/rapier";
 import { worldConstants } from "../../../utils/worldGenerator";
 import ProceduralCity from "./ProceduralCity";
+import type { typeActiveChunk } from "./worker/chunk.worker";
 
 type GroundTileProps = {
   chunkX: number;
@@ -112,7 +113,7 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
 };
 
 type typeGroundProps = {
-  activeChunks: Array<{ chunkX: number; chunkZ: number }>;
+  activeChunks: typeActiveChunk[];
 };
 
 const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
@@ -208,6 +209,7 @@ const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
             chunkX={c.chunkX}
             chunkZ={c.chunkZ}
             roadParams={roadParams}
+            chunkData={c.data}
           />
         </group>
       ))}

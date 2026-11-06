@@ -6,22 +6,33 @@ import ProceduralGrass from "./ProceduralGrass";
 import PropSpawner from "./PropSpawner";
 import type { RoadShaderParams } from "./ProceduralRoads";
 import { useChunkGenerator } from "../../../hooks/useChunkGenerator";
+import type { typeChunkGeneratedData } from "../../../utils/chunkDataGenerator";
 
 type typeChunkProps = {
   chunkX: number;
   chunkZ: number;
   roadParams: RoadShaderParams;
+  chunkData?: typeChunkGeneratedData;
 };
 
-const ProceduralCity = ({ chunkX, chunkZ, roadParams }: typeChunkProps) => {
+const ProceduralCity = ({
+  chunkX,
+  chunkZ,
+  roadParams,
+  chunkData,
+}: typeChunkProps) => {
   const version = useCityStore((state) => state.version);
 
   // all the heavy math is cleanly abstracted away
-  const { buildings, roads, grass, parkingLots } = useChunkGenerator(
+  const generatedFallback = useChunkGenerator(
     chunkX,
     chunkZ,
     version,
+    !chunkData,
   );
+
+  const { buildings, roads, grass, parkingLots } =
+    chunkData || generatedFallback;
 
   return (
     <group

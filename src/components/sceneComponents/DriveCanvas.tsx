@@ -237,10 +237,12 @@ const DriveScene = () => {
       <GizmoHelper
         renderPriority={2}
         alignment="top-left"
-        margin={[60, 220]}
+        margin={[48, 210]}
         visible={showGizmo}
       >
-        <GizmoViewport disabled visible={showGizmo} />
+        <group scale={[0.9, 0.9, 0.9]}>
+          <GizmoViewport labelColor="white" visible={showGizmo} disabled />
+        </group>
       </GizmoHelper>
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar ref={carRef} spawnMode={"drive"} />

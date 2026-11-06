@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import trailFrag from "./shaders/trailFrag.glsl";
 import trailVert from "./shaders/trailVert.glsl";
@@ -27,6 +27,10 @@ const TrailEngine = ({
 }: VehicleTrailProps) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const geoRef = useRef<THREE.BufferGeometry>(null);
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
+
+  // track how long the vehicle has remained stationary
+  const stationaryCount = useRef(length);
 
   // generate 4 vertices per segment to create a 3d box
   const { positions, uvs, indices } = useMemo(() => {
@@ -100,6 +104,13 @@ const TrailEngine = ({
     [intenseColor],
   );
 
+  // synchronize material color with state changes
+  useEffect(() => {
+    if (materialRef.current) {
+      materialRef.current.uniforms.uColor.value = intenseColor;
+    }
+  }, [intenseColor]);
+
   const history = useRef<{ pos: THREE.Vector3; right: THREE.Vector3 }[]>([]);
 
   const dummyVec = useRef(new THREE.Vector3());
@@ -121,6 +132,31 @@ const TrailEngine = ({
     if (!isInitialized.current) {
       lastPos.current.copy(dummyVec.current);
       isInitialized.current = true;
+      if (meshRef.current) {
+        meshRef.current.visible = false;
+      }
+      return;
+    }
+
+    // calculate movement distance since previous frame
+    moveDeltaVec.current.copy(dummyVec.current).sub(lastPos.current);
+    const moveDistSq = moveDeltaVec.current.lengthSq();
+    lastPos.current.copy(dummyVec.current);
+
+    // skip processing if vehicle has remained stationary and trail has contracted
+    if (moveDistSq < 0.0001) {
+      if (stationaryCount.current >= length) {
+        if (meshRef.current && meshRef.current.visible) {
+          meshRef.current.visible = false;
+        }
+        return;
+      }
+      stationaryCount.current++;
+    } else {
+      stationaryCount.current = 0;
+      if (meshRef.current && !meshRef.current.visible) {
+        meshRef.current.visible = true;
+      }
     }
 
     targetRef.current.getWorldQuaternion(worldQuat.current);
@@ -132,9 +168,6 @@ const TrailEngine = ({
       .multiplyScalar(width / 2);
 
     // reverse detection math
-    moveDeltaVec.current.copy(dummyVec.current).sub(lastPos.current);
-    lastPos.current.copy(dummyVec.current);
-
     invWorldQuat.current.copy(worldQuat.current).invert();
     const localMoveZ = moveDeltaVec.current.applyQuaternion(invWorldQuat.current).z;
 
@@ -204,6 +237,7 @@ const TrailEngine = ({
       </bufferGeometry>
 
       <shaderMaterial
+        ref={materialRef}
         vertexShader={trailVert}
         fragmentShader={trailFrag}
         uniforms={uniforms}
