@@ -23,12 +23,6 @@ type GroundTileProps = {
   };
 };
 
-const sharedGroundBoxGeo = new THREE.BoxGeometry(
-  worldConstants.chunkSize,
-  worldConstants.groundHeight,
-  worldConstants.chunkSize,
-);
-
 const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
@@ -90,7 +84,14 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
         friction={2}
         position={[-halfCell, worldConstants.groundOffset, -halfCell]}
       >
-        <mesh receiveShadow geometry={sharedGroundBoxGeo}>
+        <mesh receiveShadow>
+          <boxGeometry
+            args={[
+              worldConstants.chunkSize,
+              worldConstants.groundHeight,
+              worldConstants.chunkSize,
+            ]}
+          />
           <shaderMaterial
             ref={materialRef}
             vertexShader={vertexShader}

@@ -46,6 +46,7 @@ const InstancedSubMesh = ({
 
   return (
     <instancedMesh
+      dispose={null}
       ref={meshRef}
       args={[geometry, material, instances.length]}
       castShadow
@@ -109,14 +110,11 @@ const PropSpawner = ({ roads, parkingLots = [] }: PropSpawnerProps) => {
   const { scene: fenceSmallScene } = useGLTF(propSet.fenceSmall);
   const { scene: archScene } = useGLTF(propSet.roadsideArch);
   const { scene: shrineScene } = useGLTF(propSet.shrine);
-  const { scene: lampScene } = useGLTF(propSet.lampPost);
-  const { scene: treeScene } = useGLTF(propSet.blobTree);
 
-  const { largeFences, smallFences, arches, lampPosts } = useMemo(() => {
+  const { largeFences, smallFences, arches } = useMemo(() => {
     const tempLarge: typeInstanceConfig[] = [];
     const tempSmall: typeInstanceConfig[] = [];
     const tempArches: typeInstanceConfig[] = [];
-    const tempLamps: typeInstanceConfig[] = [];
 
     const halfCell = worldConstants.cellSize / 2;
 
@@ -176,14 +174,6 @@ const PropSpawner = ({ roads, parkingLots = [] }: PropSpawnerProps) => {
           scale: [1, 1, 1],
           rotation: [0, 0, 0],
         });
-
-        // lamp post at intersection corner
-        tempLamps.push({
-          key: `lp_${road.key}`,
-          position: [physX - halfCell + 1, 0, physZ - halfCell + 1],
-          scale: [1, 1, 1],
-          rotation: [0, 0, 0],
-        });
       } else {
         // small fences straight roads
         // if there are 7 buildings on a block, there are 6 gaps between them.
@@ -240,13 +230,11 @@ const PropSpawner = ({ roads, parkingLots = [] }: PropSpawnerProps) => {
       largeFences: tempLarge,
       smallFences: tempSmall,
       arches: tempArches,
-      lampPosts: tempLamps,
     };
   }, [roads]);
 
-  const { shrines, trees } = useMemo(() => {
+  const shrines = useMemo(() => {
     const tempShrines: typeInstanceConfig[] = [];
-    const tempTrees: typeInstanceConfig[] = [];
     const halfCell = worldConstants.cellSize / 2;
 
     parkingLots.forEach((lot) => {
@@ -257,24 +245,17 @@ const PropSpawner = ({ roads, parkingLots = [] }: PropSpawnerProps) => {
       const hash = getPseudoRandom(cx, cz);
 
       // shrines in half the parking lots
-      if (hash > 0.5) {
-        tempShrines.push({
-          key: `shrine_${lot.key}`,
-          position: [cx, 2.4, cz],
-          scale: [4, 4, 4],
-          rotation: lot.rotation || [0, 0, 0],
-        });
-      } else {
-        tempTrees.push({
-          key: `tree_${lot.key}`,
-          position: [cx, 0, cz],
-          scale: [2.5, 2.5, 2.5],
-          rotation: [0, hash * Math.PI * 2, 0],
-        });
-      }
+      if (hash > 0.5) return;
+
+      tempShrines.push({
+        key: `shrine_${lot.key}`,
+        position: [cx, 2.4, cz],
+        scale: [4, 4, 4],
+        rotation: lot.rotation || [0, 0, 0],
+      });
     });
 
-    return { shrines: tempShrines, trees: tempTrees };
+    return tempShrines;
   }, [parkingLots]);
 
   return (
@@ -287,8 +268,6 @@ const PropSpawner = ({ roads, parkingLots = [] }: PropSpawnerProps) => {
       )}
       {archScene && <InstancedProp scene={archScene} instances={arches} />}
       {shrineScene && <InstancedProp scene={shrineScene} instances={shrines} />}
-      {lampScene && <InstancedProp scene={lampScene} instances={lampPosts} />}
-      {treeScene && <InstancedProp scene={treeScene} instances={trees} />}
     </group>
   );
 };
@@ -297,7 +276,5 @@ useGLTF.preload(propSet.fenceLarge);
 useGLTF.preload(propSet.fenceSmall);
 useGLTF.preload(propSet.roadsideArch);
 useGLTF.preload(propSet.shrine);
-useGLTF.preload(propSet.lampPost);
-useGLTF.preload(propSet.blobTree);
 
 export default PropSpawner;

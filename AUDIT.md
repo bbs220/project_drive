@@ -131,7 +131,7 @@ All files in `public/` are copied to `dist/` on build. The following files are u
 - [x] Added window blur listener and missing arrow / right-shift keys in `useAllVehicleInput`.
 - [x] Eliminated per-frame vector allocations in `useVehicleHelicopterCreator`, `useVehiclePlaneCreator`, `useVehicleCarCreator`, `usePlayerCreator`, and `CameraRig`.
 - [x] Converted static uniform updates in `ProceduralRain` to `useEffect`.
-- [x] Reused shared geometries in `ProceduralGrass` and `ProceduralGround`.
+- [x] Prevented WebGL buffer disposal on chunk unmount (local chunk-owned geometries in `ProceduralGrass` and `ProceduralGround`, `dispose={null}` in `PropSpawner`, and protected `sharedStarMaterial` in `ProceduralStars`).
 
 ### Phase 2: Asset & Bundle Cleanup (Completed)
 - [x] Implemented route-level code splitting using `React.lazy()` and `Suspense` in `coreRouter.tsx` (initial bundle down from 4.2 MB to 317 kB).
@@ -142,6 +142,6 @@ All files in `public/` are copied to `dist/` on build. The following files are u
 
 ### Phase 3: Persistence & Gameplay Polish (Completed)
 - [x] Enabled Zustand `persist` middleware on `useCustomizationStore` and `useUIStore`.
-- [x] Added building collision bounds via `InstancedRigidBodies` (`type="fixed"`, `colliders="cuboid"`).
-- [x] Spawned streetlights (`lampPost`) and trees (`blobTree`) along intersections and lots via `PropSpawner.tsx`.
+- [x] Reverted `InstancedRigidBodies` from dynamic chunk buildings to eliminate Rapier physics churn and WASM memory stress.
+- [x] Removed `blobTree` and `lampPost` from `PropSpawner.tsx` per user instruction.
 

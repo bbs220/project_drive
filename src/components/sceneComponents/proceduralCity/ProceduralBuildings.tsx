@@ -1,9 +1,5 @@
 import { useMemo, useRef, useLayoutEffect } from "react";
 import * as THREE from "three";
-import {
-  InstancedRigidBodies,
-  type InstancedRigidBodyProps,
-} from "@react-three/rapier";
 import buildingVert from "../shaders/buildingVert.glsl";
 import buildingFrag from "../shaders/buildingFrag.glsl";
 import type { typeInstanceConfig } from "../../../hooks/useChunkGenerator";
@@ -19,19 +15,6 @@ const ProceduralBuildings = ({
 }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const geomRef = useRef<THREE.BoxGeometry>(null);
-
-  const instances = useMemo<InstancedRigidBodyProps[]>(() => {
-    const halfCell = worldConstants.cellSize / 2;
-    return buildings.map((b) => ({
-      key: b.key,
-      position: [
-        b.position[0] - halfCell,
-        b.position[1],
-        b.position[2] - halfCell,
-      ],
-      scale: b.scale,
-    }));
-  }, [buildings]);
 
   const material = useMemo(() => {
     return new THREE.ShaderMaterial({
@@ -74,19 +57,13 @@ const ProceduralBuildings = ({
   if (buildings.length === 0) return null;
 
   return (
-    <InstancedRigidBodies
-      instances={instances}
-      colliders="cuboid"
-      type="fixed"
+    <instancedMesh
+      ref={meshRef}
+      args={[undefined, undefined, buildings.length]}
+      material={material}
     >
-      <instancedMesh
-        ref={meshRef}
-        args={[undefined, undefined, buildings.length]}
-        material={material}
-      >
-        <boxGeometry ref={geomRef} />
-      </instancedMesh>
-    </InstancedRigidBodies>
+      <boxGeometry ref={geomRef} />
+    </instancedMesh>
   );
 };
 

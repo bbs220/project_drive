@@ -9,32 +9,31 @@ import { useVehicleStore } from "../../../stores/useVehicleStore";
 
 const dummy = new THREE.Object3D();
 
-// Geometry: A 3-vertex triangle blade
-const sharedGrassGeometry = new THREE.BufferGeometry();
-const grassVertices = new Float32Array([
-  -0.15,
-  0.0,
-  0.0, // bottom left
-  0.15,
-  0.0,
-  0.0, // bottom right
-  0.0,
-  1.0,
-  0.0, // top tip
-]);
-const grassUvs = new Float32Array([0.0, 0.0, 1.0, 0.0, 0.5, 1.0]);
-sharedGrassGeometry.setAttribute(
-  "position",
-  new THREE.BufferAttribute(grassVertices, 3),
-);
-sharedGrassGeometry.setAttribute(
-  "uv",
-  new THREE.BufferAttribute(grassUvs, 2),
-);
-
 const ProceduralGrass = ({ grass }: { grass: typeInstanceConfig[] }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
+
+  // Geometry: A 3-vertex triangle blade
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    const vertices = new Float32Array([
+      -0.15,
+      0.0,
+      0.0, // bottom left
+      0.15,
+      0.0,
+      0.0, // bottom right
+      0.0,
+      1.0,
+      0.0, // top tip
+    ]);
+    const uvs = new Float32Array([0.0, 0.0, 1.0, 0.0, 0.5, 1.0]);
+
+    geo.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+    geo.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
+
+    return geo;
+  }, []);
 
   // Memoize uniforms including the new player tracking variables
   const uniforms = useMemo(() => {
@@ -92,7 +91,7 @@ const ProceduralGrass = ({ grass }: { grass: typeInstanceConfig[] }) => {
   if (grass.length === 0) return null;
 
   return (
-    <instancedMesh ref={meshRef} args={[sharedGrassGeometry, undefined, grass.length]}>
+    <instancedMesh ref={meshRef} args={[geometry, undefined, grass.length]}>
       {/* Declarative material attached as a child */}
       <shaderMaterial
         ref={materialRef}

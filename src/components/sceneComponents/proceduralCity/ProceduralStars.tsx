@@ -34,6 +34,9 @@ const sharedStarMaterial = new THREE.ShaderMaterial({
   fog: true,
 });
 
+// prevent r3f from disposing shared material on chunk unmount
+sharedStarMaterial.dispose = () => {};
+
 const StarChunk = ({
   chunkX,
   chunkZ,
