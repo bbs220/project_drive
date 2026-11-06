@@ -50,6 +50,17 @@ const localZ = new THREE.Vector3();
 const forwardVector = new THREE.Vector3();
 const moveVelocity = new THREE.Vector3();
 const angularVelocity = new THREE.Vector3();
+const localSeatOffset = new THREE.Vector3();
+const worldSeat = new THREE.Vector3();
+const seatRotationOffset = new THREE.Quaternion().setFromAxisAngle(
+  new THREE.Vector3(0, 1, 0),
+  Math.PI,
+);
+const finalSeatQuat = new THREE.Quaternion();
+const seatRot: [number, number, number, number] = [0, 0, 0, 1];
+const planeRot: [number, number, number, number] = [0, 0, 0, 1];
+const planePos: [number, number, number] = [0, 0, 0];
+const planeSeatPos: [number, number, number] = [0, 0, 0];
 
 export const useVehiclePlaneCreator = (
   chassisRef: RefObject<RapierRigidBody | null>,
@@ -294,26 +305,30 @@ export const useVehiclePlaneCreator = (
 
     // seat position and rotation socket math
     // local offset matches your constant file definition perfectly
-    const localSeatOffset = new THREE.Vector3(0, 1, -7);
-    localSeatOffset.applyQuaternion(quaternion);
-    const worldSeat = new THREE.Vector3(pos.x, pos.y, pos.z).add(
-      localSeatOffset,
-    );
+    localSeatOffset.set(0, 1, -7).applyQuaternion(quaternion);
+    worldSeat.set(pos.x, pos.y, pos.z).add(localSeatOffset);
 
     // apply a 180 degree y axis rotation to flip the player forward in the cockpit
-    const seatRotationOffset = new THREE.Quaternion().setFromAxisAngle(
-      new THREE.Vector3(0, 1, 0),
-      Math.PI,
-    );
-    const finalSeatQuat = quaternion.clone().multiply(seatRotationOffset);
+    finalSeatQuat.copy(quaternion).multiply(seatRotationOffset);
 
     // format strict rotation array for the player hook to consume
-    const seatRot: [number, number, number, number] = [
-      finalSeatQuat.x,
-      finalSeatQuat.y,
-      finalSeatQuat.z,
-      finalSeatQuat.w,
-    ];
+    seatRot[0] = finalSeatQuat.x;
+    seatRot[1] = finalSeatQuat.y;
+    seatRot[2] = finalSeatQuat.z;
+    seatRot[3] = finalSeatQuat.w;
+
+    planeRot[0] = quaternion.x;
+    planeRot[1] = quaternion.y;
+    planeRot[2] = quaternion.z;
+    planeRot[3] = quaternion.w;
+
+    planePos[0] = pos.x;
+    planePos[1] = pos.y;
+    planePos[2] = pos.z;
+
+    planeSeatPos[0] = worldSeat.x;
+    planeSeatPos[1] = worldSeat.y;
+    planeSeatPos[2] = worldSeat.z;
 
     // always broadcast full telemetry so ui and mount systems function properly
     useVehicleStore.getState().updateTelemetry(ENTITY_ID.PLANE_1, {
@@ -323,9 +338,9 @@ export const useVehiclePlaneCreator = (
       pitch: euler.x,
       roll: euler.z,
       yaw: euler.y,
-      position: [pos.x, pos.y, pos.z],
-      rotation: [quaternion.x, quaternion.y, quaternion.z, quaternion.w],
-      seatPosition: [worldSeat.x, worldSeat.y, worldSeat.z],
+      position: planePos,
+      rotation: planeRot,
+      seatPosition: planeSeatPos,
       seatRotation: seatRot,
     });
   });

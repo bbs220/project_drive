@@ -30,6 +30,9 @@ const currentPosition = new THREE.Vector3();
 
 // initialize quaternion for smooth rotational blending
 const targetQuaternion = new THREE.Quaternion();
+const defaultPlayerQuat = new THREE.Quaternion();
+const playerPosArr: [number, number, number] = [0, 0, 0];
+const playerRotArr: [number, number, number, number] = [0, 0, 0, 1];
 
 export const usePlayerCreator = (
   playerRef: RefObject<RapierRigidBody | null>,
@@ -249,15 +252,24 @@ export const usePlayerCreator = (
     playerBody.setNextKinematicRotation({ x: 0, y: 0, z: 0, w: 1 });
 
     // safely extract the raw quaternion array directly from the visual mesh
-    const quat = visualRef.current?.quaternion || new THREE.Quaternion();
+    const quat = visualRef.current?.quaternion || defaultPlayerQuat;
 
     // actual movement speed (returns 0 if standing still, otherwise walk or sprint speed)
     const actualSpeed = isMoving ? speed : 0;
 
+    playerPosArr[0] = currentPosition.x;
+    playerPosArr[1] = currentPosition.y;
+    playerPosArr[2] = currentPosition.z;
+
+    playerRotArr[0] = quat.x;
+    playerRotArr[1] = quat.y;
+    playerRotArr[2] = quat.z;
+    playerRotArr[3] = quat.w;
+
     // push the completely updated live telemetry to the global store!
     useVehicleStore.getState().updateTelemetry(ENTITY_ID.PLAYER_1, {
-      position: [currentPosition.x, currentPosition.y, currentPosition.z],
-      rotation: [quat.x, quat.y, quat.z, quat.w],
+      position: playerPosArr,
+      rotation: playerRotArr,
       speed: actualSpeed,
       isGrounded: isGrounded,
     });

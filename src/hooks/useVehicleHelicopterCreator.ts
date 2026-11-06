@@ -40,6 +40,17 @@ const targetQuat = new THREE.Quaternion();
 const yawQuat = new THREE.Quaternion();
 const moveDir = new THREE.Vector3();
 const globalUp = new THREE.Vector3(0, 1, 0);
+const localSeatOffset = new THREE.Vector3();
+const worldSeat = new THREE.Vector3();
+const seatRotationOffset = new THREE.Quaternion().setFromAxisAngle(
+  globalUp,
+  Math.PI,
+);
+const finalSeatQuat = new THREE.Quaternion();
+const seatRot: [number, number, number, number] = [0, 0, 0, 1];
+const heliRot: [number, number, number, number] = [0, 0, 0, 1];
+const heliPos: [number, number, number] = [0, 0, 0];
+const heliSeatPos: [number, number, number] = [0, 0, 0];
 
 export const useVehicleHelicopterCreator = (
   chassisRef: RefObject<RapierRigidBody | null>,
@@ -221,24 +232,27 @@ export const useVehicleHelicopterCreator = (
       linvel.x * linvel.x + linvel.y * linvel.y + linvel.z * linvel.z,
     );
 
-    const localSeatOffset = new THREE.Vector3(0, -0.6, -5);
-    localSeatOffset.applyQuaternion(quaternion);
-    const worldSeat = new THREE.Vector3(pos.x, pos.y, pos.z).add(
-      localSeatOffset,
-    );
+    localSeatOffset.set(0, -0.6, -5).applyQuaternion(quaternion);
+    worldSeat.set(pos.x, pos.y, pos.z).add(localSeatOffset);
+    finalSeatQuat.copy(quaternion).multiply(seatRotationOffset);
 
-    const seatRotationOffset = new THREE.Quaternion().setFromAxisAngle(
-      globalUp,
-      Math.PI,
-    );
-    const finalSeatQuat = quaternion.clone().multiply(seatRotationOffset);
+    seatRot[0] = finalSeatQuat.x;
+    seatRot[1] = finalSeatQuat.y;
+    seatRot[2] = finalSeatQuat.z;
+    seatRot[3] = finalSeatQuat.w;
 
-    const seatRot: [number, number, number, number] = [
-      finalSeatQuat.x,
-      finalSeatQuat.y,
-      finalSeatQuat.z,
-      finalSeatQuat.w,
-    ];
+    heliRot[0] = quaternion.x;
+    heliRot[1] = quaternion.y;
+    heliRot[2] = quaternion.z;
+    heliRot[3] = quaternion.w;
+
+    heliPos[0] = pos.x;
+    heliPos[1] = pos.y;
+    heliPos[2] = pos.z;
+
+    heliSeatPos[0] = worldSeat.x;
+    heliSeatPos[1] = worldSeat.y;
+    heliSeatPos[2] = worldSeat.z;
 
     useVehicleStore.getState().updateTelemetry(ENTITY_ID.HELI_1, {
       airspeed: Math.round(currentSpeed * 3.6),
@@ -248,9 +262,9 @@ export const useVehicleHelicopterCreator = (
       pitch: euler.x,
       roll: euler.z,
       yaw: euler.y,
-      position: [pos.x, pos.y, pos.z],
-      rotation: [quaternion.x, quaternion.y, quaternion.z, quaternion.w],
-      seatPosition: [worldSeat.x, worldSeat.y, worldSeat.z],
+      position: heliPos,
+      rotation: heliRot,
+      seatPosition: heliSeatPos,
       seatRotation: seatRot,
     });
   });
