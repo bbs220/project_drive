@@ -23,6 +23,9 @@ export type typeChunkGeneratedData = {
   parkingLots: typeInstanceConfig[];
 };
 
+// reuse static rotation array to avoid millions of allocations
+const defaultZeroRotation: [number, number, number] = [0, 0, 0];
+
 // deterministic pseudorandom calculation
 const getPseudoRandom = (x: number, z: number) => {
   return Math.abs(Math.sin(x * 12.9898 + z * 78.233) * 43758.5453) % 1;
@@ -49,6 +52,18 @@ export const generateChunkData = (
 
   const blockSize = generatorState.blockSize;
   const roadWidth = generatorState.roadWidth;
+
+  // cache terrain queries to prevent thousands of duplicate simplex noise calls
+  const terrainCache = new Map<string, ReturnType<typeof getTerrainData>>();
+  const getCachedTerrain = (tx: number, tz: number) => {
+    const k = `${tx}_${tz}`;
+    let res = terrainCache.get(k);
+    if (!res) {
+      res = getTerrainData(tx, tz);
+      terrainCache.set(k, res);
+    }
+    return res;
+  };
 
   // all of this just to not rely on a magic number
   const buildableCells = (blockSize - roadWidth) / cellSize;
@@ -79,7 +94,7 @@ export const generateChunkData = (
     const worldX = point.x - halfChunk + worldOffsetX;
     const worldZ = point.y - halfChunk + worldOffsetZ;
 
-    const data = getTerrainData(worldX, worldZ);
+    const data = getCachedTerrain(worldX, worldZ);
 
     if (data.type === "empty") {
       const patchRand = getPseudoRandom(worldX, worldZ);
@@ -129,7 +144,7 @@ export const generateChunkData = (
           key: `v${version}_grass_${worldX}_${worldZ}_${i}`,
           position: [localX, 0, localZ],
           scale: [scaleXZ, scaleY, scaleXZ],
-          rotation: [0, 0, 0],
+          rotation: defaultZeroRotation,
         });
       }
     }
@@ -140,7 +155,7 @@ export const generateChunkData = (
     for (let z = -halfChunk + halfCell; z < halfChunk; z += cellSize) {
       const worldX = x + worldOffsetX;
       const worldZ = z + worldOffsetZ;
-      const data = getTerrainData(worldX, worldZ);
+      const data = getCachedTerrain(worldX, worldZ);
       const key = `v${version}_${worldX}_${worldZ}`;
 
       // modulus math to find good lots
@@ -159,10 +174,10 @@ export const generateChunkData = (
         let isDeadEnd = false;
         let archRotation: [number, number, number] = [0, 0, 0];
 
-        const n = getTerrainData(worldX, worldZ - cellSize).type === "road";
-        const s = getTerrainData(worldX, worldZ + cellSize).type === "road";
-        const e = getTerrainData(worldX + cellSize, worldZ).type === "road";
-        const w = getTerrainData(worldX - cellSize, worldZ).type === "road";
+        const n = getCachedTerrain(worldX, worldZ - cellSize).type === "road";
+        const s = getCachedTerrain(worldX, worldZ + cellSize).type === "road";
+        const e = getCachedTerrain(worldX + cellSize, worldZ).type === "road";
+        const w = getCachedTerrain(worldX - cellSize, worldZ).type === "road";
 
         const hasVerticalNeighbor = n || s;
         const hasHorizontalNeighbor = e || w;
@@ -199,13 +214,13 @@ export const generateChunkData = (
         // parking lot math
         if (modX === centerOffset && modZ === centerOffset) {
           const nBlock =
-            getTerrainData(worldX, worldZ - blockSize).type === "building";
+            getCachedTerrain(worldX, worldZ - blockSize).type === "building";
           const sBlock =
-            getTerrainData(worldX, worldZ + blockSize).type === "building";
+            getCachedTerrain(worldX, worldZ + blockSize).type === "building";
           const eBlock =
-            getTerrainData(worldX + blockSize, worldZ).type === "building";
+            getCachedTerrain(worldX + blockSize, worldZ).type === "building";
           const wBlock =
-            getTerrainData(worldX - blockSize, worldZ).type === "building";
+            getCachedTerrain(worldX - blockSize, worldZ).type === "building";
 
           if (nBlock && sBlock && eBlock && wBlock) {
             tempParking.push({
