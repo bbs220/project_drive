@@ -128,7 +128,7 @@ All files in `public/` are copied to `dist/` on build. The following files are u
 - [x] Decoupled telemetry updates from reactive Zustand state in `AllVehiclesHUD` (direct RAF updates, 0 per-frame React re-renders).
 - [x] Stripped `computeVertexNormals()` and reused vector objects in `TrailEngine` (0 allocations per frame).
 - [x] Added stationary and inactive vehicle trail culling in `TrailEngine` (skips buffer updates, matrix transforms, and hides mesh after contraction).
-- [x] Offloaded procedural chunk generation math (Poisson disk sampling, building heights, grass blade placement, road adjacency) to `chunk.worker.ts` with LRU/memory chunk caching.
+- [x] Optimized procedural chunk generation with local terrain noise caching, static vector reuse, and chunk memory caching (avoiding structured-clone worker serialization overhead).
 - [x] Fixed `uPlayerPos` uniform in `ProceduralGrass` (active player/vehicle coordinates fed into shader).
 - [x] Added window blur listener and missing arrow / right-shift keys in `useAllVehicleInput`.
 - [x] Eliminated per-frame vector allocations in `useVehicleHelicopterCreator`, `useVehiclePlaneCreator`, `useVehicleCarCreator`, `usePlayerCreator`, and `CameraRig`.

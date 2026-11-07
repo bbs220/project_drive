@@ -209,7 +209,6 @@ const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
             chunkX={c.chunkX}
             chunkZ={c.chunkZ}
             roadParams={roadParams}
-            chunkData={c.data}
           />
         </group>
       ))}
