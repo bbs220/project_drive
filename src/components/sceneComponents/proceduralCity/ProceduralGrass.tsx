@@ -5,6 +5,7 @@ import { worldConstants } from "../../../utils/worldGenerator";
 import grassVert from "../shaders/grassVert.glsl";
 import grassFrag from "../shaders/grassFrag.glsl";
 import type { typeInstanceConfig } from "../../../hooks/useChunkGenerator";
+import { useVehicleStore } from "../../../stores/useVehicleStore";
 
 const dummy = new THREE.Object3D();
 
@@ -74,8 +75,16 @@ const ProceduralGrass = ({ grass }: { grass: typeInstanceConfig[] }) => {
     if (materialRef.current) {
       materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
 
-      // TODO: Feed your actual vehicle/player world position here!
-      materialRef.current.uniforms.uPlayerPos.value.set(0, 0, 0);
+      // feed active vehicle or character world coordinates into grass trampling uniform
+      const vehicleState = useVehicleStore.getState();
+      const activeTel = vehicleState.telemetry[vehicleState.active.entity];
+      if (activeTel?.position) {
+        materialRef.current.uniforms.uPlayerPos.value.set(
+          activeTel.position[0],
+          activeTel.position[1],
+          activeTel.position[2],
+        );
+      }
     }
   });
 

@@ -46,6 +46,7 @@ const InstancedSubMesh = ({
 
   return (
     <instancedMesh
+      dispose={null}
       ref={meshRef}
       args={[geometry, material, instances.length]}
       castShadow

@@ -64,7 +64,8 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
   const currentPosition = useRef(new THREE.Vector3());
 
   // dummy vector to extract world data without memory leaks
-  const dummyTarget = new THREE.Vector3();
+  const dummyTarget = useRef(new THREE.Vector3());
+  const idealPosition = useRef(new THREE.Vector3());
 
   // handle pointer lock and raw mouse inputs exclusively when not debugging
   useEffect(() => {
@@ -152,25 +153,25 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
     spherical.current.radius = baseRadius.current + boostOffset.current;
 
     // set the exact local coordinates we want to focus on
-    dummyTarget.set(
+    dummyTarget.current.set(
       0,
       params.heightOffset as number,
       params.forwardOffset as number,
     );
 
     // flawlessly convert those local coordinates into true world space
-    targetRef.current.localToWorld(dummyTarget);
+    targetRef.current.localToWorld(dummyTarget.current);
 
     // smoothly lerp the invisible target point so the camera catches up organically
-    lookAtTarget.current.lerp(dummyTarget, params.smoothness as number);
+    lookAtTarget.current.lerp(dummyTarget.current, params.smoothness as number);
 
     // convert the spherical math into true world coordinates relative to the vehicle
-    const idealPosition = new THREE.Vector3()
+    idealPosition.current
       .setFromSpherical(spherical.current)
       .add(lookAtTarget.current);
 
     // smoothly drag the actual physical camera toward the ideal mathematical position
-    currentPosition.current.lerp(idealPosition, params.smoothness as number);
+    currentPosition.current.lerp(idealPosition.current, params.smoothness as number);
 
     // apply the final calculated matrix directly to the camera
     camera.position.copy(currentPosition.current);

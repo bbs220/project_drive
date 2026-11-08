@@ -1,4 +1,4 @@
-import { useCityStore } from "../../../stores/useCItyStore";
+import { useCityStore } from "../../../stores/useCityStore";
 import { worldConstants } from "../../../utils/worldGenerator";
 import ProceduralBuildings from "./ProceduralBuildings";
 import ProceduralRoads from "./ProceduralRoads";

@@ -3,13 +3,23 @@ import {
   syncGeneratorParams,
 } from "../../../../utils/worldGenerator";
 
+export type typeActiveChunk = {
+  chunkX: number;
+  chunkZ: number;
+};
+
+export type typeSkyChunk = {
+  chunkX: number;
+  chunkZ: number;
+};
+
 // function will eventually hold your heavy noise math and matrix calculations
 const generateChunkGrid = (
   centerX: number,
   centerZ: number,
   radius: number,
-) => {
-  const chunks = [];
+): typeActiveChunk[] => {
+  const chunks: typeActiveChunk[] = [];
   for (let x = -radius; x <= radius; x++) {
     for (let z = -radius; z <= radius; z++) {
       // generate building matrices and grass positions right here

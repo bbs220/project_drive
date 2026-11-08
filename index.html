@@ -24,6 +24,7 @@
       type="font/woff2"
       crossorigin
     />
+    <link rel="stylesheet" href="/src/index.css" />
     <meta
       name="description"
       content="Modern, web-based 3D multi-vehicle simulation."
@@ -75,14 +76,63 @@
   </head>
   <body>
     <div id="root">
-      <main style="background-color: #050505; color: #00f3ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: sans-serif; padding: 2rem;">
-        <h1 style="font-size: 2.5rem; letter-spacing: 0.15em; margin-bottom: 0.75rem;">NEON DRIVES</h1>
-        <p style="color: #39ff14; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 2rem;">Procedural City &amp; Multi-Vehicle Sandbox</p>
-        <nav style="display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;">
-          <a href="/drive" style="color: #ff00ff; border: 1px solid #ff00ff; padding: 0.75rem 1.5rem; text-decoration: none; font-weight: bold;">[ DRIVE ]</a>
-          <a href="/garage" style="color: #00f3ff; border: 1px solid #00f3ff; padding: 0.75rem 1.5rem; text-decoration: none; font-weight: bold;">[ GARAGE ]</a>
-          <a href="/copyright" style="color: #fff; padding: 0.75rem; text-decoration: underline;">Copyright</a>
+      <main id="main-content" class="relative flex min-h-dvh w-screen flex-col items-center justify-center p-6 bg-tron-bg bg-[linear-gradient(rgba(0,243,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,243,255,0.03)_1px,transparent_1px)] bg-size-[40px_40px] select-none overflow-hidden">
+        <div class="pointer-events-none absolute left-1/2 top-1/2 h-72 w-72 md:h-125 md:w-125 -translate-x-1/2 -translate-y-1/2 bg-tron-magenta/10 blur-[90px] md:blur-[120px]"></div>
+
+        <header class="relative z-10 mb-10 md:mb-16 flex flex-col items-center text-center px-4">
+          <h1 class="mb-3 md:mb-4 font-telemetry text-4xl sm:text-6xl md:text-8xl font-bold tracking-widest text-tron-cyan [text-shadow:0_0_15px_var(--color-tron-cyan)]">
+            NEON DRIVES
+          </h1>
+          <p class="font-label text-xs sm:text-base md:text-2xl tracking-[0.2em] md:tracking-[0.3em] text-tron-lime uppercase [text-shadow:0_0_8px_var(--color-tron-lime)]">
+            procedural city &amp; multi-vehicle sandbox
+          </p>
+        </header>
+
+        <nav aria-label="Main navigation" class="relative z-10 flex flex-col items-center gap-6 sm:gap-8 md:flex-row md:gap-16 w-full max-w-xl justify-center">
+          <div class="flex flex-col items-center gap-2 md:gap-4 w-full sm:w-auto">
+            <a href="/drive" class="group relative flex w-56 sm:w-64 cursor-pointer items-center justify-center overflow-hidden border border-tron-magenta bg-transparent py-4 md:py-5 shadow-neon-magenta transition-all duration-500 ease-out hover:scale-105 hover:bg-tron-magenta">
+              <span class="absolute left-0 top-0 z-20 h-full w-2 bg-tron-cyan transition-colors duration-500 group-hover:bg-tron-bg"></span>
+              <span class="relative z-10 font-telemetry text-lg md:text-xl font-black tracking-[0.4em] text-tron-magenta transition-colors duration-500 group-hover:text-tron-bg">[ DRIVE ]</span>
+              <span class="absolute right-3 top-3 z-20 h-2 w-2 bg-tron-cyan transition-colors duration-500 group-hover:bg-tron-bg"></span>
+            </a>
+            <p class="font-label text-[10px] md:text-xs tracking-[0.2em] text-tron-magenta/70 uppercase">
+              explore the open world
+            </p>
+          </div>
+
+          <div class="flex flex-col items-center gap-2 md:gap-4 w-full sm:w-auto">
+            <a href="/garage" class="group relative flex w-56 sm:w-64 cursor-pointer items-center justify-center overflow-hidden border border-tron-cyan bg-transparent py-4 md:py-5 shadow-neon-cyan transition-all duration-500 ease-out hover:scale-105 hover:bg-tron-cyan">
+              <span class="absolute left-0 top-0 z-20 h-full w-2 bg-tron-magenta transition-colors duration-500 group-hover:bg-tron-bg"></span>
+              <span class="relative z-10 font-telemetry text-lg md:text-xl font-black tracking-[0.4em] text-tron-cyan transition-colors duration-500 group-hover:text-tron-bg">[ GARAGE ]</span>
+              <span class="absolute right-3 top-3 z-20 h-2 w-2 bg-tron-magenta transition-colors duration-500 group-hover:bg-tron-bg"></span>
+            </a>
+            <p class="font-label text-[10px] md:text-xs tracking-[0.2em] text-tron-cyan/70 uppercase">
+              customize your vehicles
+            </p>
+          </div>
         </nav>
+
+        <footer class="fixed bottom-4 flex w-full items-center justify-center gap-4 px-4 select-none">
+          <div class="flex items-center gap-1 text-tron-lime font-telemetry text-[10px] md:text-xs">
+            <svg class="h-4 w-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Note: <span class="text-white font-thin">Desktop only</span>
+          </div>
+          <div class="h-6 w-0.5 bg-tron-lime/70"></div>
+          <div class="font-telemetry text-[10px] md:text-xs tracking-widest text-white hover:text-tron-yellow">
+            <a href="https://github.com/bbs220/project_drive" target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub (opens in a new tab)" class="hover:underline focus:outline-none">
+              Source Code
+            </a>
+          </div>
+          <div class="h-6 w-0.5 bg-tron-lime/70"></div>
+          <div class="font-telemetry text-[10px] md:text-xs tracking-widest text-white">
+            ( v 0.1.alpha )
+          </div>
+          <div class="h-6 w-0.5 bg-tron-lime/70"></div>
+          <a href="/copyright" class="font-telemetry text-[10px] md:text-xs tracking-widest text-white flex justify-center items-center">
+            <svg class="text-yellow-300 mr-2 size-4" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M14.83 14.83a4 4 0 1 1 0-5.66"/></svg>
+            Copyright
+          </a>
+        </footer>
       </main>
     </div>
     <script type="module" src="/src/main.tsx"></script>

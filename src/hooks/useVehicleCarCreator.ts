@@ -22,6 +22,14 @@ const up = new THREE.Vector3(0, 1, 0);
 // define quaternions for steering and rotation
 const _wheelSteeringQuat = new THREE.Quaternion();
 const _wheelRotationQuat = new THREE.Quaternion();
+const _localSeatOffset = new THREE.Vector3();
+const _worldSeat = new THREE.Vector3();
+const _flipOffset = new THREE.Quaternion().setFromAxisAngle(up, Math.PI);
+const _invertedQuat = new THREE.Quaternion();
+const _carRot: [number, number, number, number] = [0, 0, 0, 1];
+const _pureCarRot: [number, number, number, number] = [0, 0, 0, 1];
+const _carPos: [number, number, number] = [0, 0, 0];
+const _carSeatPos: [number, number, number] = [0, 0, 0];
 
 // define wheel info structure
 export type typeWheelInfo = {
@@ -425,55 +433,53 @@ export const useVehicleCarCreator = (
     const speedKmh = Math.round(groundSpeedMs * 3.6);
 
     // seat position and rotation math
-    const localSeatOffset = new THREE.Vector3(0.4, 0.8, -0.5);
+    _localSeatOffset.set(0.4, 0.8, -0.5);
 
     // apply the car current physical rotation to the offset
-    localSeatOffset.applyQuaternion(chassisQuat);
+    _localSeatOffset.applyQuaternion(chassisQuat);
 
     // add the car world position to get the true 3d coordinate of the seat
-    const worldSeat = new THREE.Vector3(pos.x, pos.y, pos.z).add(
-      localSeatOffset,
-    );
+    _worldSeat.set(pos.x, pos.y, pos.z).add(_localSeatOffset);
 
     // format the exact car rotation as a strict array for the store with an inverted offset
-    const flipOffset = new THREE.Quaternion().setFromAxisAngle(
-      new THREE.Vector3(0, 1, 0),
-      Math.PI,
-    );
-    const invertedQuat = chassisQuat.clone().multiply(flipOffset);
+    _invertedQuat.copy(chassisQuat).multiply(_flipOffset);
 
     // format the flipped car rotation as a strict array for the store
-    const carRot: [number, number, number, number] = [
-      invertedQuat.x,
-      invertedQuat.y,
-      invertedQuat.z,
-      invertedQuat.w,
-    ];
+    _carRot[0] = _invertedQuat.x;
+    _carRot[1] = _invertedQuat.y;
+    _carRot[2] = _invertedQuat.z;
+    _carRot[3] = _invertedQuat.w;
 
     // format the pure unflipped car rotation for the seat so the player faces forward
-    const pureCarRot: [number, number, number, number] = [
-      chassisQuat.x,
-      chassisQuat.y,
-      chassisQuat.z,
-      chassisQuat.w,
-    ];
+    _pureCarRot[0] = chassisQuat.x;
+    _pureCarRot[1] = chassisQuat.y;
+    _pureCarRot[2] = chassisQuat.z;
+    _pureCarRot[3] = chassisQuat.w;
+
+    _carPos[0] = pos.x;
+    _carPos[1] = pos.y;
+    _carPos[2] = pos.z;
+
+    _carSeatPos[0] = _worldSeat.x;
+    _carSeatPos[1] = _worldSeat.y;
+    _carSeatPos[2] = _worldSeat.z;
 
     // update physics state variables if actively driving but always broadcast position and seat
     if (active.control === CONTROL_STATE.CAR) {
       useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
         speed: speedKmh,
-        position: [pos.x, pos.y, pos.z],
-        rotation: carRot,
-        seatPosition: [worldSeat.x, worldSeat.y, worldSeat.z],
-        seatRotation: pureCarRot,
+        position: _carPos,
+        rotation: _carRot,
+        seatPosition: _carSeatPos,
+        seatRotation: _pureCarRot,
       });
     } else {
       // if empty only broadcast the coordinates so the player knows where to walk or sit
       useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
-        position: [pos.x, pos.y, pos.z],
-        rotation: carRot,
-        seatPosition: [worldSeat.x, worldSeat.y, worldSeat.z],
-        seatRotation: pureCarRot,
+        position: _carPos,
+        rotation: _carRot,
+        seatPosition: _carSeatPos,
+        seatRotation: _pureCarRot,
       });
     }
 

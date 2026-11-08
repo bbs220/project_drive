@@ -27,7 +27,7 @@ const EQ_BARS = [
 
 const RadioHUD = () => {
   const [trackIndex, setTrackIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // bring in the ui sound hook for our media buttons
   const { playClick } = useUISounds();

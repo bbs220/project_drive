@@ -10,8 +10,9 @@ import {
 import ProceduralStars from "./ProceduralStars";
 import ProceduralClouds from "./ProceduralClouds";
 import ChunkWorker from "./worker/chunk.worker?worker";
-import { useCityStore } from "../../../stores/useCItyStore";
+import { useCityStore } from "../../../stores/useCityStore";
 import ProceduralRain from "./ProceduralRain";
+import type { typeActiveChunk, typeSkyChunk } from "./worker/chunk.worker";
 
 type typeChunkManagerProps = {
   targetRef: React.RefObject<THREE.Group | null>;
@@ -33,7 +34,11 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
   const currentCenter = useRef({ x: 0, z: 0 });
   const workerRef = useRef<Worker | null>(null);
 
-  const [chunkData, setChunkData] = useState({
+  const [chunkData, setChunkData] = useState<{
+    activeChunks: typeActiveChunk[];
+    skyChunks: typeSkyChunk[];
+    centerChunk: { x: number; z: number };
+  }>({
     activeChunks: [],
     skyChunks: [],
     centerChunk: { x: 0, z: 0 },
@@ -68,6 +73,7 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
       centerZ: currentCenter.current.z,
       chunkRadius,
       seed,
+      version,
     });
   }, [chunkRadius, seed, version]); // react automatically fires this when regenerateCity is called
 
@@ -95,6 +101,7 @@ const ChunkManager = ({ targetRef }: typeChunkManagerProps) => {
         centerZ: currentZ,
         chunkRadius,
         seed,
+        version,
       });
     }
   });
