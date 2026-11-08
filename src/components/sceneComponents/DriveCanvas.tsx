@@ -28,7 +28,7 @@ import PostprocessingEffects from "./PostprocessingEffects";
 import ChunkManager from "./proceduralCity/ChunkManager";
 import Player from "./Player";
 import { useMountSystem } from "../../hooks/useMountSystem";
-import MiniMap from "../MiniMap";
+import MiniMap, { MiniMapFBO } from "../MiniMap";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 
 const DriveScene = () => {
@@ -284,6 +284,7 @@ const DriveCanvas = () => {
           <DriveScene />
         </Physics>
         <PostprocessingEffects />
+        <MiniMapFBO />
       </Canvas>
     </>
   );

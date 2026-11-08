@@ -101,10 +101,10 @@ All files in `public/` are copied to `dist/` on build. The following files are u
 - **Issue**: Only `useAppStore.ts` uses Zustand's `persist` middleware. Vehicle paint, neon colors, material settings, audio volume levels, and HUD visibility toggles are lost on page refresh.
 - **Solution**: Wrap both stores with `persist(..., { name: "neon_..." })`.
 
-### 4.2 Dual WebGL Contexts
-- **Location**: `src/components/MiniMap.tsx:448-459`
-- **Issue**: `MiniMap` mounts a second independent `<Canvas>`, doubling WebGL context overhead and increasing risk of context loss on mobile or lower-end GPUs.
-- **Solution**: Render mini-map via an offscreen render target (FBO) within the main canvas or render using a 2D canvas context.
+### 4.2 Dual WebGL Contexts (Resolved)
+- **Location**: `src/components/MiniMap.tsx`, `src/components/sceneComponents/DriveCanvas.tsx`
+- **Issue**: `MiniMap` previously mounted a second independent `<Canvas>`, doubling WebGL context overhead.
+- **Resolution**: Migrated to offscreen `WebGLRenderTarget` (FBO) within the primary Canvas, blitting to a screen quad via viewport/scissor with dynamic bounding-rect tracking and SDF rounded corners.
 
 ### 4.3 Dead Code Cleanup
 - **Location**: `src/utils/Delaunay.ts`
@@ -146,4 +146,5 @@ All files in `public/` are copied to `dist/` on build. The following files are u
 - [x] Kept stores non-persistent to avoid stale/corrupted localStorage rehydration.
 - [x] Reverted `InstancedRigidBodies` from dynamic chunk buildings to eliminate Rapier physics churn and WASM memory stress.
 - [x] Removed `blobTree` and `lampPost` from `PropSpawner.tsx` per user instruction.
+- [x] Eliminated secondary WebGL context via MiniMap FBO render target and viewport scissor pass with dynamic resize tracking.
 

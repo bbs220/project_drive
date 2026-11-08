@@ -1,7 +1,7 @@
 import { useEffect, useRef, useMemo } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useUIStore } from "../stores/useUIStore";
 import { useAllVehicleInput } from "../hooks/useAllVehicleInput";
@@ -18,6 +18,7 @@ import mapFrag from "./sceneComponents/shaders/mapFrag.glsl";
 import mapVert from "./sceneComponents/shaders/mapVert.glsl";
 import { useCityStore } from "../stores/useCityStore";
 import { SimplexNoise } from "../utils/SimplexNoise";
+import { minimapState } from "../utils/minimapState";
 
 type ProceduralMapParams = {
   fullMapZoom: number;
@@ -33,23 +34,46 @@ type ProceduralMapParams = {
   edgeIconScale: number;
 };
 
-type typeProceduralMapProps = {
-  isExpandedRef: React.RefObject<boolean>;
-  params: ProceduralMapParams;
-  northRef: React.RefObject<HTMLDivElement | null>;
-  permTexture: THREE.DataTexture;
-};
+// screen quad vertex shader
+const screenQuadVert = `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = vec4(position, 1.0);
+}
+`;
 
-const ProceduralMapShader = ({
-  isExpandedRef,
-  params,
-  northRef,
-  permTexture,
-}: typeProceduralMapProps) => {
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
+// screen quad fragment shader with rounded corner sdf
+const screenQuadFrag = `
+uniform sampler2D uTexture;
+uniform vec2 uResolution;
+uniform float uRadius;
+varying vec2 vUv;
+
+float roundedBoxSDF(vec2 p, vec2 b, float r) {
+  vec2 q = abs(p) - b + vec2(r);
+  return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - r;
+}
+
+void main() {
+  vec2 p = (vUv - 0.5) * uResolution;
+  vec2 halfSize = 0.5 * uResolution;
+  float dist = roundedBoxSDF(p, halfSize, uRadius);
+  float alpha = 1.0 - smoothstep(0.0, 1.0, dist);
+  if (alpha <= 0.0) discard;
+  vec4 col = texture2D(uTexture, vUv);
+  gl_FragColor = vec4(col.rgb, col.a * alpha);
+}
+`;
+
+export const MiniMapFBO = () => {
+  const citySeed = useCityStore((state) => state.seed);
 
   const dummyQ = useMemo(() => new THREE.Quaternion(), []);
   const dummyE = useMemo(() => new THREE.Euler(0, 0, 0, "YXZ"), []);
+
+  const mapMaterialRef = useRef<THREE.ShaderMaterial>(null);
+  const screenMaterialRef = useRef<THREE.ShaderMaterial>(null);
 
   const icons = useMemo(() => {
     const loader = new THREE.TextureLoader();
@@ -60,6 +84,51 @@ const ProceduralMapShader = ({
       ]),
     );
   }, []);
+
+  // pack perm array into texture
+  const permTexture = useMemo(() => {
+    // local instance guaranteed to match the global seed
+    const localSimplex = new SimplexNoise(citySeed);
+
+    const data = new Uint8Array(512 * 4);
+    for (let i = 0; i < 512; i++) {
+      // map from the local instance
+      data[i * 4] = localSimplex.perm[i];
+      data[i * 4 + 1] = 0;
+      data[i * 4 + 2] = 0;
+      data[i * 4 + 3] = 255;
+    }
+    const tex = new THREE.DataTexture(data, 512, 1, THREE.RGBAFormat);
+
+    // prevent WebGL from blurring the exact array values
+    tex.magFilter = THREE.NearestFilter;
+    tex.minFilter = THREE.NearestFilter;
+    tex.needsUpdate = true;
+    return tex;
+    // re-run whenever the seed changes
+  }, [citySeed]);
+
+  const params: ProceduralMapParams = useTweakpane(
+    { title: "🗺️ Minimap", expanded: false },
+    {
+      miniMapZoom: { value: 680, min: 50, max: 5000, label: "walk zoom" },
+      fullMapZoom: { value: 2200, min: 50, max: 10000, label: "full map zoom" },
+      zoomLerpSpeed: { value: 0.1, min: 0.01, max: 1, label: "zoom speed" },
+      speedZoomMult: { value: 8.0, min: 1, max: 50, label: "speed mult" },
+      carMinZoom: { value: 680, min: 50, max: 5000, label: "car min z" },
+      carMaxZoom: { value: 1000, min: 50, max: 10000, label: "car max z" },
+      heliMinZoom: { value: 680, min: 50, max: 8000, label: "heli min z" },
+      heliMaxZoom: { value: 1000, min: 50, max: 15000, label: "heli max z" },
+      planeMinZoom: { value: 680, min: 50, max: 10000, label: "plane min z" },
+      planeMaxZoom: { value: 1000, min: 50, max: 20000, label: "plane max z" },
+      edgeIconScale: {
+        value: 0.8,
+        min: 0.1,
+        max: 1.0,
+        label: "edge icon scale",
+      },
+    },
+  );
 
   const uniforms = useMemo(
     () => ({
@@ -95,19 +164,116 @@ const ProceduralMapShader = ({
     [icons, permTexture],
   );
 
-  useFrame((state) => {
-    if (!materialRef.current) return;
+  const offscreenScene = useMemo(() => new THREE.Scene(), []);
+  const offscreenCamera = useMemo(
+    () => new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1),
+    [],
+  );
 
-    materialRef.current.uniforms.uResolution.value.set(
-      state.size.width,
-      state.size.height,
-    );
-    materialRef.current.uniforms.uAspect.value =
-      state.size.width / state.size.height;
-    materialRef.current.uniforms.uEdgeIconScale.value = params.edgeIconScale;
+  useEffect(() => {
+    const mat = new THREE.ShaderMaterial({
+      uniforms,
+      depthWrite: false,
+      depthTest: false,
+      transparent: true,
+      vertexShader: mapVert,
+      fragmentShader: mapFrag,
+    });
+    mapMaterialRef.current = mat;
+
+    const geo = new THREE.PlaneGeometry(2, 2);
+    const mesh = new THREE.Mesh(geo, mat);
+    offscreenScene.add(mesh);
+
+    return () => {
+      offscreenScene.remove(mesh);
+      geo.dispose();
+      mat.dispose();
+      mapMaterialRef.current = null;
+    };
+  }, [offscreenScene, uniforms]);
+
+  const fbo = useMemo(
+    () =>
+      new THREE.WebGLRenderTarget(240, 240, {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.LinearFilter,
+        format: THREE.RGBAFormat,
+      }),
+    [],
+  );
+
+  useEffect(() => {
+    return () => {
+      fbo.dispose();
+    };
+  }, [fbo]);
+
+  const screenScene = useMemo(() => new THREE.Scene(), []);
+  const screenCamera = useMemo(
+    () => new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1),
+    [],
+  );
+
+  useEffect(() => {
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: { value: fbo.texture },
+        uResolution: { value: new THREE.Vector2(240, 240) },
+        uRadius: { value: 16.0 },
+      },
+      vertexShader: screenQuadVert,
+      fragmentShader: screenQuadFrag,
+      depthWrite: false,
+      depthTest: false,
+      transparent: true,
+    });
+    screenMaterialRef.current = mat;
+
+    const geo = new THREE.PlaneGeometry(2, 2);
+    const mesh = new THREE.Mesh(geo, mat);
+    screenScene.add(mesh);
+
+    return () => {
+      screenScene.remove(mesh);
+      geo.dispose();
+      mat.dispose();
+      screenMaterialRef.current = null;
+    };
+  }, [screenScene, fbo]);
+
+  useFrame((state) => {
+    const showMap = useUIStore.getState().showMap;
+    if (!showMap) return;
+
+    const wrapper = minimapState.wrapperElement;
+    if (!wrapper) return;
+
+    const rect = wrapper.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+
+    const mapMat = mapMaterialRef.current;
+    const screenMat = screenMaterialRef.current;
+    if (!mapMat || !screenMat) return;
+
+    const gl = state.gl;
+    const dpr = gl.getPixelRatio();
+
+    const pixelWidth = Math.max(1, Math.round(rect.width * dpr));
+    const pixelHeight = Math.max(1, Math.round(rect.height * dpr));
+    const pixelLeft = Math.round(rect.left * dpr);
+    const pixelBottom = Math.round((window.innerHeight - rect.bottom) * dpr);
+
+    if (fbo.width !== pixelWidth || fbo.height !== pixelHeight) {
+      fbo.setSize(pixelWidth, pixelHeight);
+    }
+
+    mapMat.uniforms.uResolution.value.set(pixelWidth, pixelHeight);
+    mapMat.uniforms.uAspect.value = pixelWidth / pixelHeight;
+    mapMat.uniforms.uEdgeIconScale.value = params.edgeIconScale;
 
     dummyE.setFromQuaternion(state.camera.quaternion, "YXZ");
-    materialRef.current.uniforms.uActiveYaw.value = dummyE.y;
+    mapMat.uniforms.uActiveYaw.value = dummyE.y;
 
     const { active, telemetry } = useVehicleStore.getState();
     const currentTelemetry = telemetry[active.entity];
@@ -133,13 +299,13 @@ const ProceduralMapShader = ({
 
     // north indicator logic
     // orbits the N marker around the border natively based on active vehicle yaw
-    if (northRef.current) {
+    if (minimapState.northElement) {
       const nx = Math.sin(activeYaw);
       const ny = -Math.cos(activeYaw);
       const max = Math.max(Math.abs(nx), Math.abs(ny));
 
-      northRef.current.style.left = `calc(50% + ${(nx / max) * 50}% - ${(nx / max) * 12}px)`;
-      northRef.current.style.top = `calc(50% + ${(ny / max) * 50}% - ${(ny / max) * 12}px)`;
+      minimapState.northElement.style.left = `calc(50% + ${(nx / max) * 50}% - ${(nx / max) * 12}px)`;
+      minimapState.northElement.style.top = `calc(50% + ${(ny / max) * 50}% - ${(ny / max) * 12}px)`;
     }
 
     let targetZoom = params.miniMapZoom;
@@ -163,12 +329,12 @@ const ProceduralMapShader = ({
       );
     }
 
-    if (isExpandedRef.current) {
+    if (minimapState.isExpanded) {
       targetZoom = params.fullMapZoom;
     }
 
-    materialRef.current.uniforms.uMapZoom.value = THREE.MathUtils.lerp(
-      materialRef.current.uniforms.uMapZoom.value,
+    mapMat.uniforms.uMapZoom.value = THREE.MathUtils.lerp(
+      mapMat.uniforms.uMapZoom.value,
       targetZoom,
       params.zoomLerpSpeed as number,
     );
@@ -177,32 +343,32 @@ const ProceduralMapShader = ({
     const targetLookAhead =
       active.control === CONTROL_STATE.PLAYER ? 0.0 : 0.15;
 
-    materialRef.current.uniforms.uPitch.value = THREE.MathUtils.lerp(
-      materialRef.current.uniforms.uPitch.value,
+    mapMat.uniforms.uPitch.value = THREE.MathUtils.lerp(
+      mapMat.uniforms.uPitch.value,
       targetPitch,
       params.zoomLerpSpeed as number,
     );
 
-    materialRef.current.uniforms.uLookAhead.value = THREE.MathUtils.lerp(
-      materialRef.current.uniforms.uLookAhead.value,
+    mapMat.uniforms.uLookAhead.value = THREE.MathUtils.lerp(
+      mapMat.uniforms.uLookAhead.value,
       targetLookAhead,
       params.zoomLerpSpeed as number,
     );
 
-    materialRef.current.uniforms.uIconTexture.value = icons.playerRadar;
+    mapMat.uniforms.uIconTexture.value = icons.playerRadar;
 
     if (active.entity === ENTITY_ID.CAR_1) {
-      materialRef.current.uniforms.uActiveEntity.value = 1;
+      mapMat.uniforms.uActiveEntity.value = 1;
     } else if (active.entity === ENTITY_ID.HELI_1) {
-      materialRef.current.uniforms.uActiveEntity.value = 3;
+      mapMat.uniforms.uActiveEntity.value = 3;
     } else if (active.entity === ENTITY_ID.PLANE_1) {
-      materialRef.current.uniforms.uActiveEntity.value = 2;
+      mapMat.uniforms.uActiveEntity.value = 2;
     } else {
-      materialRef.current.uniforms.uActiveEntity.value = 0;
+      mapMat.uniforms.uActiveEntity.value = 0;
     }
 
     if (currentTelemetry) {
-      materialRef.current.uniforms.uPlayerPos.value.set(
+      mapMat.uniforms.uPlayerPos.value.set(
         currentTelemetry.position[0],
         currentTelemetry.position[2],
       );
@@ -214,54 +380,65 @@ const ProceduralMapShader = ({
     const hTel = telemetry[ENTITY_ID.HELI_1];
 
     if (pTel) {
-      materialRef.current.uniforms.uCharPos.value.set(
+      mapMat.uniforms.uCharPos.value.set(
         pTel.position[0],
         pTel.position[2],
       );
-      materialRef.current.uniforms.uCharYaw.value = getYaw(pTel.rotation);
+      mapMat.uniforms.uCharYaw.value = getYaw(pTel.rotation);
     }
     if (cTel) {
-      materialRef.current.uniforms.uCarPos.value.set(
+      mapMat.uniforms.uCarPos.value.set(
         cTel.position[0],
         cTel.position[2],
       );
-      materialRef.current.uniforms.uCarYaw.value = getYaw(cTel.rotation);
+      mapMat.uniforms.uCarYaw.value = getYaw(cTel.rotation);
     }
     if (plTel) {
-      materialRef.current.uniforms.uPlanePos.value.set(
+      mapMat.uniforms.uPlanePos.value.set(
         plTel.position[0],
         plTel.position[2],
       );
-      materialRef.current.uniforms.uPlaneYaw.value = getYaw(plTel.rotation);
+      mapMat.uniforms.uPlaneYaw.value = getYaw(plTel.rotation);
     }
     if (hTel) {
-      materialRef.current.uniforms.uHeliPos.value.set(
+      mapMat.uniforms.uHeliPos.value.set(
         hTel.position[0],
         hTel.position[2],
       );
-      materialRef.current.uniforms.uHeliYaw.value = getYaw(hTel.rotation);
+      mapMat.uniforms.uHeliYaw.value = getYaw(hTel.rotation);
     }
-  });
 
-  return (
-    <mesh>
-      <planeGeometry args={[2, 2]} />
-      <shaderMaterial
-        ref={materialRef}
-        uniforms={uniforms}
-        depthWrite={false}
-        depthTest={false}
-        transparent={true}
-        vertexShader={mapVert}
-        fragmentShader={mapFrag}
-      />
-    </mesh>
-  );
+    // render minimap to offscreen target
+    const prevRenderTarget = gl.getRenderTarget();
+    gl.setRenderTarget(fbo);
+    gl.clear();
+    gl.render(offscreenScene, offscreenCamera);
+    gl.setRenderTarget(prevRenderTarget);
+
+    screenMat.uniforms.uResolution.value.set(rect.width, rect.height);
+    screenMat.uniforms.uRadius.value = 16.0;
+
+    // blit fbo texture to screen quad
+    const prevAutoClear = gl.autoClear;
+    gl.autoClear = false;
+    gl.clearDepth();
+
+    gl.setScissorTest(true);
+    gl.setScissor(pixelLeft, pixelBottom, pixelWidth, pixelHeight);
+    gl.setViewport(pixelLeft, pixelBottom, pixelWidth, pixelHeight);
+
+    gl.render(screenScene, screenCamera);
+
+    gl.setScissorTest(false);
+    gl.setViewport(0, 0, gl.domElement.width, gl.domElement.height);
+    gl.autoClear = prevAutoClear;
+  }, 2);
+
+  return null;
 };
 
 const MiniMap = () => {
   const showMap = useUIStore((state) => state.showMap);
-  const citySeed = useCityStore((state) => state.seed);
   const controlsRef = useAllVehicleInput();
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -269,7 +446,6 @@ const MiniMap = () => {
   const northRef = useRef<HTMLDivElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
 
-  const isExpandedRef = useRef(false);
   const prevMapKeyRef = useRef(false);
 
   const playerDistRef = useRef<HTMLSpanElement>(null);
@@ -277,49 +453,19 @@ const MiniMap = () => {
   const planeDistRef = useRef<HTMLSpanElement>(null);
   const heliDistRef = useRef<HTMLSpanElement>(null);
 
-  const params: ProceduralMapParams = useTweakpane(
-    { title: "🗺️ Minimap", expanded: false },
-    {
-      miniMapZoom: { value: 680, min: 50, max: 5000, label: "walk zoom" },
-      fullMapZoom: { value: 2200, min: 50, max: 10000, label: "full map zoom" },
-      zoomLerpSpeed: { value: 0.1, min: 0.01, max: 1, label: "zoom speed" },
-      speedZoomMult: { value: 8.0, min: 1, max: 50, label: "speed mult" },
-      carMinZoom: { value: 680, min: 50, max: 5000, label: "car min z" },
-      carMaxZoom: { value: 1000, min: 50, max: 10000, label: "car max z" },
-      heliMinZoom: { value: 680, min: 50, max: 8000, label: "heli min z" },
-      heliMaxZoom: { value: 1000, min: 50, max: 15000, label: "heli max z" },
-      planeMinZoom: { value: 680, min: 50, max: 10000, label: "plane min z" },
-      planeMaxZoom: { value: 1000, min: 50, max: 20000, label: "plane max z" },
-      edgeIconScale: {
-        value: 0.8,
-        min: 0.1,
-        max: 1.0,
-        label: "edge icon scale",
-      },
-    },
-  );
+  useEffect(() => {
+    minimapState.wrapperElement = wrapperRef.current;
+    return () => {
+      minimapState.wrapperElement = null;
+    };
+  }, []);
 
-  // pack perm array into texture
-  const permTexture = useMemo(() => {
-    // local instance guaranteed to match the global seed
-    const localSimplex = new SimplexNoise(citySeed);
-
-    const data = new Uint8Array(512 * 4);
-    for (let i = 0; i < 512; i++) {
-      // map from the local instance
-      data[i * 4] = localSimplex.perm[i];
-      data[i * 4 + 1] = 0;
-      data[i * 4 + 2] = 0;
-      data[i * 4 + 3] = 255;
-    }
-    const tex = new THREE.DataTexture(data, 512, 1, THREE.RGBAFormat);
-
-    // prevent WebGL from blurring the exact array values
-    tex.magFilter = THREE.NearestFilter;
-    tex.minFilter = THREE.NearestFilter;
-    tex.needsUpdate = true;
-    return tex;
-  }, [citySeed]); // re-run whenever the seed changes
+  useEffect(() => {
+    minimapState.northElement = northRef.current;
+    return () => {
+      minimapState.northElement = null;
+    };
+  }, []);
 
   useGSAP(
     () => {
@@ -356,7 +502,7 @@ const MiniMap = () => {
       }
 
       tl.current = timeline;
-      isExpandedRef.current = false;
+      minimapState.isExpanded = false;
     },
     { scope: wrapperRef, dependencies: [showMap] },
   );
@@ -371,9 +517,9 @@ const MiniMap = () => {
       const currentMapKey = controlsRef.current.map;
 
       if (currentMapKey && !prevMapKeyRef.current) {
-        isExpandedRef.current = !isExpandedRef.current;
+        minimapState.isExpanded = !minimapState.isExpanded;
 
-        if (isExpandedRef.current) {
+        if (minimapState.isExpanded) {
           tl.current?.play();
         } else {
           tl.current?.reverse();
@@ -381,7 +527,7 @@ const MiniMap = () => {
       }
       prevMapKeyRef.current = currentMapKey;
 
-      if (isExpandedRef.current) {
+      if (minimapState.isExpanded) {
         const state = useVehicleStore.getState();
         const activeId = state.active.entity;
         const activeTel = state.telemetry[activeId];
@@ -439,24 +585,11 @@ const MiniMap = () => {
       ref={wrapperRef}
       className={`${showMap ? "block" : "hidden"} fixed ${
         sceneConstants.isDev ? "right-90" : "right-2"
-      } top-2 z-14 size-60 pointer-events-none rounded-2xl border backdrop-blur-xs border-tron-cyan shadow-[0_0_15px_rgba(0,243,255,0.2)]`}
+      } top-2 z-14 size-60 pointer-events-none rounded-2xl border border-tron-cyan shadow-[0_0_15px_rgba(0,243,255,0.2)]`}
     >
       {showMap && (
         <>
-          <div className="absolute inset-1.5 rounded-2xl bg-black/40 backdrop-blur-md pointer-events-auto" />
-
-          <Canvas
-            gl={{ antialias: false, alpha: true }}
-            resize={{ debounce: 0 }}
-            className="absolute inset-0 pointer-events-none"
-          >
-            <ProceduralMapShader
-              isExpandedRef={isExpandedRef}
-              params={params}
-              northRef={northRef}
-              permTexture={permTexture}
-            />
-          </Canvas>
+          <div className="absolute inset-0 rounded-2xl pointer-events-auto" />
 
           <div
             ref={northRef}
