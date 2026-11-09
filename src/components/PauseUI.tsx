@@ -1,4 +1,5 @@
 import { useRef, useEffect } from "react";
+import { useNavigate } from "react-router";
 import { Menu, X } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useUIStore } from "../stores/useUIStore";
@@ -18,6 +19,28 @@ const PauseUI = () => {
   // ref to track the last time the slider sound played
   const lastPlayed = useRef(0);
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
+
+  // navigation router handle
+  const navigate = useNavigate();
+
+  // resume simulation and acquire pointer lock
+  const handleResume = () => {
+    playClick();
+    setIsPaused(false);
+    if (activeScene === "drive") {
+      document.querySelector("canvas")?.requestPointerLock();
+    }
+  };
+
+  // navigate to destination and restore unpaused state
+  const handleNavigate = (path: string) => {
+    playClick();
+    setIsPaused(false);
+    if (document.pointerLockElement) {
+      document.exitPointerLock();
+    }
+    navigate(path);
+  };
 
   // toggle simulation pause and synchronize pointer lock
   const handleToggle = () => {
@@ -119,13 +142,53 @@ const PauseUI = () => {
       >
         {/* main wrapper forces full height of the screen */}
         <div className="flex h-full w-full flex-col">
-          <h2 className="relative mb-6 mt-2 flex items-center justify-center border-b border-tron-cyan pb-4 pt-2 text-xl font-telemetry uppercase tracking-[6px] text-white [text-shadow:0_0_8px_#00f3ff] shrink-0 select-none">
+          <h2 className="relative mb-4 mt-2 flex items-center justify-center border-b border-tron-cyan pb-4 pt-2 text-xl font-telemetry uppercase tracking-[6px] text-white [text-shadow:0_0_8px_#00f3ff] shrink-0 select-none">
             <span>{`[ ${activeScene} ]`}</span>
             {/* version string absolutely positioned to the far right, overriding parent text effects */}
             <span className="absolute right-2 md:right-8 bottom-4 text-[10px] md:text-xs tracking-widest text-white normal-case text-shadow-none select-none">
               {`( v ${appVersion}.alpha )`}
             </span>
           </h2>
+
+          {/* quick actions and navigation bar */}
+          <nav
+            aria-label="Pause menu navigation"
+            className="flex items-center justify-center gap-4 sm:gap-6 pb-4 shrink-0 flex-wrap px-4 select-none"
+          >
+            {/* resume simulation button */}
+            <button
+              type="button"
+              onClick={handleResume}
+              className="group relative flex cursor-pointer items-center justify-center overflow-hidden border border-tron-cyan bg-tron-cyan/10 px-8 py-2.5 font-telemetry text-sm sm:text-base tracking-[0.3em] text-tron-cyan transition-all duration-300 hover:bg-tron-cyan hover:text-black shadow-[0_0_15px_rgba(0,243,255,0.3)] hover:shadow-[0_0_25px_rgba(0,243,255,0.7)]"
+            >
+              <span className="absolute left-0 top-0 h-full w-1 bg-tron-cyan group-hover:bg-black transition-colors" />
+              <span>{`[ RESUME ]`}</span>
+            </button>
+
+            {/* switch scene destination link */}
+            <button
+              type="button"
+              onClick={() =>
+                handleNavigate(activeScene === "drive" ? "/garage" : "/drive")
+              }
+              className="group relative flex cursor-pointer items-center justify-center overflow-hidden border border-tron-magenta bg-tron-magenta/10 px-8 py-2.5 font-telemetry text-sm sm:text-base tracking-[0.3em] text-tron-magenta transition-all duration-300 hover:bg-tron-magenta hover:text-black shadow-[0_0_15px_rgba(255,0,255,0.3)] hover:shadow-[0_0_25px_rgba(255,0,255,0.7)]"
+            >
+              <span className="absolute left-0 top-0 h-full w-1 bg-tron-magenta group-hover:bg-black transition-colors" />
+              <span>
+                {activeScene === "drive" ? "[ GARAGE ]" : "[ DRIVE ]"}
+              </span>
+            </button>
+
+            {/* return to main menu link */}
+            <button
+              type="button"
+              onClick={() => handleNavigate("/")}
+              className="group relative flex cursor-pointer items-center justify-center overflow-hidden border border-white/30 bg-white/5 px-8 py-2.5 font-telemetry text-sm sm:text-base tracking-[0.3em] text-white/80 transition-all duration-300 hover:bg-white hover:text-black shadow-[0_0_10px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]"
+            >
+              <span className="absolute left-0 top-0 h-full w-1 bg-white group-hover:bg-black transition-colors" />
+              <span>{`[ MAIN MENU ]`}</span>
+            </button>
+          </nav>
 
           {/* scrollable content area, flex layout to center the grid vertically on larger screens */}
           <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden pb-6 px-4 md:px-12 lg:px-24 text-sm flex items-start md:items-center">
