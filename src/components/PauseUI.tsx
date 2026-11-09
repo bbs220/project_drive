@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useUIStore } from "../stores/useUIStore";
@@ -6,8 +6,9 @@ import RadioHUD from "./RadioHUD";
 import { useUISounds } from "../hooks/useUISounds";
 import { useCityStore } from "../stores/useCityStore";
 
-const SideBar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const PauseUI = () => {
+  const isPaused = useUIStore((state) => state.isPaused);
+  const setIsPaused = useUIStore((state) => state.setIsPaused);
   const activeScene = useAppStore((state) => state.activeScene);
   const appVersion = useAppStore((state) => state.appVersion);
   const seed = useCityStore((state) => state.seed);
@@ -18,21 +19,57 @@ const SideBar = () => {
   const lastPlayed = useRef(0);
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Close sidebar on Escape key press and restore focus to trigger button
-  useEffect(() => {
-    if (!isOpen) return;
+  // toggle simulation pause and synchronize pointer lock
+  const handleToggle = () => {
+    playClick();
+    const nextPaused = !isPaused;
+    setIsPaused(nextPaused);
 
+    if (nextPaused) {
+      if (document.pointerLockElement) {
+        document.exitPointerLock();
+      }
+    } else if (activeScene === "drive") {
+      document.querySelector("canvas")?.requestPointerLock();
+    }
+  };
+
+  // Close sidebar on Escape key press and restore focus to trigger button
+  // handle escape key for pause toggling
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setIsOpen(false);
         playClick();
+        const nextPaused = !isPaused;
+        setIsPaused(nextPaused);
+
+        if (nextPaused) {
+          if (document.pointerLockElement) {
+            document.exitPointerLock();
+          }
+        } else if (activeScene === "drive") {
+          document.querySelector("canvas")?.requestPointerLock();
+        }
         toggleButtonRef.current?.focus();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, playClick]);
+  }, [isPaused, activeScene, setIsPaused, playClick]);
+
+  // synchronize pointer lock releases with pause menu
+  useEffect(() => {
+    const handlePointerLockChange = () => {
+      if (!document.pointerLockElement && activeScene === "drive" && !isPaused) {
+        setIsPaused(true);
+      }
+    };
+
+    document.addEventListener("pointerlockchange", handlePointerLockChange);
+    return () =>
+      document.removeEventListener("pointerlockchange", handlePointerLockChange);
+  }, [activeScene, isPaused, setIsPaused]);
 
   // pull all settings and setters from the updated ui store
   const {
@@ -74,10 +111,10 @@ const SideBar = () => {
       <aside
         id="settings-menu"
         aria-label="Settings"
-        aria-hidden={!isOpen}
-        inert={!isOpen ? true : undefined}
+        aria-hidden={!isPaused}
+        inert={!isPaused ? true : undefined}
         className={`fixed top-0 select-none left-0 w-full h-dvh bg-black/40 border-b-2 border-tron-cyan p-0.5 font-inter text-tron-cyan z-40 pointer-events-auto backdrop-blur-md shadow-[0_4px_20px_rgba(0,243,255,0.2),inset_0_-4px_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isOpen ? "translate-y-0" : "-translate-y-full"
+          isPaused ? "translate-y-0" : "-translate-y-full"
         }`}
       >
         {/* main wrapper forces full height of the screen */}
@@ -453,16 +490,13 @@ const SideBar = () => {
       <button
         ref={toggleButtonRef}
         type="button"
-        onClick={() => {
-          playClick();
-          setIsOpen(!isOpen);
-        }}
+        onClick={handleToggle}
         className="fixed top-2 left-2 flex cursor-pointer items-center justify-center rounded-md border-2 border-tron-cyan p-2 text-tron-cyan z-45 backdrop-blur-sm shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:bg-tron-cyan hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black transition-colors"
-        aria-label={isOpen ? "Close settings menu" : "Open settings menu"}
-        aria-expanded={isOpen}
+        aria-label={isPaused ? "Close settings menu" : "Open settings menu"}
+        aria-expanded={isPaused}
         aria-controls="settings-menu"
       >
-        {isOpen ? (
+        {isPaused ? (
           <X
             size={24}
             strokeWidth={2.5}
@@ -480,4 +514,4 @@ const SideBar = () => {
   );
 };
 
-export default SideBar;
+export default PauseUI;
