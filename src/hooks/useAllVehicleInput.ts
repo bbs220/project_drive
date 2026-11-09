@@ -37,10 +37,18 @@ useUIStore.subscribe((state) => {
   }
 });
 
+// flush active inputs when pointer lock is released
+const handlePointerLockChange = () => {
+  if (!document.pointerLockElement) {
+    handleBlur();
+  }
+};
+
 // keydown event handler
 const handleKeyDown = (e: KeyboardEvent) => {
   // block new input capture while simulation is paused
-  if (useUIStore.getState().isPaused) return;
+  // require active pointer lock to capture vehicle controls
+  if (useUIStore.getState().isPaused || !document.pointerLockElement) return;
 
   switch (e.code) {
     // standard driving and throttle and pitch
@@ -160,6 +168,7 @@ export const useAllVehicleInput = () => {
       window.addEventListener("keydown", handleKeyDown);
       window.addEventListener("keyup", handleKeyUp);
       window.addEventListener("blur", handleBlur);
+      document.addEventListener("pointerlockchange", handlePointerLockChange);
     }
     activeListenersCount++;
 
@@ -170,6 +179,7 @@ export const useAllVehicleInput = () => {
         window.removeEventListener("keydown", handleKeyDown);
         window.removeEventListener("keyup", handleKeyUp);
         window.removeEventListener("blur", handleBlur);
+        document.removeEventListener("pointerlockchange", handlePointerLockChange);
       }
     };
   }, []);
