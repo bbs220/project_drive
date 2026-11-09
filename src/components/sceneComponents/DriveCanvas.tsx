@@ -29,6 +29,7 @@ import ChunkManager from "./proceduralCity/ChunkManager";
 import Player from "./Player";
 import { useMountSystem } from "../../hooks/useMountSystem";
 import MiniMap, { MiniMapFBO } from "../MiniMap";
+import PlayButtonUI from "../PlayButtonUI";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useUIStore } from "../../stores/useUIStore";
 
@@ -277,6 +278,7 @@ const DriveCanvas = () => {
     <>
       <AllVehiclesHUD />
       <MiniMap />
+      <PlayButtonUI />
       <Canvas
         aria-label="3D Cyberpunk City Simulation"
         role="img"

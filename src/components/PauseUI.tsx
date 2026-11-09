@@ -81,18 +81,6 @@ const PauseUI = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isPaused, activeScene, setIsPaused, playClick]);
 
-  // synchronize pointer lock releases with pause menu
-  useEffect(() => {
-    const handlePointerLockChange = () => {
-      if (!document.pointerLockElement && activeScene === "drive" && !isPaused) {
-        setIsPaused(true);
-      }
-    };
-
-    document.addEventListener("pointerlockchange", handlePointerLockChange);
-    return () =>
-      document.removeEventListener("pointerlockchange", handlePointerLockChange);
-  }, [activeScene, isPaused, setIsPaused]);
 
   // pull all settings and setters from the updated ui store
   const {
