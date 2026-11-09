@@ -51,30 +51,39 @@ const PlayButtonUI = () => {
         onClick={handlePlay}
         disabled={isCooldown}
         id="play-button"
-        className={`flex items-center justify-center gap-4 px-16 py-6 bg-black/40 border-2 border-tron-cyan font-telemetry text-2xl tracking-[0.25em] uppercase backdrop-blur-sm transition-all duration-300 shadow-[0_0_20px_rgba(0,243,255,0.25)] group ${
+        className={`group flex items-center justify-center gap-3 rounded-md border border-tron-cyan px-8 py-2.5 font-label text-xs tracking-wider uppercase [box-shadow:0_0_15px_rgba(0,243,255,0.2)] backdrop-blur-md transition-all duration-300 select-none ${
           isHidden
             ? "pointer-events-none"
             : isCooldown
-              ? "pointer-events-auto cursor-not-allowed opacity-50 text-gray-500 border-gray-600"
-              : "pointer-events-auto cursor-pointer text-tron-cyan hover:bg-tron-cyan hover:text-black hover:shadow-[0_0_30px_rgba(0,243,255,0.7)]"
+              ? "pointer-events-auto cursor-not-allowed opacity-50 border-gray-600 bg-black/60 text-gray-500 [box-shadow:none]"
+              : "pointer-events-auto cursor-pointer bg-black/60 hover:bg-tron-cyan hover:shadow-[0_0_20px_rgba(0,243,255,0.6)]"
         }`}
       >
-        {/* swap text dynamically based on lock state */}
-        <span>{isCooldown ? "COOLDOWN" : "PLAY"}</span>
-        <span
-          className={`text-3xl transition-transform duration-300 ${
-            isCooldown ? "" : "group-hover:scale-125"
+        <strong
+          className={`font-telemetry text-sm transition-colors ${
+            isCooldown
+              ? "text-gray-500"
+              : "text-tron-yellow [text-shadow:0_0_8px_var(--color-tron-yellow)] group-hover:text-black group-hover:text-shadow-none"
           }`}
         >
-          🕹️
+          {">"}
+        </strong>
+        {/* swap text dynamically based on lock state */}
+        <span
+          className={`tracking-wider uppercase transition-colors ${
+            isCooldown
+              ? "text-gray-400"
+              : "text-gray-200 group-hover:text-black"
+          }`}
+        >
+          {isCooldown ? "COOLDOWN" : "PLAY"}
         </span>
+        <span
+          className={`h-1 w-1 rounded-full transition-colors ${
+            isCooldown ? "bg-gray-600" : "bg-tron-cyan/50 group-hover:bg-black"
+          }`}
+        />
       </button>
-
-      {!isHidden && (
-        <p className="mt-4 font-label text-xs tracking-widest text-tron-cyan/60 uppercase">
-          click to lock cursor and drive
-        </p>
-      )}
     </div>
   );
 };

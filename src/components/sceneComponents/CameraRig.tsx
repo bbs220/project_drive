@@ -95,21 +95,12 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
     };
 
     // capture the mouse into the canvas on left click
-    const onClick = () => {
-      // ignore canvas pointer lock requests while paused
-      if (useUIStore.getState().isPaused) return;
-
-      if (document.pointerLockElement !== gl.domElement) {
-        gl.domElement.requestPointerLock();
-      }
-    };
-
+    // ignore canvas pointer lock requests while paused
+    // pointer locking is strictly delegated to dedicated ui buttons
     gl.domElement.addEventListener("mousemove", onMouseMove);
-    gl.domElement.addEventListener("click", onClick);
 
     return () => {
       gl.domElement.removeEventListener("mousemove", onMouseMove);
-      gl.domElement.removeEventListener("click", onClick);
     };
   }, [gl, debugMode, params.sensitivity]);
 
