@@ -30,6 +30,7 @@ import Player from "./Player";
 import { useMountSystem } from "../../hooks/useMountSystem";
 import MiniMap, { MiniMapFBO } from "../MiniMap";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
+import { useUIStore } from "../../stores/useUIStore";
 
 const DriveScene = () => {
   // initialize refs for all instantiated vehicles and player
@@ -270,6 +271,8 @@ const DriveCanvas = () => {
     },
   );
 
+  const isPaused = useUIStore((state) => state.isPaused);
+
   return (
     <>
       <AllVehiclesHUD />
@@ -280,7 +283,12 @@ const DriveCanvas = () => {
         shadows={"soft"}
         dpr={setDpr}
       >
-        <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>
+        {/* synchronize rapier physics simulation with global pause state */}
+        <Physics
+          debug={setPhyDebug}
+          gravity={physcConstants.gravity}
+          paused={isPaused}
+        >
           <DriveScene />
         </Physics>
         <PostprocessingEffects />

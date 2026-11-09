@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useUIStore } from "../stores/useUIStore";
 
 // define all possible control states without redundant numpad axes
 export type typeAllVehicleControls = {
@@ -29,8 +30,18 @@ const sharedInputControls: typeAllVehicleControls = {
 
 let activeListenersCount = 0;
 
+// reset active inputs whenever simulation is paused
+useUIStore.subscribe((state) => {
+  if (state.isPaused) {
+    handleBlur();
+  }
+});
+
 // keydown event handler
 const handleKeyDown = (e: KeyboardEvent) => {
+  // block new input capture while simulation is paused
+  if (useUIStore.getState().isPaused) return;
+
   switch (e.code) {
     // standard driving and throttle and pitch
     case "KeyW":
