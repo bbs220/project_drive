@@ -8,6 +8,7 @@
 | **Bundle & Architecture** | Monolithic by Design | Kept full bundle static (~4.2 MB) without route lazy-loading to prevent WebGL canvas unmounting and context loss; all 3D assets preserved in `public/` |
 | **Bugs & Edge Cases** | Resolved | Fixed grass interaction `uPlayerPos`, window blur stuck keys, radio autoplay rejection, router error boundary, and plane bank angle dive jitter |
 | **Architecture & WebGL** | Resolved | Eliminated secondary WebGL context via MiniMap FBO render target; consolidated keyboard listener singleton; kept stores non-persistent to prevent state corruption |
+| **Simulation & Focus Gate** | Resolved | Unified pause lifecycle across physics and UI, added HUD-styled Play button with Chromium cooldown handling, and gated vehicle inputs behind hardware pointer lock |
 | **Physics & Gameplay** | Tuned | Rapier dynamic building colliders and heavy prop spawning were tested and reverted to eliminate WASM memory stress and preserve 60+ FPS lock |
 
 ---
@@ -104,6 +105,19 @@
 - **Issue**: 180 lines of unused Delaunay triangulation code.
 - **Status**: Retained as reference utility or for future procedural road network routing.
 
+### 4.4 Simulation Pause Lifecycle & Input Focus Gate (Resolved)
+- **Location**: `src/components/PauseUI.tsx`, `src/components/PlayButtonUI.tsx`, `src/hooks/useAllVehicleInput.ts`, `src/components/sceneComponents/CameraRig.tsx`, `src/components/sceneComponents/DriveCanvas.tsx`
+- **Issue**:
+  - Pausing originally only opened the sidebar visually while physics (`<Physics>`) continued to simulate in the background, inputs remained active, and camera continued to track.
+  - Unlocking pointer lock or losing focus allowed ghost driving where WASD moved vehicles blindly while the cursor was freed or over UI elements.
+  - Play button styling used mismatched arcade-style emojis and lacked integration with the Tron HUD telemetry design language.
+- **Resolution**:
+  - Bound `<Physics paused={isPaused}>` in `DriveCanvas.tsx` to halt Rapier physics stepping during pause.
+  - Added `isPaused` checks in `CameraRig.tsx` to freeze camera lerp and mouse tracking.
+  - Refactored `SideBar.tsx` into `PauseUI.tsx` with quick navigation actions (`[ RESUME ]`, context-aware scene toggle, `[ MAIN MENU ]`).
+  - Created `PlayButtonUI.tsx` matching `AllVehiclesHUD` telemetry aesthetics (neon cyan border, yellow indicator chevron, telemetry divider dot, 1200ms Chromium pointer-lock cooldown handling).
+  - Implemented Strict Focus Gate in `useAllVehicleInput.ts`: vehicle inputs and camera orbit strictly require active `document.pointerLockElement`, with automatic key flushing on `pointerlockchange`.
+
 ---
 
 ## 5. Feature & Gameplay Opportunities (Post-Mortem & Status)
@@ -143,3 +157,10 @@
 - [x] Removed `blobTree` and `lampPost` from `PropSpawner.tsx` per user instruction.
 - [x] Eliminated secondary WebGL context by migrating `MiniMap` to an offscreen FBO render target and viewport scissor blit in the primary Canvas.
 - [x] Extracted screen quad presentation shaders into dedicated files (`screenQuadVert.glsl` and `screenQuadFrag.glsl`) with 16px SDF rounded corner masking and dynamic GSAP resize tracking.
+
+### Phase 4: Simulation Pause & Focus Gate Architecture (Completed)
+- [x] Tied Rapier physics stepping to simulation pause (`<Physics paused={isPaused}>`).
+- [x] Refactored `SideBar` into dedicated `PauseUI` with simulation freeze, scene switching, and resume handling.
+- [x] Created `PlayButtonUI` matching `AllVehiclesHUD` telemetry styling with Chromium 1200ms pointer lock cooldown handling.
+- [x] Removed canvas click listener in `CameraRig` to delegate pointer locking exclusively to dedicated UI buttons.
+- [x] Implemented Strict Focus Gate in `useAllVehicleInput`, ignoring keystrokes when pointer is unlocked and auto-flushing keys on `pointerlockchange`.
