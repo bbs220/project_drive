@@ -252,6 +252,7 @@ const DriveScene = () => {
       <VehiclePlane ref={planeRef} spawnMode={"drive"} />
       <Player ref={playerRef} />
       <ChunkManager targetRef={activeTargetRef} />
+      {/* 3d lot numbering and clearance overlay */}
     </>
   );
 };

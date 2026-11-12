@@ -5,7 +5,6 @@ import vertexShader from "../shaders/gridVert.glsl";
 import { useTweakpane } from "../../../hooks/useTweakpane";
 import { RigidBody } from "@react-three/rapier";
 import { worldConstants } from "../../../utils/worldGenerator";
-import ProceduralCity from "./ProceduralCity";
 import type { typeActiveChunk } from "./worker/chunk.worker";
 
 type GroundTileProps = {
@@ -156,44 +155,7 @@ const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
   );
 
   // road Shader Tweakpane
-  const roadParams = useTweakpane(
-    { title: "📔 Shaders", expanded: false },
-    {
-      bgColor: { value: "#010102", folder: "Road" },
-      edgeColor: { value: "#00f3ff", folder: "Road" },
-      centerColor: { value: "#00f3ff", folder: "Road" },
-      edgeDist: {
-        value: 0.49,
-        min: 0.2,
-        max: 0.49,
-        step: 0.01,
-        folder: "Road",
-      },
-      centerDist: {
-        value: 0.02,
-        min: 0.0,
-        max: 0.2,
-        step: 0.01,
-        folder: "Road",
-      },
-      edgeWidth: {
-        value: 0.001,
-        min: 0.001,
-        max: 0.1,
-        step: 0.001,
-        folder: "Road",
-      },
-      centerWidth: {
-        value: 0.001,
-        min: 0.001,
-        max: 0.05,
-        step: 0.001,
-        folder: "Road",
-      },
-      edgeGlow: { value: 1.5, min: 0.1, max: 5.0, folder: "Road" },
-      centerGlow: { value: 1.4, min: 0.1, max: 5.0, folder: "Road" },
-    },
-  );
+  // road shader parameters deactivated while procedural city is detached
 
   return (
     <group>
@@ -205,11 +167,7 @@ const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
             params={gridParams as GroundTileProps["params"]}
           />
           {/* render the city chunk right alongside its ground tile */}
-          <ProceduralCity
-            chunkX={c.chunkX}
-            chunkZ={c.chunkZ}
-            roadParams={roadParams}
-          />
+          {/* procedural city content detached in favor of clean testing proving ground */}
         </group>
       ))}
     </group>
