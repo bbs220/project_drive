@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import fragmentShader from "../shaders/gridFrag.glsl";
 import vertexShader from "../shaders/gridVert.glsl";
 import { useTweakpane } from "../../../hooks/useTweakpane";
-import { RigidBody } from "@react-three/rapier";
+import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import { worldConstants } from "../../../utils/worldGenerator";
 import type { typeActiveChunk } from "./worker/chunk.worker";
 
@@ -75,22 +75,25 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
 
   // dynamically pull halfCell so Ground and Roads stay aligned
   const halfCell = worldConstants.cellSize / 2;
+  const halfChunk = worldConstants.chunkSize / 2;
+  const groundTopY =
+    worldConstants.groundOffset + worldConstants.groundHeight / 2;
 
   return (
     <group position={[posX, 0, posZ]}>
       <RigidBody
         type="fixed"
-        colliders="cuboid"
-        friction={2}
-        position={[-halfCell, worldConstants.groundOffset, -halfCell]}
+        colliders={false}
+        position={[-halfCell, 0, -halfCell]}
       >
-        <mesh receiveShadow>
-          <boxGeometry
-            args={[
-              worldConstants.chunkSize,
-              worldConstants.groundHeight,
-              worldConstants.chunkSize,
-            ]}
+        {/* single sided plane rendering grid shader strictly on top face */}
+        <mesh
+          receiveShadow
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, groundTopY, 0]}
+        >
+          <planeGeometry
+            args={[worldConstants.chunkSize, worldConstants.chunkSize]}
           />
           <shaderMaterial
             ref={materialRef}
@@ -100,6 +103,13 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
             fog={true}
           />
         </mesh>
+
+        {/* solid floor collider underneath surface to prevent drop through */}
+        <CuboidCollider
+          args={[halfChunk, 0.5, halfChunk]}
+          position={[0, groundTopY - 0.5, 0]}
+          friction={2}
+        />
       </RigidBody>
 
       <gridHelper
