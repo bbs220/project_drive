@@ -81,7 +81,6 @@ const PauseUI = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isPaused, activeScene, setIsPaused, playClick]);
 
-
   // pull all settings and setters from the updated ui store
   const {
     masterVolume,
@@ -206,28 +205,62 @@ const PauseUI = () => {
                     <div className="flex flex-col gap-5 divide-y divide-white/5">
                       <div className="pt-0">
                         <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-yellow uppercase mb-1">
-                          METAL <span className="text-white/60 font-mono text-xs">[ 0.0 — 1.0 ]</span>
+                          METAL{" "}
+                          <span className="text-white/60 font-mono text-xs">
+                            [ 0.0 — 1.0 ]
+                          </span>
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          Controls electrical conductivity. Set to <strong className="text-white font-semibold">1.0</strong> for <strong className="text-tron-cyan font-semibold">polished cyber chrome</strong>, or down to <strong className="text-white font-semibold">0.0</strong> for non-metallic matte composite bodywork.
+                          Controls electrical conductivity. Set to{" "}
+                          <strong className="text-white font-semibold">
+                            1.0
+                          </strong>{" "}
+                          for{" "}
+                          <strong className="text-tron-cyan font-semibold">
+                            polished cyber chrome
+                          </strong>
+                          , or down to{" "}
+                          <strong className="text-white font-semibold">
+                            0.0
+                          </strong>{" "}
+                          for non-metallic matte composite bodywork.
                         </p>
                       </div>
 
                       <div className="pt-4">
                         <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-yellow uppercase mb-1">
-                          ROUGH <span className="text-white/60 font-mono text-xs">[ 0.0 — 1.0 ]</span>
+                          ROUGH{" "}
+                          <span className="text-white/60 font-mono text-xs">
+                            [ 0.0 — 1.0 ]
+                          </span>
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          Governs micro-facet scattering. Lower values produce <strong className="text-white font-semibold">razor-sharp specular reflections</strong>; higher values soften and diffuse light into a <strong className="text-tron-cyan font-semibold">smooth satin sheen</strong>.
+                          Governs micro-facet scattering. Lower values produce{" "}
+                          <strong className="text-white font-semibold">
+                            razor-sharp specular reflections
+                          </strong>
+                          ; higher values soften and diffuse light into a{" "}
+                          <strong className="text-tron-cyan font-semibold">
+                            smooth satin sheen
+                          </strong>
+                          .
                         </p>
                       </div>
 
                       <div className="pt-4">
                         <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-yellow uppercase mb-1">
-                          GLOW <span className="text-white/60 font-mono text-xs">[ 0.0 — 5.0 ]</span>
+                          GLOW{" "}
+                          <span className="text-white/60 font-mono text-xs">
+                            [ 0.0 — 5.0 ]
+                          </span>
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          Multiplies HDR radiative luminance, driving the post-processing pipeline to project <strong className="text-tron-cyan font-semibold">volumetric neon bloom</strong> across circuit lines and engine exhausts.
+                          Multiplies HDR radiative luminance, driving the
+                          post-processing pipeline to project{" "}
+                          <strong className="text-tron-cyan font-semibold">
+                            volumetric neon bloom
+                          </strong>{" "}
+                          across circuit lines and engine exhausts.
                         </p>
                       </div>
                     </div>
@@ -254,10 +287,21 @@ const PauseUI = () => {
                     <div className="flex flex-col gap-5 divide-y divide-white/5">
                       <div className="pt-0">
                         <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-lime uppercase mb-1">
-                          HUE SPECTRUM <span className="text-white/60 font-mono text-xs">[ 0° — 360° ]</span>
+                          HUE SPECTRUM{" "}
+                          <span className="text-white/60 font-mono text-xs">
+                            [ 0° — 360° ]
+                          </span>
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          Sweeps through the full <strong className="text-white font-semibold">360-degree rainbow spectrum</strong>. Each vehicle material zone (<strong className="text-white font-semibold">Chassis, Circuits, Axels, Cockpit, Tires</strong>) can be assigned an independent wavelength.
+                          Sweeps through the full{" "}
+                          <strong className="text-white font-semibold">
+                            360-degree rainbow spectrum
+                          </strong>
+                          . Each vehicle material zone (
+                          <strong className="text-white font-semibold">
+                            Chassis, Circuits, Axels, Cockpit, Tires
+                          </strong>
+                          ) can be assigned an independent wavelength.
                         </p>
                       </div>
 
@@ -266,7 +310,15 @@ const PauseUI = () => {
                           SATURATION & LIGHTNESS
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          <strong className="text-white font-semibold">Saturation</strong> shifts between monochromatic stealth titanium and hyper-vivid laser tones. <strong className="text-white font-semibold">Lightness</strong> shifts from deep void black to high-voltage white.
+                          <strong className="text-white font-semibold">
+                            Saturation
+                          </strong>{" "}
+                          shifts between monochromatic stealth titanium and
+                          hyper-vivid laser tones.{" "}
+                          <strong className="text-white font-semibold">
+                            Lightness
+                          </strong>{" "}
+                          shifts from deep void black to high-voltage white.
                         </p>
                       </div>
 
@@ -275,7 +327,12 @@ const PauseUI = () => {
                           TRAIL SYNCHRONIZATION
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          Engage <strong className="text-tron-cyan font-semibold">"Sync to Circuits"</strong> to automatically slave aerodynamic engine exhaust particles to match your vehicle's circuit neon hue.
+                          Engage{" "}
+                          <strong className="text-tron-cyan font-semibold">
+                            "Sync to Circuits"
+                          </strong>{" "}
+                          to automatically slave aerodynamic engine exhaust
+                          particles to match your vehicle's circuit neon hue.
                         </p>
                       </div>
                     </div>
@@ -305,7 +362,14 @@ const PauseUI = () => {
                           ORBIT TUMBLE
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          <strong className="text-white font-semibold">Left Click + Drag</strong> outside the sidebar to rotate <strong className="text-white font-semibold">360°</strong> around the vehicle's center of mass.
+                          <strong className="text-white font-semibold">
+                            Left Click + Drag
+                          </strong>{" "}
+                          outside the sidebar to rotate{" "}
+                          <strong className="text-white font-semibold">
+                            360°
+                          </strong>{" "}
+                          around the vehicle's center of mass.
                         </p>
                       </div>
 
@@ -314,7 +378,14 @@ const PauseUI = () => {
                           PAN & ZOOM
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          <strong className="text-white font-semibold">Right Click + Drag</strong> to pan camera focal point. Use the <strong className="text-white font-semibold">Scroll Wheel</strong> to zoom with vehicle-clamped distance bounds.
+                          <strong className="text-white font-semibold">
+                            Right Click + Drag
+                          </strong>{" "}
+                          to pan camera focal point. Use the{" "}
+                          <strong className="text-white font-semibold">
+                            Scroll Wheel
+                          </strong>{" "}
+                          to zoom with vehicle-clamped distance bounds.
                         </p>
                       </div>
 
@@ -323,7 +394,12 @@ const PauseUI = () => {
                           DRAWER ACCORDION
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          Click the <strong className="text-tron-yellow font-semibold">active vehicle tab</strong> on the left edge to collapse or re-expand the customization drawer for clean, unobstructed viewing.
+                          Click the{" "}
+                          <strong className="text-tron-yellow font-semibold">
+                            active vehicle tab
+                          </strong>{" "}
+                          on the left edge to collapse or re-expand the
+                          customization drawer for clean, unobstructed viewing.
                         </p>
                       </div>
                     </div>
@@ -423,7 +499,7 @@ const PauseUI = () => {
                       </div>
                       <input
                         type="range"
-                        min="1"
+                        min="0"
                         max="8"
                         value={chunkRadius}
                         aria-label="Render distance"

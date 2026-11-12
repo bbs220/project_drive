@@ -233,33 +233,8 @@ void main() {
     vec2 rotatedMapUv = rotate2d(-activeYaw) * mapUv;
     vec2 worldPos = uPlayerPos + rotatedMapUv * vec2(uMapZoom,-uMapZoom);
 
-    float rawBiome = fbm2D(worldPos,3,uMacroFreq,0.5,2.0);
-    float biomeScore = (rawBiome + 1.0) / 2.0;
-    float cityThreshold = 0.45;
-
-    float isCity = step(cityThreshold,biomeScore);
-    float cityMask = clamp((biomeScore - cityThreshold) * 5.0,0.0,1.0);
-    vec3 emptyColor = mix(vec3(0.08,0.12,0.08),vec3(0.15,0.22,0.12),biomeScore);
-
-    vec2 localPos = mod(worldPos,uBlockSize);
-    vec2 blockOrigin = floor(worldPos / uBlockSize) * uBlockSize;
-
-    float isRoadX = step(localPos.x,uRoadWidth);
-    float isRoadZ = step(localPos.y,uRoadWidth);
-    float isRoad = clamp(isRoadX + isRoadZ,0.0,1.0);
-    isRoad *= isCity;
-
-    vec3 roadColor = vec3(0.2,0.22,0.25);
-
-    float rawUrban = fbm2D(blockOrigin,2,uUrbanFreq,0.5,2.0);
-    float urbanScore = ((rawUrban + 1.0) / 2.0) * cityMask;
-
-    float hasBuilding = step(uUrbanSprawl,urbanScore);
-    float isBuilding = hasBuilding * (1.0 - isRoad) * isCity;
-
-    vec3 buildingColor = mix(vec3(0.4,0.45,0.5),vec3(0.7,0.75,0.8),urbanScore);
-    vec3 mapColor = mix(emptyColor,buildingColor,isBuilding);
-    mapColor = mix(mapColor,roadColor,isRoad);
+    // clean radar base color without noise city math
+    vec3 mapColor = vec3(0.05, 0.08, 0.07);
 
     float isInsideMap = step(margin.x,vUv.x) * step(vUv.x,1.0 - margin.x) *
         step(margin.y,vUv.y) * step(vUv.y,1.0 - margin.y);
