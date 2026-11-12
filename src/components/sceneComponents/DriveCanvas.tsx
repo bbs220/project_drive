@@ -78,8 +78,8 @@ const DriveScene = () => {
   } = useTweakpane(
     { title: "☀️ Scene", expanded: false },
     {
-      showFPS: { value: false, label: "show fps" },
-      showGizmo: { value: false, label: "show gizmo" },
+      showFPS: { value: true, label: "show fps" },
+      showGizmo: { value: true, label: "show gizmo" },
       cameraDebug: { value: sceneConstants.isDev, label: "camera debug" },
       activeVehicle: {
         value: active.control,
@@ -91,7 +91,7 @@ const DriveScene = () => {
           plane: CONTROL_STATE.PLANE,
         },
       },
-      enableFog: { value: true, label: "enable fog", folder: "Fog" },
+      enableFog: { value: false, label: "enable fog", folder: "Fog" },
       fogNear: {
         value: 80,
         min: 0,
