@@ -74,7 +74,7 @@ const labelStyle: React.CSSProperties = {
 };
 
 // wrap component in forward ref to expose visual group to parent
-const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
+const VehicleCar01 = forwardRef<THREE.Group, VehicleProps>(
   ({ spawnMode }, ref) => {
     const initialSpawn = respawnValues[spawnMode].car;
 
@@ -473,9 +473,9 @@ const VehicleCar = forwardRef<THREE.Group, VehicleProps>(
   },
 );
 
-VehicleCar.displayName = "VehicleCar";
+VehicleCar01.displayName = "VehicleCar01";
 
-export default VehicleCar;
+export default VehicleCar01;
 
 // preloads
 useGLTF.preload(modelsSeperatedBank.runner01chassis);

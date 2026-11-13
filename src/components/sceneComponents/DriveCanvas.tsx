@@ -13,7 +13,7 @@ import { sceneConstants } from "../../constants/otherConstants";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import AllVehiclesHUD from "./AllVehiclesHUD";
 import CameraRig from "./CameraRig";
-import VehicleCar from "./VehicleCar";
+import VehicleCar01 from "./VehicleCar01";
 import VehicleHelicopter from "./VehicleHelicopter";
 import VehiclePlane from "./VehiclePlane";
 import {
@@ -247,7 +247,7 @@ const DriveScene = () => {
         </group>
       </GizmoHelper>
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
-      <VehicleCar ref={carRef} spawnMode={"drive"} />
+      <VehicleCar01 ref={carRef} spawnMode={"drive"} />
       <VehicleHelicopter ref={heliRef} spawnMode={"drive"} />
       <VehiclePlane ref={planeRef} spawnMode={"drive"} />
       <Player ref={playerRef} />

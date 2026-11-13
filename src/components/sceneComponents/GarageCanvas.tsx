@@ -9,7 +9,7 @@ import { useTweakpane } from "../../hooks/useTweakpane";
 import { Physics } from "@react-three/rapier";
 import CustomizationUI from "../CustomizationUI";
 import { useCustomizationStore } from "../../stores/useCustomizationStore";
-import VehicleCar from "./VehicleCar";
+import VehicleCar01 from "./VehicleCar01";
 import VehiclePlane from "./VehiclePlane";
 import VehicleHelicopter from "./VehicleHelicopter";
 import GarageLights from "./GarageLights";
@@ -134,7 +134,7 @@ const GarageScene = () => {
       <GarageLights />
 
       {/* conditionally render only the active vehicle */}
-      {activeGarageVehicle === "car" && <VehicleCar spawnMode="garage" />}
+      {activeGarageVehicle === "car" && <VehicleCar01 spawnMode="garage" />}
       {activeGarageVehicle === "plane" && <VehiclePlane spawnMode="garage" />}
       {activeGarageVehicle === "helicopter" && (
         <VehicleHelicopter spawnMode="garage" />
