@@ -6,7 +6,7 @@ export type typeTerrainData = {
 };
 
 export const worldConstants = {
-  chunkSize: 300,
+  chunkSize: 500,
   chunkRadius: 0,
   cellSize: 10,
   groundHeight: 0.1,
