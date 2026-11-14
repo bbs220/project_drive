@@ -14,8 +14,8 @@ import { useTweakpane } from "../../hooks/useTweakpane";
 import AllVehiclesHUD from "./AllVehiclesHUD";
 import CameraRig from "./CameraRig";
 import VehicleCar01 from "./VehicleCar01";
-import VehicleHelicopter from "./VehicleHelicopter";
-import VehiclePlane from "./VehiclePlane";
+import VehicleHelicopter01 from "./VehicleHelicopter01";
+import VehiclePlane01 from "./VehiclePlane01";
 import {
   useVehicleStore,
   CONTROL_STATE,
@@ -86,9 +86,9 @@ const DriveScene = () => {
         label: "current vehicle",
         options: {
           player: CONTROL_STATE.PLAYER,
-          car: CONTROL_STATE.CAR,
-          helicopter: CONTROL_STATE.HELICOPTER,
-          plane: CONTROL_STATE.PLANE,
+          car01: CONTROL_STATE.CAR,
+          helicopter01: CONTROL_STATE.HELICOPTER,
+          plane01: CONTROL_STATE.PLANE,
         },
       },
       enableFog: { value: false, label: "enable fog", folder: "Fog" },
@@ -248,8 +248,8 @@ const DriveScene = () => {
       </GizmoHelper>
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar01 ref={carRef} spawnMode={"drive"} />
-      <VehicleHelicopter ref={heliRef} spawnMode={"drive"} />
-      <VehiclePlane ref={planeRef} spawnMode={"drive"} />
+      <VehicleHelicopter01 ref={heliRef} spawnMode={"drive"} />
+      <VehiclePlane01 ref={planeRef} spawnMode={"drive"} />
       <Player ref={playerRef} />
       <ChunkManager targetRef={activeTargetRef} />
       {/* 3d lot numbering and clearance overlay */}

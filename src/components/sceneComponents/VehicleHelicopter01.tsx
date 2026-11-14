@@ -54,7 +54,7 @@ type typeTailRotorGLTF = GLTF & {
 };
 
 // main vehicle component updated with custom six point spherical physics
-const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
+const VehicleHelicopter01 = forwardRef<THREE.Group, VehicleProps>(
   ({ spawnMode }, ref) => {
     const initialSpawn = respawnValues[spawnMode].helicopter;
 
@@ -77,7 +77,7 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
 
     // initialize tweakpane hook and store reactive parameters
     const params = useTweakpane(
-      { title: "⚙️ Vehicle Tuning", expanded: false },
+      { title: "🚁 Helicopter 01 Tuning", expanded: false },
       vehicleHelicopterConstants.tuning,
     );
 
@@ -316,9 +316,9 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
 );
 
 // assign display name for react devtools compatibility
-VehicleHelicopter.displayName = "VehicleHelicopter";
+VehicleHelicopter01.displayName = "VehicleHelicopter01";
 
-export default VehicleHelicopter;
+export default VehicleHelicopter01;
 
 // preload assets to prevent frame drops on mount
 useGLTF.preload(modelsSeperatedBank.helicopter01cabin);

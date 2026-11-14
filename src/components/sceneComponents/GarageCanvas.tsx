@@ -10,8 +10,8 @@ import { Physics } from "@react-three/rapier";
 import CustomizationUI from "../CustomizationUI";
 import { useCustomizationStore } from "../../stores/useCustomizationStore";
 import VehicleCar01 from "./VehicleCar01";
-import VehiclePlane from "./VehiclePlane";
-import VehicleHelicopter from "./VehicleHelicopter";
+import VehiclePlane01 from "./VehiclePlane01";
+import VehicleHelicopter01 from "./VehicleHelicopter01";
 import GarageLights from "./GarageLights";
 
 const GarageScene = () => {
@@ -135,9 +135,9 @@ const GarageScene = () => {
 
       {/* conditionally render only the active vehicle */}
       {activeGarageVehicle === "car" && <VehicleCar01 spawnMode="garage" />}
-      {activeGarageVehicle === "plane" && <VehiclePlane spawnMode="garage" />}
+      {activeGarageVehicle === "plane" && <VehiclePlane01 spawnMode="garage" />}
       {activeGarageVehicle === "helicopter" && (
-        <VehicleHelicopter spawnMode="garage" />
+        <VehicleHelicopter01 spawnMode="garage" />
       )}
     </>
   );

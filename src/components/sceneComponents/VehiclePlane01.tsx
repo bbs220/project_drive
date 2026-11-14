@@ -43,7 +43,7 @@ type typeCockpitGLTF = GLTF & {
 };
 
 // main vehicle component with four point sketchbook physics
-const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
+const VehiclePlane01 = forwardRef<THREE.Group, VehicleProps>(
   ({ spawnMode }, ref) => {
     const initialSpawn = respawnValues[spawnMode].plane;
 
@@ -60,7 +60,7 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
 
     // initialize tweakpane hook and store reactive parameters
     const params = useTweakpane(
-      { title: "⚙️ Vehicle Tuning", expanded: false },
+      { title: "✈️ Plane 01 Tuning", expanded: false },
       vehiclePlaneConstants.tuning,
     );
 
@@ -227,9 +227,9 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
 );
 
 // assign display name for react devtools compatibility
-VehiclePlane.displayName = "VehiclePlane";
+VehiclePlane01.displayName = "VehiclePlane01";
 
-export default VehiclePlane;
+export default VehiclePlane01;
 
 // preload assets to prevent frame drops on mount
 useGLTF.preload(modelsSeperatedBank.lightPlane01airframe);
