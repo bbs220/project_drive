@@ -10,6 +10,18 @@ export const respawnValues = {
       position: [0, 5, 0] as [number, number, number],
       rotation: [0, 0, 0] as [number, number, number],
     },
+    car01: {
+      position: [0, 5, -100] as [number, number, number],
+      rotation: [0, Math.PI, 0] as [number, number, number],
+    },
+    plane01: {
+      position: [100, 5, -100] as [number, number, number],
+      rotation: [0, 0, 0] as [number, number, number],
+    },
+    helicopter01: {
+      position: [-100, 5, -100] as [number, number, number],
+      rotation: [0, 0, 0] as [number, number, number],
+    },
     car: {
       position: [0, 5, -100] as [number, number, number],
       rotation: [0, Math.PI, 0] as [number, number, number],
@@ -26,6 +38,18 @@ export const respawnValues = {
   garage: {
     player: {
       position: [0, 2, 5] as [number, number, number],
+      rotation: [0, Math.PI, 0] as [number, number, number],
+    },
+    car01: {
+      position: [0, 2, 0] as [number, number, number],
+      rotation: [0, Math.PI, 0] as [number, number, number],
+    },
+    plane01: {
+      position: [0, 2, 0] as [number, number, number],
+      rotation: [0, Math.PI, 0] as [number, number, number],
+    },
+    helicopter01: {
+      position: [0, 2, 0] as [number, number, number],
       rotation: [0, Math.PI, 0] as [number, number, number],
     },
     car: {
@@ -119,7 +143,7 @@ export const playerConstants = {
   },
 };
 
-export const vehicleCarConstants = {
+export const vehicleCar01Constants = {
   tuning: {
     // chassis colliders & spatial anchors
     chassisWidth: {
@@ -127,50 +151,50 @@ export const vehicleCarConstants = {
       min: 0.5,
       max: 10,
       label: "width",
-      folder: "Car",
+      folder: "Car 01",
     },
     chassisHeight: {
       value: 0.55,
       min: 0.2,
       max: 10,
       label: "height",
-      folder: "Car",
+      folder: "Car 01",
     },
     chassisLength: {
       value: 4.8,
       min: 2,
       max: 10,
       label: "length",
-      folder: "Car",
+      folder: "Car 01",
     },
     chassisBorderRadius: {
       value: 0.1,
       min: 0.1,
       max: 1,
       label: "edge radius",
-      folder: "Car",
+      folder: "Car 01",
     },
-    mass: { value: 200, min: 100, max: 2000, label: "mass", folder: "Car" },
+    mass: { value: 200, min: 100, max: 2000, label: "mass", folder: "Car 01" },
     chassisPosX: {
       value: 0,
       min: -10,
       max: 10,
       label: "chassis pos x",
-      folder: "Car",
+      folder: "Car 01",
     },
     chassisPosY: {
       value: 0.4,
       min: -10,
       max: 10,
       label: "chassis pos y",
-      folder: "Car",
+      folder: "Car 01",
     },
     chassisPosZ: {
       value: 0,
       min: -10,
       max: 10,
       label: "chassis pos z",
-      folder: "Car",
+      folder: "Car 01",
     },
     // wheel spatial anchors
     wheelPosX: {
@@ -178,28 +202,28 @@ export const vehicleCarConstants = {
       min: 0.1,
       max: 3,
       label: "wheel pos x",
-      folder: "Car",
+      folder: "Car 01",
     },
     wheelPosY: {
       value: 0.45,
       min: -2,
       max: 2,
       label: "wheel pos y",
-      folder: "Car",
+      folder: "Car 01",
     },
     frontWheelPosZ: {
       value: 2.03,
       min: 0.1,
       max: 5,
       label: "front wheel z",
-      folder: "Car",
+      folder: "Car 01",
     },
     rearWheelPosZ: {
       value: -1.95,
       min: -5,
       max: -0.1,
       label: "rear wheel z",
-      folder: "Car",
+      folder: "Car 01",
     },
     // wheel and suspension tuning
     wheelRadius: {
@@ -207,49 +231,49 @@ export const vehicleCarConstants = {
       min: 0.1,
       max: 1,
       label: "wheel radius",
-      folder: "Car",
+      folder: "Car 01",
     },
     wheelWidth: {
       value: 0.7,
       min: 0.1,
       max: 1,
       label: "wheel width",
-      folder: "Car",
+      folder: "Car 01",
     },
     suspensionRestLength: {
       value: 0.125,
       min: 0.01,
       max: 1,
       label: "susp rest",
-      folder: "Car",
+      folder: "Car 01",
     },
     suspensionStiffness: {
       value: 24,
       min: 1,
       max: 100,
       label: "susp stiffness",
-      folder: "Car",
+      folder: "Car 01",
     },
     maxSuspensionTravel: {
       value: 1,
       min: 0.1,
       max: 2,
       label: "susp travel",
-      folder: "Car",
+      folder: "Car 01",
     },
     frictionSlip: {
       value: 1.5,
       min: 0.1,
       max: 5,
       label: "friction slip",
-      folder: "Car",
+      folder: "Car 01",
     },
     sideFrictionStiffness: {
       value: 3,
       min: 0.1,
       max: 10,
       label: "side friction",
-      folder: "Car",
+      folder: "Car 01",
     },
     // driving mechanics
     engineForce: {
@@ -257,59 +281,61 @@ export const vehicleCarConstants = {
       min: 1,
       max: 500,
       label: "engine force",
-      folder: "Car",
+      folder: "Car 01",
     },
     maxSpeed: {
       value: 88,
       min: 10,
       max: 200,
       label: "max speed",
-      folder: "Car",
+      folder: "Car 01",
     },
     maxReverseSpeed: {
       value: 10,
       min: 1,
       max: 100,
       label: "max reverse speed",
-      folder: "Car",
+      folder: "Car 01",
     },
     boostMultiplier: {
       value: 2.5,
       min: 1,
       max: 5,
       label: "boost multiplier",
-      folder: "Car",
+      folder: "Car 01",
     },
     brakeForce: {
       value: 2,
       min: 1,
       max: 500,
       label: "brake force",
-      folder: "Car",
+      folder: "Car 01",
     },
     steeringAngle: {
       value: 0.5,
       min: 0.1,
       max: 1,
       label: "steering angle",
-      folder: "Car",
+      folder: "Car 01",
     },
     flipImpulse: {
       value: 0.5,
       min: 0.1,
       max: 100,
       label: "flip impulse",
-      folder: "Car",
+      folder: "Car 01",
     },
     // debug wireframes toggle
-    debugMesh: { value: false, label: "wireframe", folder: "Car" },
+    debugMesh: { value: false, label: "wireframe", folder: "Car 01" },
   },
   physics: {
-    friction: { value: 0.5, label: "friction", folder: "Car" },
+    friction: { value: 0.5, label: "friction", folder: "Car 01" },
   },
 };
 
-export const vehiclePlaneConstants = {
+export const vehicleCarConstants = vehicleCar01Constants;
+
+export const vehiclePlane01Constants = {
   tuning: {
     // visuals
     planePosX: {
@@ -317,42 +343,42 @@ export const vehiclePlaneConstants = {
       min: -20,
       max: 20,
       label: "plane pos x",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     planePosY: {
       value: 0,
       min: -20,
       max: 20,
       label: "plane pos y",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     planePosZ: {
       value: -3,
       min: -20,
       max: 20,
       label: "plane pos z",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     cockpitPosX: {
       value: 0,
       min: -20,
       max: 20,
       label: "cockpit pos x",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     cockpitPosY: {
       value: 0.68,
       min: -20,
       max: 20,
       label: "cockpit pos y",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     cockpitPosZ: {
       value: -2.8,
       min: -20,
       max: 20,
       label: "cockpit pos z",
-      folder: "Plane",
+      folder: "Plane 01",
     },
 
     // physics colliders - single centralized mass for arcade forgiveness
@@ -361,35 +387,35 @@ export const vehiclePlaneConstants = {
       min: 0.1,
       max: 20,
       label: "chassis width",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     chassisHeight: {
       value: 0.6,
       min: 0.1,
       max: 20,
       label: "chassis height",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     chassisLength: {
       value: 10,
       min: 0.1,
       max: 20,
       label: "chassis length",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     chassisRadius: {
       value: 1.4,
       min: 0,
       max: 2,
       label: "chassis radius",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     chassisMass: {
       value: 500,
       min: 10,
       max: 2000,
       label: "chassis mass",
-      folder: "Plane",
+      folder: "Plane 01",
     },
 
     // unity airplane extracted movement speeds
@@ -398,28 +424,28 @@ export const vehiclePlaneConstants = {
       min: 5,
       max: 100,
       label: "default speed",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     turboSpeed: {
       value: 60,
       min: 10,
       max: 200,
       label: "turbo speed",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     accelerating: {
       value: 10,
       min: 0.1,
       max: 50,
       label: "accelerating",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     deaccelerating: {
       value: 5,
       min: 0.1,
       max: 50,
       label: "deaccelerating",
-      folder: "Plane",
+      folder: "Plane 01",
     },
 
     // unity airplane extracted rotating speeds
@@ -428,21 +454,21 @@ export const vehiclePlaneConstants = {
       min: 5,
       max: 200,
       label: "yaw speed",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     pitchSpeed: {
       value: 100,
       min: 5,
       max: 300,
       label: "pitch speed",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     rollSpeed: {
       value: 200,
       min: 5,
       max: 500,
       label: "roll speed",
-      folder: "Plane",
+      folder: "Plane 01",
     },
 
     // unity turbo multipliers
@@ -451,21 +477,21 @@ export const vehiclePlaneConstants = {
       min: 0.1,
       max: 5,
       label: "yaw turbo mult",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     pitchTurboMultiplier: {
       value: 0.5,
       min: 0.1,
       max: 5,
       label: "pitch turbo mult",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     rollTurboMultiplier: {
       value: 1,
       min: 0.1,
       max: 5,
       label: "roll turbo mult",
-      folder: "Plane",
+      folder: "Plane 01",
     },
 
     // unity sideways forces for banking and artificial lift drop
@@ -474,28 +500,28 @@ export const vehiclePlaneConstants = {
       min: 0.1,
       max: 50,
       label: "sideways move",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     sidewaysMovementXRot: {
       value: 0.012,
       min: 0.001,
       max: 0.1,
       label: "sideways x rot",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     sidewaysMovementYRot: {
       value: 1.5,
       min: 0.1,
       max: 5,
       label: "sideways y rot",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     sidewaysMovementYPos: {
       value: 0.1,
       min: 0,
       max: 1,
       label: "sideways y pos",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     // strict angle limits
     maxPitchAngle: {
@@ -503,28 +529,30 @@ export const vehiclePlaneConstants = {
       min: 5,
       max: 90,
       label: "max pitch angle",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     maxRollAngle: {
       value: 30,
       min: 5,
       max: 90,
       label: "max roll angle",
-      folder: "Plane",
+      folder: "Plane 01",
     },
     altitudeLimit: {
       value: 200,
       min: 100,
       max: 1000,
       label: "altitude limit",
-      folder: "Plane",
+      folder: "Plane 01",
     },
-    debugMesh: { value: false, label: "wireframe", folder: "Plane" },
+    debugMesh: { value: false, label: "wireframe", folder: "Plane 01" },
   },
   physics: {},
 };
 
-export const vehicleHelicopterConstants = {
+export const vehiclePlaneConstants = vehiclePlane01Constants;
+
+export const vehicleHelicopter01Constants = {
   tuning: {
     // visuals
     cabinPosX: {
@@ -532,63 +560,63 @@ export const vehicleHelicopterConstants = {
       min: -20,
       max: 20,
       label: "cabin pos x",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     cabinPosY: {
       value: 0,
       min: -20,
       max: 20,
       label: "cabin pos y",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     cabinPosZ: {
       value: -0.35,
       min: -20,
       max: 20,
       label: "cabin pos z",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     mainRotorPosX: {
       value: 0,
       min: -20,
       max: 20,
       label: "main rotor x",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     mainRotorPosY: {
       value: 2.25,
       min: -20,
       max: 20,
       label: "main rotor y",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     mainRotorPosZ: {
       value: -0.9,
       min: -20,
       max: 20,
       label: "main rotor z",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     tailRotorPosX: {
       value: 0,
       min: -20,
       max: 20,
       label: "tail rotor x",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     tailRotorPosY: {
       value: 0.1,
       min: -20,
       max: 20,
       label: "tail rotor y",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     tailRotorPosZ: {
       value: 6.46,
       min: -20,
       max: 20,
       label: "tail rotor z",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
 
     // physics colliders
@@ -597,35 +625,35 @@ export const vehicleHelicopterConstants = {
       min: 0.1,
       max: 5,
       label: "chassis width",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     chassisHeight: {
       value: 1.2,
       min: 0.1,
       max: 5,
       label: "chassis height",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     chassisLength: {
       value: 6.3,
       min: 0.1,
       max: 10,
       label: "chassis length",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     chassisRadius: {
       value: 1.4,
       min: 0,
       max: 2,
       label: "chassis radius",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     chassisMass: {
       value: 300,
       min: 10,
       max: 2000,
       label: "chassis mass",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
 
     // arcade velocity override mechanics
@@ -634,65 +662,67 @@ export const vehicleHelicopterConstants = {
       min: 5,
       max: 100,
       label: "vertical speed",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     forwardSpeed: {
       value: 40,
       min: 10,
       max: 100,
       label: "forward speed",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     strafeSpeed: {
       value: 25,
       min: 5,
       max: 100,
       label: "strafe speed",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     yawSpeed: {
       value: 15,
       min: 0.5,
       max: 100,
       label: "yaw speed",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     maxPitch: {
       value: 25,
       min: 10,
       max: 60,
       label: "max pitch deg",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     maxRoll: {
       value: 25,
       min: 10,
       max: 60,
       label: "max roll deg",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     smoothing: {
       value: 5,
       min: 1,
       max: 20,
       label: "visual smoothing",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     rotorSpeed: {
       value: 20,
       min: 5,
       max: 50,
       label: "rotor speed",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
     altitudeLimit: {
       value: 200,
       min: 100,
       max: 1000,
       label: "altitude limit",
-      folder: "Helicopter",
+      folder: "Helicopter 01",
     },
-    debugMesh: { value: false, label: "wireframe", folder: "Helicopter" },
+    debugMesh: { value: false, label: "wireframe", folder: "Helicopter 01" },
   },
   physics: {},
 };
+
+export const vehicleHelicopterConstants = vehicleHelicopter01Constants;

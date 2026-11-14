@@ -8,7 +8,7 @@ import * as THREE from "three";
 import { useGLTF, Html } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
 import {
-  vehicleCarConstants,
+  vehicleCar01Constants,
   respawnValues,
 } from "../../constants/otherConstants";
 import { useTweakpane } from "../../hooks/useTweakpane";
@@ -76,7 +76,7 @@ const labelStyle: React.CSSProperties = {
 // wrap component in forward ref to expose visual group to parent
 const VehicleCar01 = forwardRef<THREE.Group, VehicleProps>(
   ({ spawnMode }, ref) => {
-    const initialSpawn = respawnValues[spawnMode].car;
+    const initialSpawn = respawnValues[spawnMode].car01;
 
     const chassisRef = useRef<RapierRigidBody>(null);
     const visualRef = useRef<THREE.Group>(null);
@@ -89,10 +89,10 @@ const VehicleCar01 = forwardRef<THREE.Group, VehicleProps>(
     // initialize tweakpane hook using only the tuning object
     const tuningParams = useTweakpane(
       { title: "⚙️ Vehicle Tuning", expanded: false },
-      vehicleCarConstants.tuning,
+      vehicleCar01Constants.tuning,
     );
 
-    const friction = vehicleCarConstants.physics.friction;
+    const friction = vehicleCar01Constants.physics.friction;
 
     // initialize the vehicle controller hook
     const { wheelsInfo } = useVehicleCarCreator(

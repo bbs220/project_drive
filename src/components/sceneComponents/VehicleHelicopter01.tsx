@@ -10,7 +10,7 @@ import {
 } from "@react-three/rapier";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
-  vehicleHelicopterConstants,
+  vehicleHelicopter01Constants,
   respawnValues,
 } from "../../constants/otherConstants";
 import { unwrapParam } from "../../utils/unwrapParam";
@@ -56,7 +56,7 @@ type typeTailRotorGLTF = GLTF & {
 // main vehicle component updated with custom six point spherical physics
 const VehicleHelicopter01 = forwardRef<THREE.Group, VehicleProps>(
   ({ spawnMode }, ref) => {
-    const initialSpawn = respawnValues[spawnMode].helicopter;
+    const initialSpawn = respawnValues[spawnMode].helicopter01;
 
     const visualRef = useRef<THREE.Group>(null);
 
@@ -77,8 +77,8 @@ const VehicleHelicopter01 = forwardRef<THREE.Group, VehicleProps>(
 
     // initialize tweakpane hook and store reactive parameters
     const params = useTweakpane(
-      { title: "🚁 Helicopter 01 Tuning", expanded: false },
-      vehicleHelicopterConstants.tuning,
+      { title: "⚙️ Vehicle Tuning", expanded: false },
+      vehicleHelicopter01Constants.tuning,
     );
 
     // extract debug boolean

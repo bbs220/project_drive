@@ -10,7 +10,7 @@ import {
 } from "@react-three/rapier";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
-  vehiclePlaneConstants,
+  vehiclePlane01Constants,
   respawnValues,
 } from "../../constants/otherConstants";
 import { unwrapParam } from "../../utils/unwrapParam";
@@ -45,7 +45,7 @@ type typeCockpitGLTF = GLTF & {
 // main vehicle component with four point sketchbook physics
 const VehiclePlane01 = forwardRef<THREE.Group, VehicleProps>(
   ({ spawnMode }, ref) => {
-    const initialSpawn = respawnValues[spawnMode].plane;
+    const initialSpawn = respawnValues[spawnMode].plane01;
 
     const visualRef = useRef<THREE.Group>(null);
 
@@ -60,8 +60,8 @@ const VehiclePlane01 = forwardRef<THREE.Group, VehicleProps>(
 
     // initialize tweakpane hook and store reactive parameters
     const params = useTweakpane(
-      { title: "✈️ Plane 01 Tuning", expanded: false },
-      vehiclePlaneConstants.tuning,
+      { title: "⚙️ Vehicle Tuning", expanded: false },
+      vehiclePlane01Constants.tuning,
     );
 
     // extract debug boolean
