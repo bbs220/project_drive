@@ -22,6 +22,9 @@ export const modelsSeperatedBank = {
   runner01chassis: "/models/runner01chassis.glb",
   runner01leftFrontTyre: "/models/runner01leftFrontTyre.glb",
   runner01leftRearTyre: "/models/runner01leftRearTyre.glb",
+  runner02chassis: "/models/runner02chassis.glb",
+  runner02leftFrontTyre: "/models/runner02leftFrontTyre.glb",
+  runner02leftRearTyre: "/models/runner02leftRearTyre.glb",
 };
 
 export const tracksBank = {
