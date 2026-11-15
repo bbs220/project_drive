@@ -16,10 +16,7 @@ import { useVehicleCarCreator } from "../../hooks/useVehicleCarCreator";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import { unwrapParam } from "../../utils/unwrapParam";
-import {
-  type VehicleProps,
-  ENTITY_ID,
-} from "../../stores/useVehicleStore";
+import { type VehicleProps, ENTITY_ID } from "../../stores/useVehicleStore";
 import TrailEngine from "./TrailEngine";
 import { useCustomizationStore } from "../../stores/useCustomizationStore";
 
@@ -471,9 +468,9 @@ const VehicleCar02 = forwardRef<THREE.Group, VehicleProps>(
 
         <TrailEngine
           targetRef={visualRef}
-          offset={[0, 0.1, -2.3]}
+          offset={[0, 0.6, -2.3]}
           color={carMods.trailColor}
-          height={0.8}
+          height={0.4}
           width={0.05}
           length={80}
           isCar
