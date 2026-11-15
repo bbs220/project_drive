@@ -26,18 +26,6 @@ export const respawnValues = {
       position: [-100, 5, -100] as [number, number, number],
       rotation: [0, 0, 0] as [number, number, number],
     },
-    car: {
-      position: [0, 5, -100] as [number, number, number],
-      rotation: [0, Math.PI, 0] as [number, number, number],
-    },
-    plane: {
-      position: [100, 5, -100] as [number, number, number],
-      rotation: [0, 0, 0] as [number, number, number],
-    },
-    helicopter: {
-      position: [-100, 5, -100] as [number, number, number],
-      rotation: [0, 0, 0] as [number, number, number],
-    },
   },
   garage: {
     player: {
@@ -57,18 +45,6 @@ export const respawnValues = {
       rotation: [0, Math.PI, 0] as [number, number, number],
     },
     helicopter01: {
-      position: [0, 2, 0] as [number, number, number],
-      rotation: [0, Math.PI, 0] as [number, number, number],
-    },
-    car: {
-      position: [0, 2, 0] as [number, number, number],
-      rotation: [0, Math.PI, 0] as [number, number, number],
-    },
-    plane: {
-      position: [0, 2, 0] as [number, number, number],
-      rotation: [0, Math.PI, 0] as [number, number, number],
-    },
-    helicopter: {
       position: [0, 2, 0] as [number, number, number],
       rotation: [0, Math.PI, 0] as [number, number, number],
     },
@@ -340,8 +316,6 @@ export const vehicleCar01Constants = {
     friction: { value: 0.5, label: "friction", folder: "Car 01" },
   },
 };
-
-export const vehicleCarConstants = vehicleCar01Constants;
 
 export const vehicleCar02Constants = {
   tuning: {
@@ -748,8 +722,6 @@ export const vehiclePlane01Constants = {
   physics: {},
 };
 
-export const vehiclePlaneConstants = vehiclePlane01Constants;
-
 export const vehicleHelicopter01Constants = {
   tuning: {
     // visuals
@@ -922,5 +894,3 @@ export const vehicleHelicopter01Constants = {
   },
   physics: {},
 };
-
-export const vehicleHelicopterConstants = vehicleHelicopter01Constants;

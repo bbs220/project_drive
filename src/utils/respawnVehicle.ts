@@ -1,13 +1,14 @@
 import type { RapierRigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 import { respawnValues } from "../constants/otherConstants";
-import type { TypeControlState } from "../stores/useVehicleStore";
+
+export type typeRespawnVehicle = keyof typeof respawnValues.drive;
 
 // strictly type the incoming parameters directly from the global store
 type typeRespawnVehicleFunc = {
-  vehicleType: TypeControlState;
+  vehicleType: typeRespawnVehicle;
   vehicleBody: RapierRigidBody;
-  mode: "drive" | "garage";
+  mode?: "drive" | "garage";
 };
 
 // initialize reusable objects outside the function to prevent garbage collection stutters
