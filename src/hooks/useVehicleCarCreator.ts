@@ -11,6 +11,7 @@ import {
   useVehicleStore,
   CONTROL_STATE,
   ENTITY_ID,
+  type TypeEntityId,
 } from "../stores/useVehicleStore";
 import respawnVehicle from "../utils/respawnVehicle";
 import { unwrapParam } from "../utils/unwrapParam";
@@ -78,6 +79,7 @@ export const useVehicleCarCreator = (
   wheelsRef: RefObject<THREE.Object3D[]>,
   controlsRef: RefObject<typeAllVehicleControls>,
   tuning: typeCarTuning,
+  entityId: TypeEntityId = ENTITY_ID.CAR_1,
 ) => {
   // get rapier world
   const { world } = useRapier();
@@ -227,7 +229,7 @@ export const useVehicleCarCreator = (
 
     // strictly check against the new ECS dictionary instead of a string
     const controls =
-      active.control === CONTROL_STATE.CAR
+      active.control === CONTROL_STATE.CAR && active.entity === entityId
         ? controlsRef.current
         : {
             forward: false,
@@ -388,7 +390,8 @@ export const useVehicleCarCreator = (
         !controls.backward &&
         !controls.left &&
         !controls.right;
-      const isUnoccupied = active.control !== CONTROL_STATE.CAR;
+      const isUnoccupied =
+        active.control !== CONTROL_STATE.CAR || active.entity !== entityId;
 
       // only damp if the vehicle has slowed down to a crawl.
       // this ensures unoccupied cars still tumble/slide naturally if thrown off a cliff.
@@ -465,8 +468,8 @@ export const useVehicleCarCreator = (
     _carSeatPos[2] = _worldSeat.z;
 
     // update physics state variables if actively driving but always broadcast position and seat
-    if (active.control === CONTROL_STATE.CAR) {
-      useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
+    if (active.control === CONTROL_STATE.CAR && active.entity === entityId) {
+      useVehicleStore.getState().updateTelemetry(entityId, {
         speed: speedKmh,
         position: _carPos,
         rotation: _carRot,
@@ -475,7 +478,7 @@ export const useVehicleCarCreator = (
       });
     } else {
       // if empty only broadcast the coordinates so the player knows where to walk or sit
-      useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
+      useVehicleStore.getState().updateTelemetry(entityId, {
         position: _carPos,
         rotation: _carRot,
         seatPosition: _carSeatPos,

@@ -14,6 +14,10 @@ export const respawnValues = {
       position: [0, 5, -100] as [number, number, number],
       rotation: [0, Math.PI, 0] as [number, number, number],
     },
+    car02: {
+      position: [30, 5, -100] as [number, number, number],
+      rotation: [0, Math.PI, 0] as [number, number, number],
+    },
     plane01: {
       position: [100, 5, -100] as [number, number, number],
       rotation: [0, 0, 0] as [number, number, number],
@@ -41,6 +45,10 @@ export const respawnValues = {
       rotation: [0, Math.PI, 0] as [number, number, number],
     },
     car01: {
+      position: [0, 2, 0] as [number, number, number],
+      rotation: [0, Math.PI, 0] as [number, number, number],
+    },
+    car02: {
       position: [0, 2, 0] as [number, number, number],
       rotation: [0, Math.PI, 0] as [number, number, number],
     },
@@ -334,6 +342,196 @@ export const vehicleCar01Constants = {
 };
 
 export const vehicleCarConstants = vehicleCar01Constants;
+
+export const vehicleCar02Constants = {
+  tuning: {
+    // chassis colliders and spatial anchors
+    chassisWidth: {
+      value: 2.8,
+      min: 0.5,
+      max: 10,
+      label: "width",
+      folder: "Car 02",
+    },
+    chassisHeight: {
+      value: 0.55,
+      min: 0.2,
+      max: 10,
+      label: "height",
+      folder: "Car 02",
+    },
+    chassisLength: {
+      value: 4.8,
+      min: 2,
+      max: 10,
+      label: "length",
+      folder: "Car 02",
+    },
+    chassisBorderRadius: {
+      value: 0.1,
+      min: 0.1,
+      max: 1,
+      label: "edge radius",
+      folder: "Car 02",
+    },
+    mass: { value: 200, min: 100, max: 2000, label: "mass", folder: "Car 02" },
+    chassisPosX: {
+      value: 0,
+      min: -10,
+      max: 10,
+      label: "chassis pos x",
+      folder: "Car 02",
+    },
+    chassisPosY: {
+      value: 0.4,
+      min: -10,
+      max: 10,
+      label: "chassis pos y",
+      folder: "Car 02",
+    },
+    chassisPosZ: {
+      value: 0,
+      min: -10,
+      max: 10,
+      label: "chassis pos z",
+      folder: "Car 02",
+    },
+    // wheel spatial anchors
+    wheelPosX: {
+      value: 1.6,
+      min: 0.1,
+      max: 3,
+      label: "wheel pos x",
+      folder: "Car 02",
+    },
+    wheelPosY: {
+      value: 0.45,
+      min: -2,
+      max: 2,
+      label: "wheel pos y",
+      folder: "Car 02",
+    },
+    frontWheelPosZ: {
+      value: 2.03,
+      min: 0.1,
+      max: 5,
+      label: "front wheel z",
+      folder: "Car 02",
+    },
+    rearWheelPosZ: {
+      value: -1.95,
+      min: -5,
+      max: -0.1,
+      label: "rear wheel z",
+      folder: "Car 02",
+    },
+    // wheel and suspension tuning
+    wheelRadius: {
+      value: 0.55,
+      min: 0.1,
+      max: 1,
+      label: "wheel radius",
+      folder: "Car 02",
+    },
+    wheelWidth: {
+      value: 0.7,
+      min: 0.1,
+      max: 1,
+      label: "wheel width",
+      folder: "Car 02",
+    },
+    suspensionRestLength: {
+      value: 0.125,
+      min: 0.01,
+      max: 1,
+      label: "susp rest",
+      folder: "Car 02",
+    },
+    suspensionStiffness: {
+      value: 24,
+      min: 1,
+      max: 100,
+      label: "susp stiffness",
+      folder: "Car 02",
+    },
+    maxSuspensionTravel: {
+      value: 1,
+      min: 0.1,
+      max: 2,
+      label: "susp travel",
+      folder: "Car 02",
+    },
+    frictionSlip: {
+      value: 1.5,
+      min: 0.1,
+      max: 5,
+      label: "friction slip",
+      folder: "Car 02",
+    },
+    sideFrictionStiffness: {
+      value: 3,
+      min: 0.1,
+      max: 10,
+      label: "side friction",
+      folder: "Car 02",
+    },
+    // driving mechanics
+    engineForce: {
+      value: 40,
+      min: 1,
+      max: 500,
+      label: "engine force",
+      folder: "Car 02",
+    },
+    maxSpeed: {
+      value: 88,
+      min: 10,
+      max: 200,
+      label: "max speed",
+      folder: "Car 02",
+    },
+    maxReverseSpeed: {
+      value: 10,
+      min: 1,
+      max: 100,
+      label: "max reverse speed",
+      folder: "Car 02",
+    },
+    boostMultiplier: {
+      value: 2.5,
+      min: 1,
+      max: 5,
+      label: "boost multiplier",
+      folder: "Car 02",
+    },
+    brakeForce: {
+      value: 2,
+      min: 1,
+      max: 500,
+      label: "brake force",
+      folder: "Car 02",
+    },
+    steeringAngle: {
+      value: 0.5,
+      min: 0.1,
+      max: 1,
+      label: "steering angle",
+      folder: "Car 02",
+    },
+    flipImpulse: {
+      value: 0.5,
+      min: 0.1,
+      max: 100,
+      label: "flip impulse",
+      folder: "Car 02",
+    },
+    // debug wireframes toggle
+    debugMesh: { value: false, label: "wireframe", folder: "Car 02" },
+  },
+  physics: {
+    friction: { value: 0.5, label: "friction", folder: "Car 02" },
+  },
+};
 
 export const vehiclePlane01Constants = {
   tuning: {
