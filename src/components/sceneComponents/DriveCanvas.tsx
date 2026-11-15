@@ -14,13 +14,13 @@ import { useTweakpane } from "../../hooks/useTweakpane";
 import AllVehiclesHUD from "./AllVehiclesHUD";
 import CameraRig from "./CameraRig";
 import VehicleCar01 from "./VehicleCar01";
+import VehicleCar02 from "./VehicleCar02";
 import VehicleHelicopter01 from "./VehicleHelicopter01";
 import VehiclePlane01 from "./VehiclePlane01";
 import {
   useVehicleStore,
   CONTROL_STATE,
   ENTITY_ID,
-  type TypeControlState,
   type TypeEntityId,
 } from "../../stores/useVehicleStore";
 import BackgroundLight from "./BackgroundLight";
@@ -36,6 +36,7 @@ import { useUIStore } from "../../stores/useUIStore";
 const DriveScene = () => {
   // initialize refs for all instantiated vehicles and player
   const carRef = useRef<THREE.Group>(null);
+  const car02Ref = useRef<THREE.Group>(null);
   const heliRef = useRef<THREE.Group>(null);
   const planeRef = useRef<THREE.Group>(null);
   const playerRef = useRef<THREE.Group>(null);
@@ -57,7 +58,9 @@ const DriveScene = () => {
         ? planeRef
         : active.control === CONTROL_STATE.PLAYER
           ? playerRef
-          : carRef;
+          : active.entity === ENTITY_ID.CAR_2
+            ? car02Ref
+            : carRef;
 
   // configure debug tools and dynamic fov tuners
   const {
@@ -82,13 +85,14 @@ const DriveScene = () => {
       showGizmo: { value: true, label: "show gizmo" },
       cameraDebug: { value: sceneConstants.isDev, label: "camera debug" },
       activeVehicle: {
-        value: active.control,
+        value: active.entity,
         label: "current vehicle",
         options: {
-          player: CONTROL_STATE.PLAYER,
-          car01: CONTROL_STATE.CAR,
-          helicopter01: CONTROL_STATE.HELICOPTER,
-          plane01: CONTROL_STATE.PLANE,
+          player: ENTITY_ID.PLAYER_1,
+          car01: ENTITY_ID.CAR_1,
+          car02: ENTITY_ID.CAR_2,
+          helicopter01: ENTITY_ID.HELI_1,
+          plane01: ENTITY_ID.PLANE_1,
         },
       },
       enableFog: { value: false, label: "enable fog", folder: "Fog" },
@@ -152,15 +156,15 @@ const DriveScene = () => {
   // sync dropdown state to global store using strict ECS entity mappings
   useEffect(() => {
     // deduce the correct entity id based on the dropdown selection
-    let targetEntity: TypeEntityId = ENTITY_ID.PLAYER_1;
-
-    if (activeVehicle === CONTROL_STATE.CAR) targetEntity = ENTITY_ID.CAR_1;
-    if (activeVehicle === CONTROL_STATE.HELICOPTER)
-      targetEntity = ENTITY_ID.HELI_1;
-    if (activeVehicle === CONTROL_STATE.PLANE) targetEntity = ENTITY_ID.PLANE_1;
-
-    // push both the class and the instance ID to the store
-    setActive(activeVehicle as TypeControlState, targetEntity);
+    if (activeVehicle === ENTITY_ID.CAR_1 || activeVehicle === ENTITY_ID.CAR_2) {
+      setActive(CONTROL_STATE.CAR, activeVehicle as TypeEntityId);
+    } else if (activeVehicle === ENTITY_ID.HELI_1) {
+      setActive(CONTROL_STATE.HELICOPTER, activeVehicle as TypeEntityId);
+    } else if (activeVehicle === ENTITY_ID.PLANE_1) {
+      setActive(CONTROL_STATE.PLANE, activeVehicle as TypeEntityId);
+    } else {
+      setActive(CONTROL_STATE.PLAYER, ENTITY_ID.PLAYER_1);
+    }
   }, [activeVehicle, setActive]);
 
   // dynamically stretch the camera fov based on active vehicle speed
@@ -186,7 +190,11 @@ const DriveScene = () => {
 
     // pull speed/airspeed directly from your strict telemetry map
     if (activeControl === CONTROL_STATE.CAR) {
-      currentSpeed = storeState.telemetry[ENTITY_ID.CAR_1].speed;
+      const activeCarEntity =
+        storeState.active.entity === ENTITY_ID.CAR_2
+          ? ENTITY_ID.CAR_2
+          : ENTITY_ID.CAR_1;
+      currentSpeed = storeState.telemetry[activeCarEntity].speed;
 
       // strictly bind the camera warp effect to active engine thrust
       // if we are not actively holding forward AND boost, immediately kill the fov stretch
@@ -248,6 +256,7 @@ const DriveScene = () => {
       </GizmoHelper>
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar01 ref={carRef} spawnMode={"drive"} />
+      <VehicleCar02 ref={car02Ref} spawnMode={"drive"} />
       <VehicleHelicopter01 ref={heliRef} spawnMode={"drive"} />
       <VehiclePlane01 ref={planeRef} spawnMode={"drive"} />
       <Player ref={playerRef} />

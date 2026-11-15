@@ -280,7 +280,7 @@ export const MiniMapFBO = () => {
     }
 
     let targetZoom = params.miniMapZoom;
-    if (active.entity === ENTITY_ID.CAR_1) {
+    if (active.entity === ENTITY_ID.CAR_1 || active.entity === ENTITY_ID.CAR_2) {
       targetZoom = THREE.MathUtils.clamp(
         params.carMinZoom + currentSpeed * params.speedZoomMult,
         params.carMinZoom,
@@ -328,7 +328,7 @@ export const MiniMapFBO = () => {
 
     mapMat.uniforms.uIconTexture.value = icons.playerRadar;
 
-    if (active.entity === ENTITY_ID.CAR_1) {
+    if (active.entity === ENTITY_ID.CAR_1 || active.entity === ENTITY_ID.CAR_2) {
       mapMat.uniforms.uActiveEntity.value = 1;
     } else if (active.entity === ENTITY_ID.HELI_1) {
       mapMat.uniforms.uActiveEntity.value = 3;
