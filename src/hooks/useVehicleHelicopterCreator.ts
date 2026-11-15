@@ -91,7 +91,7 @@ export const useVehicleHelicopterCreator = (
       chassis.translation().y < respawnValues.universalRespawnLimit
     ) {
       respawnVehicle({
-        vehicleType: "helicopter",
+        vehicleType: "helicopter01",
         vehicleBody: chassis,
         mode: "drive",
       });

@@ -104,7 +104,7 @@ export const useVehiclePlaneCreator = (
     ) {
       // execute centralized respawn logic
       respawnVehicle({
-        vehicleType: "plane",
+        vehicleType: "plane01",
         vehicleBody: chassis,
         mode: "drive",
       });

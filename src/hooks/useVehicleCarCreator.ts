@@ -244,11 +244,13 @@ export const useVehicleCarCreator = (
             mount: false,
           };
 
+    const carSpawnKey = entityId === ENTITY_ID.CAR_2 ? "car02" : "car01";
+
     // manual respawn trigger
     if (controls.respawn) {
       // execute centralized respawn logic
       respawnVehicle({
-        vehicleType: "car",
+        vehicleType: carSpawnKey,
         vehicleBody: chassis,
         mode: "drive",
       });
@@ -260,7 +262,7 @@ export const useVehicleCarCreator = (
     if (chassis.translation().y < respawnValues.universalRespawnLimit) {
       // execute centralized respawn logic
       respawnVehicle({
-        vehicleType: "car",
+        vehicleType: carSpawnKey,
         vehicleBody: chassis,
         mode: "drive",
       });
