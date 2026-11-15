@@ -124,10 +124,12 @@ export const MiniMapFBO = () => {
       uHeliTex: { value: icons.helicopterRadar },
       uCharPos: { value: new THREE.Vector2(0, 0) },
       uCarPos: { value: new THREE.Vector2(0, 0) },
+      uCar2Pos: { value: new THREE.Vector2(0, 0) },
       uPlanePos: { value: new THREE.Vector2(0, 0) },
       uHeliPos: { value: new THREE.Vector2(0, 0) },
       uCharYaw: { value: 0.0 },
       uCarYaw: { value: 0.0 },
+      uCar2Yaw: { value: 0.0 },
       uPlaneYaw: { value: 0.0 },
       uHeliYaw: { value: 0.0 },
       uActiveEntity: { value: 0 },
@@ -326,16 +328,21 @@ export const MiniMapFBO = () => {
       params.zoomLerpSpeed as number,
     );
 
-    mapMat.uniforms.uIconTexture.value = icons.playerRadar;
-
-    if (active.entity === ENTITY_ID.CAR_1 || active.entity === ENTITY_ID.CAR_2) {
+    if (active.entity === ENTITY_ID.CAR_1) {
       mapMat.uniforms.uActiveEntity.value = 1;
+      mapMat.uniforms.uIconTexture.value = icons.carRadar;
+    } else if (active.entity === ENTITY_ID.CAR_2) {
+      mapMat.uniforms.uActiveEntity.value = 4;
+      mapMat.uniforms.uIconTexture.value = icons.carRadar;
     } else if (active.entity === ENTITY_ID.HELI_1) {
       mapMat.uniforms.uActiveEntity.value = 3;
+      mapMat.uniforms.uIconTexture.value = icons.helicopterRadar;
     } else if (active.entity === ENTITY_ID.PLANE_1) {
       mapMat.uniforms.uActiveEntity.value = 2;
+      mapMat.uniforms.uIconTexture.value = icons.planeRadar;
     } else {
       mapMat.uniforms.uActiveEntity.value = 0;
+      mapMat.uniforms.uIconTexture.value = icons.playerRadar;
     }
 
     if (currentTelemetry) {
@@ -347,6 +354,7 @@ export const MiniMapFBO = () => {
 
     const pTel = telemetry[ENTITY_ID.PLAYER_1];
     const cTel = telemetry[ENTITY_ID.CAR_1];
+    const c2Tel = telemetry[ENTITY_ID.CAR_2];
     const plTel = telemetry[ENTITY_ID.PLANE_1];
     const hTel = telemetry[ENTITY_ID.HELI_1];
 
@@ -363,6 +371,13 @@ export const MiniMapFBO = () => {
         cTel.position[2],
       );
       mapMat.uniforms.uCarYaw.value = getYaw(cTel.rotation);
+    }
+    if (c2Tel) {
+      mapMat.uniforms.uCar2Pos.value.set(
+        c2Tel.position[0],
+        c2Tel.position[2],
+      );
+      mapMat.uniforms.uCar2Yaw.value = getYaw(c2Tel.rotation);
     }
     if (plTel) {
       mapMat.uniforms.uPlanePos.value.set(
@@ -421,6 +436,7 @@ const MiniMap = () => {
 
   const playerDistRef = useRef<HTMLSpanElement>(null);
   const carDistRef = useRef<HTMLSpanElement>(null);
+  const car2DistRef = useRef<HTMLSpanElement>(null);
   const planeDistRef = useRef<HTMLSpanElement>(null);
   const heliDistRef = useRef<HTMLSpanElement>(null);
 
@@ -531,6 +547,12 @@ const MiniMap = () => {
                 ? "ACTIVE"
                 : `${calcDist(activeTel, tel[ENTITY_ID.CAR_1])}m`;
           }
+          if (car2DistRef.current) {
+            car2DistRef.current.innerText =
+              activeId === ENTITY_ID.CAR_2
+                ? "ACTIVE"
+                : `${calcDist(activeTel, tel[ENTITY_ID.CAR_2])}m`;
+          }
           if (planeDistRef.current) {
             planeDistRef.current.innerText =
               activeId === ENTITY_ID.PLANE_1
@@ -617,6 +639,25 @@ const MiniMap = () => {
                 </div>
                 <span
                   ref={carDistRef}
+                  className="text-[10px] text-tron-cyan opacity-80"
+                />
+              </div>
+
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
+                    <img
+                      src={iconsBank.carRadar}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span className="uppercase">Grid Cruiser</span>
+                </div>
+                <span
+                  ref={car2DistRef}
                   className="text-[10px] text-tron-cyan opacity-80"
                 />
               </div>

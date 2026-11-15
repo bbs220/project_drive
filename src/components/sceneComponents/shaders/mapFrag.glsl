@@ -22,11 +22,13 @@ uniform sampler2D uPermTexture;
 
 uniform vec2 uCharPos;
 uniform vec2 uCarPos;
+uniform vec2 uCar2Pos;
 uniform vec2 uPlanePos;
 uniform vec2 uHeliPos;
 
 uniform float uCharYaw;
 uniform float uCarYaw;
+uniform float uCar2Yaw;
 uniform float uPlaneYaw;
 uniform float uHeliYaw;
 
@@ -216,6 +218,8 @@ void main() {
         activeYaw = uPlaneYaw;
     else if (uActiveEntity == 3)
         activeYaw = uHeliYaw;
+    else if (uActiveEntity == 4)
+        activeYaw = uCar2Yaw;
 
     vec2 margin = vec2(6.0) / uResolution;
 
@@ -250,6 +254,9 @@ void main() {
     }
     if (uActiveEntity != 1) {
         finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCarYaw,activeYaw,margin,uLookAhead,uEdgeIconScale);
+    }
+    if (uActiveEntity != 4) {
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCar2Pos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCar2Yaw,activeYaw,margin,uLookAhead,uEdgeIconScale);
     }
     if (uActiveEntity != 2) {
         finalColor = stampIcon(finalColor,vUv,uPlayerPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uPlaneYaw,activeYaw,margin,uLookAhead,uEdgeIconScale);
