@@ -335,7 +335,7 @@ export const vehicleCar02Constants = {
       folder: "Car 02",
     },
     chassisLength: {
-      value: 4.8,
+      value: 4.3,
       min: 2,
       max: 10,
       label: "length",
@@ -372,7 +372,7 @@ export const vehicleCar02Constants = {
     },
     // wheel spatial anchors
     wheelPosX: {
-      value: 1.6,
+      value: 1.55,
       min: 0.1,
       max: 3,
       label: "wheel pos x",
@@ -386,14 +386,14 @@ export const vehicleCar02Constants = {
       folder: "Car 02",
     },
     frontWheelPosZ: {
-      value: 2.03,
+      value: 1.85,
       min: 0.1,
       max: 5,
       label: "front wheel z",
       folder: "Car 02",
     },
     rearWheelPosZ: {
-      value: -1.95,
+      value: -1.75,
       min: -5,
       max: -0.1,
       label: "rear wheel z",
