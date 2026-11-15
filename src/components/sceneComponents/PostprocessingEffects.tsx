@@ -155,7 +155,7 @@ const PostprocessingEffects = () => {
 
     if (activeControl === CONTROL_STATE.CAR) {
       const carTelemetry =
-        state.telemetry[activeEntity as typeof ENTITY_ID.CAR_1];
+        state.telemetry[activeEntity as typeof ENTITY_ID.CAR_1 | typeof ENTITY_ID.CAR_2];
       const currentSpeed = Math.abs(carTelemetry?.speed || 0);
 
       // strictly bounds the effect for the car's speed thresholds

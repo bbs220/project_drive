@@ -57,7 +57,7 @@ export const SpeedLines = forwardRef((props: SpeedLinesProps, ref) => {
 
     if (activeControl === CONTROL_STATE.CAR) {
       const carTelemetry =
-        state.telemetry[activeEntity as typeof ENTITY_ID.CAR_1];
+        state.telemetry[activeEntity as typeof ENTITY_ID.CAR_1 | typeof ENTITY_ID.CAR_2];
 
       // grab the absolute speed
       const currentSpeed = Math.abs(carTelemetry?.speed || 0);
