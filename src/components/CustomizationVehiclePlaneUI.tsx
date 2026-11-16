@@ -3,7 +3,7 @@ import { useCustomizationStore } from "../stores/useCustomizationStore";
 import HSLColorSlab from "./HSLColorSlab";
 
 const CustomizationVehiclePlaneUI = () => {
-  const planeMods = useCustomizationStore((state) => state.planeMods);
+  const planeMods = useCustomizationStore((state) => state.plane01Mods);
   const setVehicleMod = useCustomizationStore((state) => state.setVehicleMod);
   const setVehicleMaterial = useCustomizationStore(
     (state) => state.setVehicleMaterial,
@@ -13,7 +13,7 @@ const CustomizationVehiclePlaneUI = () => {
 
   useEffect(() => {
     if (syncTrails) {
-      setVehicleMod("plane", "trailColor", planeMods.neon.color);
+      setVehicleMod("plane01", "trailColor", planeMods.neon.color);
     }
   }, [syncTrails, planeMods.neon.color, setVehicleMod]);
 
@@ -25,7 +25,7 @@ const CustomizationVehiclePlaneUI = () => {
           label="Fuselage"
           color={planeMods.base.color}
           onChange={(newColor) =>
-            setVehicleMaterial("plane", "base", "color", newColor)
+            setVehicleMaterial("plane01", "base", "color", newColor)
           }
         />
 
@@ -42,7 +42,7 @@ const CustomizationVehiclePlaneUI = () => {
             value={planeMods.base.metalness}
             onChange={(e) =>
               setVehicleMaterial(
-                "plane",
+                "plane01",
                 "base",
                 "metalness",
                 parseFloat(e.target.value),
@@ -64,7 +64,7 @@ const CustomizationVehiclePlaneUI = () => {
             value={planeMods.base.roughness}
             onChange={(e) =>
               setVehicleMaterial(
-                "plane",
+                "plane01",
                 "base",
                 "roughness",
                 parseFloat(e.target.value),
@@ -86,7 +86,7 @@ const CustomizationVehiclePlaneUI = () => {
             value={planeMods.base.emission}
             onChange={(e) =>
               setVehicleMaterial(
-                "plane",
+                "plane01",
                 "base",
                 "emission",
                 parseFloat(e.target.value),
@@ -103,7 +103,7 @@ const CustomizationVehiclePlaneUI = () => {
           label="Circuits"
           color={planeMods.neon.color}
           onChange={(newColor) =>
-            setVehicleMaterial("plane", "neon", "color", newColor)
+            setVehicleMaterial("plane01", "neon", "color", newColor)
           }
         />
 
@@ -120,7 +120,7 @@ const CustomizationVehiclePlaneUI = () => {
             value={planeMods.neon.metalness}
             onChange={(e) =>
               setVehicleMaterial(
-                "plane",
+                "plane01",
                 "neon",
                 "metalness",
                 parseFloat(e.target.value),
@@ -142,7 +142,7 @@ const CustomizationVehiclePlaneUI = () => {
             value={planeMods.neon.roughness}
             onChange={(e) =>
               setVehicleMaterial(
-                "plane",
+                "plane01",
                 "neon",
                 "roughness",
                 parseFloat(e.target.value),
@@ -164,7 +164,7 @@ const CustomizationVehiclePlaneUI = () => {
             value={planeMods.neon.emission}
             onChange={(e) =>
               setVehicleMaterial(
-                "plane",
+                "plane01",
                 "neon",
                 "emission",
                 parseFloat(e.target.value),
@@ -181,7 +181,7 @@ const CustomizationVehiclePlaneUI = () => {
           label="Cockpit"
           color={planeMods.glass.color}
           onChange={(newColor) =>
-            setVehicleMaterial("plane", "glass", "color", newColor)
+            setVehicleMaterial("plane01", "glass", "color", newColor)
           }
         />
 
@@ -198,7 +198,7 @@ const CustomizationVehiclePlaneUI = () => {
             value={planeMods.glass.metalness}
             onChange={(e) =>
               setVehicleMaterial(
-                "plane",
+                "plane01",
                 "glass",
                 "metalness",
                 parseFloat(e.target.value),
@@ -220,7 +220,7 @@ const CustomizationVehiclePlaneUI = () => {
             value={planeMods.glass.roughness}
             onChange={(e) =>
               setVehicleMaterial(
-                "plane",
+                "plane01",
                 "glass",
                 "roughness",
                 parseFloat(e.target.value),
@@ -242,7 +242,7 @@ const CustomizationVehiclePlaneUI = () => {
             value={planeMods.glass.emission}
             onChange={(e) =>
               setVehicleMaterial(
-                "plane",
+                "plane01",
                 "glass",
                 "emission",
                 parseFloat(e.target.value),
@@ -261,7 +261,7 @@ const CustomizationVehiclePlaneUI = () => {
           disabled={syncTrails}
           onChange={(newColor) => {
             if (syncTrails) setSyncTrails(false);
-            setVehicleMod("plane", "trailColor", newColor);
+            setVehicleMod("plane01", "trailColor", newColor);
           }}
         />
 

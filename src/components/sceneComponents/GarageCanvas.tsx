@@ -10,6 +10,7 @@ import { Physics } from "@react-three/rapier";
 import CustomizationUI from "../CustomizationUI";
 import { useCustomizationStore } from "../../stores/useCustomizationStore";
 import VehicleCar01 from "./VehicleCar01";
+import VehicleCar02 from "./VehicleCar02";
 import VehiclePlane01 from "./VehiclePlane01";
 import VehicleHelicopter01 from "./VehicleHelicopter01";
 import GarageLights from "./GarageLights";
@@ -60,26 +61,27 @@ const GarageScene = () => {
   );
 
   // dynamically select the correct min, max, and target height based on the active vehicle
-  const currentMinZoom =
-    activeGarageVehicle === "car"
-      ? (carMinZoom as number)
-      : activeGarageVehicle === "plane"
-        ? (planeMinZoom as number)
-        : (heliMinZoom as number);
+  const isCar =
+    activeGarageVehicle === "car01" || activeGarageVehicle === "car02";
+  const isPlane = activeGarageVehicle === "plane01";
 
-  const currentMaxZoom =
-    activeGarageVehicle === "car"
-      ? (carMaxZoom as number)
-      : activeGarageVehicle === "plane"
-        ? (planeMaxZoom as number)
-        : (heliMaxZoom as number);
+  const currentMinZoom = isCar
+    ? (carMinZoom as number)
+    : isPlane
+      ? (planeMinZoom as number)
+      : (heliMinZoom as number);
 
-  const currentTargetY =
-    activeGarageVehicle === "car"
-      ? (carTargetY as number)
-      : activeGarageVehicle === "plane"
-        ? (planeTargetY as number)
-        : (heliTargetY as number);
+  const currentMaxZoom = isCar
+    ? (carMaxZoom as number)
+    : isPlane
+      ? (planeMaxZoom as number)
+      : (heliMaxZoom as number);
+
+  const currentTargetY = isCar
+    ? (carTargetY as number)
+    : isPlane
+      ? (planeTargetY as number)
+      : (heliTargetY as number);
 
   // automatically push the camera back to max distance whenever the vehicle changes
   useEffect(() => {
@@ -134,9 +136,10 @@ const GarageScene = () => {
       <GarageLights />
 
       {/* conditionally render only the active vehicle */}
-      {activeGarageVehicle === "car" && <VehicleCar01 spawnMode="garage" />}
-      {activeGarageVehicle === "plane" && <VehiclePlane01 spawnMode="garage" />}
-      {activeGarageVehicle === "helicopter" && (
+      {activeGarageVehicle === "car01" && <VehicleCar01 spawnMode="garage" />}
+      {activeGarageVehicle === "car02" && <VehicleCar02 spawnMode="garage" />}
+      {activeGarageVehicle === "plane01" && <VehiclePlane01 spawnMode="garage" />}
+      {activeGarageVehicle === "helicopter01" && (
         <VehicleHelicopter01 spawnMode="garage" />
       )}
     </>

@@ -3,7 +3,9 @@ import { useCustomizationStore } from "../stores/useCustomizationStore";
 import HSLColorSlab from "./HSLColorSlab";
 
 const CustomizationVehicleHelicopterUI = () => {
-  const helicopterMods = useCustomizationStore((state) => state.helicopterMods);
+  const helicopterMods = useCustomizationStore(
+    (state) => state.helicopter01Mods,
+  );
   const setVehicleMod = useCustomizationStore((state) => state.setVehicleMod);
   const setVehicleMaterial = useCustomizationStore(
     (state) => state.setVehicleMaterial,
@@ -13,7 +15,7 @@ const CustomizationVehicleHelicopterUI = () => {
 
   useEffect(() => {
     if (syncTrails) {
-      setVehicleMod("helicopter", "trailColor", helicopterMods.neon.color);
+      setVehicleMod("helicopter01", "trailColor", helicopterMods.neon.color);
     }
   }, [syncTrails, helicopterMods.neon.color, setVehicleMod]);
 
@@ -25,7 +27,7 @@ const CustomizationVehicleHelicopterUI = () => {
           label="Fuselage"
           color={helicopterMods.base.color}
           onChange={(newColor) =>
-            setVehicleMaterial("helicopter", "base", "color", newColor)
+            setVehicleMaterial("helicopter01", "base", "color", newColor)
           }
         />
 
@@ -42,7 +44,7 @@ const CustomizationVehicleHelicopterUI = () => {
             value={helicopterMods.base.metalness}
             onChange={(e) =>
               setVehicleMaterial(
-                "helicopter",
+                "helicopter01",
                 "base",
                 "metalness",
                 parseFloat(e.target.value),
@@ -64,7 +66,7 @@ const CustomizationVehicleHelicopterUI = () => {
             value={helicopterMods.base.roughness}
             onChange={(e) =>
               setVehicleMaterial(
-                "helicopter",
+                "helicopter01",
                 "base",
                 "roughness",
                 parseFloat(e.target.value),
@@ -86,7 +88,7 @@ const CustomizationVehicleHelicopterUI = () => {
             value={helicopterMods.base.emission}
             onChange={(e) =>
               setVehicleMaterial(
-                "helicopter",
+                "helicopter01",
                 "base",
                 "emission",
                 parseFloat(e.target.value),
@@ -103,7 +105,7 @@ const CustomizationVehicleHelicopterUI = () => {
           label="Circuits"
           color={helicopterMods.neon.color}
           onChange={(newColor) =>
-            setVehicleMaterial("helicopter", "neon", "color", newColor)
+            setVehicleMaterial("helicopter01", "neon", "color", newColor)
           }
         />
 
@@ -120,7 +122,7 @@ const CustomizationVehicleHelicopterUI = () => {
             value={helicopterMods.neon.metalness}
             onChange={(e) =>
               setVehicleMaterial(
-                "helicopter",
+                "helicopter01",
                 "neon",
                 "metalness",
                 parseFloat(e.target.value),
@@ -142,7 +144,7 @@ const CustomizationVehicleHelicopterUI = () => {
             value={helicopterMods.neon.roughness}
             onChange={(e) =>
               setVehicleMaterial(
-                "helicopter",
+                "helicopter01",
                 "neon",
                 "roughness",
                 parseFloat(e.target.value),
@@ -164,7 +166,7 @@ const CustomizationVehicleHelicopterUI = () => {
             value={helicopterMods.neon.emission}
             onChange={(e) =>
               setVehicleMaterial(
-                "helicopter",
+                "helicopter01",
                 "neon",
                 "emission",
                 parseFloat(e.target.value),
@@ -183,7 +185,7 @@ const CustomizationVehicleHelicopterUI = () => {
           disabled={syncTrails}
           onChange={(newColor) => {
             if (syncTrails) setSyncTrails(false);
-            setVehicleMod("helicopter", "trailColor", newColor);
+            setVehicleMod("helicopter01", "trailColor", newColor);
           }}
         />
 
