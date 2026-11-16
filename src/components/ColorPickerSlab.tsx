@@ -31,22 +31,17 @@ const ColorPickerSlab = ({
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between gap-2 rounded border border-white/10 bg-white/5 px-2.5 py-1.5 transition-colors hover:border-tron-cyan/40 hover:bg-white/10 cursor-pointer"
+        className="flex w-full items-center gap-2 rounded border border-white/10 bg-white/5 px-2.5 py-1.5 transition-colors hover:border-tron-cyan/40 hover:bg-white/10 cursor-pointer"
         aria-label={`${label} color picker`}
         aria-expanded={isOpen}
       >
         <span className="text-[9px] font-bold tracking-widest text-tron-cyan uppercase opacity-80 whitespace-nowrap">
           {label}
         </span>
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-[9px] uppercase tracking-wider text-white/60">
-            {color}
-          </span>
-          <div
-            className="size-3.5 rounded border border-white/30 shadow-[0_0_8px_rgba(0,0,0,0.5)] transition-colors duration-75"
-            style={{ backgroundColor: color }}
-          />
-        </div>
+        <div
+          className="h-3.5 flex-1 rounded border border-white/20 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-colors duration-75"
+          style={{ backgroundColor: color }}
+        />
       </button>
 
       {/* expandable color picker panel */}
@@ -56,13 +51,6 @@ const ColorPickerSlab = ({
             color={color}
             onChange={onChange}
             style={{ width: "100%", height: "130px" }}
-          />
-          <input
-            type="text"
-            value={color}
-            aria-label={`${label} hex value`}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-center font-mono text-[10px] uppercase tracking-wider text-tron-cyan outline-none focus:border-tron-cyan"
           />
         </div>
       )}
