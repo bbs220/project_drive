@@ -72,7 +72,7 @@ const VehicleHelicopter01 = forwardRef<THREE.Group, VehicleProps>(
 
     // fetch customization values
     const helicopterMods = useCustomizationStore(
-      (state) => state.helicopterMods,
+      (state) => state.helicopter01Mods,
     );
 
     // initialize tweakpane hook and store reactive parameters

@@ -56,7 +56,7 @@ const VehiclePlane01 = forwardRef<THREE.Group, VehicleProps>(
     const controls = useAllVehicleInput();
 
     // extract the live plane mods from the customization store
-    const planeMods = useCustomizationStore((state) => state.planeMods);
+    const planeMods = useCustomizationStore((state) => state.plane01Mods);
 
     // initialize tweakpane hook and store reactive parameters
     const params = useTweakpane(

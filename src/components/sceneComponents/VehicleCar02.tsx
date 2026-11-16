@@ -85,7 +85,7 @@ const VehicleCar02 = forwardRef<THREE.Group, VehicleProps>(
     const controlsRef = useAllVehicleInput();
 
     // fetch customization values
-    const carMods = useCustomizationStore((state) => state.carMods);
+    const carMods = useCustomizationStore((state) => state.car02Mods);
 
     // initialize tweakpane hook using only the tuning object
     const tuningParams = useTweakpane(
