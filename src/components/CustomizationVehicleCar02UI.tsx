@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useCustomizationStore } from "../stores/useCustomizationStore";
 import HSLColorSlab from "./HSLColorSlab";
 
-const CustomizationVehicleCarUI = () => {
-  const carMods = useCustomizationStore((state) => state.carMods);
+const CustomizationVehicleCar02UI = () => {
+  const carMods = useCustomizationStore((state) => state.car02Mods);
   const setVehicleMod = useCustomizationStore((state) => state.setVehicleMod);
   const setVehicleMaterial = useCustomizationStore(
     (state) => state.setVehicleMaterial,
@@ -13,7 +13,7 @@ const CustomizationVehicleCarUI = () => {
 
   useEffect(() => {
     if (syncTrails) {
-      setVehicleMod("car", "trailColor", carMods.neon.color);
+      setVehicleMod("car02", "trailColor", carMods.neon.color);
     }
   }, [syncTrails, carMods.neon.color, setVehicleMod]);
 
@@ -25,7 +25,7 @@ const CustomizationVehicleCarUI = () => {
           label="Chassis"
           color={carMods.base.color}
           onChange={(newColor) =>
-            setVehicleMaterial("car", "base", "color", newColor)
+            setVehicleMaterial("car02", "base", "color", newColor)
           }
         />
 
@@ -42,7 +42,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.base.metalness}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "base",
                 "metalness",
                 parseFloat(e.target.value),
@@ -64,7 +64,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.base.roughness}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "base",
                 "roughness",
                 parseFloat(e.target.value),
@@ -86,7 +86,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.base.emission}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "base",
                 "emission",
                 parseFloat(e.target.value),
@@ -97,13 +97,13 @@ const CustomizationVehicleCarUI = () => {
         </label>
       </div>
 
-      {/* neon / glow section */}
+      {/* neon glow section */}
       <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
           label="Circuits"
           color={carMods.neon.color}
           onChange={(newColor) =>
-            setVehicleMaterial("car", "neon", "color", newColor)
+            setVehicleMaterial("car02", "neon", "color", newColor)
           }
         />
 
@@ -120,7 +120,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.neon.metalness}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "neon",
                 "metalness",
                 parseFloat(e.target.value),
@@ -142,7 +142,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.neon.roughness}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "neon",
                 "roughness",
                 parseFloat(e.target.value),
@@ -164,7 +164,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.neon.emission}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "neon",
                 "emission",
                 parseFloat(e.target.value),
@@ -181,7 +181,7 @@ const CustomizationVehicleCarUI = () => {
           label="Axels"
           color={carMods.chrome.color}
           onChange={(newColor) =>
-            setVehicleMaterial("car", "chrome", "color", newColor)
+            setVehicleMaterial("car02", "chrome", "color", newColor)
           }
         />
 
@@ -198,7 +198,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.chrome.metalness}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "chrome",
                 "metalness",
                 parseFloat(e.target.value),
@@ -220,7 +220,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.chrome.roughness}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "chrome",
                 "roughness",
                 parseFloat(e.target.value),
@@ -242,7 +242,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.chrome.emission}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "chrome",
                 "emission",
                 parseFloat(e.target.value),
@@ -259,7 +259,7 @@ const CustomizationVehicleCarUI = () => {
           label="Seats"
           color={carMods.interior.color}
           onChange={(newColor) =>
-            setVehicleMaterial("car", "interior", "color", newColor)
+            setVehicleMaterial("car02", "interior", "color", newColor)
           }
         />
 
@@ -276,7 +276,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.interior.metalness}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "interior",
                 "metalness",
                 parseFloat(e.target.value),
@@ -298,7 +298,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.interior.roughness}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "interior",
                 "roughness",
                 parseFloat(e.target.value),
@@ -320,7 +320,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.interior.emission}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "interior",
                 "emission",
                 parseFloat(e.target.value),
@@ -331,13 +331,13 @@ const CustomizationVehicleCarUI = () => {
         </label>
       </div>
 
-      {/* rubber/tires section */}
+      {/* rubber tires section */}
       <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/40 p-4 shadow-lg">
         <HSLColorSlab
           label="Tires"
           color={carMods.rubber.color}
           onChange={(newColor) =>
-            setVehicleMaterial("car", "rubber", "color", newColor)
+            setVehicleMaterial("car02", "rubber", "color", newColor)
           }
         />
 
@@ -354,7 +354,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.rubber.metalness}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "rubber",
                 "metalness",
                 parseFloat(e.target.value),
@@ -376,7 +376,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.rubber.roughness}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "rubber",
                 "roughness",
                 parseFloat(e.target.value),
@@ -398,7 +398,7 @@ const CustomizationVehicleCarUI = () => {
             value={carMods.rubber.emission}
             onChange={(e) =>
               setVehicleMaterial(
-                "car",
+                "car02",
                 "rubber",
                 "emission",
                 parseFloat(e.target.value),
@@ -417,7 +417,7 @@ const CustomizationVehicleCarUI = () => {
           disabled={syncTrails}
           onChange={(newColor) => {
             if (syncTrails) setSyncTrails(false);
-            setVehicleMod("car", "trailColor", newColor);
+            setVehicleMod("car02", "trailColor", newColor);
           }}
         />
 
@@ -447,4 +447,4 @@ const CustomizationVehicleCarUI = () => {
   );
 };
 
-export default CustomizationVehicleCarUI;
+export default CustomizationVehicleCar02UI;
