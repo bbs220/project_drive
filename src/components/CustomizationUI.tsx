@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import CustomizationVehicleCar01UI from "./CustomizationVehicleCar01UI";
-import CustomizationVehicleCar02UI from "./CustomizationVehicleCar02UI";
-import CustomizationVehiclePlaneUI from "./CustomizationVehiclePlaneUI";
-import CustomizationVehicleHelicopterUI from "./CustomizationVehicleHelicopterUI";
+import CustomizationVehicleUI from "./CustomizationVehicleUI";
 import {
   useCustomizationStore,
   type typeGarageVehicle,
@@ -76,14 +73,7 @@ const CustomizationUI = () => {
           {/* main scrollable container for the customization categories */}
           <div className="flex h-full w-full flex-col overflow-y-auto overflow-x-hidden p-2 pb-2 [&::-webkit-scrollbar]:hidden">
             {/* conditionally mount only the ui matching the active vehicle */}
-            {activeGarageVehicle === "car01" && <CustomizationVehicleCar01UI />}
-            {activeGarageVehicle === "car02" && <CustomizationVehicleCar02UI />}
-            {activeGarageVehicle === "plane01" && (
-              <CustomizationVehiclePlaneUI />
-            )}
-            {activeGarageVehicle === "helicopter01" && (
-              <CustomizationVehicleHelicopterUI />
-            )}
+            <CustomizationVehicleUI vehicleId={activeGarageVehicle} />
           </div>
         </div>
 
