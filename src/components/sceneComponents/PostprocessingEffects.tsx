@@ -13,11 +13,7 @@ import { SpeedLines } from "./SpeedLinesEffect";
 import { BlendFunction } from "postprocessing";
 
 // Import vehicle store for live speed telemetry
-import {
-  useVehicleStore,
-  CONTROL_STATE,
-  ENTITY_ID,
-} from "../../stores/useVehicleStore";
+import { useVehicleStore } from "../../stores/useVehicleStore";
 
 const PostprocessingEffects = () => {
   const {
@@ -30,10 +26,6 @@ const PostprocessingEffects = () => {
     caOffsetY,
     enableSpeedLines,
     speedLinesRadius,
-    minCarSpeed,
-    maxCarSpeed,
-    minPlaneSpeed,
-    maxPlaneSpeed,
     enableSMAA,
     enableVignette,
   } = useTweakpane(
@@ -87,6 +79,7 @@ const PostprocessingEffects = () => {
         label: "max offset Y",
       },
 
+      // Shared thresholds for warp effects (CA & Speedlines)
       enableSpeedLines: { value: true, folder: "Speedlines", label: "enable" },
       speedLinesRadius: {
         value: 0.4,
@@ -95,36 +88,6 @@ const PostprocessingEffects = () => {
         step: 0.01,
         folder: "Speedlines",
         label: "radius",
-      },
-
-      // Shared thresholds for warp effects (CA & Speedlines)
-      minCarSpeed: {
-        value: 250,
-        min: 0,
-        max: 500,
-        folder: "Speedlines",
-        label: "car min speed",
-      },
-      maxCarSpeed: {
-        value: 317,
-        min: 50,
-        max: 500,
-        folder: "Speedlines",
-        label: "car max speed",
-      },
-      minPlaneSpeed: {
-        value: 160,
-        min: 0,
-        max: 300,
-        folder: "Speedlines",
-        label: "plane min speed",
-      },
-      maxPlaneSpeed: {
-        value: 200,
-        min: 50,
-        max: 300,
-        folder: "Speedlines",
-        label: "plane max speed",
       },
       enableSMAA: {
         value: true,
@@ -148,34 +111,10 @@ const PostprocessingEffects = () => {
     if (!caRef.current || !enableCA) return;
 
     const state = useVehicleStore.getState();
-    const activeControl = state.active.control;
     const activeEntity = state.active.entity;
 
-    let targetIntensity = 0;
-
-    if (activeControl === CONTROL_STATE.CAR) {
-      const carTelemetry =
-        state.telemetry[activeEntity as typeof ENTITY_ID.CAR_1 | typeof ENTITY_ID.CAR_2];
-      const currentSpeed = Math.abs(carTelemetry?.speed || 0);
-
-      // strictly bounds the effect for the car's speed thresholds
-      targetIntensity = THREE.MathUtils.smoothstep(
-        currentSpeed,
-        minCarSpeed as number,
-        maxCarSpeed as number,
-      );
-    } else if (activeControl === CONTROL_STATE.PLANE) {
-      const planeTelemetry =
-        state.telemetry[activeEntity as typeof ENTITY_ID.PLANE_1];
-      const currentSpeed = Math.abs(planeTelemetry?.airspeed || 0);
-
-      // strictly bounds the effect for the plane's speed thresholds
-      targetIntensity = THREE.MathUtils.smoothstep(
-        currentSpeed,
-        minPlaneSpeed as number,
-        maxPlaneSpeed as number,
-      );
-    }
+    // strictly bounds the effect for the car's speed thresholds
+    const targetIntensity = state.telemetry[activeEntity]?.warpFactor ?? 0;
 
     // Use the Tweakpane values as the "Max" values
     const targetX = targetIntensity * (caOffsetX as number);
@@ -209,13 +148,7 @@ const PostprocessingEffects = () => {
 
       {/* Pass the Tweakpane thresholds dynamically into the custom shader component */}
       {enableSpeedLines && (
-        <SpeedLines
-          radius={speedLinesRadius as number}
-          minCarSpeed={minCarSpeed as number}
-          maxCarSpeed={maxCarSpeed as number}
-          minPlaneSpeed={minPlaneSpeed as number}
-          maxPlaneSpeed={maxPlaneSpeed as number}
-        />
+        <SpeedLines radius={speedLinesRadius as number} />
       )}
 
       {enableSMAA && <SMAA />}

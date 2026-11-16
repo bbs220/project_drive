@@ -30,7 +30,6 @@ import Player from "./Player";
 import { useMountSystem } from "../../hooks/useMountSystem";
 import MiniMap, { MiniMapFBO } from "../MiniMap";
 import PlayButtonUI from "../PlayButtonUI";
-import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useUIStore } from "../../stores/useUIStore";
 
 const DriveScene = () => {
@@ -41,14 +40,12 @@ const DriveScene = () => {
   const planeRef = useRef<THREE.Group>(null);
   const playerRef = useRef<THREE.Group>(null);
 
+  // listen to active keyboard state for the camera effects
   useMountSystem();
 
   // fetch active object (containing control type and entity id) and setter
   const active = useVehicleStore((state) => state.active);
   const setActive = useVehicleStore((state) => state.setActive);
-
-  // listen to active keyboard state for the camera effects
-  const controls = useAllVehicleInput();
 
   // determine active reference based on strict state mapping
   const activeTargetRef =
@@ -74,10 +71,6 @@ const DriveScene = () => {
     fogColor,
     dynamicFov,
     maxFovValue,
-    minSpeedThreshold,
-    topSpeedThreshold,
-    planeFovStartSpeed,
-    planeFovMaxSpeed,
   } = useTweakpane(
     { title: "☀️ Scene", expanded: false },
     {
@@ -121,35 +114,6 @@ const DriveScene = () => {
         label: "max warp fov",
         folder: "FOV",
       },
-      minSpeedThreshold: {
-        value: 250,
-        min: 0,
-        max: 500,
-        label: "car fov start",
-        folder: "FOV",
-      },
-      topSpeedThreshold: {
-        value: 317,
-        min: 50,
-        max: 500,
-        label: "car fov max",
-        folder: "FOV",
-      },
-      // specific thresholds for the plane
-      planeFovStartSpeed: {
-        value: 160,
-        min: 0,
-        max: 300,
-        label: "plane fov start",
-        folder: "FOV",
-      },
-      planeFovMaxSpeed: {
-        value: 200,
-        min: 50,
-        max: 300,
-        label: "plane fov max",
-        folder: "FOV",
-      },
     },
   );
 
@@ -182,42 +146,11 @@ const DriveScene = () => {
     }
 
     const storeState = useVehicleStore.getState();
-    const activeControl = storeState.active.control;
-
-    let currentSpeed = 0;
-    let minSpeed = minSpeedThreshold as number;
-    let maxSpeed = topSpeedThreshold as number;
+    const activeEntity = storeState.active.entity;
 
     // pull speed/airspeed directly from your strict telemetry map
-    if (activeControl === CONTROL_STATE.CAR) {
-      const activeCarEntity =
-        storeState.active.entity === ENTITY_ID.CAR_2
-          ? ENTITY_ID.CAR_2
-          : ENTITY_ID.CAR_1;
-      currentSpeed = storeState.telemetry[activeCarEntity].speed;
-
-      // strictly bind the camera warp effect to active engine thrust
-      // if we are not actively holding forward AND boost, immediately kill the fov stretch
-      if (!controls.current.forward || !controls.current.boost) {
-        currentSpeed = Math.min(currentSpeed, minSpeedThreshold as number);
-      }
-    } else if (activeControl === CONTROL_STATE.PLANE) {
-      currentSpeed = storeState.telemetry[ENTITY_ID.PLANE_1].airspeed;
-      minSpeed = planeFovStartSpeed as number;
-      maxSpeed = planeFovMaxSpeed as number;
-    }
-
-    const absoluteSpeed = Math.abs(currentSpeed);
-
-    // prevent division by zero if tweaking sliders land on the same number
-    const speedRange = Math.max(maxSpeed - minSpeed, 1);
-
-    // calculate movement factor only *after* passing the minimum threshold speed
-    const speedFactor = THREE.MathUtils.clamp(
-      (absoluteSpeed - minSpeed) / speedRange,
-      0,
-      1,
-    );
+    // strictly bind the camera warp effect to active engine thrust
+    const speedFactor = storeState.telemetry[activeEntity]?.warpFactor ?? 0;
 
     const targetFov = THREE.MathUtils.lerp(
       baseFov,
