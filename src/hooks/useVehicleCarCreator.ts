@@ -55,6 +55,7 @@ export type typeCarTuning = {
   brakeForce: number | TweakpaneParam<number>;
   steeringAngle: number | TweakpaneParam<number>;
   flipImpulse: number | TweakpaneParam<number>;
+  cruiseSpeed?: number | TweakpaneParam<number>;
   maxSpeed: number | TweakpaneParam<number>;
   maxReverseSpeed: number | TweakpaneParam<number>;
   wheelPosX: number | TweakpaneParam<number>;
@@ -221,6 +222,7 @@ export const useVehicleCarCreator = (
     const flipImpulseVal = unwrapParam(tuning.flipImpulse, 0.5);
     const engineForceVal = unwrapParam(tuning.engineForce, 5);
     const boostMultiplierVal = unwrapParam(tuning.boostMultiplier, 2.5);
+    const cruiseSpeedVal = unwrapParam(tuning.cruiseSpeed, 250 / 3.6);
     const maxSpeedVal = unwrapParam(tuning.maxSpeed, 88);
     const maxReverseSpeedVal = unwrapParam(tuning.maxReverseSpeed, 10);
     const steeringAngleVal = unwrapParam(tuning.steeringAngle, 0.5);
@@ -342,7 +344,7 @@ export const useVehicleCarCreator = (
       const safeMaxReverseSpeed = maxReverseSpeedVal || 10;
 
       // define cruising speed at 250 km/h converted to meters per second
-      const cruiseSpeedMs = 250 / 3.6;
+      const cruiseSpeedMs = cruiseSpeedVal;
 
       // determine the active speed limit depending on if the boost key is held
       const activeMaxSpeed = controls.boost ? safeMaxSpeed : cruiseSpeedMs;
@@ -439,6 +441,16 @@ export const useVehicleCarCreator = (
     // convert meters per second to kilometers per hour
     const speedKmh = Math.round(groundSpeedMs * 3.6);
 
+    // calculate normalized warp factor between cruising and max boost speed
+    const warpFactor =
+      maxSpeedVal > cruiseSpeedVal
+        ? THREE.MathUtils.clamp(
+            (groundSpeedMs - cruiseSpeedVal) / (maxSpeedVal - cruiseSpeedVal),
+            0,
+            1,
+          )
+        : 0;
+
     // seat position and rotation math
     _localSeatOffset.set(0.4, 0.8, -0.5);
 
@@ -480,6 +492,7 @@ export const useVehicleCarCreator = (
     if (active.control === CONTROL_STATE.CAR && active.entity === entityId) {
       useVehicleStore.getState().updateTelemetry(entityId, {
         speed: speedKmh,
+        warpFactor,
         position: carPos,
         rotation: carRot,
         seatPosition: carSeatPos,
@@ -488,6 +501,8 @@ export const useVehicleCarCreator = (
     } else {
       // if empty only broadcast the coordinates so the player knows where to walk or sit
       useVehicleStore.getState().updateTelemetry(entityId, {
+        speed: 0,
+        warpFactor: 0,
         position: carPos,
         rotation: carRot,
         seatPosition: carSeatPos,

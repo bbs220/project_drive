@@ -254,9 +254,20 @@ export const useVehicleHelicopterCreator = (
     heliSeatPos[1] = worldSeat.y;
     heliSeatPos[2] = worldSeat.z;
 
+    // calculate normalized warp factor for helicopter top forward velocity
+    const warpFactor =
+      forwardSpeedVal > 0
+        ? THREE.MathUtils.clamp(
+            (currentSpeed - forwardSpeedVal * 0.85) / (forwardSpeedVal * 0.15),
+            0,
+            1,
+          )
+        : 0;
+
     useVehicleStore.getState().updateTelemetry(ENTITY_ID.HELI_1, {
       airspeed: Math.round(currentSpeed * 3.6),
       rotorRpm: rpmRef.current,
+      warpFactor,
       altitude: Math.round(pos.y),
       collective: collectiveRef.current,
       pitch: euler.x,
