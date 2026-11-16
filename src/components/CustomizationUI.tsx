@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import CustomizationVehicleCarUI from "./CustomizationVehicleCarUI";
+import CustomizationVehicleCar01UI from "./CustomizationVehicleCar01UI";
+import CustomizationVehicleCar02UI from "./CustomizationVehicleCar02UI";
 import CustomizationVehiclePlaneUI from "./CustomizationVehiclePlaneUI";
 import CustomizationVehicleHelicopterUI from "./CustomizationVehicleHelicopterUI";
 import {
@@ -22,9 +23,10 @@ const CustomizationUI = () => {
 
   // strictly defined garage vehicles only
   const vehicles: { id: typeGarageVehicle; label: string }[] = [
-    { id: "car", label: "Grid Runner" },
-    { id: "plane", label: "Aero Synth" },
-    { id: "helicopter", label: "Neon Vortex" },
+    { id: "car01", label: "Grid Runner" },
+    { id: "car02", label: "Grid Cruiser" },
+    { id: "plane01", label: "Aero Synth" },
+    { id: "helicopter01", label: "Neon Vortex" },
   ];
 
   // smooth transition handler
@@ -74,9 +76,12 @@ const CustomizationUI = () => {
           {/* main scrollable container for the customization categories */}
           <div className="flex h-full w-full flex-col overflow-y-auto overflow-x-hidden p-2 pb-2 [&::-webkit-scrollbar]:hidden">
             {/* conditionally mount only the ui matching the active vehicle */}
-            {activeGarageVehicle === "car" && <CustomizationVehicleCarUI />}
-            {activeGarageVehicle === "plane" && <CustomizationVehiclePlaneUI />}
-            {activeGarageVehicle === "helicopter" && (
+            {activeGarageVehicle === "car01" && <CustomizationVehicleCar01UI />}
+            {activeGarageVehicle === "car02" && <CustomizationVehicleCar02UI />}
+            {activeGarageVehicle === "plane01" && (
+              <CustomizationVehiclePlaneUI />
+            )}
+            {activeGarageVehicle === "helicopter01" && (
               <CustomizationVehicleHelicopterUI />
             )}
           </div>

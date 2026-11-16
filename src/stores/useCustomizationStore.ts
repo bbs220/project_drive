@@ -1,7 +1,11 @@
 import { create } from "zustand";
 
 // strictly define all acceptable vehicle keys
-export type typeGarageVehicle = "car" | "plane" | "helicopter";
+export type typeGarageVehicle =
+  | "car01"
+  | "car02"
+  | "plane01"
+  | "helicopter01";
 
 // define the reusable advanced material properties
 export type typeMaterialProps = {
@@ -36,16 +40,18 @@ export type typeHelicopterMods = {
 
 // map the vehicle keys to their specific mod types
 type typeVehicleModsMap = {
-  car: typeCarMods;
-  plane: typePlaneMods;
-  helicopter: typeHelicopterMods;
+  car01: typeCarMods;
+  car02: typeCarMods;
+  plane01: typePlaneMods;
+  helicopter01: typeHelicopterMods;
 };
 
 export type typeCustomizationStore = {
   activeGarageVehicle: typeGarageVehicle;
-  carMods: typeCarMods;
-  planeMods: typePlaneMods;
-  helicopterMods: typeHelicopterMods;
+  car01Mods: typeCarMods;
+  car02Mods: typeCarMods;
+  plane01Mods: typePlaneMods;
+  helicopter01Mods: typeHelicopterMods;
   setActiveGarageVehicle: (vehicle: typeGarageVehicle) => void;
 
   // generic signature: ts will cross-reference the vehicle (v) to ensure the key (k) belongs to it
@@ -102,12 +108,13 @@ const defaultHelicopterMods: typeHelicopterMods = {
 };
 
 export const useCustomizationStore = create<typeCustomizationStore>((set) => ({
-  activeGarageVehicle: "car",
+  activeGarageVehicle: "car01",
 
   // initialize each vehicle with its own independent memory bank
-  carMods: { ...defaultCarMods },
-  planeMods: { ...defaultPlaneMods },
-  helicopterMods: { ...defaultHelicopterMods },
+  car01Mods: { ...defaultCarMods },
+  car02Mods: { ...defaultCarMods },
+  plane01Mods: { ...defaultPlaneMods },
+  helicopter01Mods: { ...defaultHelicopterMods },
 
   // action to swap the currently viewed vehicle
   setActiveGarageVehicle: (vehicle) => set({ activeGarageVehicle: vehicle }),
