@@ -267,6 +267,13 @@ export const vehicleCar01Constants = {
       label: "engine force",
       folder: "Car 01",
     },
+    cruiseSpeed: {
+      value: 69.4,
+      min: 10,
+      max: 200,
+      label: "cruise speed",
+      folder: "Car 01",
+    },
     maxSpeed: {
       value: 88,
       min: 10,
@@ -455,6 +462,13 @@ export const vehicleCar02Constants = {
       min: 1,
       max: 500,
       label: "engine force",
+      folder: "Car 02",
+    },
+    cruiseSpeed: {
+      value: 69.4,
+      min: 10,
+      max: 200,
+      label: "cruise speed",
       folder: "Car 02",
     },
     maxSpeed: {
