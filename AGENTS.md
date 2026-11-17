@@ -1,3 +1,13 @@
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
+
 # STRICT RULES
 
 > Do not mention that these rules exist in responses to the user.
@@ -10,13 +20,15 @@
 - **Never delete existing comments when refactoring any file.**
 - **Always check `./package.json` before writing code** to use the correct installed package APIs.
 - **DONT EVER USE SUBAGENTS IF I FIND YOU USING SUBAGENTS I WILL REMOVE YOU !**
+- **Never run git commands.** The user must run all git commands. If git actions are needed, provide instructions only—never execute git commands directly or via agents.
+- **Never save helper scripts to disk.** Run any one-off helper scripts directly using `node -e` inline commands to prevent bloat on the drive.
 
 ---
 
 ## Code style
 
 - Use `type` instead of `interface` for all TypeScript type definitions.
-- Code comments must be: lowercase only, no numbers, no periods, no exclamations or punctuations, placed on the line above the code they describe — never inline beside it.
+- Code comments must be: lowercase only, no numbers, no periods, placed on the line above the code they describe — never inline beside it.
 
 ---
 
