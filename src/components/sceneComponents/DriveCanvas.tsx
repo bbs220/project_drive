@@ -120,7 +120,10 @@ const DriveScene = () => {
   // sync dropdown state to global store using strict ECS entity mappings
   useEffect(() => {
     // deduce the correct entity id based on the dropdown selection
-    if (activeVehicle === ENTITY_ID.CAR_1 || activeVehicle === ENTITY_ID.CAR_2) {
+    if (
+      activeVehicle === ENTITY_ID.CAR_1 ||
+      activeVehicle === ENTITY_ID.CAR_2
+    ) {
       setActive(CONTROL_STATE.CAR, activeVehicle as TypeEntityId);
     } else if (activeVehicle === ENTITY_ID.HELI_1) {
       setActive(CONTROL_STATE.HELICOPTER, activeVehicle as TypeEntityId);
