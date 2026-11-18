@@ -4,6 +4,8 @@ import { create } from "zustand";
 export type typeGarageVehicle =
   | "car01"
   | "car02"
+  | "car03"
+  | "car04"
   | "plane01"
   | "helicopter01";
 
@@ -42,6 +44,8 @@ export type typeHelicopterMods = {
 type typeVehicleModsMap = {
   car01: typeCarMods;
   car02: typeCarMods;
+  car03: typeCarMods;
+  car04: typeCarMods;
   plane01: typePlaneMods;
   helicopter01: typeHelicopterMods;
 };
@@ -50,6 +54,8 @@ export type typeCustomizationStore = {
   activeGarageVehicle: typeGarageVehicle;
   car01Mods: typeCarMods;
   car02Mods: typeCarMods;
+  car03Mods: typeCarMods;
+  car04Mods: typeCarMods;
   plane01Mods: typePlaneMods;
   helicopter01Mods: typeHelicopterMods;
   setActiveGarageVehicle: (vehicle: typeGarageVehicle) => void;
@@ -113,6 +119,8 @@ export const useCustomizationStore = create<typeCustomizationStore>((set) => ({
   // initialize each vehicle with its own independent memory bank
   car01Mods: { ...defaultCarMods },
   car02Mods: { ...defaultCarMods },
+  car03Mods: { ...defaultCarMods },
+  car04Mods: { ...defaultCarMods },
   plane01Mods: { ...defaultPlaneMods },
   helicopter01Mods: { ...defaultHelicopterMods },
 

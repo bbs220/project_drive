@@ -22,6 +22,8 @@ const CustomizationUI = () => {
   const vehicles: { id: typeGarageVehicle; label: string }[] = [
     { id: "car01", label: "Grid Runner" },
     { id: "car02", label: "Grid Cruiser" },
+    { id: "car03", label: "Grid Phantom" },
+    { id: "car04", label: "Grid Striker" },
     { id: "plane01", label: "Aero Synth" },
     { id: "helicopter01", label: "Neon Vortex" },
   ];

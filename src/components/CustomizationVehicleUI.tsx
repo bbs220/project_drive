@@ -33,6 +33,20 @@ const vehiclePartsSchema: Record<typeGarageVehicle, typePartConfig[]> = {
     { key: "interior", label: "Seats" },
     { key: "rubber", label: "Tires" },
   ],
+  car03: [
+    { key: "base", label: "Chassis" },
+    { key: "neon", label: "Circuits" },
+    { key: "chrome", label: "Axels" },
+    { key: "interior", label: "Seats" },
+    { key: "rubber", label: "Tires" },
+  ],
+  car04: [
+    { key: "base", label: "Chassis" },
+    { key: "neon", label: "Circuits" },
+    { key: "chrome", label: "Axels" },
+    { key: "interior", label: "Seats" },
+    { key: "rubber", label: "Tires" },
+  ],
   plane01: [
     { key: "base", label: "Fuselage" },
     { key: "neon", label: "Circuits" },
@@ -57,6 +71,8 @@ const CustomizationVehicleUI = ({
   // pull material mod slices from store
   const car01Mods = useCustomizationStore((state) => state.car01Mods);
   const car02Mods = useCustomizationStore((state) => state.car02Mods);
+  const car03Mods = useCustomizationStore((state) => state.car03Mods);
+  const car04Mods = useCustomizationStore((state) => state.car04Mods);
   const plane01Mods = useCustomizationStore((state) => state.plane01Mods);
   const helicopter01Mods = useCustomizationStore(
     (state) => state.helicopter01Mods,
@@ -77,9 +93,13 @@ const CustomizationVehicleUI = ({
       ? car01Mods
       : currentVehicleId === "car02"
         ? car02Mods
-        : currentVehicleId === "plane01"
-          ? plane01Mods
-          : helicopter01Mods;
+        : currentVehicleId === "car03"
+          ? car03Mods
+          : currentVehicleId === "car04"
+            ? car04Mods
+            : currentVehicleId === "plane01"
+              ? plane01Mods
+              : helicopter01Mods;
 
   // sync trail color with neon circuit color whenever sync is enabled
   useEffect(() => {
