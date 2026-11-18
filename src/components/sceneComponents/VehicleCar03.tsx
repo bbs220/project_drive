@@ -467,7 +467,7 @@ const VehicleCar03 = forwardRef<THREE.Group, VehicleProps>(
 
         <TrailEngine
           targetRef={visualRef}
-          offset={[0, 0.6, -2.5]}
+          offset={[0, 1.1, -1.8]}
           color={carMods.trailColor}
           height={0.4}
           width={0.05}
