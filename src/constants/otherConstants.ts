@@ -868,7 +868,7 @@ export const vehicleCar04Constants = {
     },
     // driving mechanics
     engineForce: {
-      value: 40,
+      value: 10,
       min: 1,
       max: 500,
       label: "engine force",
@@ -903,9 +903,9 @@ export const vehicleCar04Constants = {
       folder: "Car 04",
     },
     brakeForce: {
-      value: 2,
-      min: 1,
-      max: 500,
+      value: 0.5,
+      min: 0.01,
+      max: 50,
       label: "brake force",
       folder: "Car 04",
     },
