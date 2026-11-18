@@ -10,7 +10,7 @@ import {
 } from "../stores/useVehicleStore";
 import respawnVehicle from "../utils/respawnVehicle";
 import { unwrapParam } from "../utils/unwrapParam";
-import { respawnValues } from "../constants/otherConstants";
+import { respawnValues } from "../constants/vehicleConstants";
 
 type TweakpaneParam<T> = {
   value: T;

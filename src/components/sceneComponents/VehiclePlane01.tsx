@@ -12,7 +12,7 @@ import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
   vehiclePlane01Constants,
   respawnValues,
-} from "../../constants/otherConstants";
+} from "../../constants/vehicleConstants";
 import { unwrapParam } from "../../utils/unwrapParam";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useVehiclePlaneCreator } from "../../hooks/useVehiclePlaneCreator";

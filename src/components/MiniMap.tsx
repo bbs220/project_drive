@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useUIStore } from "../stores/useUIStore";
 import { useAllVehicleInput } from "../hooks/useAllVehicleInput";
-import { sceneConstants } from "../constants/otherConstants";
+import { sceneConstants } from "../constants/vehicleConstants";
 import {
   useVehicleStore,
   ENTITY_ID,

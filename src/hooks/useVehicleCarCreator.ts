@@ -15,7 +15,7 @@ import {
 } from "../stores/useVehicleStore";
 import respawnVehicle from "../utils/respawnVehicle";
 import { unwrapParam } from "../utils/unwrapParam";
-import { respawnValues } from "../constants/otherConstants";
+import { respawnValues } from "../constants/vehicleConstants";
 
 // define up vector
 const up = new THREE.Vector3(0, 1, 0);

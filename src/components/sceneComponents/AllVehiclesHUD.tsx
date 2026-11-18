@@ -4,7 +4,7 @@ import {
   CONTROL_STATE,
   ENTITY_ID,
 } from "../../stores/useVehicleStore";
-import { respawnValues } from "../../constants/otherConstants";
+import { respawnValues } from "../../constants/vehicleConstants";
 import { useUIStore } from "../../stores/useUIStore";
 
 // define strict type for our generic control items

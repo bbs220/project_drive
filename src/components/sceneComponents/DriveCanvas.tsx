@@ -8,8 +8,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { physcConstants } from "../../constants/physcConstants";
-import { sceneConstants } from "../../constants/otherConstants";
+import { sceneConstants } from "../../constants/vehicleConstants";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import AllVehiclesHUD from "./AllVehiclesHUD";
 import CameraRig from "./CameraRig";
@@ -248,7 +247,7 @@ const DriveCanvas = () => {
         {/* synchronize rapier physics simulation with global pause state */}
         <Physics
           debug={setPhyDebug}
-          gravity={physcConstants.gravity}
+          gravity={[0, -9.81, 0]}
           paused={isPaused}
         >
           <DriveScene />

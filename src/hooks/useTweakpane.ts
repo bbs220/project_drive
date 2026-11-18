@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Pane } from "tweakpane";
-import { sceneConstants } from "../constants/otherConstants";
+import { sceneConstants } from "../constants/vehicleConstants";
 
 type FolderApi = ReturnType<Pane["addFolder"]>;
 

@@ -10,7 +10,7 @@ import type { GLTF } from "three-stdlib";
 import {
   vehicleCar03Constants,
   respawnValues,
-} from "../../constants/otherConstants";
+} from "../../constants/vehicleConstants";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { useVehicleCarCreator } from "../../hooks/useVehicleCarCreator";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
