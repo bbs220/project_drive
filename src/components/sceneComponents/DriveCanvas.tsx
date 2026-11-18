@@ -15,6 +15,8 @@ import AllVehiclesHUD from "./AllVehiclesHUD";
 import CameraRig from "./CameraRig";
 import VehicleCar01 from "./VehicleCar01";
 import VehicleCar02 from "./VehicleCar02";
+import VehicleCar03 from "./VehicleCar03";
+import VehicleCar04 from "./VehicleCar04";
 import VehicleHelicopter01 from "./VehicleHelicopter01";
 import VehiclePlane01 from "./VehiclePlane01";
 import {
@@ -36,6 +38,8 @@ const DriveScene = () => {
   // initialize refs for all instantiated vehicles and player
   const carRef = useRef<THREE.Group>(null);
   const car02Ref = useRef<THREE.Group>(null);
+  const car03Ref = useRef<THREE.Group>(null);
+  const car04Ref = useRef<THREE.Group>(null);
   const heliRef = useRef<THREE.Group>(null);
   const planeRef = useRef<THREE.Group>(null);
   const playerRef = useRef<THREE.Group>(null);
@@ -57,7 +61,11 @@ const DriveScene = () => {
           ? playerRef
           : active.entity === ENTITY_ID.CAR_2
             ? car02Ref
-            : carRef;
+            : active.entity === ENTITY_ID.CAR_3
+              ? car03Ref
+              : active.entity === ENTITY_ID.CAR_4
+                ? car04Ref
+                : carRef;
 
   // configure debug tools and dynamic fov tuners
   const {
@@ -84,6 +92,8 @@ const DriveScene = () => {
           player: ENTITY_ID.PLAYER_1,
           car01: ENTITY_ID.CAR_1,
           car02: ENTITY_ID.CAR_2,
+          car03: ENTITY_ID.CAR_3,
+          car04: ENTITY_ID.CAR_4,
           helicopter01: ENTITY_ID.HELI_1,
           plane01: ENTITY_ID.PLANE_1,
         },
@@ -122,7 +132,9 @@ const DriveScene = () => {
     // deduce the correct entity id based on the dropdown selection
     if (
       activeVehicle === ENTITY_ID.CAR_1 ||
-      activeVehicle === ENTITY_ID.CAR_2
+      activeVehicle === ENTITY_ID.CAR_2 ||
+      activeVehicle === ENTITY_ID.CAR_3 ||
+      activeVehicle === ENTITY_ID.CAR_4
     ) {
       setActive(CONTROL_STATE.CAR, activeVehicle as TypeEntityId);
     } else if (activeVehicle === ENTITY_ID.HELI_1) {
@@ -193,6 +205,8 @@ const DriveScene = () => {
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
       <VehicleCar01 ref={carRef} spawnMode={"drive"} />
       <VehicleCar02 ref={car02Ref} spawnMode={"drive"} />
+      <VehicleCar03 ref={car03Ref} spawnMode={"drive"} />
+      <VehicleCar04 ref={car04Ref} spawnMode={"drive"} />
       <VehicleHelicopter01 ref={heliRef} spawnMode={"drive"} />
       <VehiclePlane01 ref={planeRef} spawnMode={"drive"} />
       <Player ref={playerRef} />
