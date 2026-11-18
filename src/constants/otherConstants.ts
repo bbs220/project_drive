@@ -548,7 +548,7 @@ export const vehicleCar03Constants = {
       folder: "Car 03",
     },
     chassisHeight: {
-      value: 0.55,
+      value: 0.4,
       min: 0.2,
       max: 10,
       label: "height",
@@ -606,14 +606,14 @@ export const vehicleCar03Constants = {
       folder: "Car 03",
     },
     frontWheelPosZ: {
-      value: 2.03,
+      value: 2.06,
       min: 0.1,
       max: 5,
       label: "front wheel z",
       folder: "Car 03",
     },
     rearWheelPosZ: {
-      value: -1.95,
+      value: -2.03,
       min: -5,
       max: -0.1,
       label: "rear wheel z",
@@ -738,21 +738,21 @@ export const vehicleCar04Constants = {
   tuning: {
     // chassis colliders and spatial anchors
     chassisWidth: {
-      value: 2.8,
+      value: 1.82,
       min: 0.5,
       max: 10,
       label: "width",
       folder: "Car 04",
     },
     chassisHeight: {
-      value: 0.55,
+      value: 0.4,
       min: 0.2,
       max: 10,
       label: "height",
       folder: "Car 04",
     },
     chassisLength: {
-      value: 4.8,
+      value: 3.8,
       min: 2,
       max: 10,
       label: "length",
@@ -803,14 +803,14 @@ export const vehicleCar04Constants = {
       folder: "Car 04",
     },
     frontWheelPosZ: {
-      value: 2.03,
+      value: 1.53,
       min: 0.1,
       max: 5,
       label: "front wheel z",
       folder: "Car 04",
     },
     rearWheelPosZ: {
-      value: -1.95,
+      value: -1.52,
       min: -5,
       max: -0.1,
       label: "rear wheel z",
