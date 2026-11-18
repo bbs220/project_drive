@@ -140,10 +140,7 @@ const TrailEngine = ({
 
     // calculate movement distance since previous frame
     moveDeltaVec.current.copy(dummyVec.current).sub(lastPos.current);
-    // restrict movement tracking to horizontal planes
-    const moveDistSq =
-      moveDeltaVec.current.x * moveDeltaVec.current.x +
-      moveDeltaVec.current.z * moveDeltaVec.current.z;
+    const moveDistSq = moveDeltaVec.current.lengthSq();
     lastPos.current.copy(dummyVec.current);
 
     // skip processing if vehicle has remained stationary and trail has contracted
@@ -164,21 +161,17 @@ const TrailEngine = ({
 
     targetRef.current.getWorldQuaternion(worldQuat.current);
 
-    // constrain lateral vector to horizontal planes
     dummyRight.current
       .set(1, 0, 0)
-      .applyQuaternion(worldQuat.current);
-    dummyRight.current.y = 0;
-    if (dummyRight.current.lengthSq() > 0.00001) {
-      dummyRight.current.normalize();
-    } else {
-      dummyRight.current.set(1, 0, 0);
-    }
-    dummyRight.current.multiplyScalar(width / 2);
+      .applyQuaternion(worldQuat.current)
+      .normalize()
+      .multiplyScalar(width / 2);
 
     // reverse detection math
     invWorldQuat.current.copy(worldQuat.current).invert();
-    const localMoveZ = moveDeltaVec.current.applyQuaternion(invWorldQuat.current).z;
+    const localMoveZ = moveDeltaVec.current.applyQuaternion(
+      invWorldQuat.current,
+    ).z;
 
     // only detect reversing if this trail actually belongs to a car
     const isReversing = isCar && localMoveZ < -0.01;
@@ -200,8 +193,6 @@ const TrailEngine = ({
     }
 
     const posAttr = geoRef.current.attributes.position;
-    // bind elevation uniformly across all segments
-    const currentY = dummyVec.current.y;
 
     for (let i = 0; i < length; i++) {
       const current = history.current[i] ||
@@ -215,19 +206,19 @@ const TrailEngine = ({
       const baseIdx = i * 4 * 3;
 
       posAttr.array[baseIdx + 0] = p.x - r.x;
-      posAttr.array[baseIdx + 1] = currentY;
+      posAttr.array[baseIdx + 1] = p.y - r.y;
       posAttr.array[baseIdx + 2] = p.z - r.z;
 
       posAttr.array[baseIdx + 3] = p.x + r.x;
-      posAttr.array[baseIdx + 4] = currentY;
+      posAttr.array[baseIdx + 4] = p.y + r.y;
       posAttr.array[baseIdx + 5] = p.z + r.z;
 
       posAttr.array[baseIdx + 6] = p.x - r.x;
-      posAttr.array[baseIdx + 7] = currentY + height;
+      posAttr.array[baseIdx + 7] = p.y - r.y + height;
       posAttr.array[baseIdx + 8] = p.z - r.z;
 
       posAttr.array[baseIdx + 9] = p.x + r.x;
-      posAttr.array[baseIdx + 10] = currentY + height;
+      posAttr.array[baseIdx + 10] = p.y + r.y + height;
       posAttr.array[baseIdx + 11] = p.z + r.z;
     }
 
