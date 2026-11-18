@@ -125,11 +125,15 @@ export const MiniMapFBO = () => {
       uCharPos: { value: new THREE.Vector2(0, 0) },
       uCarPos: { value: new THREE.Vector2(0, 0) },
       uCar2Pos: { value: new THREE.Vector2(0, 0) },
+      uCar3Pos: { value: new THREE.Vector2(0, 0) },
+      uCar4Pos: { value: new THREE.Vector2(0, 0) },
       uPlanePos: { value: new THREE.Vector2(0, 0) },
       uHeliPos: { value: new THREE.Vector2(0, 0) },
       uCharYaw: { value: 0.0 },
       uCarYaw: { value: 0.0 },
       uCar2Yaw: { value: 0.0 },
+      uCar3Yaw: { value: 0.0 },
+      uCar4Yaw: { value: 0.0 },
       uPlaneYaw: { value: 0.0 },
       uHeliYaw: { value: 0.0 },
       uActiveEntity: { value: 0 },
@@ -282,7 +286,12 @@ export const MiniMapFBO = () => {
     }
 
     let targetZoom = params.miniMapZoom;
-    if (active.entity === ENTITY_ID.CAR_1 || active.entity === ENTITY_ID.CAR_2) {
+    if (
+      active.entity === ENTITY_ID.CAR_1 ||
+      active.entity === ENTITY_ID.CAR_2 ||
+      active.entity === ENTITY_ID.CAR_3 ||
+      active.entity === ENTITY_ID.CAR_4
+    ) {
       targetZoom = THREE.MathUtils.clamp(
         params.carMinZoom + currentSpeed * params.speedZoomMult,
         params.carMinZoom,
@@ -334,6 +343,12 @@ export const MiniMapFBO = () => {
     } else if (active.entity === ENTITY_ID.CAR_2) {
       mapMat.uniforms.uActiveEntity.value = 4;
       mapMat.uniforms.uIconTexture.value = icons.carRadar;
+    } else if (active.entity === ENTITY_ID.CAR_3) {
+      mapMat.uniforms.uActiveEntity.value = 5;
+      mapMat.uniforms.uIconTexture.value = icons.carRadar;
+    } else if (active.entity === ENTITY_ID.CAR_4) {
+      mapMat.uniforms.uActiveEntity.value = 6;
+      mapMat.uniforms.uIconTexture.value = icons.carRadar;
     } else if (active.entity === ENTITY_ID.HELI_1) {
       mapMat.uniforms.uActiveEntity.value = 3;
       mapMat.uniforms.uIconTexture.value = icons.helicopterRadar;
@@ -355,6 +370,8 @@ export const MiniMapFBO = () => {
     const pTel = telemetry[ENTITY_ID.PLAYER_1];
     const cTel = telemetry[ENTITY_ID.CAR_1];
     const c2Tel = telemetry[ENTITY_ID.CAR_2];
+    const c3Tel = telemetry[ENTITY_ID.CAR_3];
+    const c4Tel = telemetry[ENTITY_ID.CAR_4];
     const plTel = telemetry[ENTITY_ID.PLANE_1];
     const hTel = telemetry[ENTITY_ID.HELI_1];
 
@@ -378,6 +395,20 @@ export const MiniMapFBO = () => {
         c2Tel.position[2],
       );
       mapMat.uniforms.uCar2Yaw.value = getYaw(c2Tel.rotation);
+    }
+    if (c3Tel) {
+      mapMat.uniforms.uCar3Pos.value.set(
+        c3Tel.position[0],
+        c3Tel.position[2],
+      );
+      mapMat.uniforms.uCar3Yaw.value = getYaw(c3Tel.rotation);
+    }
+    if (c4Tel) {
+      mapMat.uniforms.uCar4Pos.value.set(
+        c4Tel.position[0],
+        c4Tel.position[2],
+      );
+      mapMat.uniforms.uCar4Yaw.value = getYaw(c4Tel.rotation);
     }
     if (plTel) {
       mapMat.uniforms.uPlanePos.value.set(
@@ -437,6 +468,8 @@ const MiniMap = () => {
   const playerDistRef = useRef<HTMLSpanElement>(null);
   const carDistRef = useRef<HTMLSpanElement>(null);
   const car2DistRef = useRef<HTMLSpanElement>(null);
+  const car3DistRef = useRef<HTMLSpanElement>(null);
+  const car4DistRef = useRef<HTMLSpanElement>(null);
   const planeDistRef = useRef<HTMLSpanElement>(null);
   const heliDistRef = useRef<HTMLSpanElement>(null);
 
@@ -553,6 +586,18 @@ const MiniMap = () => {
                 ? "ACTIVE"
                 : `${calcDist(activeTel, tel[ENTITY_ID.CAR_2])}m`;
           }
+          if (car3DistRef.current) {
+            car3DistRef.current.innerText =
+              activeId === ENTITY_ID.CAR_3
+                ? "ACTIVE"
+                : `${calcDist(activeTel, tel[ENTITY_ID.CAR_3])}m`;
+          }
+          if (car4DistRef.current) {
+            car4DistRef.current.innerText =
+              activeId === ENTITY_ID.CAR_4
+                ? "ACTIVE"
+                : `${calcDist(activeTel, tel[ENTITY_ID.CAR_4])}m`;
+          }
           if (planeDistRef.current) {
             planeDistRef.current.innerText =
               activeId === ENTITY_ID.PLANE_1
@@ -658,6 +703,44 @@ const MiniMap = () => {
                 </div>
                 <span
                   ref={car2DistRef}
+                  className="text-[10px] text-tron-cyan opacity-80"
+                />
+              </div>
+
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
+                    <img
+                      src={iconsBank.carRadar}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span className="uppercase">Grid Phantom</span>
+                </div>
+                <span
+                  ref={car3DistRef}
+                  className="text-[10px] text-tron-cyan opacity-80"
+                />
+              </div>
+
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
+                    <img
+                      src={iconsBank.carRadar}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span className="uppercase">Grid Striker</span>
+                </div>
+                <span
+                  ref={car4DistRef}
                   className="text-[10px] text-tron-cyan opacity-80"
                 />
               </div>
