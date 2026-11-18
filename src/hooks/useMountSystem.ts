@@ -47,6 +47,8 @@ export const useMountSystem = () => {
       const vehicles = [
         { control: CONTROL_STATE.CAR, entity: ENTITY_ID.CAR_1, radius: 4 },
         { control: CONTROL_STATE.CAR, entity: ENTITY_ID.CAR_2, radius: 4 },
+        { control: CONTROL_STATE.CAR, entity: ENTITY_ID.CAR_3, radius: 4 },
+        { control: CONTROL_STATE.CAR, entity: ENTITY_ID.CAR_4, radius: 4 },
         {
           control: CONTROL_STATE.HELICOPTER,
           entity: ENTITY_ID.HELI_1,
