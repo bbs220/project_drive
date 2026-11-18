@@ -1,6 +1,6 @@
 import type { RapierRigidBody } from "@react-three/rapier";
 import * as THREE from "three";
-import { respawnValues } from "../constants/otherConstants";
+import { respawnValues } from "../constants/vehicleConstants";
 
 export type typeRespawnVehicle = keyof typeof respawnValues.drive;
 
