@@ -178,7 +178,7 @@ const PauseUI = () => {
           </nav>
 
           {/* scrollable content area, flex layout to center the grid vertically on larger screens */}
-          <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden pb-6 px-4 md:px-12 lg:px-24 text-sm flex items-start md:items-center">
+          <div className="flex-1 overflow-y-auto scrollbar-none pb-6 px-4 md:px-12 lg:px-24 text-sm flex items-start md:items-center">
             {/* max-width container keeps the grid perfectly proportioned on ultrawide monitors */}
             <div className="w-full max-w-7xl mx-auto">
               {activeScene === "garage" ? (
