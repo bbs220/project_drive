@@ -11,27 +11,27 @@ export const respawnValues = {
       rotation: [0, 0, 0] as [number, number, number],
     },
     car01: {
-      position: [0, 5, -100] as [number, number, number],
+      position: [0, 5, -64] as [number, number, number],
       rotation: [0, Math.PI, 0] as [number, number, number],
     },
     car02: {
-      position: [0, 5, -40] as [number, number, number],
+      position: [0, 5, -32] as [number, number, number],
       rotation: [0, Math.PI, 0] as [number, number, number],
     },
     car03: {
-      position: [60, 5, -40] as [number, number, number],
+      position: [64, 5, -32] as [number, number, number],
       rotation: [0, Math.PI, 0] as [number, number, number],
     },
     car04: {
-      position: [-60, 5, -40] as [number, number, number],
+      position: [-64, 5, -32] as [number, number, number],
       rotation: [0, Math.PI, 0] as [number, number, number],
     },
     plane01: {
-      position: [100, 5, -100] as [number, number, number],
+      position: [128, 5, -64] as [number, number, number],
       rotation: [0, 0, 0] as [number, number, number],
     },
     helicopter01: {
-      position: [-100, 5, -100] as [number, number, number],
+      position: [-128, 5, -64] as [number, number, number],
       rotation: [0, 0, 0] as [number, number, number],
     },
   },

@@ -2,7 +2,7 @@ import { useRef, useMemo } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useTweakpane } from "../../hooks/useTweakpane";
-import { worldConstants } from "../../utils/worldGenerator";
+import { worldConstants } from "../../constants/worldConstants";
 
 // props defining the tracking target for snapping grids
 type typeGridHelperXYZProps = {
@@ -16,16 +16,16 @@ const GridHelperXYZ = ({ targetRef }: typeGridHelperXYZProps) => {
       visible: { value: true, label: "show xyz grid" },
       cellSize: {
         value: worldConstants.wfc.blockSize,
-        min: 25,
-        max: 200,
-        step: 25,
+        min: 16,
+        max: 256,
+        step: 16,
         label: "snap size (m)",
       },
       gridSpan: {
-        value: 600,
-        min: 200,
-        max: 2000,
-        step: 200,
+        value: 512,
+        min: 256,
+        max: 2048,
+        step: 128,
         label: "grid span (m)",
       },
       centerColor: { value: "#ffffff", label: "center line" },
@@ -50,9 +50,9 @@ const GridHelperXYZ = ({ targetRef }: typeGridHelperXYZProps) => {
       followTarget: { value: true, label: "snap to target" },
       elevationStep: {
         value: 0,
-        min: -500,
-        max: 500,
-        step: 100,
+        min: -512,
+        max: 512,
+        step: 64,
         label: "y offset",
       },
     },
