@@ -32,6 +32,7 @@ import { useMountSystem } from "../../hooks/useMountSystem";
 import MiniMap, { MiniMapFBO } from "../MiniMap";
 import PlayButtonUI from "../PlayButtonUI";
 import { useUIStore } from "../../stores/useUIStore";
+import GridHelperXYZ from "./GridHelperXYZ";
 
 const DriveScene = () => {
   // initialize refs for all instantiated vehicles and player
@@ -210,6 +211,7 @@ const DriveScene = () => {
       <VehiclePlane01 ref={planeRef} spawnMode={"drive"} />
       <Player ref={playerRef} />
       <ChunkManager targetRef={activeTargetRef} />
+      <GridHelperXYZ targetRef={activeTargetRef} />
       {/* 3d lot numbering and clearance overlay */}
     </>
   );

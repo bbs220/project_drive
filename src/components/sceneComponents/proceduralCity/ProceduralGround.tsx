@@ -111,12 +111,6 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
           friction={2}
         />
       </RigidBody>
-
-      <gridHelper
-        args={[worldConstants.chunkSize, 1, "white", "orange"]}
-        position={[-halfCell, 10, -halfCell]}
-        visible={params.showChunkBoundary}
-      />
     </group>
   );
 };
