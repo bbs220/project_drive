@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useTweakpane } from "../../hooks/useTweakpane";
@@ -29,10 +29,12 @@ const GridHelperXYZ = ({ targetRef }: typeGridHelperXYZProps) => {
         label: "grid span (m)",
       },
       centerColor: { value: "#ffffff", label: "center line" },
-      gridColor: { value: "#00ff66", label: "grid line" },
-      showXZ: { value: true, label: "floor plane (xz)" },
-      showXY: { value: true, label: "front plane (xy)" },
-      showYZ: { value: true, label: "side plane (yz)" },
+      gridColor: { value: "#00ff66", label: "grid / node color" },
+      showFloor: { value: true, label: "floor grid (xz)" },
+      showPoints: { value: true, label: "3d snap points" },
+      showPlanes: { value: false, label: "vertical planes" },
+      pointSize: { value: 3.5, min: 1.0, max: 10.0, step: 0.5, label: "node point size" },
+      elevationTiers: { value: 3, min: 1, max: 6, step: 1, label: "height tiers" },
       followTarget: { value: true, label: "snap to target" },
       elevationStep: {
         value: 0,
@@ -67,40 +69,103 @@ const GridHelperXYZ = ({ targetRef }: typeGridHelperXYZProps) => {
     }
   });
 
-  if (!params.visible) return null;
-
   const step = params.cellSize as number;
   const span = params.gridSpan as number;
+  const tiers = params.elevationTiers as number;
   const divisions = Math.max(1, Math.round(span / step));
   const centerColor = params.centerColor as string;
   const gridColor = params.gridColor as string;
 
+  // generate spatial coordinates for snapping point matrix
+  const pointPositions = useMemo(() => {
+    const positions: number[] = [];
+    const halfSpan = span / 2;
+    const startX = -Math.floor(halfSpan / step) * step;
+    const endX = Math.floor(halfSpan / step) * step;
+    const startZ = -Math.floor(halfSpan / step) * step;
+    const endZ = Math.floor(halfSpan / step) * step;
+
+    for (let yLevel = 0; yLevel <= tiers; yLevel++) {
+      const y = yLevel * step;
+      for (let x = startX; x <= endX; x += step) {
+        for (let z = startZ; z <= endZ; z += step) {
+          positions.push(x, y, z);
+        }
+      }
+    }
+    return new Float32Array(positions);
+  }, [span, step, tiers]);
+
+  // custom shader uniforms memoized for circular glowing nodes
+  const pointUniforms = useMemo(
+    () => ({
+      uSize: { value: params.pointSize },
+      uColor: { value: new THREE.Color(gridColor) },
+    }),
+    [params.pointSize, gridColor],
+  );
+
+  if (!params.visible) return null;
+
   return (
     <group ref={groupRef}>
       {/* horizontal floor plane at baseline ground elevation */}
-      {params.showXZ && (
+      {params.showFloor && (
         <gridHelper
           args={[span, divisions, centerColor, gridColor]}
           position={[0, 0, 0]}
         />
       )}
 
-      {/* vertical elevation plane rising from ground baseline upward */}
-      {params.showXY && (
-        <gridHelper
-          args={[span, divisions, centerColor, gridColor]}
-          rotation={[Math.PI / 2, 0, 0]}
-          position={[0, span / 2, 0]}
-        />
+      {/* three dimensional snapping points matrix across spatial tiers */}
+      {params.showPoints && (
+        <points>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[pointPositions, 3]}
+            />
+          </bufferGeometry>
+          <shaderMaterial
+            transparent
+            depthWrite={false}
+            uniforms={pointUniforms}
+            vertexShader={`
+              uniform float uSize;
+              void main() {
+                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                gl_PointSize = uSize * (260.0 / -mvPosition.z);
+                gl_Position = projectionMatrix * mvPosition;
+              }
+            `}
+            fragmentShader={`
+              uniform vec3 uColor;
+              void main() {
+                vec2 coord = gl_PointCoord - vec2(0.5);
+                float dist = length(coord);
+                if (dist > 0.5) discard;
+                float alpha = 1.0 - smoothstep(0.2, 0.5, dist);
+                gl_FragColor = vec4(uColor, alpha * 0.95);
+              }
+            `}
+          />
+        </points>
       )}
 
-      {/* vertical lateral plane rising from ground baseline upward */}
-      {params.showYZ && (
-        <gridHelper
-          args={[span, divisions, centerColor, gridColor]}
-          rotation={[0, 0, Math.PI / 2]}
-          position={[0, span / 2, 0]}
-        />
+      {/* vertical elevation plane rising from ground baseline upward */}
+      {params.showPlanes && (
+        <>
+          <gridHelper
+            args={[span, divisions, centerColor, gridColor]}
+            rotation={[Math.PI / 2, 0, 0]}
+            position={[0, span / 2, 0]}
+          />
+          <gridHelper
+            args={[span, divisions, centerColor, gridColor]}
+            rotation={[0, 0, Math.PI / 2]}
+            position={[0, span / 2, 0]}
+          />
+        </>
       )}
     </group>
   );

@@ -15,7 +15,8 @@ void main() {
   // by exactly half of whatever uGridSize is currently set to.
   // this forces 0,0 to always be the dead center of the cell.
   vec2 mainCoord = vWorldPosition.xz / uGridSize;
-  vec2 mainGrid = abs(fract(mainCoord) - 0.5) / fwidth(mainCoord);
+  vec2 mainLocal = fract(mainCoord - 0.5) - 0.5;
+  vec2 mainGrid = abs(mainLocal) / fwidth(mainCoord);
   float mainLine = min(mainGrid.x,mainGrid.y);
   float mainAlpha = 1.0 - smoothstep(uGridThickness - 1.0,uGridThickness + 1.0,mainLine);
 

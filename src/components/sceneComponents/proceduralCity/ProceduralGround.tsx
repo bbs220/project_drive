@@ -74,7 +74,6 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
   const posZ = chunkZ * worldConstants.chunkSize;
 
   // dynamically pull halfCell so Ground and Roads stay aligned
-  const halfCell = worldConstants.cellSize / 2;
   const halfChunk = worldConstants.chunkSize / 2;
   const groundTopY =
     worldConstants.groundOffset + worldConstants.groundHeight / 2;
@@ -84,7 +83,7 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
       <RigidBody
         type="fixed"
         colliders={false}
-        position={[-halfCell, 0, -halfCell]}
+        position={[0, 0, 0]}
       >
         {/* single sided plane rendering grid shader strictly on top face */}
         <mesh
