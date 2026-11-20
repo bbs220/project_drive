@@ -28,25 +28,24 @@ const GridHelperXYZ = ({ targetRef }: typeGridHelperXYZProps) => {
         step: 100,
         label: "grid span (m)",
       },
+      centerColor: { value: "#ffffff", label: "center line" },
+      gridColor: { value: "#00ff66", label: "grid line" },
       showXZ: { value: true, label: "floor plane (xz)" },
       showXY: { value: true, label: "front plane (xy)" },
       showYZ: { value: true, label: "side plane (yz)" },
-      showSnapBox: { value: true, label: "snap box (cube)" },
       followTarget: { value: true, label: "snap to target" },
       elevationStep: {
         value: 0,
-        min: 0,
+        min: -500,
         max: 500,
         step: 100,
-        label: "y elevation",
+        label: "y offset",
       },
     },
   );
 
   // container group tracking snapped world coordinates
   const groupRef = useRef<THREE.Group>(null);
-  // bounding box group marking active block footprint
-  const snapBoxRef = useRef<THREE.Group>(null);
   // temporary vector for extracting world coordinates
   const dummyVec = useRef(new THREE.Vector3());
 
@@ -58,15 +57,13 @@ const GridHelperXYZ = ({ targetRef }: typeGridHelperXYZProps) => {
       targetRef.current.getWorldPosition(dummyVec.current);
 
       const step = params.cellSize as number;
-      const sx = Math.floor(dummyVec.current.x / step) * step;
-      const sz = Math.floor(dummyVec.current.z / step) * step;
-      const sy = params.elevationStep as number;
+      const sx = Math.round(dummyVec.current.x / step) * step;
+      const sy =
+        Math.max(0, Math.floor(dummyVec.current.y / step) * step) +
+        (params.elevationStep as number);
+      const sz = Math.round(dummyVec.current.z / step) * step;
 
-      groupRef.current.position.set(sx + step / 2, sy, sz + step / 2);
-
-      if (snapBoxRef.current) {
-        snapBoxRef.current.position.set(0, step / 2, 0);
-      }
+      groupRef.current.position.set(sx, sy, sz);
     }
   });
 
@@ -75,59 +72,35 @@ const GridHelperXYZ = ({ targetRef }: typeGridHelperXYZProps) => {
   const step = params.cellSize as number;
   const span = params.gridSpan as number;
   const divisions = Math.max(1, Math.round(span / step));
+  const centerColor = params.centerColor as string;
+  const gridColor = params.gridColor as string;
 
   return (
     <group ref={groupRef}>
-      {/* horizontal floor plane tracking elevation level */}
+      {/* horizontal floor plane at baseline ground elevation */}
       {params.showXZ && (
         <gridHelper
-          args={[span, divisions, "#00f3ff", "#004455"]}
-          position={[0, 0.05, 0]}
+          args={[span, divisions, centerColor, gridColor]}
+          position={[0, 0, 0]}
         />
       )}
 
-      {/* vertical elevation plane showing longitudinal profile */}
+      {/* vertical elevation plane rising from ground baseline upward */}
       {params.showXY && (
         <gridHelper
-          args={[span, divisions, "#ff00ff", "#550044"]}
+          args={[span, divisions, centerColor, gridColor]}
           rotation={[Math.PI / 2, 0, 0]}
           position={[0, span / 2, 0]}
         />
       )}
 
-      {/* vertical lateral plane showing cross section profile */}
+      {/* vertical lateral plane rising from ground baseline upward */}
       {params.showYZ && (
         <gridHelper
-          args={[span, divisions, "#ffe600", "#554400"]}
+          args={[span, divisions, centerColor, gridColor]}
           rotation={[0, 0, Math.PI / 2]}
           position={[0, span / 2, 0]}
         />
-      )}
-
-      {/* active block footprint highlighting piece volume */}
-      {params.showSnapBox && (
-        <group ref={snapBoxRef} position={[0, step / 2, 0]}>
-          {/* wireframe cube marking the active piece footprint */}
-          <mesh>
-            <boxGeometry args={[step, step, step]} />
-            <meshBasicMaterial
-              color="#00f3ff"
-              wireframe
-              transparent
-              opacity={0.8}
-            />
-          </mesh>
-          {/* subtle tinted volume for visual depth */}
-          <mesh>
-            <boxGeometry args={[step, step, step]} />
-            <meshBasicMaterial
-              color="#00f3ff"
-              transparent
-              opacity={0.06}
-              depthWrite={false}
-            />
-          </mesh>
-        </group>
       )}
     </group>
   );
