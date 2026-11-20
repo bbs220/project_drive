@@ -4,7 +4,7 @@ import fragmentShader from "../shaders/gridFrag.glsl";
 import vertexShader from "../shaders/gridVert.glsl";
 import { useTweakpane } from "../../../hooks/useTweakpane";
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
-import { worldConstants } from "../../../utils/worldGenerator";
+import { worldConstants } from "../../../constants/worldConstants";
 import type { typeActiveChunk } from "./worker/chunk.worker";
 
 type GroundTileProps = {
@@ -19,7 +19,6 @@ type GroundTileProps = {
     crossSize: number;
     crossOpacity: number;
     gridThickness: number;
-    showChunkBoundary: boolean;
   };
 };
 
@@ -80,11 +79,7 @@ const GroundTile = ({ chunkX, chunkZ, params }: GroundTileProps) => {
 
   return (
     <group position={[posX, 0, posZ]}>
-      <RigidBody
-        type="fixed"
-        colliders={false}
-        position={[0, 0, 0]}
-      >
+      <RigidBody type="fixed" colliders={false} position={[0, 0, 0]}>
         {/* single sided plane rendering grid shader strictly on top face */}
         <mesh
           receiveShadow
@@ -121,39 +116,31 @@ type typeGroundProps = {
 const ProceduralGround = ({ activeChunks }: typeGroundProps) => {
   // grid Shader Tweakpane
   const gridParams = useTweakpane(
-    { title: "📔 Shaders", expanded: false },
+    { title: "📔 Ground Grid", expanded: false },
     {
-      showChunkBoundary: {
-        value: false,
-        label: "chunk boundary",
-        folder: "Ground Grid",
-      },
       gridSize: {
         value: 64.0,
         min: 16.0,
         max: 128.0,
         step: 16,
-        folder: "Ground Grid",
       },
       subGridSize: {
         value: 16.0,
         min: 4.0,
         max: 32.0,
         step: 4,
-        folder: "Ground Grid",
       },
-      crossSize: { value: 0.08, min: 0.01, max: 0.5, folder: "Ground Grid" },
-      crossOpacity: { value: 0.2, min: 0.0, max: 1.0, folder: "Ground Grid" },
+      crossSize: { value: 0.08, min: 0.01, max: 0.5 },
+      crossOpacity: { value: 0.2, min: 0.0, max: 1.0 },
       gridThickness: {
         value: 0.1,
         min: 0.1,
         max: 5.0,
         step: 0.1,
-        folder: "Ground Grid",
       },
-      lineColor: { value: "#666666", folder: "Ground Grid" },
-      crossColor: { value: "#00f3ff", folder: "Ground Grid" },
-      bgColor: { value: "#050505", folder: "Ground Grid" },
+      lineColor: { value: "#666666" },
+      crossColor: { value: "#00f3ff" },
+      bgColor: { value: "#050505" },
     },
   );
 

@@ -1,6 +1,6 @@
 import { Clouds, Cloud } from "@react-three/drei";
 import * as THREE from "three";
-import { worldConstants } from "../../../utils/worldGenerator";
+import { worldConstants } from "../../../constants/worldConstants";
 import { useTweakpane } from "../../../hooks/useTweakpane";
 
 type typeStormProps = {
