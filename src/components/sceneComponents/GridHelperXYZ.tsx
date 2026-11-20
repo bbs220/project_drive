@@ -22,10 +22,10 @@ const GridHelperXYZ = ({ targetRef }: typeGridHelperXYZProps) => {
         label: "snap size (m)",
       },
       gridSpan: {
-        value: worldConstants.chunkSize,
-        min: 100,
+        value: 600,
+        min: 200,
         max: 2000,
-        step: 100,
+        step: 200,
         label: "grid span (m)",
       },
       centerColor: { value: "#ffffff", label: "center line" },
@@ -33,8 +33,20 @@ const GridHelperXYZ = ({ targetRef }: typeGridHelperXYZProps) => {
       showFloor: { value: true, label: "floor grid (xz)" },
       showPoints: { value: true, label: "3d snap points" },
       showPlanes: { value: false, label: "vertical planes" },
-      pointSize: { value: 3.5, min: 1.0, max: 10.0, step: 0.5, label: "node point size" },
-      elevationTiers: { value: 3, min: 1, max: 6, step: 1, label: "height tiers" },
+      pointSize: {
+        value: 10,
+        min: 1.0,
+        max: 50.0,
+        step: 0.5,
+        label: "node point size",
+      },
+      elevationTiers: {
+        value: 3,
+        min: 1,
+        max: 6,
+        step: 1,
+        label: "height tiers",
+      },
       followTarget: { value: true, label: "snap to target" },
       elevationStep: {
         value: 0,
@@ -70,31 +82,28 @@ const GridHelperXYZ = ({ targetRef }: typeGridHelperXYZProps) => {
   });
 
   const step = params.cellSize as number;
-  const span = params.gridSpan as number;
+  const rawSpan = params.gridSpan as number;
   const tiers = params.elevationTiers as number;
-  const divisions = Math.max(1, Math.round(span / step));
+  const divisions = Math.max(2, Math.round(rawSpan / (step * 2)) * 2);
+  const effectiveSpan = divisions * step;
   const centerColor = params.centerColor as string;
   const gridColor = params.gridColor as string;
 
-  // generate spatial coordinates for snapping point matrix
+  // generate spatial coordinates for snapping point matrix at cell corners
   const pointPositions = useMemo(() => {
     const positions: number[] = [];
-    const halfSpan = span / 2;
-    const startX = -Math.floor(halfSpan / step) * step;
-    const endX = Math.floor(halfSpan / step) * step;
-    const startZ = -Math.floor(halfSpan / step) * step;
-    const endZ = Math.floor(halfSpan / step) * step;
+    const halfCount = divisions / 2;
 
     for (let yLevel = 0; yLevel <= tiers; yLevel++) {
       const y = yLevel * step;
-      for (let x = startX; x <= endX; x += step) {
-        for (let z = startZ; z <= endZ; z += step) {
-          positions.push(x, y, z);
+      for (let x = -halfCount; x <= halfCount; x++) {
+        for (let z = -halfCount; z <= halfCount; z++) {
+          positions.push(x * step, y, z * step);
         }
       }
     }
     return new Float32Array(positions);
-  }, [span, step, tiers]);
+  }, [divisions, step, tiers]);
 
   // custom shader uniforms memoized for circular glowing nodes
   const pointUniforms = useMemo(
@@ -112,7 +121,7 @@ const GridHelperXYZ = ({ targetRef }: typeGridHelperXYZProps) => {
       {/* horizontal floor plane at baseline ground elevation */}
       {params.showFloor && (
         <gridHelper
-          args={[span, divisions, centerColor, gridColor]}
+          args={[effectiveSpan, divisions, centerColor, gridColor]}
           position={[0, 0, 0]}
         />
       )}
@@ -156,14 +165,14 @@ const GridHelperXYZ = ({ targetRef }: typeGridHelperXYZProps) => {
       {params.showPlanes && (
         <>
           <gridHelper
-            args={[span, divisions, centerColor, gridColor]}
+            args={[effectiveSpan, divisions, centerColor, gridColor]}
             rotation={[Math.PI / 2, 0, 0]}
-            position={[0, span / 2, 0]}
+            position={[0, effectiveSpan / 2, 0]}
           />
           <gridHelper
-            args={[span, divisions, centerColor, gridColor]}
+            args={[effectiveSpan, divisions, centerColor, gridColor]}
             rotation={[0, 0, Math.PI / 2]}
-            position={[0, span / 2, 0]}
+            position={[0, effectiveSpan / 2, 0]}
           />
         </>
       )}
