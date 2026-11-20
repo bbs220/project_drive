@@ -1,14 +1,14 @@
 import { SimplexNoise } from "./SimplexNoise";
 
 export const worldConstants = {
-  chunkSize: 500,
+  chunkSize: 512,
   chunkRadius: 1,
   groundHeight: 0.1,
   groundOffset: -0.5,
   wfc: {
     baseTileCount: 8,
-    subdivisionsPerChunk: 5,
-    blockSize: 100,
+    subdivisionsPerChunk: 8,
+    blockSize: 64,
     tiles: [
       "empty",
       "straight",
@@ -67,9 +67,9 @@ export const generatorState = {
   urbanFrequency: 0.004,
   heightFrequency: 0.01,
   urbanSprawl: 0.26,
-  blockSize: 80,
-  roadWidth: 10,
-  maxBuildingHeight: 60,
+  blockSize: 64,
+  roadWidth: 8,
+  maxBuildingHeight: 64,
 };
 
 // export this instance
