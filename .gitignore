@@ -11,6 +11,10 @@ node_modules
 dist
 dist-ssr
 *.local
+AGENTS.md
+agents.md
+[aA][gG][eE][nN][tT][sS].[mM][dD]
+*[aA][gG][eE][nN][tT][sS]*.[mM][dD]
 
 # Editor directories and files
 .vscode/*
