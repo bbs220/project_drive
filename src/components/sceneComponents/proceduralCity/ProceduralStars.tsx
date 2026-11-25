@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
-import { worldConstants } from "../../../utils/worldGenerator";
+import { worldConstants } from "../../../constants/worldConstants";
 import starsVert from "../shaders/starsVert.glsl";
 import starsFrag from "../shaders/starsFrag.glsl";
 import { useCityStore } from "../../../stores/useCityStore";
@@ -110,7 +110,7 @@ const ProceduralStars = ({ activeChunks }: ProceduralSkyProps) => {
   const params = useTweakpane(
     { title: "☁️ Weather System", expanded: false },
     {
-      enableStars: { value: true, label: "enable stars", folder: "Stars" },
+      enableStars: { value: false, label: "enable stars", folder: "Stars" },
     },
   );
 

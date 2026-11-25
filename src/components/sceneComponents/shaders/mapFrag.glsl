@@ -22,11 +22,17 @@ uniform sampler2D uPermTexture;
 
 uniform vec2 uCharPos;
 uniform vec2 uCarPos;
+uniform vec2 uCar2Pos;
+uniform vec2 uCar3Pos;
+uniform vec2 uCar4Pos;
 uniform vec2 uPlanePos;
 uniform vec2 uHeliPos;
 
 uniform float uCharYaw;
 uniform float uCarYaw;
+uniform float uCar2Yaw;
+uniform float uCar3Yaw;
+uniform float uCar4Yaw;
 uniform float uPlaneYaw;
 uniform float uHeliYaw;
 
@@ -216,6 +222,12 @@ void main() {
         activeYaw = uPlaneYaw;
     else if (uActiveEntity == 3)
         activeYaw = uHeliYaw;
+    else if (uActiveEntity == 4)
+        activeYaw = uCar2Yaw;
+    else if (uActiveEntity == 5)
+        activeYaw = uCar3Yaw;
+    else if (uActiveEntity == 6)
+        activeYaw = uCar4Yaw;
 
     vec2 margin = vec2(6.0) / uResolution;
 
@@ -233,33 +245,8 @@ void main() {
     vec2 rotatedMapUv = rotate2d(-activeYaw) * mapUv;
     vec2 worldPos = uPlayerPos + rotatedMapUv * vec2(uMapZoom,-uMapZoom);
 
-    float rawBiome = fbm2D(worldPos,3,uMacroFreq,0.5,2.0);
-    float biomeScore = (rawBiome + 1.0) / 2.0;
-    float cityThreshold = 0.45;
-
-    float isCity = step(cityThreshold,biomeScore);
-    float cityMask = clamp((biomeScore - cityThreshold) * 5.0,0.0,1.0);
-    vec3 emptyColor = mix(vec3(0.08,0.12,0.08),vec3(0.15,0.22,0.12),biomeScore);
-
-    vec2 localPos = mod(worldPos,uBlockSize);
-    vec2 blockOrigin = floor(worldPos / uBlockSize) * uBlockSize;
-
-    float isRoadX = step(localPos.x,uRoadWidth);
-    float isRoadZ = step(localPos.y,uRoadWidth);
-    float isRoad = clamp(isRoadX + isRoadZ,0.0,1.0);
-    isRoad *= isCity;
-
-    vec3 roadColor = vec3(0.2,0.22,0.25);
-
-    float rawUrban = fbm2D(blockOrigin,2,uUrbanFreq,0.5,2.0);
-    float urbanScore = ((rawUrban + 1.0) / 2.0) * cityMask;
-
-    float hasBuilding = step(uUrbanSprawl,urbanScore);
-    float isBuilding = hasBuilding * (1.0 - isRoad) * isCity;
-
-    vec3 buildingColor = mix(vec3(0.4,0.45,0.5),vec3(0.7,0.75,0.8),urbanScore);
-    vec3 mapColor = mix(emptyColor,buildingColor,isBuilding);
-    mapColor = mix(mapColor,roadColor,isRoad);
+    // clean radar base color without noise city math
+    vec3 mapColor = vec3(0.05, 0.08, 0.07);
 
     float isInsideMap = step(margin.x,vUv.x) * step(vUv.x,1.0 - margin.x) *
         step(margin.y,vUv.y) * step(vUv.y,1.0 - margin.y);
@@ -275,6 +262,15 @@ void main() {
     }
     if (uActiveEntity != 1) {
         finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCarPos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCarYaw,activeYaw,margin,uLookAhead,uEdgeIconScale);
+    }
+    if (uActiveEntity != 4) {
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCar2Pos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCar2Yaw,activeYaw,margin,uLookAhead,uEdgeIconScale);
+    }
+    if (uActiveEntity != 5) {
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCar3Pos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCar3Yaw,activeYaw,margin,uLookAhead,uEdgeIconScale);
+    }
+    if (uActiveEntity != 6) {
+        finalColor = stampIcon(finalColor,vUv,uPlayerPos,uCar4Pos,uCarTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uCar4Yaw,activeYaw,margin,uLookAhead,uEdgeIconScale);
     }
     if (uActiveEntity != 2) {
         finalColor = stampIcon(finalColor,vUv,uPlayerPos,uPlanePos,uPlaneTex,uMapZoom,iconScale,bgRadius,uPitch,uAspect,uPlaneYaw,activeYaw,margin,uLookAhead,uEdgeIconScale);

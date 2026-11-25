@@ -5,8 +5,8 @@ import ProceduralGround from "./ProceduralGround";
 import {
   generatorState,
   syncGeneratorParams,
-  worldConstants,
 } from "../../../utils/worldGenerator";
+import { worldConstants } from "../../../constants/worldConstants";
 import ProceduralStars from "./ProceduralStars";
 import ProceduralClouds from "./ProceduralClouds";
 import ChunkWorker from "./worker/chunk.worker?worker";

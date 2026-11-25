@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
+import { useNavigate } from "react-router";
 import { Menu, X } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useUIStore } from "../stores/useUIStore";
@@ -6,8 +7,9 @@ import RadioHUD from "./RadioHUD";
 import { useUISounds } from "../hooks/useUISounds";
 import { useCityStore } from "../stores/useCityStore";
 
-const SideBar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const PauseUI = () => {
+  const isPaused = useUIStore((state) => state.isPaused);
+  const setIsPaused = useUIStore((state) => state.setIsPaused);
   const activeScene = useAppStore((state) => state.activeScene);
   const appVersion = useAppStore((state) => state.appVersion);
   const seed = useCityStore((state) => state.seed);
@@ -18,21 +20,66 @@ const SideBar = () => {
   const lastPlayed = useRef(0);
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Close sidebar on Escape key press and restore focus to trigger button
-  useEffect(() => {
-    if (!isOpen) return;
+  // navigation router handle
+  const navigate = useNavigate();
 
+  // resume simulation and acquire pointer lock
+  const handleResume = () => {
+    playClick();
+    setIsPaused(false);
+    if (activeScene === "drive") {
+      document.querySelector("canvas")?.requestPointerLock();
+    }
+  };
+
+  // navigate to destination and restore unpaused state
+  const handleNavigate = (path: string) => {
+    playClick();
+    setIsPaused(false);
+    if (document.pointerLockElement) {
+      document.exitPointerLock();
+    }
+    navigate(path);
+  };
+
+  // toggle simulation pause and synchronize pointer lock
+  const handleToggle = () => {
+    playClick();
+    const nextPaused = !isPaused;
+    setIsPaused(nextPaused);
+
+    if (nextPaused) {
+      if (document.pointerLockElement) {
+        document.exitPointerLock();
+      }
+    } else if (activeScene === "drive") {
+      document.querySelector("canvas")?.requestPointerLock();
+    }
+  };
+
+  // Close sidebar on Escape key press and restore focus to trigger button
+  // handle escape key for pause toggling
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setIsOpen(false);
         playClick();
+        const nextPaused = !isPaused;
+        setIsPaused(nextPaused);
+
+        if (nextPaused) {
+          if (document.pointerLockElement) {
+            document.exitPointerLock();
+          }
+        } else if (activeScene === "drive") {
+          document.querySelector("canvas")?.requestPointerLock();
+        }
         toggleButtonRef.current?.focus();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, playClick]);
+  }, [isPaused, activeScene, setIsPaused, playClick]);
 
   // pull all settings and setters from the updated ui store
   const {
@@ -74,15 +121,15 @@ const SideBar = () => {
       <aside
         id="settings-menu"
         aria-label="Settings"
-        aria-hidden={!isOpen}
-        inert={!isOpen ? true : undefined}
+        aria-hidden={!isPaused}
+        inert={!isPaused ? true : undefined}
         className={`fixed top-0 select-none left-0 w-full h-dvh bg-black/40 border-b-2 border-tron-cyan p-0.5 font-inter text-tron-cyan z-40 pointer-events-auto backdrop-blur-md shadow-[0_4px_20px_rgba(0,243,255,0.2),inset_0_-4px_20px_rgba(0,243,255,0.1)] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isOpen ? "translate-y-0" : "-translate-y-full"
+          isPaused ? "translate-y-0" : "-translate-y-full"
         }`}
       >
         {/* main wrapper forces full height of the screen */}
         <div className="flex h-full w-full flex-col">
-          <h2 className="relative mb-6 mt-2 flex items-center justify-center border-b border-tron-cyan pb-4 pt-2 text-xl font-telemetry uppercase tracking-[6px] text-white [text-shadow:0_0_8px_#00f3ff] shrink-0 select-none">
+          <h2 className="relative mb-4 mt-2 flex items-center justify-center border-b border-tron-cyan pb-4 pt-2 text-xl font-telemetry uppercase tracking-[6px] text-white [text-shadow:0_0_8px_#00f3ff] shrink-0 select-none">
             <span>{`[ ${activeScene} ]`}</span>
             {/* version string absolutely positioned to the far right, overriding parent text effects */}
             <span className="absolute right-2 md:right-8 bottom-4 text-[10px] md:text-xs tracking-widest text-white normal-case text-shadow-none select-none">
@@ -90,8 +137,48 @@ const SideBar = () => {
             </span>
           </h2>
 
+          {/* quick actions and navigation bar */}
+          <nav
+            aria-label="Pause menu navigation"
+            className="flex items-center justify-center gap-4 sm:gap-6 pb-4 shrink-0 flex-wrap px-4 select-none"
+          >
+            {/* resume simulation button */}
+            <button
+              type="button"
+              onClick={handleResume}
+              className="group relative flex cursor-pointer items-center justify-center overflow-hidden border border-tron-cyan bg-tron-cyan/10 px-8 py-2.5 font-telemetry text-sm sm:text-base tracking-[0.3em] text-tron-cyan transition-all duration-300 hover:bg-tron-cyan hover:text-black shadow-[0_0_15px_rgba(0,243,255,0.3)] hover:shadow-[0_0_25px_rgba(0,243,255,0.7)]"
+            >
+              <span className="absolute left-0 top-0 h-full w-1 bg-tron-cyan group-hover:bg-black transition-colors" />
+              <span>{`[ RESUME ]`}</span>
+            </button>
+
+            {/* switch scene destination link */}
+            <button
+              type="button"
+              onClick={() =>
+                handleNavigate(activeScene === "drive" ? "/garage" : "/drive")
+              }
+              className="group relative flex cursor-pointer items-center justify-center overflow-hidden border border-tron-magenta bg-tron-magenta/10 px-8 py-2.5 font-telemetry text-sm sm:text-base tracking-[0.3em] text-tron-magenta transition-all duration-300 hover:bg-tron-magenta hover:text-black shadow-[0_0_15px_rgba(255,0,255,0.3)] hover:shadow-[0_0_25px_rgba(255,0,255,0.7)]"
+            >
+              <span className="absolute left-0 top-0 h-full w-1 bg-tron-magenta group-hover:bg-black transition-colors" />
+              <span>
+                {activeScene === "drive" ? "[ GARAGE ]" : "[ DRIVE ]"}
+              </span>
+            </button>
+
+            {/* return to main menu link */}
+            <button
+              type="button"
+              onClick={() => handleNavigate("/")}
+              className="group relative flex cursor-pointer items-center justify-center overflow-hidden border border-white/30 bg-white/5 px-8 py-2.5 font-telemetry text-sm sm:text-base tracking-[0.3em] text-white/80 transition-all duration-300 hover:bg-white hover:text-black shadow-[0_0_10px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]"
+            >
+              <span className="absolute left-0 top-0 h-full w-1 bg-white group-hover:bg-black transition-colors" />
+              <span>{`[ MAIN MENU ]`}</span>
+            </button>
+          </nav>
+
           {/* scrollable content area, flex layout to center the grid vertically on larger screens */}
-          <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden pb-6 px-4 md:px-12 lg:px-24 text-sm flex items-start md:items-center">
+          <div className="flex-1 overflow-y-auto scrollbar-none pb-6 px-4 md:px-12 lg:px-24 text-sm flex items-start md:items-center">
             {/* max-width container keeps the grid perfectly proportioned on ultrawide monitors */}
             <div className="w-full max-w-7xl mx-auto">
               {activeScene === "garage" ? (
@@ -118,28 +205,62 @@ const SideBar = () => {
                     <div className="flex flex-col gap-5 divide-y divide-white/5">
                       <div className="pt-0">
                         <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-yellow uppercase mb-1">
-                          METAL <span className="text-white/60 font-mono text-xs">[ 0.0 — 1.0 ]</span>
+                          METAL{" "}
+                          <span className="text-white/60 font-mono text-xs">
+                            [ 0.0 — 1.0 ]
+                          </span>
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          Controls electrical conductivity. Set to <strong className="text-white font-semibold">1.0</strong> for <strong className="text-tron-cyan font-semibold">polished cyber chrome</strong>, or down to <strong className="text-white font-semibold">0.0</strong> for non-metallic matte composite bodywork.
+                          Controls electrical conductivity. Set to{" "}
+                          <strong className="text-white font-semibold">
+                            1.0
+                          </strong>{" "}
+                          for{" "}
+                          <strong className="text-tron-cyan font-semibold">
+                            polished cyber chrome
+                          </strong>
+                          , or down to{" "}
+                          <strong className="text-white font-semibold">
+                            0.0
+                          </strong>{" "}
+                          for non-metallic matte composite bodywork.
                         </p>
                       </div>
 
                       <div className="pt-4">
                         <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-yellow uppercase mb-1">
-                          ROUGH <span className="text-white/60 font-mono text-xs">[ 0.0 — 1.0 ]</span>
+                          ROUGH{" "}
+                          <span className="text-white/60 font-mono text-xs">
+                            [ 0.0 — 1.0 ]
+                          </span>
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          Governs micro-facet scattering. Lower values produce <strong className="text-white font-semibold">razor-sharp specular reflections</strong>; higher values soften and diffuse light into a <strong className="text-tron-cyan font-semibold">smooth satin sheen</strong>.
+                          Governs micro-facet scattering. Lower values produce{" "}
+                          <strong className="text-white font-semibold">
+                            razor-sharp specular reflections
+                          </strong>
+                          ; higher values soften and diffuse light into a{" "}
+                          <strong className="text-tron-cyan font-semibold">
+                            smooth satin sheen
+                          </strong>
+                          .
                         </p>
                       </div>
 
                       <div className="pt-4">
                         <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-yellow uppercase mb-1">
-                          GLOW <span className="text-white/60 font-mono text-xs">[ 0.0 — 5.0 ]</span>
+                          GLOW{" "}
+                          <span className="text-white/60 font-mono text-xs">
+                            [ 0.0 — 5.0 ]
+                          </span>
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          Multiplies HDR radiative luminance, driving the post-processing pipeline to project <strong className="text-tron-cyan font-semibold">volumetric neon bloom</strong> across circuit lines and engine exhausts.
+                          Multiplies HDR radiative luminance, driving the
+                          post-processing pipeline to project{" "}
+                          <strong className="text-tron-cyan font-semibold">
+                            volumetric neon bloom
+                          </strong>{" "}
+                          across circuit lines and engine exhausts.
                         </p>
                       </div>
                     </div>
@@ -166,10 +287,21 @@ const SideBar = () => {
                     <div className="flex flex-col gap-5 divide-y divide-white/5">
                       <div className="pt-0">
                         <h4 className="text-sm font-telemetry font-bold tracking-wider text-tron-lime uppercase mb-1">
-                          HUE SPECTRUM <span className="text-white/60 font-mono text-xs">[ 0° — 360° ]</span>
+                          HUE SPECTRUM{" "}
+                          <span className="text-white/60 font-mono text-xs">
+                            [ 0° — 360° ]
+                          </span>
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          Sweeps through the full <strong className="text-white font-semibold">360-degree rainbow spectrum</strong>. Each vehicle material zone (<strong className="text-white font-semibold">Chassis, Circuits, Axels, Cockpit, Tires</strong>) can be assigned an independent wavelength.
+                          Sweeps through the full{" "}
+                          <strong className="text-white font-semibold">
+                            360-degree rainbow spectrum
+                          </strong>
+                          . Each vehicle material zone (
+                          <strong className="text-white font-semibold">
+                            Chassis, Circuits, Axels, Cockpit, Tires
+                          </strong>
+                          ) can be assigned an independent wavelength.
                         </p>
                       </div>
 
@@ -178,7 +310,15 @@ const SideBar = () => {
                           SATURATION & LIGHTNESS
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          <strong className="text-white font-semibold">Saturation</strong> shifts between monochromatic stealth titanium and hyper-vivid laser tones. <strong className="text-white font-semibold">Lightness</strong> shifts from deep void black to high-voltage white.
+                          <strong className="text-white font-semibold">
+                            Saturation
+                          </strong>{" "}
+                          shifts between monochromatic stealth titanium and
+                          hyper-vivid laser tones.{" "}
+                          <strong className="text-white font-semibold">
+                            Lightness
+                          </strong>{" "}
+                          shifts from deep void black to high-voltage white.
                         </p>
                       </div>
 
@@ -187,7 +327,12 @@ const SideBar = () => {
                           TRAIL SYNCHRONIZATION
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          Engage <strong className="text-tron-cyan font-semibold">"Sync to Circuits"</strong> to automatically slave aerodynamic engine exhaust particles to match your vehicle's circuit neon hue.
+                          Engage{" "}
+                          <strong className="text-tron-cyan font-semibold">
+                            "Sync to Circuits"
+                          </strong>{" "}
+                          to automatically slave aerodynamic engine exhaust
+                          particles to match your vehicle's circuit neon hue.
                         </p>
                       </div>
                     </div>
@@ -217,7 +362,14 @@ const SideBar = () => {
                           ORBIT TUMBLE
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          <strong className="text-white font-semibold">Left Click + Drag</strong> outside the sidebar to rotate <strong className="text-white font-semibold">360°</strong> around the vehicle's center of mass.
+                          <strong className="text-white font-semibold">
+                            Left Click + Drag
+                          </strong>{" "}
+                          outside the sidebar to rotate{" "}
+                          <strong className="text-white font-semibold">
+                            360°
+                          </strong>{" "}
+                          around the vehicle's center of mass.
                         </p>
                       </div>
 
@@ -226,7 +378,14 @@ const SideBar = () => {
                           PAN & ZOOM
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          <strong className="text-white font-semibold">Right Click + Drag</strong> to pan camera focal point. Use the <strong className="text-white font-semibold">Scroll Wheel</strong> to zoom with vehicle-clamped distance bounds.
+                          <strong className="text-white font-semibold">
+                            Right Click + Drag
+                          </strong>{" "}
+                          to pan camera focal point. Use the{" "}
+                          <strong className="text-white font-semibold">
+                            Scroll Wheel
+                          </strong>{" "}
+                          to zoom with vehicle-clamped distance bounds.
                         </p>
                       </div>
 
@@ -235,7 +394,12 @@ const SideBar = () => {
                           DRAWER ACCORDION
                         </h4>
                         <p className="text-sm text-gray-300 leading-relaxed font-label">
-                          Click the <strong className="text-tron-yellow font-semibold">active vehicle tab</strong> on the left edge to collapse or re-expand the customization drawer for clean, unobstructed viewing.
+                          Click the{" "}
+                          <strong className="text-tron-yellow font-semibold">
+                            active vehicle tab
+                          </strong>{" "}
+                          on the left edge to collapse or re-expand the
+                          customization drawer for clean, unobstructed viewing.
                         </p>
                       </div>
                     </div>
@@ -335,7 +499,7 @@ const SideBar = () => {
                       </div>
                       <input
                         type="range"
-                        min="1"
+                        min="0"
                         max="8"
                         value={chunkRadius}
                         aria-label="Render distance"
@@ -453,16 +617,13 @@ const SideBar = () => {
       <button
         ref={toggleButtonRef}
         type="button"
-        onClick={() => {
-          playClick();
-          setIsOpen(!isOpen);
-        }}
+        onClick={handleToggle}
         className="fixed top-2 left-2 flex cursor-pointer items-center justify-center rounded-md border-2 border-tron-cyan p-2 text-tron-cyan z-45 backdrop-blur-sm shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:bg-tron-cyan hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black transition-colors"
-        aria-label={isOpen ? "Close settings menu" : "Open settings menu"}
-        aria-expanded={isOpen}
+        aria-label={isPaused ? "Close settings menu" : "Open settings menu"}
+        aria-expanded={isPaused}
         aria-controls="settings-menu"
       >
-        {isOpen ? (
+        {isPaused ? (
           <X
             size={24}
             strokeWidth={2.5}
@@ -480,4 +641,4 @@ const SideBar = () => {
   );
 };
 
-export default SideBar;
+export default PauseUI;

@@ -1,32 +1,8 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource/share-tech-mono";
 
 /* Self-hosted optimized WOFF2 fonts */
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/inter-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-style: italic;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/inter-italic-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: 'Share Tech Mono';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/share-tech-mono-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
 
 html {
   scrollbar-gutter: stable;
@@ -38,9 +14,23 @@ body,
   min-height: 100dvh;
 }
 
+/* balanced typography wrapping */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
 @theme {
   /* typography system mapped to semantic names */
-  --font-label: "Inter", sans-serif;
+  --font-label: "Inter Variable", "Inter", sans-serif;
   --font-telemetry: "Share Tech Mono", monospace;
 
   /* synthwave color palette */
@@ -86,25 +76,33 @@ p {
   max-height: 85vh !important; /* little breathing room at the top and bottom */
   overflow-y: auto !important;
   overflow-x: hidden !important;
+  scrollbar-width: thin;
+  scrollbar-color: #344448 rgba(5, 5, 5, 0.8);
 }
 
 /* scrollbar to match the neon/tron UI */
-.tp-dfwv::-webkit-scrollbar {
-  width: 6px;
-}
+@supports not (scrollbar-color: auto) {
+  .tp-dfwv {
+    scrollbar-width: auto;
+  }
 
-.tp-dfwv::-webkit-scrollbar-track {
-  background: rgba(5, 5, 5, 0.8);
-  border-left: 1px solid rgba(0, 243, 255, 0.2);
-}
+  .tp-dfwv::-webkit-scrollbar {
+    width: 6px;
+  }
 
-.tp-dfwv::-webkit-scrollbar-thumb {
-  background: #344448;
-  border-radius: 4px;
-}
+  .tp-dfwv::-webkit-scrollbar-track {
+    background: rgba(5, 5, 5, 0.8);
+    border-left: 1px solid rgba(0, 243, 255, 0.2);
+  }
 
-.tp-dfwv::-webkit-scrollbar-thumb:hover {
-  background: #546d74;
+  .tp-dfwv::-webkit-scrollbar-thumb {
+    background: #344448;
+    border-radius: 4px;
+  }
+
+  .tp-dfwv::-webkit-scrollbar-thumb:hover {
+    background: #546d74;
+  }
 }
 
 /* Accessible focus indicators (WCAG 2.2 AA) */

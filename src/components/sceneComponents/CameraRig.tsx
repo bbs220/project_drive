@@ -9,6 +9,7 @@ import {
   type TypeControlState,
 } from "../../stores/useVehicleStore";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
+import { useUIStore } from "../../stores/useUIStore";
 
 // define props with optional debug flag
 type typeCameraRigProps = {
@@ -94,25 +95,19 @@ const CameraRig = ({ targetRef, debugMode = false }: typeCameraRigProps) => {
     };
 
     // capture the mouse into the canvas on left click
-    const onClick = () => {
-      if (document.pointerLockElement !== gl.domElement) {
-        gl.domElement.requestPointerLock();
-      }
-    };
-
+    // ignore canvas pointer lock requests while paused
+    // pointer locking is strictly delegated to dedicated ui buttons
     gl.domElement.addEventListener("mousemove", onMouseMove);
-    gl.domElement.addEventListener("click", onClick);
 
     return () => {
       gl.domElement.removeEventListener("mousemove", onMouseMove);
-      gl.domElement.removeEventListener("click", onClick);
     };
   }, [gl, debugMode, params.sensitivity]);
 
   // core camera physics loop
   useFrame(() => {
     // exit early if debug mode is active or target is missing
-    if (debugMode || !targetRef.current) return;
+    if (debugMode || !targetRef.current || useUIStore.getState().isPaused) return;
 
     // fetch the currently active vehicle from the global state object
     const { active } = useVehicleStore.getState();

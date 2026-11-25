@@ -12,7 +12,7 @@ import {
 import respawnVehicle from "../utils/respawnVehicle";
 import { unwrapParam } from "../utils/unwrapParam";
 import type { KinematicCharacterController } from "@dimforge/rapier3d-compat";
-import { respawnValues } from "../constants/otherConstants";
+import { respawnValues } from "../constants/vehicleConstants";
 
 type typePlayerTuning = {
   walkSpeed: number;

@@ -17,7 +17,15 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "frame-ancestors 'none'; upgrade-insecure-requests;"
+          "value": "object-src 'none'; base-uri 'none'; frame-ancestors 'none'; upgrade-insecure-requests;"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
         },
         {
           "key": "Referrer-Policy",
@@ -25,7 +33,7 @@
         },
         {
           "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), focus-without-user-activation=()"
         },
         {
           "key": "Link",

@@ -10,7 +10,7 @@ import {
 } from "../stores/useVehicleStore";
 import respawnVehicle from "../utils/respawnVehicle";
 import { unwrapParam } from "../utils/unwrapParam";
-import { respawnValues } from "../constants/otherConstants";
+import { respawnValues } from "../constants/vehicleConstants";
 
 // define tweakpane parameter descriptor type structure
 type TweakpaneParam<T> = {
@@ -104,7 +104,7 @@ export const useVehiclePlaneCreator = (
     ) {
       // execute centralized respawn logic
       respawnVehicle({
-        vehicleType: "plane",
+        vehicleType: "plane01",
         vehicleBody: chassis,
         mode: "drive",
       });
@@ -348,10 +348,22 @@ export const useVehiclePlaneCreator = (
     planeSeatPos[1] = worldSeat.y;
     planeSeatPos[2] = worldSeat.z;
 
+    // calculate normalized warp factor between default cruise speed and turbo speed
+    const warpFactor =
+      turboSpeedVal > defaultSpeedVal
+        ? THREE.MathUtils.clamp(
+            (currentSpeedRef.current - defaultSpeedVal) /
+              (turboSpeedVal - defaultSpeedVal),
+            0,
+            1,
+          )
+        : 0;
+
     // always broadcast full telemetry so ui and mount systems function properly
     useVehicleStore.getState().updateTelemetry(ENTITY_ID.PLANE_1, {
       airspeed: Math.round(currentSpeedRef.current * 3.6),
       throttle: turboSpeedVal > 0 ? currentSpeedRef.current / turboSpeedVal : 0,
+      warpFactor,
       altitude: Math.round(pos.y),
       pitch: euler.x,
       roll: euler.z,

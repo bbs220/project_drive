@@ -4,7 +4,7 @@ import {
   CONTROL_STATE,
   ENTITY_ID,
 } from "../../stores/useVehicleStore";
-import { respawnValues } from "../../constants/otherConstants";
+import { respawnValues } from "../../constants/vehicleConstants";
 import { useUIStore } from "../../stores/useUIStore";
 
 // define strict type for our generic control items
@@ -256,7 +256,12 @@ const CarSpeedometer = () => {
     let animId: number;
     const update = () => {
       animId = requestAnimationFrame(update);
-      const speed = useVehicleStore.getState().telemetry[ENTITY_ID.CAR_1].speed;
+      const state = useVehicleStore.getState();
+      const carEntity =
+        state.active.control === CONTROL_STATE.CAR
+          ? (state.active.entity as typeof ENTITY_ID.CAR_1 | typeof ENTITY_ID.CAR_2)
+          : ENTITY_ID.CAR_1;
+      const speed = state.telemetry[carEntity]?.speed ?? 0;
       if (speedRef.current) {
         speedRef.current.innerText = String(speed).padStart(3, "0");
       }

@@ -10,9 +10,9 @@ import {
 } from "@react-three/rapier";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
-  vehicleHelicopterConstants,
+  vehicleHelicopter01Constants,
   respawnValues,
-} from "../../constants/otherConstants";
+} from "../../constants/vehicleConstants";
 import { unwrapParam } from "../../utils/unwrapParam";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useVehicleHelicopterCreator } from "../../hooks/useVehicleHelicopterCreator";
@@ -54,9 +54,9 @@ type typeTailRotorGLTF = GLTF & {
 };
 
 // main vehicle component updated with custom six point spherical physics
-const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
+const VehicleHelicopter01 = forwardRef<THREE.Group, VehicleProps>(
   ({ spawnMode }, ref) => {
-    const initialSpawn = respawnValues[spawnMode].helicopter;
+    const initialSpawn = respawnValues[spawnMode].helicopter01;
 
     const visualRef = useRef<THREE.Group>(null);
 
@@ -72,13 +72,13 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
 
     // fetch customization values
     const helicopterMods = useCustomizationStore(
-      (state) => state.helicopterMods,
+      (state) => state.helicopter01Mods,
     );
 
     // initialize tweakpane hook and store reactive parameters
     const params = useTweakpane(
       { title: "⚙️ Vehicle Tuning", expanded: false },
-      vehicleHelicopterConstants.tuning,
+      vehicleHelicopter01Constants.tuning,
     );
 
     // extract debug boolean
@@ -316,9 +316,9 @@ const VehicleHelicopter = forwardRef<THREE.Group, VehicleProps>(
 );
 
 // assign display name for react devtools compatibility
-VehicleHelicopter.displayName = "VehicleHelicopter";
+VehicleHelicopter01.displayName = "VehicleHelicopter01";
 
-export default VehicleHelicopter;
+export default VehicleHelicopter01;
 
 // preload assets to prevent frame drops on mount
 useGLTF.preload(modelsSeperatedBank.helicopter01cabin);

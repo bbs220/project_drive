@@ -169,7 +169,9 @@ const TrailEngine = ({
 
     // reverse detection math
     invWorldQuat.current.copy(worldQuat.current).invert();
-    const localMoveZ = moveDeltaVec.current.applyQuaternion(invWorldQuat.current).z;
+    const localMoveZ = moveDeltaVec.current.applyQuaternion(
+      invWorldQuat.current,
+    ).z;
 
     // only detect reversing if this trail actually belongs to a car
     const isReversing = isCar && localMoveZ < -0.01;

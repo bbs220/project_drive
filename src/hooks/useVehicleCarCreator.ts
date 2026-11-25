@@ -11,10 +11,11 @@ import {
   useVehicleStore,
   CONTROL_STATE,
   ENTITY_ID,
+  type TypeEntityId,
 } from "../stores/useVehicleStore";
 import respawnVehicle from "../utils/respawnVehicle";
 import { unwrapParam } from "../utils/unwrapParam";
-import { respawnValues } from "../constants/otherConstants";
+import { respawnValues } from "../constants/vehicleConstants";
 
 // define up vector
 const up = new THREE.Vector3(0, 1, 0);
@@ -26,10 +27,6 @@ const _localSeatOffset = new THREE.Vector3();
 const _worldSeat = new THREE.Vector3();
 const _flipOffset = new THREE.Quaternion().setFromAxisAngle(up, Math.PI);
 const _invertedQuat = new THREE.Quaternion();
-const _carRot: [number, number, number, number] = [0, 0, 0, 1];
-const _pureCarRot: [number, number, number, number] = [0, 0, 0, 1];
-const _carPos: [number, number, number] = [0, 0, 0];
-const _carSeatPos: [number, number, number] = [0, 0, 0];
 
 // define wheel info structure
 export type typeWheelInfo = {
@@ -58,6 +55,7 @@ export type typeCarTuning = {
   brakeForce: number | TweakpaneParam<number>;
   steeringAngle: number | TweakpaneParam<number>;
   flipImpulse: number | TweakpaneParam<number>;
+  cruiseSpeed?: number | TweakpaneParam<number>;
   maxSpeed: number | TweakpaneParam<number>;
   maxReverseSpeed: number | TweakpaneParam<number>;
   wheelPosX: number | TweakpaneParam<number>;
@@ -78,6 +76,7 @@ export const useVehicleCarCreator = (
   wheelsRef: RefObject<THREE.Object3D[]>,
   controlsRef: RefObject<typeAllVehicleControls>,
   tuning: typeCarTuning,
+  entityId: TypeEntityId = ENTITY_ID.CAR_1,
 ) => {
   // get rapier world
   const { world } = useRapier();
@@ -89,6 +88,12 @@ export const useVehicleCarCreator = (
 
   // initialize ref to store manually calculated wheel rotations
   const manualWheelRotations = useRef([0, 0, 0, 0]);
+
+  // initialize refs to store instance specific telemetry vectors
+  const carRotRef = useRef<[number, number, number, number]>([0, 0, 0, 1]);
+  const pureCarRotRef = useRef<[number, number, number, number]>([0, 0, 0, 1]);
+  const carPosRef = useRef<[number, number, number]>([0, 0, 0]);
+  const carSeatPosRef = useRef<[number, number, number]>([0, 0, 0]);
 
   // dynamically generate wheel positions and physics info
   const wheelsInfo = useMemo<typeWheelInfo[]>(() => {
@@ -217,6 +222,7 @@ export const useVehicleCarCreator = (
     const flipImpulseVal = unwrapParam(tuning.flipImpulse, 0.5);
     const engineForceVal = unwrapParam(tuning.engineForce, 5);
     const boostMultiplierVal = unwrapParam(tuning.boostMultiplier, 2.5);
+    const cruiseSpeedVal = unwrapParam(tuning.cruiseSpeed, 250 / 3.6);
     const maxSpeedVal = unwrapParam(tuning.maxSpeed, 88);
     const maxReverseSpeedVal = unwrapParam(tuning.maxReverseSpeed, 10);
     const steeringAngleVal = unwrapParam(tuning.steeringAngle, 0.5);
@@ -227,7 +233,7 @@ export const useVehicleCarCreator = (
 
     // strictly check against the new ECS dictionary instead of a string
     const controls =
-      active.control === CONTROL_STATE.CAR
+      active.control === CONTROL_STATE.CAR && active.entity === entityId
         ? controlsRef.current
         : {
             forward: false,
@@ -242,11 +248,13 @@ export const useVehicleCarCreator = (
             mount: false,
           };
 
+    const carSpawnKey = entityId === ENTITY_ID.CAR_2 ? "car02" : "car01";
+
     // manual respawn trigger
     if (controls.respawn) {
       // execute centralized respawn logic
       respawnVehicle({
-        vehicleType: "car",
+        vehicleType: carSpawnKey,
         vehicleBody: chassis,
         mode: "drive",
       });
@@ -258,7 +266,7 @@ export const useVehicleCarCreator = (
     if (chassis.translation().y < respawnValues.universalRespawnLimit) {
       // execute centralized respawn logic
       respawnVehicle({
-        vehicleType: "car",
+        vehicleType: carSpawnKey,
         vehicleBody: chassis,
         mode: "drive",
       });
@@ -336,7 +344,7 @@ export const useVehicleCarCreator = (
       const safeMaxReverseSpeed = maxReverseSpeedVal || 10;
 
       // define cruising speed at 250 km/h converted to meters per second
-      const cruiseSpeedMs = 250 / 3.6;
+      const cruiseSpeedMs = cruiseSpeedVal;
 
       // determine the active speed limit depending on if the boost key is held
       const activeMaxSpeed = controls.boost ? safeMaxSpeed : cruiseSpeedMs;
@@ -388,7 +396,8 @@ export const useVehicleCarCreator = (
         !controls.backward &&
         !controls.left &&
         !controls.right;
-      const isUnoccupied = active.control !== CONTROL_STATE.CAR;
+      const isUnoccupied =
+        active.control !== CONTROL_STATE.CAR || active.entity !== entityId;
 
       // only damp if the vehicle has slowed down to a crawl.
       // this ensures unoccupied cars still tumble/slide naturally if thrown off a cliff.
@@ -432,6 +441,16 @@ export const useVehicleCarCreator = (
     // convert meters per second to kilometers per hour
     const speedKmh = Math.round(groundSpeedMs * 3.6);
 
+    // calculate normalized warp factor between cruising and max boost speed
+    const warpFactor =
+      maxSpeedVal > cruiseSpeedVal
+        ? THREE.MathUtils.clamp(
+            (groundSpeedMs - cruiseSpeedVal) / (maxSpeedVal - cruiseSpeedVal),
+            0,
+            1,
+          )
+        : 0;
+
     // seat position and rotation math
     _localSeatOffset.set(0.4, 0.8, -0.5);
 
@@ -444,42 +463,50 @@ export const useVehicleCarCreator = (
     // format the exact car rotation as a strict array for the store with an inverted offset
     _invertedQuat.copy(chassisQuat).multiply(_flipOffset);
 
+    const carRot = carRotRef.current;
+    const pureCarRot = pureCarRotRef.current;
+    const carPos = carPosRef.current;
+    const carSeatPos = carSeatPosRef.current;
+
     // format the flipped car rotation as a strict array for the store
-    _carRot[0] = _invertedQuat.x;
-    _carRot[1] = _invertedQuat.y;
-    _carRot[2] = _invertedQuat.z;
-    _carRot[3] = _invertedQuat.w;
+    carRot[0] = _invertedQuat.x;
+    carRot[1] = _invertedQuat.y;
+    carRot[2] = _invertedQuat.z;
+    carRot[3] = _invertedQuat.w;
 
     // format the pure unflipped car rotation for the seat so the player faces forward
-    _pureCarRot[0] = chassisQuat.x;
-    _pureCarRot[1] = chassisQuat.y;
-    _pureCarRot[2] = chassisQuat.z;
-    _pureCarRot[3] = chassisQuat.w;
+    pureCarRot[0] = chassisQuat.x;
+    pureCarRot[1] = chassisQuat.y;
+    pureCarRot[2] = chassisQuat.z;
+    pureCarRot[3] = chassisQuat.w;
 
-    _carPos[0] = pos.x;
-    _carPos[1] = pos.y;
-    _carPos[2] = pos.z;
+    carPos[0] = pos.x;
+    carPos[1] = pos.y;
+    carPos[2] = pos.z;
 
-    _carSeatPos[0] = _worldSeat.x;
-    _carSeatPos[1] = _worldSeat.y;
-    _carSeatPos[2] = _worldSeat.z;
+    carSeatPos[0] = _worldSeat.x;
+    carSeatPos[1] = _worldSeat.y;
+    carSeatPos[2] = _worldSeat.z;
 
     // update physics state variables if actively driving but always broadcast position and seat
-    if (active.control === CONTROL_STATE.CAR) {
-      useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
+    if (active.control === CONTROL_STATE.CAR && active.entity === entityId) {
+      useVehicleStore.getState().updateTelemetry(entityId, {
         speed: speedKmh,
-        position: _carPos,
-        rotation: _carRot,
-        seatPosition: _carSeatPos,
-        seatRotation: _pureCarRot,
+        warpFactor,
+        position: carPos,
+        rotation: carRot,
+        seatPosition: carSeatPos,
+        seatRotation: pureCarRot,
       });
     } else {
       // if empty only broadcast the coordinates so the player knows where to walk or sit
-      useVehicleStore.getState().updateTelemetry(ENTITY_ID.CAR_1, {
-        position: _carPos,
-        rotation: _carRot,
-        seatPosition: _carSeatPos,
-        seatRotation: _pureCarRot,
+      useVehicleStore.getState().updateTelemetry(entityId, {
+        speed: 0,
+        warpFactor: 0,
+        position: carPos,
+        rotation: carRot,
+        seatPosition: carSeatPos,
+        seatRotation: pureCarRot,
       });
     }
 

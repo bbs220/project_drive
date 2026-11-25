@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { worldConstants } from "../utils/worldGenerator";
+import { worldConstants } from "../constants/worldConstants";
 
 type typeCityState = {
   version: number;

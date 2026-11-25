@@ -19,6 +19,9 @@ export type TypeControlState =
 export const ENTITY_ID = {
   PLAYER_1: "player_01",
   CAR_1: "car_01",
+  CAR_2: "car_02",
+  CAR_3: "car_03",
+  CAR_4: "car_04",
   PLANE_1: "plane_01",
   HELI_1: "heli_01",
 } as const;
@@ -31,6 +34,7 @@ export type PlayerTelemetry = {
   isGrounded: boolean;
   position: [number, number, number];
   rotation: [number, number, number, number];
+  warpFactor: number;
 };
 
 export type CarTelemetry = {
@@ -39,6 +43,7 @@ export type CarTelemetry = {
   rotation: [number, number, number, number];
   seatPosition: [number, number, number];
   seatRotation: [number, number, number, number];
+  warpFactor: number;
 };
 
 export type PlaneTelemetry = {
@@ -52,6 +57,7 @@ export type PlaneTelemetry = {
   rotation: [number, number, number, number];
   seatPosition: [number, number, number];
   seatRotation: [number, number, number, number];
+  warpFactor: number;
 };
 
 export type HelicopterTelemetry = {
@@ -66,12 +72,16 @@ export type HelicopterTelemetry = {
   rotation: [number, number, number, number];
   seatPosition: [number, number, number];
   seatRotation: [number, number, number, number];
+  warpFactor: number;
 };
 
 // map entities directly to their specific telemetry type
 export type TelemetryMap = {
   [ENTITY_ID.PLAYER_1]: PlayerTelemetry;
   [ENTITY_ID.CAR_1]: CarTelemetry;
+  [ENTITY_ID.CAR_2]: CarTelemetry;
+  [ENTITY_ID.CAR_3]: CarTelemetry;
+  [ENTITY_ID.CAR_4]: CarTelemetry;
   [ENTITY_ID.PLANE_1]: PlaneTelemetry;
   [ENTITY_ID.HELI_1]: HelicopterTelemetry;
 };
@@ -114,6 +124,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
       isGrounded: true,
       position: [0, 0, 0],
       rotation: [0, 0, 0, 1],
+      warpFactor: 0,
     },
     [ENTITY_ID.CAR_1]: {
       speed: 0,
@@ -121,6 +132,31 @@ export const useVehicleStore = create<VehicleState>((set) => ({
       rotation: [0, 0, 0, 1],
       seatPosition: [0, 0, 0],
       seatRotation: [0, 0, 0, 1],
+      warpFactor: 0,
+    },
+    [ENTITY_ID.CAR_2]: {
+      speed: 0,
+      position: [0, 0, 0],
+      rotation: [0, 0, 0, 1],
+      seatPosition: [0, 0, 0],
+      seatRotation: [0, 0, 0, 1],
+      warpFactor: 0,
+    },
+    [ENTITY_ID.CAR_3]: {
+      speed: 0,
+      position: [0, 0, 0],
+      rotation: [0, 0, 0, 1],
+      seatPosition: [0, 0, 0],
+      seatRotation: [0, 0, 0, 1],
+      warpFactor: 0,
+    },
+    [ENTITY_ID.CAR_4]: {
+      speed: 0,
+      position: [0, 0, 0],
+      rotation: [0, 0, 0, 1],
+      seatPosition: [0, 0, 0],
+      seatRotation: [0, 0, 0, 1],
+      warpFactor: 0,
     },
     [ENTITY_ID.PLANE_1]: {
       airspeed: 0,
@@ -133,6 +169,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
       rotation: [0, 0, 0, 1],
       seatPosition: [0, 0, 0],
       seatRotation: [0, 0, 0, 1],
+      warpFactor: 0,
     },
     [ENTITY_ID.HELI_1]: {
       airspeed: 0,
@@ -146,6 +183,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
       rotation: [0, 0, 0, 1],
       seatPosition: [0, 0, 0],
       seatRotation: [0, 0, 0, 1],
+      warpFactor: 0,
     },
   },
 

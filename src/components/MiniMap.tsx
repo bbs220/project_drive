@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useUIStore } from "../stores/useUIStore";
 import { useAllVehicleInput } from "../hooks/useAllVehicleInput";
-import { sceneConstants } from "../constants/otherConstants";
+import { sceneConstants } from "../constants/vehicleConstants";
 import {
   useVehicleStore,
   ENTITY_ID,
@@ -124,10 +124,16 @@ export const MiniMapFBO = () => {
       uHeliTex: { value: icons.helicopterRadar },
       uCharPos: { value: new THREE.Vector2(0, 0) },
       uCarPos: { value: new THREE.Vector2(0, 0) },
+      uCar2Pos: { value: new THREE.Vector2(0, 0) },
+      uCar3Pos: { value: new THREE.Vector2(0, 0) },
+      uCar4Pos: { value: new THREE.Vector2(0, 0) },
       uPlanePos: { value: new THREE.Vector2(0, 0) },
       uHeliPos: { value: new THREE.Vector2(0, 0) },
       uCharYaw: { value: 0.0 },
       uCarYaw: { value: 0.0 },
+      uCar2Yaw: { value: 0.0 },
+      uCar3Yaw: { value: 0.0 },
+      uCar4Yaw: { value: 0.0 },
       uPlaneYaw: { value: 0.0 },
       uHeliYaw: { value: 0.0 },
       uActiveEntity: { value: 0 },
@@ -280,7 +286,12 @@ export const MiniMapFBO = () => {
     }
 
     let targetZoom = params.miniMapZoom;
-    if (active.entity === ENTITY_ID.CAR_1) {
+    if (
+      active.entity === ENTITY_ID.CAR_1 ||
+      active.entity === ENTITY_ID.CAR_2 ||
+      active.entity === ENTITY_ID.CAR_3 ||
+      active.entity === ENTITY_ID.CAR_4
+    ) {
       targetZoom = THREE.MathUtils.clamp(
         params.carMinZoom + currentSpeed * params.speedZoomMult,
         params.carMinZoom,
@@ -326,16 +337,27 @@ export const MiniMapFBO = () => {
       params.zoomLerpSpeed as number,
     );
 
-    mapMat.uniforms.uIconTexture.value = icons.playerRadar;
-
     if (active.entity === ENTITY_ID.CAR_1) {
       mapMat.uniforms.uActiveEntity.value = 1;
+      mapMat.uniforms.uIconTexture.value = icons.carRadar;
+    } else if (active.entity === ENTITY_ID.CAR_2) {
+      mapMat.uniforms.uActiveEntity.value = 4;
+      mapMat.uniforms.uIconTexture.value = icons.carRadar;
+    } else if (active.entity === ENTITY_ID.CAR_3) {
+      mapMat.uniforms.uActiveEntity.value = 5;
+      mapMat.uniforms.uIconTexture.value = icons.carRadar;
+    } else if (active.entity === ENTITY_ID.CAR_4) {
+      mapMat.uniforms.uActiveEntity.value = 6;
+      mapMat.uniforms.uIconTexture.value = icons.carRadar;
     } else if (active.entity === ENTITY_ID.HELI_1) {
       mapMat.uniforms.uActiveEntity.value = 3;
+      mapMat.uniforms.uIconTexture.value = icons.helicopterRadar;
     } else if (active.entity === ENTITY_ID.PLANE_1) {
       mapMat.uniforms.uActiveEntity.value = 2;
+      mapMat.uniforms.uIconTexture.value = icons.planeRadar;
     } else {
       mapMat.uniforms.uActiveEntity.value = 0;
+      mapMat.uniforms.uIconTexture.value = icons.playerRadar;
     }
 
     if (currentTelemetry) {
@@ -347,6 +369,9 @@ export const MiniMapFBO = () => {
 
     const pTel = telemetry[ENTITY_ID.PLAYER_1];
     const cTel = telemetry[ENTITY_ID.CAR_1];
+    const c2Tel = telemetry[ENTITY_ID.CAR_2];
+    const c3Tel = telemetry[ENTITY_ID.CAR_3];
+    const c4Tel = telemetry[ENTITY_ID.CAR_4];
     const plTel = telemetry[ENTITY_ID.PLANE_1];
     const hTel = telemetry[ENTITY_ID.HELI_1];
 
@@ -363,6 +388,27 @@ export const MiniMapFBO = () => {
         cTel.position[2],
       );
       mapMat.uniforms.uCarYaw.value = getYaw(cTel.rotation);
+    }
+    if (c2Tel) {
+      mapMat.uniforms.uCar2Pos.value.set(
+        c2Tel.position[0],
+        c2Tel.position[2],
+      );
+      mapMat.uniforms.uCar2Yaw.value = getYaw(c2Tel.rotation);
+    }
+    if (c3Tel) {
+      mapMat.uniforms.uCar3Pos.value.set(
+        c3Tel.position[0],
+        c3Tel.position[2],
+      );
+      mapMat.uniforms.uCar3Yaw.value = getYaw(c3Tel.rotation);
+    }
+    if (c4Tel) {
+      mapMat.uniforms.uCar4Pos.value.set(
+        c4Tel.position[0],
+        c4Tel.position[2],
+      );
+      mapMat.uniforms.uCar4Yaw.value = getYaw(c4Tel.rotation);
     }
     if (plTel) {
       mapMat.uniforms.uPlanePos.value.set(
@@ -421,6 +467,9 @@ const MiniMap = () => {
 
   const playerDistRef = useRef<HTMLSpanElement>(null);
   const carDistRef = useRef<HTMLSpanElement>(null);
+  const car2DistRef = useRef<HTMLSpanElement>(null);
+  const car3DistRef = useRef<HTMLSpanElement>(null);
+  const car4DistRef = useRef<HTMLSpanElement>(null);
   const planeDistRef = useRef<HTMLSpanElement>(null);
   const heliDistRef = useRef<HTMLSpanElement>(null);
 
@@ -531,6 +580,24 @@ const MiniMap = () => {
                 ? "ACTIVE"
                 : `${calcDist(activeTel, tel[ENTITY_ID.CAR_1])}m`;
           }
+          if (car2DistRef.current) {
+            car2DistRef.current.innerText =
+              activeId === ENTITY_ID.CAR_2
+                ? "ACTIVE"
+                : `${calcDist(activeTel, tel[ENTITY_ID.CAR_2])}m`;
+          }
+          if (car3DistRef.current) {
+            car3DistRef.current.innerText =
+              activeId === ENTITY_ID.CAR_3
+                ? "ACTIVE"
+                : `${calcDist(activeTel, tel[ENTITY_ID.CAR_3])}m`;
+          }
+          if (car4DistRef.current) {
+            car4DistRef.current.innerText =
+              activeId === ENTITY_ID.CAR_4
+                ? "ACTIVE"
+                : `${calcDist(activeTel, tel[ENTITY_ID.CAR_4])}m`;
+          }
           if (planeDistRef.current) {
             planeDistRef.current.innerText =
               activeId === ENTITY_ID.PLANE_1
@@ -578,26 +645,8 @@ const MiniMap = () => {
             ref={legendRef}
             className="absolute top-4 left-4 opacity-0 pointer-events-none flex flex-col gap-5 bg-black/60 backdrop-blur-md border border-tron-cyan/30 rounded-md p-4 text-xs text-white/80 shadow-[0_0_15px_rgba(0,243,255,0.1)] w-48 font-telemetry"
           >
-            <div className="flex flex-col gap-2.5">
-              <div className="text-tron-cyan font-bold tracking-widest mb-1 border-b border-tron-cyan/30 pb-2">
-                ZONES
-              </div>
-              <div className="flex items-center gap-3 uppercase">
-                <div className="w-3 h-3 bg-[#1a231a] border border-white/20 rounded-sm" />
-                <span>Outlands</span>
-              </div>
-              <div className="flex items-center gap-3 uppercase">
-                <div className="w-3 h-3 bg-[#333840] border border-white/20 rounded-sm" />
-                <span>Roads</span>
-              </div>
-              <div className="flex items-center gap-3 uppercase">
-                <div className="w-3 h-3 bg-[#8c95a1] border border-white/20 rounded-sm" />
-                <span>Buildings</span>
-              </div>
-            </div>
-
             <div className="flex flex-col gap-2.5 w-full">
-              <div className="text-tron-cyan font-bold tracking-widest mb-1 border-b border-tron-cyan/30 pb-2 mt-1">
+              <div className="text-tron-cyan font-bold tracking-widest mb-1 border-b border-tron-cyan/30 pb-2">
                 ICONS
               </div>
 
@@ -635,6 +684,63 @@ const MiniMap = () => {
                 </div>
                 <span
                   ref={carDistRef}
+                  className="text-[10px] text-tron-cyan opacity-80"
+                />
+              </div>
+
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
+                    <img
+                      src={iconsBank.carRadar}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span className="uppercase">Grid Cruiser</span>
+                </div>
+                <span
+                  ref={car2DistRef}
+                  className="text-[10px] text-tron-cyan opacity-80"
+                />
+              </div>
+
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
+                    <img
+                      src={iconsBank.carRadar}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span className="uppercase">Grid Phantom</span>
+                </div>
+                <span
+                  ref={car3DistRef}
+                  className="text-[10px] text-tron-cyan opacity-80"
+                />
+              </div>
+
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(255,255,255,0.6)] p-0.5">
+                    <img
+                      src={iconsBank.carRadar}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span className="uppercase">Grid Striker</span>
+                </div>
+                <span
+                  ref={car4DistRef}
                   className="text-[10px] text-tron-cyan opacity-80"
                 />
               </div>

@@ -22,6 +22,11 @@ type UIState = {
   setShowControls: (show: boolean) => void;
   setShowSpeedometers: (show: boolean) => void;
   setShowMap: (show: boolean) => void;
+
+  // simulation pause state
+  isPaused: boolean;
+  setIsPaused: (paused: boolean) => void;
+  togglePaused: () => void;
 };
 
 export const useUIStore = create<UIState>((set) => ({
@@ -46,4 +51,11 @@ export const useUIStore = create<UIState>((set) => ({
   setShowControls: (show) => set({ showControls: show }),
   setShowSpeedometers: (show) => set({ showSpeedometers: show }),
   setShowMap: (show) => set({ showMap: show }),
+
+  // default simulation pause state
+  isPaused: false,
+
+  // pause actions
+  setIsPaused: (paused) => set({ isPaused: paused }),
+  togglePaused: () => set((state) => ({ isPaused: !state.isPaused })),
 }));

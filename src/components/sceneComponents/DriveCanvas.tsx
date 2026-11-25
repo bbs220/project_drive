@@ -8,19 +8,20 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { physcConstants } from "../../constants/physcConstants";
-import { sceneConstants } from "../../constants/otherConstants";
+import { sceneConstants } from "../../constants/vehicleConstants";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import AllVehiclesHUD from "./AllVehiclesHUD";
 import CameraRig from "./CameraRig";
-import VehicleCar from "./VehicleCar";
-import VehicleHelicopter from "./VehicleHelicopter";
-import VehiclePlane from "./VehiclePlane";
+import VehicleCar01 from "./VehicleCar01";
+import VehicleCar02 from "./VehicleCar02";
+import VehicleCar03 from "./VehicleCar03";
+import VehicleCar04 from "./VehicleCar04";
+import VehicleHelicopter01 from "./VehicleHelicopter01";
+import VehiclePlane01 from "./VehiclePlane01";
 import {
   useVehicleStore,
   CONTROL_STATE,
   ENTITY_ID,
-  type TypeControlState,
   type TypeEntityId,
 } from "../../stores/useVehicleStore";
 import BackgroundLight from "./BackgroundLight";
@@ -29,23 +30,26 @@ import ChunkManager from "./proceduralCity/ChunkManager";
 import Player from "./Player";
 import { useMountSystem } from "../../hooks/useMountSystem";
 import MiniMap, { MiniMapFBO } from "../MiniMap";
-import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
+import PlayButtonUI from "../PlayButtonUI";
+import { useUIStore } from "../../stores/useUIStore";
+import GridHelperXYZ from "./GridHelperXYZ";
 
 const DriveScene = () => {
   // initialize refs for all instantiated vehicles and player
   const carRef = useRef<THREE.Group>(null);
+  const car02Ref = useRef<THREE.Group>(null);
+  const car03Ref = useRef<THREE.Group>(null);
+  const car04Ref = useRef<THREE.Group>(null);
   const heliRef = useRef<THREE.Group>(null);
   const planeRef = useRef<THREE.Group>(null);
   const playerRef = useRef<THREE.Group>(null);
 
+  // listen to active keyboard state for the camera effects
   useMountSystem();
 
   // fetch active object (containing control type and entity id) and setter
   const active = useVehicleStore((state) => state.active);
   const setActive = useVehicleStore((state) => state.setActive);
-
-  // listen to active keyboard state for the camera effects
-  const controls = useAllVehicleInput();
 
   // determine active reference based on strict state mapping
   const activeTargetRef =
@@ -55,7 +59,13 @@ const DriveScene = () => {
         ? planeRef
         : active.control === CONTROL_STATE.PLAYER
           ? playerRef
-          : carRef;
+          : active.entity === ENTITY_ID.CAR_2
+            ? car02Ref
+            : active.entity === ENTITY_ID.CAR_3
+              ? car03Ref
+              : active.entity === ENTITY_ID.CAR_4
+                ? car04Ref
+                : carRef;
 
   // configure debug tools and dynamic fov tuners
   const {
@@ -69,27 +79,26 @@ const DriveScene = () => {
     fogColor,
     dynamicFov,
     maxFovValue,
-    minSpeedThreshold,
-    topSpeedThreshold,
-    planeFovStartSpeed,
-    planeFovMaxSpeed,
   } = useTweakpane(
     { title: "☀️ Scene", expanded: false },
     {
-      showFPS: { value: false, label: "show fps" },
-      showGizmo: { value: false, label: "show gizmo" },
+      showFPS: { value: true, label: "show fps" },
+      showGizmo: { value: true, label: "show gizmo" },
       cameraDebug: { value: sceneConstants.isDev, label: "camera debug" },
       activeVehicle: {
-        value: active.control,
+        value: active.entity,
         label: "current vehicle",
         options: {
-          player: CONTROL_STATE.PLAYER,
-          car: CONTROL_STATE.CAR,
-          helicopter: CONTROL_STATE.HELICOPTER,
-          plane: CONTROL_STATE.PLANE,
+          player: ENTITY_ID.PLAYER_1,
+          car01: ENTITY_ID.CAR_1,
+          car02: ENTITY_ID.CAR_2,
+          car03: ENTITY_ID.CAR_3,
+          car04: ENTITY_ID.CAR_4,
+          helicopter01: ENTITY_ID.HELI_1,
+          plane01: ENTITY_ID.PLANE_1,
         },
       },
-      enableFog: { value: true, label: "enable fog", folder: "Fog" },
+      enableFog: { value: false, label: "enable fog", folder: "Fog" },
       fogNear: {
         value: 80,
         min: 0,
@@ -115,50 +124,26 @@ const DriveScene = () => {
         label: "max warp fov",
         folder: "FOV",
       },
-      minSpeedThreshold: {
-        value: 250,
-        min: 0,
-        max: 500,
-        label: "car fov start",
-        folder: "FOV",
-      },
-      topSpeedThreshold: {
-        value: 317,
-        min: 50,
-        max: 500,
-        label: "car fov max",
-        folder: "FOV",
-      },
-      // specific thresholds for the plane
-      planeFovStartSpeed: {
-        value: 160,
-        min: 0,
-        max: 300,
-        label: "plane fov start",
-        folder: "FOV",
-      },
-      planeFovMaxSpeed: {
-        value: 200,
-        min: 50,
-        max: 300,
-        label: "plane fov max",
-        folder: "FOV",
-      },
     },
   );
 
   // sync dropdown state to global store using strict ECS entity mappings
   useEffect(() => {
     // deduce the correct entity id based on the dropdown selection
-    let targetEntity: TypeEntityId = ENTITY_ID.PLAYER_1;
-
-    if (activeVehicle === CONTROL_STATE.CAR) targetEntity = ENTITY_ID.CAR_1;
-    if (activeVehicle === CONTROL_STATE.HELICOPTER)
-      targetEntity = ENTITY_ID.HELI_1;
-    if (activeVehicle === CONTROL_STATE.PLANE) targetEntity = ENTITY_ID.PLANE_1;
-
-    // push both the class and the instance ID to the store
-    setActive(activeVehicle as TypeControlState, targetEntity);
+    if (
+      activeVehicle === ENTITY_ID.CAR_1 ||
+      activeVehicle === ENTITY_ID.CAR_2 ||
+      activeVehicle === ENTITY_ID.CAR_3 ||
+      activeVehicle === ENTITY_ID.CAR_4
+    ) {
+      setActive(CONTROL_STATE.CAR, activeVehicle as TypeEntityId);
+    } else if (activeVehicle === ENTITY_ID.HELI_1) {
+      setActive(CONTROL_STATE.HELICOPTER, activeVehicle as TypeEntityId);
+    } else if (activeVehicle === ENTITY_ID.PLANE_1) {
+      setActive(CONTROL_STATE.PLANE, activeVehicle as TypeEntityId);
+    } else {
+      setActive(CONTROL_STATE.PLAYER, ENTITY_ID.PLAYER_1);
+    }
   }, [activeVehicle, setActive]);
 
   // dynamically stretch the camera fov based on active vehicle speed
@@ -176,38 +161,11 @@ const DriveScene = () => {
     }
 
     const storeState = useVehicleStore.getState();
-    const activeControl = storeState.active.control;
-
-    let currentSpeed = 0;
-    let minSpeed = minSpeedThreshold as number;
-    let maxSpeed = topSpeedThreshold as number;
+    const activeEntity = storeState.active.entity;
 
     // pull speed/airspeed directly from your strict telemetry map
-    if (activeControl === CONTROL_STATE.CAR) {
-      currentSpeed = storeState.telemetry[ENTITY_ID.CAR_1].speed;
-
-      // strictly bind the camera warp effect to active engine thrust
-      // if we are not actively holding forward AND boost, immediately kill the fov stretch
-      if (!controls.current.forward || !controls.current.boost) {
-        currentSpeed = Math.min(currentSpeed, minSpeedThreshold as number);
-      }
-    } else if (activeControl === CONTROL_STATE.PLANE) {
-      currentSpeed = storeState.telemetry[ENTITY_ID.PLANE_1].airspeed;
-      minSpeed = planeFovStartSpeed as number;
-      maxSpeed = planeFovMaxSpeed as number;
-    }
-
-    const absoluteSpeed = Math.abs(currentSpeed);
-
-    // prevent division by zero if tweaking sliders land on the same number
-    const speedRange = Math.max(maxSpeed - minSpeed, 1);
-
-    // calculate movement factor only *after* passing the minimum threshold speed
-    const speedFactor = THREE.MathUtils.clamp(
-      (absoluteSpeed - minSpeed) / speedRange,
-      0,
-      1,
-    );
+    // strictly bind the camera warp effect to active engine thrust
+    const speedFactor = storeState.telemetry[activeEntity]?.warpFactor ?? 0;
 
     const targetFov = THREE.MathUtils.lerp(
       baseFov,
@@ -245,11 +203,16 @@ const DriveScene = () => {
         </group>
       </GizmoHelper>
       <CameraRig targetRef={activeTargetRef} debugMode={cameraDebug} />
-      <VehicleCar ref={carRef} spawnMode={"drive"} />
-      <VehicleHelicopter ref={heliRef} spawnMode={"drive"} />
-      <VehiclePlane ref={planeRef} spawnMode={"drive"} />
+      <VehicleCar01 ref={carRef} spawnMode={"drive"} />
+      <VehicleCar02 ref={car02Ref} spawnMode={"drive"} />
+      <VehicleCar03 ref={car03Ref} spawnMode={"drive"} />
+      <VehicleCar04 ref={car04Ref} spawnMode={"drive"} />
+      <VehicleHelicopter01 ref={heliRef} spawnMode={"drive"} />
+      <VehiclePlane01 ref={planeRef} spawnMode={"drive"} />
       <Player ref={playerRef} />
       <ChunkManager targetRef={activeTargetRef} />
+      <GridHelperXYZ targetRef={activeTargetRef} />
+      {/* 3d lot numbering and clearance overlay */}
     </>
   );
 };
@@ -270,17 +233,25 @@ const DriveCanvas = () => {
     },
   );
 
+  const isPaused = useUIStore((state) => state.isPaused);
+
   return (
     <>
       <AllVehiclesHUD />
       <MiniMap />
+      <PlayButtonUI />
       <Canvas
         aria-label="3D Cyberpunk City Simulation"
         role="img"
         shadows={"soft"}
         dpr={setDpr}
       >
-        <Physics debug={setPhyDebug} gravity={physcConstants.gravity}>
+        {/* synchronize rapier physics simulation with global pause state */}
+        <Physics
+          debug={setPhyDebug}
+          gravity={[0, -9.81, 0]}
+          paused={isPaused}
+        >
           <DriveScene />
         </Physics>
         <PostprocessingEffects />

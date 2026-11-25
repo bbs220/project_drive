@@ -10,9 +10,9 @@ import {
 } from "@react-three/rapier";
 import { modelsSeperatedBank } from "../../utils/assetpaths";
 import {
-  vehiclePlaneConstants,
+  vehiclePlane01Constants,
   respawnValues,
-} from "../../constants/otherConstants";
+} from "../../constants/vehicleConstants";
 import { unwrapParam } from "../../utils/unwrapParam";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { useVehiclePlaneCreator } from "../../hooks/useVehiclePlaneCreator";
@@ -43,9 +43,9 @@ type typeCockpitGLTF = GLTF & {
 };
 
 // main vehicle component with four point sketchbook physics
-const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
+const VehiclePlane01 = forwardRef<THREE.Group, VehicleProps>(
   ({ spawnMode }, ref) => {
-    const initialSpawn = respawnValues[spawnMode].plane;
+    const initialSpawn = respawnValues[spawnMode].plane01;
 
     const visualRef = useRef<THREE.Group>(null);
 
@@ -56,12 +56,12 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
     const controls = useAllVehicleInput();
 
     // extract the live plane mods from the customization store
-    const planeMods = useCustomizationStore((state) => state.planeMods);
+    const planeMods = useCustomizationStore((state) => state.plane01Mods);
 
     // initialize tweakpane hook and store reactive parameters
     const params = useTweakpane(
       { title: "⚙️ Vehicle Tuning", expanded: false },
-      vehiclePlaneConstants.tuning,
+      vehiclePlane01Constants.tuning,
     );
 
     // extract debug boolean
@@ -227,9 +227,9 @@ const VehiclePlane = forwardRef<THREE.Group, VehicleProps>(
 );
 
 // assign display name for react devtools compatibility
-VehiclePlane.displayName = "VehiclePlane";
+VehiclePlane01.displayName = "VehiclePlane01";
 
-export default VehiclePlane;
+export default VehiclePlane01;
 
 // preload assets to prevent frame drops on mount
 useGLTF.preload(modelsSeperatedBank.lightPlane01airframe);

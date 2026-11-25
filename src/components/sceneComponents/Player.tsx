@@ -11,7 +11,7 @@ import { useFrame } from "@react-three/fiber";
 import type { GLTF } from "three-stdlib";
 import { useTweakpane } from "../../hooks/useTweakpane";
 import { unwrapParam } from "../../utils/unwrapParam";
-import { playerConstants, respawnValues } from "../../constants/otherConstants";
+import { playerConstants, respawnValues } from "../../constants/vehicleConstants";
 import { useAllVehicleInput } from "../../hooks/useAllVehicleInput";
 import { usePlayerCreator } from "../../hooks/usePlayerCreator";
 import {

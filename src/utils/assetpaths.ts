@@ -3,16 +3,6 @@ export const bankHDR = {
   skyNight: "/hdris/NightSkyHDRI001_2K_HDR.hdr",
 };
 
-export const modelsBank = {
-  helicopter01: "/models/lightHelicopter01.glb",
-  plane01: "/models/lightPlane01.glb",
-  runner01: "/models/runner01.glb",
-  runner02: "/models/runner02.glb",
-  runner03: "/models/runner03.glb",
-  runner04: "/models/runner04.glb",
-  player01: "/models/player01Compressed.glb",
-};
-
 export const modelsSeperatedBank = {
   helicopter01cabin: "/models/lightHelicopter01cabin.glb",
   helicopter01topRotor: "/models/lightHelicopter01topRotor.glb",
@@ -22,6 +12,15 @@ export const modelsSeperatedBank = {
   runner01chassis: "/models/runner01chassis.glb",
   runner01leftFrontTyre: "/models/runner01leftFrontTyre.glb",
   runner01leftRearTyre: "/models/runner01leftRearTyre.glb",
+  runner02chassis: "/models/runner02chassis.glb",
+  runner02leftFrontTyre: "/models/runner02leftFrontTyre.glb",
+  runner02leftRearTyre: "/models/runner02leftRearTyre.glb",
+  runner03chassis: "/models/runner03chassis.glb",
+  runner03leftFrontTyre: "/models/runner03leftFrontTyre.glb",
+  runner03leftRearTyre: "/models/runner03leftRearTyre.glb",
+  runner04chassis: "/models/runner04chassis.glb",
+  runner04leftFrontTyre: "/models/runner04leftFrontTyre.glb",
+  runner04leftRearTyre: "/models/runner04leftRearTyre.glb",
 };
 
 export const tracksBank = {

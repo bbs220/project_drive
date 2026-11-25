@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useUIStore } from "../stores/useUIStore";
 
 // define all possible control states without redundant numpad axes
 export type typeAllVehicleControls = {
@@ -29,8 +30,26 @@ const sharedInputControls: typeAllVehicleControls = {
 
 let activeListenersCount = 0;
 
+// reset active inputs whenever simulation is paused
+useUIStore.subscribe((state) => {
+  if (state.isPaused) {
+    handleBlur();
+  }
+});
+
+// flush active inputs when pointer lock is released
+const handlePointerLockChange = () => {
+  if (!document.pointerLockElement) {
+    handleBlur();
+  }
+};
+
 // keydown event handler
 const handleKeyDown = (e: KeyboardEvent) => {
+  // block new input capture while simulation is paused
+  // require active pointer lock to capture vehicle controls
+  if (useUIStore.getState().isPaused || !document.pointerLockElement) return;
+
   switch (e.code) {
     // standard driving and throttle and pitch
     case "KeyW":
@@ -149,6 +168,7 @@ export const useAllVehicleInput = () => {
       window.addEventListener("keydown", handleKeyDown);
       window.addEventListener("keyup", handleKeyUp);
       window.addEventListener("blur", handleBlur);
+      document.addEventListener("pointerlockchange", handlePointerLockChange);
     }
     activeListenersCount++;
 
@@ -159,6 +179,7 @@ export const useAllVehicleInput = () => {
         window.removeEventListener("keydown", handleKeyDown);
         window.removeEventListener("keyup", handleKeyUp);
         window.removeEventListener("blur", handleBlur);
+        document.removeEventListener("pointerlockchange", handlePointerLockChange);
       }
     };
   }, []);
