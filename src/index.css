@@ -14,6 +14,20 @@ body,
   min-height: 100dvh;
 }
 
+/* balanced typography wrapping */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
 @theme {
   /* typography system mapped to semantic names */
   --font-label: "Inter Variable", "Inter", sans-serif;
